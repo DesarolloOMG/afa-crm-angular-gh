@@ -1,0 +1,2127 @@
+<app-snow *ngIf="snowEffect"></app-snow>
+
+<div
+    id="pcoded"
+    class="pcoded"
+    [attr.nav-type]="navType"
+    [attr.theme-layout]="themeLayout"
+    [attr.vertical-placement]="verticalPlacement"
+    [attr.vertical-layout]="verticalLayout"
+    [attr.pcoded-device-type]="pcodedDeviceType"
+    [attr.vertical-nav-type]="verticalNavType"
+    [attr.vertical-effect]="verticalEffect"
+    [attr.vnavigation-view]="vnavigationView"
+    [attr.fream-type]="freamType"
+    [attr.sidebar-img]="sidebarImg"
+    [attr.sidebar-img-type]="sidebarImgType"
+    [attr.layout-type]="layoutType"
+    (window:resize)="onResize($event)"
+>
+    <div class="pcoded-overlay-box"></div>
+    <div class="pcoded-container navbar-wrapper">
+        <nav
+            class="navbar header-navbar pcoded-header"
+            [attr.header-theme]="headerTheme"
+            [attr.pcoded-header-position]="pcodedHeaderPosition"
+        >
+            <div class="navbar-wrapper">
+                <div class="navbar-logo">
+                    <a
+                        class="mobile-menu ripple light"
+                        id="mobile-collapse"
+                        href="javascript:"
+                        (click)="toggleOpened()"
+                        [exclude]="'#main_navbar'"
+                        (clickOutside)="onClickedOutsideSidebar($event)"
+                    >
+                        <i class="icon-menu"></i>
+                    </a>
+                    <a
+                        [routerLink]="['/dashboard/general/']"
+                        class="ripple light"
+                    >
+                        <img
+                            class="img-fluid"
+                            src="https://rest.crmomg.mx/img/omg.png"
+                            alt="OMG International"
+                            width="125px"
+                        />
+                    </a>
+                    <a
+                        href="javascript:"
+                        class="mobile-options ripple light"
+                        (click)="toggleHeaderNavRight()"
+                    >
+                        <i class="icon-more"></i>
+                    </a>
+                </div>
+                <div class="navbar-container container-fluid">
+                    <ul
+                        [@mobileHeaderNavRight]="navRight"
+                        [ngClass]="navRight"
+                        class="nav-right"
+                    >
+                        <li class="header-search">
+                            <div
+                                id="main-search"
+                                class="main-search morphsearch-search"
+                            >
+                                <div class="input-group">
+                                    <span
+                                        class="input-group-prepend search-close"
+                                        (click)="searchOff()"
+                                        ><i
+                                            class="icon-close input-group-text"
+                                        ></i
+                                    ></span>
+                                    <input
+                                        class="form-control"
+                                        [style.width]="searchWidthString"
+                                        (keydown.enter)="navigateSearch()"
+                                        id="searchInput"
+                                        name="criterio"
+                                        [(ngModel)]="busqueda.criterio"
+                                    />
+                                    <select
+                                        id="criterio-select"
+                                        name="criteriobusqueda"
+                                        [style.width]="searchWidthString"
+                                        class="form-control"
+                                        [(ngModel)]="busqueda.campo"
+                                    >
+                                        <option value="id" selected>
+                                            Pedido
+                                        </option>
+                                        <option value="no_venta">
+                                            N° venta
+                                        </option>
+                                        <option value="nota">
+                                            Nota de Crédito
+                                        </option>
+                                        <option value="rfc">RFC cliente</option>
+                                        <option value="razon_social">
+                                            Nombre cliente
+                                        </option>
+                                        <option value="correo">
+                                            Correo cliente
+                                        </option>
+                                        <option value="referencia">
+                                            Referencia del pedido
+                                        </option>
+                                        <option value="observacion">
+                                            Observación del pedido
+                                        </option>
+                                        <option value="comentario">
+                                            Comentario del pedido
+                                        </option>
+                                        <option value="guia">
+                                            Guía del pedido
+                                        </option>
+                                    </select>
+                                    <button
+                                        [hidden]="!showbtn"
+                                        class="btn btn-sm btn-primary"
+                                        (click)="navigateSearch()"
+                                    >
+                                        Buscar!
+                                    </button>
+                                    <span
+                                        class="input-group-append search-btn"
+                                        (click)="searchOn()"
+                                        ><i
+                                            class="icon-search input-group-text"
+                                        ></i
+                                    ></span>
+                                </div>
+                            </div>
+                        </li>
+                        <li
+                            (clickOutside)="notificationOutsideClick('live')"
+                            class="header-notification li-notification"
+                            [ngClass]="liveNotificationClass"
+                            (click)="toggleLiveNotification()"
+                        >
+                            <a href="javascript:">
+                                <i class="icon-bell"></i>
+                                <span
+                                    class="badge bg-c-red"
+                                    *ngIf="notificaciones.length > 0"
+                                ></span>
+                            </a>
+                            <ul
+                                [@notificationBottom]="liveNotification"
+                                class="show-notification"
+                                *ngIf="notificaciones.length > 0"
+                            >
+                                <li>
+                                    <h6>Notificaciones</h6>
+                                    <label class="label label-danger">{{
+                                        notificaciones.length
+                                    }}</label>
+                                </li>
+                                <li
+                                    *ngFor="
+                                        let notificacion of notificaciones
+                                            | slice : 0 : 5
+                                    "
+                                    style="cursor: pointer"
+                                    (click)="
+                                        limpiarNotificacion(
+                                            notificacion.id,
+                                            notificacion.link
+                                        )
+                                    "
+                                >
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <h5 class="notification-user">
+                                                {{ notificacion.titulo }}
+                                            </h5>
+                                            <p class="notification-msg">
+                                                {{ notificacion.message }}
+                                            </p>
+                                            <span
+                                                class="label label-{{
+                                                    notificacion.tipo
+                                                }} form-control"
+                                                style="height: 10px"
+                                                >&nbsp;</span
+                                            >
+                                        </div>
+                                    </div>
+                                </li>
+                                <li
+                                    style="cursor: pointer"
+                                    (click)="limpiarTodas()"
+                                >
+                                    <div class="media">
+                                        <div class="media-body">
+                                            <button
+                                                class="btn btn-sm btn-info btn-block http-disabled"
+                                            >
+                                                Limpiar todas
+                                            </button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                            <ul
+                                [@notificationBottom]="liveNotification"
+                                class="show-notification"
+                                *ngIf="notificaciones.length == 0"
+                            >
+                                <li>
+                                    <h6>No hay notificaciones :(</h6>
+                                    <label class="label label-danger">0</label>
+                                </li>
+                            </ul>
+                        </li>
+                        <li
+                            (clickOutside)="notificationOutsideClick('profile')"
+                            class="user-profile header-notification ripple light"
+                            [ngClass]="profileNotificationClass"
+                            (click)="toggleProfileNotification()"
+                        >
+                            <a href="javascript:">
+                                <img
+                                    src="{{ user.imagen }}"
+                                    class="img-radius"
+                                    alt="User-Profile-Image"
+                                />
+                                <span>{{ user.nombre }}</span>
+                                <i class="icon-angle-down"></i>
+                            </a>
+                            <ul
+                                [@notificationBottom]="profileNotification"
+                                class="show-notification profile-notification"
+                            >
+                                <li class="sub-li-configuration">
+                                    <a
+                                        [routerLink]="[
+                                            '/usuario/configuracion/'
+                                        ]"
+                                    >
+                                        <i class="icon-settings"></i>
+                                        Configuracion
+                                    </a>
+                                </li>
+                                <li class="sub-li-notification">
+                                    <a [routerLink]="['/usuario/notificacion']">
+                                        <i class="fa fa-bell-o"></i>
+                                        Notificaciones
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="javascript:void()"
+                                        (click)="logout()"
+                                    >
+                                        <i class="icon-layout-sidebar-left"></i>
+                                        Cerrar sesión
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div
+            class="pcoded-main-container"
+            [style.margin-top]="headerFixedMargin"
+        >
+            <div class="pcoded-wrapper">
+                <nav
+                    id="main_navbar"
+                    class="pcoded-navbar"
+                    (clickOutside)="onClickedOutsideSidebar($event)"
+                    [exclude]="'#mobile-collapse'"
+                    [attr.pcoded-header-position]="pcodedHeaderPosition"
+                    [attr.navbar-theme]="navBarTheme"
+                    [attr.active-item-theme]="activeItemTheme"
+                    sub-item-theme="theme2"
+                    active-item-style="style0"
+                    [attr.pcoded-navbar-position]="pcodedSidebarPosition"
+                    [style.top]="headerFixedTop"
+                    [style.height]="sidebarFixedNavHeight"
+                >
+                    <div class="pcoded-inner-navbar main-menu" appAccordion>
+                        <div class="">
+                            <div class="main-menu-header ripple light">
+                                <img
+                                    class="img-80 img-radius"
+                                    src="{{ user.imagen }}"
+                                    alt="User-Profile-Image"
+                                />
+                                <div class="user-details">
+                                    <span id="more-details">
+                                        {{ sessionTime }}</span
+                                    >
+                                    <span id="more-details">
+                                        {{ ipAddress }}</span
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                        <perfect-scrollbar
+                            [style.max-width]="'235px'"
+                            [style.max-height]="sidebarFixedHeight"
+                            [config]="config"
+                        >
+                            <ng-container
+                                *ngFor="let asideItems of menuItems.getAll()"
+                            >
+                                <!-- Primer nivel -->
+                                <div
+                                    *ngIf="
+                                        (user.niveles.indexOf(6) >= 0 ||
+                                            asideItems.levels.indexOf(0) >= 0 ||
+                                            elementInArray(
+                                                asideItems.levels,
+                                                user.niveles
+                                            )) &&
+                                        !elementInArray(
+                                            asideItems.except,
+                                            user.niveles
+                                        )
+                                    "
+                                    class="d-color"
+                                >
+                                    <div
+                                        class="pcoded-navigation-label"
+                                        [attr.menu-title-theme]="menuTitleTheme"
+                                    >
+                                        {{ asideItems.label }}
+                                    </div>
+                                    <ul
+                                        class="pcoded-item pcoded-left-item"
+                                        [attr.item-border]="itemBorder"
+                                        [attr.item-border-style]="
+                                            itemBorderStyle
+                                        "
+                                        [attr.subitem-border]="subItemBorder"
+                                        *ngFor="
+                                            let asideItem of asideItems.main
+                                        "
+                                        appAccordionLink
+                                        group="{{ asideItem.state }}"
+                                    >
+                                        <!-- Segundo nivel -->
+                                        <ng-container
+                                            *ngIf="
+                                                ((user.niveles.indexOf(6) >=
+                                                    0 &&
+                                                    sublevelInArray(
+                                                        11,
+                                                        user.subniveles,
+                                                        [6]
+                                                    )) ||
+                                                    (user.niveles.indexOf(6) >=
+                                                        0 &&
+                                                        asideItem.system ==
+                                                            undefined) ||
+                                                    asideItem.level.indexOf(
+                                                        0
+                                                    ) >= 0 ||
+                                                    (elementInArray(
+                                                        asideItem.level,
+                                                        user.niveles
+                                                    ) &&
+                                                        (asideItem.sublevel ==
+                                                            0 ||
+                                                            sublevelInArray(
+                                                                asideItem.sublevel,
+                                                                user.subniveles,
+                                                                asideItem.level
+                                                            )))) &&
+                                                !elementInArray(
+                                                    asideItem.except,
+                                                    user.niveles
+                                                )
+                                            "
+                                        >
+                                            <li
+                                                [routerLinkActive]="['active']"
+                                                *ngIf="
+                                                    asideItem.type ===
+                                                    'external'
+                                                "
+                                                appAccordionLink
+                                                group="{{ asideItem.state }}"
+                                            >
+                                                <a
+                                                    [routerLinkActive]="[
+                                                        'active'
+                                                    ]"
+                                                    class="ripple"
+                                                    href="{{
+                                                        asideItem.external
+                                                    }}"
+                                                    target="{{
+                                                        asideItem.target
+                                                            ? '_blank'
+                                                            : '_self'
+                                                    }}"
+                                                    appAccordionToggle
+                                                >
+                                                    <span class="pcoded-micon"
+                                                        ><i
+                                                            class="{{
+                                                                asideItem.icon
+                                                            }}"
+                                                        ></i
+                                                        ><b>{{
+                                                            asideItem.short_label
+                                                        }}</b></span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mtext"
+                                                        >{{
+                                                            asideItem.name
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        *ngFor="
+                                                            let asideBadge of asideItem.badge
+                                                        "
+                                                        class="pcoded-badge label label-{{
+                                                            asideBadge.type
+                                                        }}"
+                                                        >{{
+                                                            asideBadge.value
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mcaret"
+                                                    ></span>
+                                                </a>
+                                            </li>
+
+                                            <li
+                                                [routerLinkActive]="['active']"
+                                                *ngIf="
+                                                    asideItem.type === 'link'
+                                                "
+                                                appAccordionLink
+                                                group="{{ asideItem.state }}"
+                                            >
+                                                <a
+                                                    [routerLinkActive]="[
+                                                        'active'
+                                                    ]"
+                                                    class="ripple"
+                                                    [routerLink]="[
+                                                        '/',
+                                                        asideItem.main_state,
+                                                        asideItem.state
+                                                    ]"
+                                                    target="{{
+                                                        asideItem.target
+                                                            ? '_blank'
+                                                            : '_self'
+                                                    }}"
+                                                    appAccordionToggle
+                                                    *ngIf="
+                                                        asideItem.main_state;
+                                                        else mainContent
+                                                    "
+                                                >
+                                                    <span class="pcoded-micon"
+                                                        ><i
+                                                            class="{{
+                                                                asideItem.icon
+                                                            }}"
+                                                        ></i
+                                                        ><b>{{
+                                                            asideItem.short_label
+                                                        }}</b></span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mtext"
+                                                        >{{
+                                                            asideItem.name
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        *ngFor="
+                                                            let asideBadge of asideItem.badge
+                                                        "
+                                                        class="pcoded-badge label label-{{
+                                                            asideBadge.type
+                                                        }}"
+                                                        >{{
+                                                            asideBadge.value
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mcaret"
+                                                    ></span>
+                                                </a>
+                                                <ng-template #mainContent>
+                                                    <a
+                                                        [routerLinkActive]="[
+                                                            'active'
+                                                        ]"
+                                                        class="ripple"
+                                                        [routerLink]="[
+                                                            '/',
+                                                            asideItem.state
+                                                        ]"
+                                                        target="{{
+                                                            asideItem.target
+                                                                ? '_blank'
+                                                                : '_self'
+                                                        }}"
+                                                        appAccordionToggle
+                                                    >
+                                                        <span
+                                                            class="pcoded-micon"
+                                                            ><i
+                                                                class="{{
+                                                                    asideItem.icon
+                                                                }}"
+                                                            ></i
+                                                            ><b>{{
+                                                                asideItem.short_label
+                                                            }}</b></span
+                                                        >
+                                                        <span
+                                                            class="pcoded-mtext"
+                                                            >{{
+                                                                asideItem.name
+                                                            }}</span
+                                                        >
+                                                        <span
+                                                            *ngFor="
+                                                                let asideBadge of asideItem.badge
+                                                            "
+                                                            class="pcoded-badge label label-{{
+                                                                asideBadge.type
+                                                            }}"
+                                                            >{{
+                                                                asideBadge.value
+                                                            }}</span
+                                                        >
+                                                        <span
+                                                            class="pcoded-mcaret"
+                                                        ></span>
+                                                    </a>
+                                                </ng-template>
+                                            </li>
+                                            <li
+                                                [routerLinkActive]="['active']"
+                                                *ngIf="asideItem.type === 'sub'"
+                                                class="pcoded-hasmenu"
+                                                [attr.dropdown-icon]="
+                                                    dropDownIcon
+                                                "
+                                                [attr.subitem-icon]="
+                                                    subItemIcon
+                                                "
+                                                appAccordionLink
+                                                group="{{ asideItem.state }}"
+                                            >
+                                                <a
+                                                    [routerLinkActive]="[
+                                                        'active'
+                                                    ]"
+                                                    [routerLinkActive]="[
+                                                        'active'
+                                                    ]"
+                                                    href="javascript:;"
+                                                    appAccordionToggle
+                                                >
+                                                    <div
+                                                        class="ripple menu-ripple"
+                                                    ></div>
+                                                    <span class="pcoded-micon"
+                                                        ><i
+                                                            class="{{
+                                                                asideItem.icon
+                                                            }}"
+                                                        ></i
+                                                        ><b>{{
+                                                            asideItem.short_label
+                                                        }}</b></span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mtext"
+                                                        >{{
+                                                            asideItem.name
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        *ngFor="
+                                                            let asideBadge of asideItem.badge
+                                                        "
+                                                        class="pcoded-badge label label-{{
+                                                            asideBadge.type
+                                                        }}"
+                                                        >{{
+                                                            asideBadge.value
+                                                        }}</span
+                                                    >
+                                                    <span
+                                                        class="pcoded-mcaret"
+                                                    ></span>
+                                                </a>
+                                                <ul class="pcoded-submenu">
+                                                    <ng-template
+                                                        ngFor
+                                                        let-asideChildren
+                                                        [ngForOf]="
+                                                            asideItem.children
+                                                        "
+                                                    >
+                                                        <!-- Tercer nivel -->
+                                                        <ng-container
+                                                            *ngIf="
+                                                                (user.niveles.indexOf(
+                                                                    6
+                                                                ) >= 0 ||
+                                                                    asideChildren.level.indexOf(
+                                                                        0
+                                                                    ) >= 0 ||
+                                                                    (elementInArray(
+                                                                        asideChildren.level,
+                                                                        user.niveles
+                                                                    ) &&
+                                                                        (asideChildren.sublevel ==
+                                                                            0 ||
+                                                                            sublevelInArray(
+                                                                                asideChildren.sublevel,
+                                                                                user.subniveles,
+                                                                                asideChildren.level
+                                                                            )))) &&
+                                                                !elementInArray(
+                                                                    asideChildren.except,
+                                                                    user.niveles
+                                                                )
+                                                            "
+                                                        >
+                                                            <li
+                                                                [routerLinkActive]="[
+                                                                    'active'
+                                                                ]"
+                                                                *ngIf="
+                                                                    asideChildren.type !==
+                                                                    'sub'
+                                                                "
+                                                            >
+                                                                <a
+                                                                    [routerLinkActive]="[
+                                                                        'active'
+                                                                    ]"
+                                                                    class="ripple"
+                                                                    [routerLink]="
+                                                                        asideItem.main_state
+                                                                            ? [
+                                                                                  '/',
+                                                                                  asideItem.main_state,
+                                                                                  asideItem.state,
+                                                                                  asideChildren.state
+                                                                              ]
+                                                                            : [
+                                                                                  '/',
+                                                                                  asideItem.state,
+                                                                                  asideChildren.state
+                                                                              ]
+                                                                    "
+                                                                    target="{{
+                                                                        asideChildren.target
+                                                                            ? '_blank'
+                                                                            : '_self'
+                                                                    }}"
+                                                                >
+                                                                    <span
+                                                                        class="pcoded-micon"
+                                                                        ><i
+                                                                            class="icon-angle-right"
+                                                                        ></i
+                                                                    ></span>
+                                                                    <span
+                                                                        class="pcoded-mtext"
+                                                                        >{{
+                                                                            asideChildren.name
+                                                                        }}
+                                                                    </span>
+                                                                    <span
+                                                                        *ngFor="
+                                                                            let asideChildrenBadge of asideChildren.badge
+                                                                        "
+                                                                        class="pcoded-badge label label-{{
+                                                                            asideChildrenBadge.type
+                                                                        }}"
+                                                                        >{{
+                                                                            asideChildrenBadge.value
+                                                                        }}</span
+                                                                    >
+                                                                    <span
+                                                                        class="pcoded-mcaret"
+                                                                    ></span>
+                                                                </a>
+                                                            </li>
+
+                                                            <li
+                                                                [routerLinkActive]="[
+                                                                    'active'
+                                                                ]"
+                                                                class="pcoded-hasmenu"
+                                                                [attr.dropdown-icon]="
+                                                                    dropDownIcon
+                                                                "
+                                                                [attr.subitem-icon]="
+                                                                    subItemIcon
+                                                                "
+                                                                *ngIf="
+                                                                    asideChildren.type ===
+                                                                    'sub'
+                                                                "
+                                                                appAccordionLink
+                                                                group="sub-toggled"
+                                                            >
+                                                                <a
+                                                                    [routerLinkActive]="[
+                                                                        'active'
+                                                                    ]"
+                                                                    href="javascript:;"
+                                                                    appAccordionToggle
+                                                                >
+                                                                    <div
+                                                                        class="ripple menu-ripple"
+                                                                    ></div>
+                                                                    <span
+                                                                        class="pcoded-micon"
+                                                                        ><i
+                                                                            class="icon-direction-alt"
+                                                                        ></i
+                                                                    ></span>
+                                                                    <span
+                                                                        class="pcoded-mtext"
+                                                                        >{{
+                                                                            asideChildren.name
+                                                                        }}</span
+                                                                    >
+                                                                    <span
+                                                                        *ngFor="
+                                                                            let asideChildrenBadge of asideChildren.badge
+                                                                        "
+                                                                        class="pcoded-badge label label-{{
+                                                                            asideChildrenBadge.type
+                                                                        }}"
+                                                                        >{{
+                                                                            asideChildrenBadge.value
+                                                                        }}</span
+                                                                    >
+                                                                    <span
+                                                                        class="pcoded-mcaret"
+                                                                    ></span>
+                                                                </a>
+                                                                <ul
+                                                                    class="pcoded-submenu"
+                                                                >
+                                                                    <ng-template
+                                                                        ngFor
+                                                                        let-asideChildrenSub
+                                                                        [ngForOf]="
+                                                                            asideChildren.children
+                                                                        "
+                                                                    >
+                                                                        <!-- Cuarto nivel -->
+                                                                        <ng-container
+                                                                            *ngIf="
+                                                                                (user.niveles.indexOf(
+                                                                                    6
+                                                                                ) >=
+                                                                                    0 ||
+                                                                                    asideChildrenSub.level.indexOf(
+                                                                                        0
+                                                                                    ) >=
+                                                                                        0 ||
+                                                                                    (elementInArray(
+                                                                                        asideChildrenSub.level,
+                                                                                        user.niveles
+                                                                                    ) &&
+                                                                                        (asideChildren.sublevel ==
+                                                                                            0 ||
+                                                                                            sublevelInArray(
+                                                                                                asideChildren.sublevel,
+                                                                                                user.subniveles,
+                                                                                                asideChildren.level
+                                                                                            )))) &&
+                                                                                !elementInArray(
+                                                                                    asideChildrenSub.except,
+                                                                                    user.niveles
+                                                                                )
+                                                                            "
+                                                                        >
+                                                                            <li
+                                                                                [routerLinkActive]="[
+                                                                                    'active'
+                                                                                ]"
+                                                                                *ngIf="
+                                                                                    asideChildrenSub.type !==
+                                                                                    'sub'
+                                                                                "
+                                                                            >
+                                                                                <a
+                                                                                    [routerLinkActive]="[
+                                                                                        'active'
+                                                                                    ]"
+                                                                                    class="ripple"
+                                                                                    [routerLink]="
+                                                                                        asideItem.main_state
+                                                                                            ? [
+                                                                                                  '/',
+                                                                                                  asideItem.main_state,
+                                                                                                  asideItem.state,
+                                                                                                  asideChildren.state,
+                                                                                                  asideChildrenSub.state
+                                                                                              ]
+                                                                                            : [
+                                                                                                  '/',
+                                                                                                  asideItem.state,
+                                                                                                  asideChildren.state,
+                                                                                                  asideChildrenSub.state
+                                                                                              ]
+                                                                                    "
+                                                                                    target="{{
+                                                                                        asideChildrenSub.target
+                                                                                            ? '_blank'
+                                                                                            : '_self'
+                                                                                    }}"
+                                                                                >
+                                                                                    <span
+                                                                                        class="pcoded-micon"
+                                                                                        ><i
+                                                                                            class="icon-angle-right"
+                                                                                        ></i
+                                                                                    ></span>
+                                                                                    <span
+                                                                                        class="pcoded-mtext"
+                                                                                        >{{
+                                                                                            asideChildrenSub.name
+                                                                                        }}</span
+                                                                                    >
+                                                                                    <span
+                                                                                        *ngFor="
+                                                                                            let asideChildrenSubBadge of asideChildrenSub.badge
+                                                                                        "
+                                                                                        class="pcoded-badge label label-{{
+                                                                                            asideChildrenSubBadge.type
+                                                                                        }}"
+                                                                                        >{{
+                                                                                            asideChildrenSubBadge.value
+                                                                                        }}</span
+                                                                                    >
+                                                                                    <span
+                                                                                        class="pcoded-mcaret"
+                                                                                    ></span>
+                                                                                </a>
+                                                                            </li>
+
+                                                                            <li
+                                                                                *ngIf="
+                                                                                    asideChildrenSub.type ===
+                                                                                    'sub'
+                                                                                "
+                                                                                [routerLinkActive]="[
+                                                                                    'active'
+                                                                                ]"
+                                                                                class="pcoded-hasmenu"
+                                                                                [attr.dropdown-icon]="
+                                                                                    dropDownIcon
+                                                                                "
+                                                                                [attr.subitem-icon]="
+                                                                                    subItemIcon
+                                                                                "
+                                                                                appAccordionLink
+                                                                                group="sub-toggled-sub"
+                                                                            >
+                                                                                <a
+                                                                                    [routerLinkActive]="[
+                                                                                        'active'
+                                                                                    ]"
+                                                                                    href="javascript:;"
+                                                                                    appAccordionToggle
+                                                                                >
+                                                                                    <div
+                                                                                        class="ripple menu-ripple"
+                                                                                    ></div>
+                                                                                    <span
+                                                                                        class="pcoded-micon"
+                                                                                        ><i
+                                                                                            class="icon-direction-alt"
+                                                                                        ></i
+                                                                                    ></span>
+                                                                                    <span
+                                                                                        class="pcoded-mtext"
+                                                                                        >{{
+                                                                                            asideChildrenSub.name
+                                                                                        }}</span
+                                                                                    >
+                                                                                    <span
+                                                                                        class="pcoded-mcaret"
+                                                                                    ></span>
+                                                                                </a>
+                                                                                <ul
+                                                                                    class="pcoded-submenu"
+                                                                                >
+                                                                                    <ng-template
+                                                                                        ngFor
+                                                                                        let-asideChildrenSubSub
+                                                                                        [ngForOf]="
+                                                                                            asideChildrenSub.children
+                                                                                        "
+                                                                                    >
+                                                                                        <!-- Quinto nivel -->
+                                                                                        <ng-container
+                                                                                            *ngIf="
+                                                                                                (user.niveles.indexOf(
+                                                                                                    6
+                                                                                                ) >=
+                                                                                                    0 ||
+                                                                                                    asideChildrenSubSub.level.indexOf(
+                                                                                                        0
+                                                                                                    ) >=
+                                                                                                        0 ||
+                                                                                                    (elementInArray(
+                                                                                                        asideChildrenSubSub.level,
+                                                                                                        user.niveles
+                                                                                                    ) &&
+                                                                                                        (asideChildren.sublevel ==
+                                                                                                            0 ||
+                                                                                                            sublevelInArray(
+                                                                                                                asideChildren.sublevel,
+                                                                                                                user.subniveles,
+                                                                                                                asideChildren.level
+                                                                                                            )))) &&
+                                                                                                !elementInArray(
+                                                                                                    asideChildrenSubSub.except,
+                                                                                                    user.niveles
+                                                                                                )
+                                                                                            "
+                                                                                        >
+                                                                                            <li
+                                                                                                [routerLinkActive]="[
+                                                                                                    'active'
+                                                                                                ]"
+                                                                                            >
+                                                                                                <a
+                                                                                                    [routerLinkActive]="[
+                                                                                                        'active'
+                                                                                                    ]"
+                                                                                                    class="ripple"
+                                                                                                    [routerLink]="
+                                                                                                        asideItem.main_state
+                                                                                                            ? [
+                                                                                                                  '/',
+                                                                                                                  asideItem.main_state,
+                                                                                                                  asideItem.state,
+                                                                                                                  asideChildren.state,
+                                                                                                                  asideChildrenSub.state,
+                                                                                                                  asideChildrenSubSub.state
+                                                                                                              ]
+                                                                                                            : [
+                                                                                                                  '/',
+                                                                                                                  asideItem.state,
+                                                                                                                  asideChildren.state,
+                                                                                                                  asideChildrenSub.state,
+                                                                                                                  asideChildrenSubSub.state
+                                                                                                              ]
+                                                                                                    "
+                                                                                                    target="{{
+                                                                                                        asideChildrenSubSub.target
+                                                                                                            ? '_blank'
+                                                                                                            : '_self'
+                                                                                                    }}"
+                                                                                                >
+                                                                                                    <span
+                                                                                                        class="pcoded-micon"
+                                                                                                        ><i
+                                                                                                            class="icon-angle-right"
+                                                                                                        ></i
+                                                                                                    ></span>
+                                                                                                    <span
+                                                                                                        class="pcoded-mtext"
+                                                                                                        >{{
+                                                                                                            asideChildrenSubSub.name
+                                                                                                        }}</span
+                                                                                                    >
+                                                                                                    <span
+                                                                                                        class="pcoded-mcaret"
+                                                                                                    ></span>
+                                                                                                </a>
+                                                                                            </li>
+                                                                                        </ng-container>
+                                                                                    </ng-template>
+                                                                                </ul>
+                                                                            </li>
+                                                                        </ng-container>
+                                                                    </ng-template>
+                                                                </ul>
+                                                            </li>
+                                                        </ng-container>
+                                                    </ng-template>
+                                                </ul>
+                                            </li>
+                                        </ng-container>
+                                    </ul>
+                                </div>
+                            </ng-container>
+                        </perfect-scrollbar>
+                    </div>
+                </nav>
+                <div class="pcoded-content">
+                    <app-breadcrumbs></app-breadcrumbs>
+                    <div class="pcoded-inner-content">
+                        <!-- Main-body start -->
+                        <div class="main-body">
+                            <div class="page-wrapper">
+                                <router-outlet>
+                                    <app-title></app-title>
+                                    <app-spinner></app-spinner>
+                                </router-outlet>
+                            </div>
+                        </div>
+                        <div id="styleSelector" [ngClass]="configOpenRightBar">
+                            <div class="selector-toggle">
+                                <a
+                                    href="javascript:"
+                                    placement="left"
+                                    class="ripple light"
+                                    ngbTooltip="Live layout customizer"
+                                    (click)="toggleRightbar()"
+                                ></a>
+                            </div>
+                            <ul>
+                                <li>
+                                    <p
+                                        class="selector-title main-title st-main-title"
+                                    >
+                                        <b>Personalización del sistema</b>
+                                    </p>
+                                </li>
+                                <li *ngIf="itsTimeForSnow()">
+                                    <div class="theme-color">
+                                        <div
+                                            class="checkbox-fade fade-in-primary"
+                                        >
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    value="false"
+                                                    id="theme-layout"
+                                                    name="vertical-item-border"
+                                                    [checked]="snowEffect"
+                                                    (change)="setSnowEffect()"
+                                                />
+                                                <span class="cr"
+                                                    ><i
+                                                        class="cr-icon fa fa-check txt-success"
+                                                    ></i
+                                                ></span>
+                                                <span>Snow Effect</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <p class="selector-title">Menú principal</p>
+                                </li>
+                                <li>
+                                    <div class="theme-color">
+                                        <a
+                                            href="javascript:"
+                                            (click)="
+                                                setNavBarTheme('themelight1')
+                                            "
+                                            class="ripple"
+                                            navbar-theme="themelight1"
+                                            placement="top"
+                                            ngbTooltip="Light Sidebar"
+                                        >
+                                            <span class="head"></span>
+                                            <span class="cont"></span>
+                                        </a>
+                                        <a
+                                            href="javascript:"
+                                            (click)="setNavBarTheme('theme1')"
+                                            class="ripple"
+                                            navbar-theme="theme1"
+                                            placement="top"
+                                            ngbTooltip="Dark Sidebar"
+                                        >
+                                            <span class="head"></span>
+                                            <span class="cont"></span>
+                                        </a>
+                                        <a
+                                            href="javascript:"
+                                            (click)="setLayoutType('img')"
+                                            class="ripple"
+                                            layout-type="img"
+                                            placement="top"
+                                            ngbTooltip="Sidebar with image"
+                                        >
+                                            <span class="head"></span>
+                                            <span class="cont"></span>
+                                        </a>
+                                        <a
+                                            href="javascript:"
+                                            (click)="setLayoutType('light')"
+                                            class="ripple"
+                                            layout-type="light"
+                                            placement="top"
+                                            ngbTooltip="Light Layout"
+                                        >
+                                            <span class="head"></span>
+                                            <span class="cont"></span>
+                                        </a>
+                                        <a
+                                            href="javascript:"
+                                            (click)="setLayoutType('dark')"
+                                            class="ripple light"
+                                            layout-type="dark"
+                                            placement="top"
+                                            ngbTooltip="Dark Layout"
+                                        >
+                                            <span class="head"></span>
+                                            <span class="cont"></span>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                            <perfect-scrollbar
+                                [style.max-width]="'100%'"
+                                [style.max-height]="'calc(100vh - 275px)'"
+                                [config]="config"
+                            >
+                                <div class="style-cont m-t-10">
+                                    <ngb-tabset>
+                                        <ngb-tab title="Estilos">
+                                            <ng-template ngbTabContent>
+                                                <div
+                                                    [@fadeInOutTranslate]
+                                                    class="m-t-15"
+                                                >
+                                                    <ul>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <div
+                                                                class="checkbox-fade fade-in-primary"
+                                                            >
+                                                                <label>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        value="false"
+                                                                        id="theme-layout"
+                                                                        name="vertical-item-border"
+                                                                        [checked]="
+                                                                            isVerticalLayoutChecked
+                                                                        "
+                                                                        (change)="
+                                                                            setVerticalLayout()
+                                                                        "
+                                                                    />
+                                                                    <span
+                                                                        class="cr"
+                                                                        ><i
+                                                                            class="cr-icon fa fa-check txt-success"
+                                                                        ></i
+                                                                    ></span>
+                                                                    <span
+                                                                        >Box
+                                                                        Layout -
+                                                                        with
+                                                                        patterns</span
+                                                                    >
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                        <li
+                                                            class="theme-option"
+                                                            id="bg-pattern-visiblity"
+                                                            [ngClass]="
+                                                                displayBoxLayout
+                                                            "
+                                                        >
+                                                            <div
+                                                                class="theme-color"
+                                                            >
+                                                                <a
+                                                                    href="javascript:"
+                                                                    class="small"
+                                                                    (click)="
+                                                                        setBackgroundPattern(
+                                                                            'theme1'
+                                                                        )
+                                                                    "
+                                                                    themebg-pattern="theme1"
+                                                                ></a>
+                                                                <a
+                                                                    href="javascript:"
+                                                                    class="small"
+                                                                    (click)="
+                                                                        setBackgroundPattern(
+                                                                            'theme2'
+                                                                        )
+                                                                    "
+                                                                    themebg-pattern="theme2"
+                                                                ></a>
+                                                                <a
+                                                                    href="javascript:"
+                                                                    class="small"
+                                                                    (click)="
+                                                                        setBackgroundPattern(
+                                                                            'theme3'
+                                                                        )
+                                                                    "
+                                                                    themebg-pattern="theme3"
+                                                                ></a>
+                                                                <a
+                                                                    href="javascript:"
+                                                                    class="small"
+                                                                    (click)="
+                                                                        setBackgroundPattern(
+                                                                            'theme4'
+                                                                        )
+                                                                    "
+                                                                    themebg-pattern="theme4"
+                                                                ></a>
+                                                                <a
+                                                                    href="javascript:"
+                                                                    class="small"
+                                                                    (click)="
+                                                                        setBackgroundPattern(
+                                                                            'theme5'
+                                                                        )
+                                                                    "
+                                                                    themebg-pattern="theme5"
+                                                                ></a>
+                                                                <a
+                                                                    href="javascript:"
+                                                                    class="small"
+                                                                    (click)="
+                                                                        setBackgroundPattern(
+                                                                            'theme6'
+                                                                        )
+                                                                    "
+                                                                    themebg-pattern="theme6"
+                                                                ></a>
+                                                            </div>
+                                                        </li>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <div
+                                                                class="checkbox-fade fade-in-primary"
+                                                            >
+                                                                <label>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        value="false"
+                                                                        id="sidebar-position"
+                                                                        name="sidebar-position"
+                                                                        [checked]="
+                                                                            isSidebarChecked
+                                                                        "
+                                                                        (change)="
+                                                                            setSidebarPosition()
+                                                                        "
+                                                                    />
+                                                                    <span
+                                                                        class="cr"
+                                                                        ><i
+                                                                            class="cr-icon fa fa-check txt-success"
+                                                                        ></i
+                                                                    ></span>
+                                                                    <span
+                                                                        >Fixed
+                                                                        Sidebar
+                                                                        Position</span
+                                                                    >
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <div
+                                                                class="checkbox-fade fade-in-primary"
+                                                            >
+                                                                <label>
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        value="false"
+                                                                        id="header-position"
+                                                                        name="header-position"
+                                                                        [checked]="
+                                                                            isHeaderChecked
+                                                                        "
+                                                                        (change)="
+                                                                            setHeaderPosition()
+                                                                        "
+                                                                    />
+                                                                    <span
+                                                                        class="cr"
+                                                                        ><i
+                                                                            class="cr-icon fa fa-check txt-success"
+                                                                        ></i
+                                                                    ></span>
+                                                                    <span
+                                                                        >Fixed
+                                                                        Header
+                                                                        Position</span
+                                                                    >
+                                                                </label>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </ng-template>
+                                        </ngb-tab>
+                                        <ngb-tab title="Configuración">
+                                            <ng-template ngbTabContent>
+                                                <div
+                                                    [@fadeInOutTranslate]
+                                                    class="m-t-15"
+                                                >
+                                                    <ul>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <p
+                                                                class="sub-title drp-title"
+                                                            >
+                                                                Tipo de menú
+                                                            </p>
+                                                            <div
+                                                                class="form-radio"
+                                                                id="menu-effect"
+                                                            >
+                                                                <div
+                                                                    class="radio radiofill radio-primary radio-inline"
+                                                                    ngbTooltip="Icono con color"
+                                                                >
+                                                                    <label>
+                                                                        <input
+                                                                            type="radio"
+                                                                            name="radio"
+                                                                            value="st1"
+                                                                            (click)="
+                                                                                this.navType =
+                                                                                    $event.target.value;
+                                                                                this.theme.navType =
+                                                                                    $event.target.value;
+                                                                                this.updateTheme()
+                                                                            "
+                                                                        />
+                                                                        <i
+                                                                            class="helper"
+                                                                        ></i>
+                                                                        <span
+                                                                            class="micon st1"
+                                                                            ><i
+                                                                                class="icon-home"
+                                                                            ></i
+                                                                        ></span>
+                                                                    </label>
+                                                                </div>
+                                                                <div
+                                                                    class="radio radiofill radio-success radio-inline"
+                                                                    ngbTooltip="Icono simple"
+                                                                >
+                                                                    <label>
+                                                                        <input
+                                                                            type="radio"
+                                                                            name="radio"
+                                                                            value="st2"
+                                                                            (click)="
+                                                                                this.navType =
+                                                                                    $event.target.value;
+                                                                                this.theme.navType =
+                                                                                    $event.target.value;
+                                                                                this.updateTheme()
+                                                                            "
+                                                                            checked="true"
+                                                                        />
+                                                                        <i
+                                                                            class="helper"
+                                                                        ></i>
+                                                                        <span
+                                                                            class="micon st2"
+                                                                            ><i
+                                                                                class="icon-home"
+                                                                            ></i
+                                                                        ></span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </li>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <p
+                                                                class="sub-title drp-title"
+                                                            >
+                                                                Effecto del menú
+                                                            </p>
+                                                            <select
+                                                                id="vertical-menu-effect"
+                                                                class="form-control minimal"
+                                                                (change)="
+                                                                    this.verticalEffect =
+                                                                        $event.target.value;
+                                                                    this.theme.verticalEffect =
+                                                                        $event.target.value;
+                                                                    this.updateTheme()
+                                                                "
+                                                            >
+                                                                <option
+                                                                    value="shrink"
+                                                                    selected
+                                                                >
+                                                                    shrink
+                                                                </option>
+                                                                <option
+                                                                    value="overlay"
+                                                                >
+                                                                    overlay
+                                                                </option>
+                                                                <option
+                                                                    value="push"
+                                                                >
+                                                                    Push
+                                                                </option>
+                                                            </select>
+                                                        </li>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <p
+                                                                class="sub-title drp-title"
+                                                            >
+                                                                Mostrar/Ocultar
+                                                                Borde
+                                                            </p>
+                                                            <select
+                                                                id="vertical-border-style"
+                                                                class="form-control minimal"
+                                                                (change)="
+                                                                    this.itemBorderStyle =
+                                                                        $event.target.value;
+                                                                    this.theme.itemBorderStyle =
+                                                                        $event.target.value;
+                                                                    this.updateTheme()
+                                                                "
+                                                            >
+                                                                <option
+                                                                    value="solid"
+                                                                    selected
+                                                                >
+                                                                    Style 1
+                                                                </option>
+                                                                <option
+                                                                    value="dotted"
+                                                                >
+                                                                    Style 2
+                                                                </option>
+                                                                <option
+                                                                    value="dashed"
+                                                                >
+                                                                    Style 3
+                                                                </option>
+                                                                <option
+                                                                    value="none"
+                                                                    selected
+                                                                >
+                                                                    No Border
+                                                                </option>
+                                                            </select>
+                                                        </li>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <p
+                                                                class="sub-title drp-title"
+                                                            >
+                                                                Icono del
+                                                                despegable
+                                                            </p>
+                                                            <select
+                                                                id="vertical-dropdown-icon"
+                                                                class="form-control minimal"
+                                                                (change)="
+                                                                    this.dropDownIcon =
+                                                                        $event.target.value;
+                                                                    this.theme.dropDownIcon =
+                                                                        $event.target.value;
+                                                                    this.updateTheme()
+                                                                "
+                                                            >
+                                                                <option
+                                                                    value="style1"
+                                                                    selected
+                                                                >
+                                                                    Style 1
+                                                                </option>
+                                                                <option
+                                                                    value="style2"
+                                                                >
+                                                                    style 2
+                                                                </option>
+                                                                <option
+                                                                    value="style3"
+                                                                    selected
+                                                                >
+                                                                    style 3
+                                                                </option>
+                                                            </select>
+                                                        </li>
+                                                        <li
+                                                            class="theme-option"
+                                                        >
+                                                            <p
+                                                                class="sub-title drp-title"
+                                                            >
+                                                                Icono del
+                                                                despegable del
+                                                                submenú
+                                                            </p>
+                                                            <select
+                                                                id="vertical-subitem-icon"
+                                                                class="form-control minimal"
+                                                                (change)="
+                                                                    this.subItemIcon =
+                                                                        $event.target.value;
+                                                                    this.theme.subItemIcon =
+                                                                        $event.target.value;
+                                                                    this.updateTheme()
+                                                                "
+                                                            >
+                                                                <option
+                                                                    value="style1"
+                                                                >
+                                                                    Style 1
+                                                                </option>
+                                                                <option
+                                                                    value="style2"
+                                                                >
+                                                                    style 2
+                                                                </option>
+                                                                <option
+                                                                    value="style3"
+                                                                >
+                                                                    style 3
+                                                                </option>
+                                                                <option
+                                                                    value="style4"
+                                                                >
+                                                                    style 4
+                                                                </option>
+                                                                <option
+                                                                    value="style5"
+                                                                >
+                                                                    style 5
+                                                                </option>
+                                                                <option
+                                                                    value="style6"
+                                                                >
+                                                                    style 6
+                                                                </option>
+                                                                <option
+                                                                    value="style7"
+                                                                    selected
+                                                                >
+                                                                    no icon
+                                                                </option>
+                                                            </select>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </ng-template>
+                                        </ngb-tab>
+                                    </ngb-tabset>
+                                    <div class="tab-content tabs">
+                                        <ul>
+                                            <li>
+                                                <p class="selector-title">
+                                                    Color de la cabecera
+                                                </p>
+                                            </li>
+                                            <li class="theme-option">
+                                                <div class="theme-color">
+                                                    <a
+                                                        href="javascript:"
+                                                        class="header-theme ripple"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                this.freamType =
+                                                                this.activeItemTheme =
+                                                                this.headerTheme =
+                                                                    'theme1';
+                                                            this.theme.menuTitleTheme =
+                                                                this.theme.freamType =
+                                                                this.theme.activeItemTheme =
+                                                                this.theme.headerTheme =
+                                                                    'theme1';
+                                                            this.updateTheme();
+                                                            setBackgroundPattern(
+                                                                'theme1'
+                                                            )
+                                                        "
+                                                        header-theme="theme1"
+                                                    >
+                                                        <span
+                                                            class="head"
+                                                        ></span>
+                                                        <span
+                                                            class="cont"
+                                                        ></span>
+                                                    </a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="header-theme ripple"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                this.freamType =
+                                                                this.activeItemTheme =
+                                                                this.headerTheme =
+                                                                    'theme2';
+                                                            this.theme.menuTitleTheme =
+                                                                this.theme.freamType =
+                                                                this.theme.activeItemTheme =
+                                                                this.theme.headerTheme =
+                                                                    'theme2';
+                                                            this.updateTheme();
+                                                            setBackgroundPattern(
+                                                                'theme2'
+                                                            )
+                                                        "
+                                                        header-theme="theme2"
+                                                    >
+                                                        <span
+                                                            class="head"
+                                                        ></span>
+                                                        <span
+                                                            class="cont"
+                                                        ></span
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="header-theme ripple"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                this.freamType =
+                                                                this.activeItemTheme =
+                                                                this.headerTheme =
+                                                                    'theme3';
+                                                            this.theme.menuTitleTheme =
+                                                                this.theme.freamType =
+                                                                this.theme.activeItemTheme =
+                                                                this.theme.headerTheme =
+                                                                    'theme3';
+                                                            this.updateTheme();
+                                                            setBackgroundPattern(
+                                                                'theme3'
+                                                            )
+                                                        "
+                                                        header-theme="theme3"
+                                                    >
+                                                        <span
+                                                            class="head"
+                                                        ></span>
+                                                        <span
+                                                            class="cont"
+                                                        ></span>
+                                                    </a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="header-theme ripple"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                this.freamType =
+                                                                this.activeItemTheme =
+                                                                this.headerTheme =
+                                                                    'theme4';
+                                                            this.theme.menuTitleTheme =
+                                                                this.theme.freamType =
+                                                                this.theme.activeItemTheme =
+                                                                this.theme.headerTheme =
+                                                                    'theme4';
+                                                            this.updateTheme();
+                                                            setBackgroundPattern(
+                                                                'theme4'
+                                                            )
+                                                        "
+                                                        header-theme="theme4"
+                                                    >
+                                                        <span
+                                                            class="head"
+                                                        ></span>
+                                                        <span
+                                                            class="cont"
+                                                        ></span>
+                                                    </a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="header-theme ripple"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                this.freamType =
+                                                                this.activeItemTheme =
+                                                                this.headerTheme =
+                                                                    'theme5';
+                                                            this.theme.menuTitleTheme =
+                                                                this.theme.freamType =
+                                                                this.theme.activeItemTheme =
+                                                                this.theme.headerTheme =
+                                                                    'theme5';
+                                                            this.updateTheme();
+                                                            setBackgroundPattern(
+                                                                'theme5'
+                                                            )
+                                                        "
+                                                        header-theme="theme5"
+                                                    >
+                                                        <span
+                                                            class="head"
+                                                        ></span>
+                                                        <span
+                                                            class="cont"
+                                                        ></span>
+                                                    </a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="header-theme ripple"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                this.freamType =
+                                                                this.activeItemTheme =
+                                                                this.headerTheme =
+                                                                    'theme6';
+                                                            this.theme.menuTitleTheme =
+                                                                this.theme.freamType =
+                                                                this.theme.activeItemTheme =
+                                                                this.theme.headerTheme =
+                                                                    'theme6';
+                                                            this.updateTheme();
+                                                            setBackgroundPattern(
+                                                                'theme6'
+                                                            )
+                                                        "
+                                                        header-theme="theme6"
+                                                    >
+                                                        <span
+                                                            class="head"
+                                                        ></span>
+                                                        <span
+                                                            class="cont"
+                                                        ></span>
+                                                    </a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <p class="selector-title">
+                                                    Imagen de la cabecera
+                                                </p>
+                                            </li>
+                                            <li class="theme-option">
+                                                <div class="theme-color">
+                                                    <a
+                                                        href="javascript:"
+                                                        class="navbg-pattern image ripple"
+                                                        (click)="
+                                                            this.sidebarImgType =
+                                                                'img1';
+                                                            this.theme.sidebarImgType =
+                                                                'img1';
+                                                            this.updateTheme()
+                                                        "
+                                                        navbg-pattern="img1"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="navbg-pattern image ripple"
+                                                        (click)="
+                                                            this.sidebarImgType =
+                                                                'img2';
+                                                            this.theme.sidebarImgType =
+                                                                'img2';
+                                                            this.updateTheme()
+                                                        "
+                                                        navbg-pattern="img2"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="navbg-pattern image ripple"
+                                                        (click)="
+                                                            this.sidebarImgType =
+                                                                'img3';
+                                                            this.theme.sidebarImgType =
+                                                                'img3';
+                                                            this.updateTheme()
+                                                        "
+                                                        navbg-pattern="img3"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="navbg-pattern image ripple"
+                                                        (click)="
+                                                            this.sidebarImgType =
+                                                                'img4';
+                                                            this.theme.sidebarImgType =
+                                                                'img4';
+                                                            this.updateTheme()
+                                                        "
+                                                        navbg-pattern="img4"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="navbg-pattern image ripple"
+                                                        (click)="
+                                                            this.sidebarImgType =
+                                                                'img5';
+                                                            this.theme.sidebarImgType =
+                                                                'img5';
+                                                            this.updateTheme()
+                                                        "
+                                                        navbg-pattern="img5"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="navbg-pattern image ripple"
+                                                        (click)="
+                                                            this.sidebarImgType =
+                                                                'img6';
+                                                            this.theme.sidebarImgType =
+                                                                'img6';
+                                                            this.updateTheme()
+                                                        "
+                                                        navbg-pattern="img6"
+                                                    ></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <p class="selector-title">
+                                                    Color del link activo
+                                                </p>
+                                            </li>
+                                            <li class="theme-option">
+                                                <div class="theme-color">
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme1';
+                                                            this.theme.activeItemTheme =
+                                                                'theme1';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme1"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme2';
+                                                            this.theme.activeItemTheme =
+                                                                'theme2';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme2"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme3';
+                                                            this.theme.activeItemTheme =
+                                                                'theme3';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme3"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme4';
+                                                            this.theme.activeItemTheme =
+                                                                'theme4';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme4"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme5';
+                                                            this.theme.activeItemTheme =
+                                                                'theme5';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme5"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme6';
+                                                            this.theme.activeItemTheme =
+                                                                'theme6';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme6"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme7';
+                                                            this.theme.activeItemTheme =
+                                                                'theme7';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme7"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme8';
+                                                            this.theme.activeItemTheme =
+                                                                'theme8';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme8"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme9';
+                                                            this.theme.activeItemTheme =
+                                                                'theme9';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme9"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme10';
+                                                            this.theme.activeItemTheme =
+                                                                'theme10';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme10"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme11';
+                                                            this.theme.activeItemTheme =
+                                                                'theme11';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme11"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        (click)="
+                                                            this.activeItemTheme =
+                                                                'theme12';
+                                                            this.theme.activeItemTheme =
+                                                                'theme12';
+                                                            this.updateTheme()
+                                                        "
+                                                        class="small"
+                                                        active-item-theme="theme12"
+                                                    ></a>
+                                                </div>
+                                            </li>
+                                            <li>
+                                                <p class="selector-title">
+                                                    Color de las secciones en el
+                                                    menú
+                                                </p>
+                                            </li>
+                                            <li class="theme-option">
+                                                <div class="theme-color">
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme1';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme1';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme1"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme2';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme2';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme2"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme3';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme3';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme3"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme4';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme4';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme4"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme5';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme5';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme5"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme6';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme6';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme6"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme7';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme7';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme7"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme8';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme8';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme8"
+                                                    ></a>
+                                                    <a
+                                                        href="javascript:"
+                                                        class="small"
+                                                        (click)="
+                                                            this.menuTitleTheme =
+                                                                'theme9';
+                                                            this.theme.menuTitleTheme =
+                                                                'theme9';
+                                                            this.updateTheme()
+                                                        "
+                                                        lheader-theme="theme9"
+                                                    ></a>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </perfect-scrollbar>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

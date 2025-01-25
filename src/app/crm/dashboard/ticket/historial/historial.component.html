@@ -1,0 +1,749 @@
+<ng-template #title let-name="name">
+    <h5>{{ name }}</h5>
+</ng-template>
+
+<div class="card">
+    <div class="card-body">
+        <form class="md-float-material form-material m-t-10">
+            <div class="md-tabs">
+                <ngb-tabset (tabChange)="onChangeTab($event.nextId)" #tabs>
+                    <ngb-tab id="tab-abiertos">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Abiertos'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaAbiertos"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+
+                    <ngb-tab id="tab-cerrados">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Cerrados'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaCerrados"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+
+                    <ngb-tab id="tab-eliminados" *ngIf="esAdministrador">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Eliminados'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaEliminados"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
+            </div>
+        </form>
+    </div>
+</div>
+
+<ng-template #tablaAbiertos>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="tickets_abiertos">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titulo</th>
+                            <th>Estatus</th>
+                            <th>Creado</th>
+                            <th>Modificado</th>
+                            <th>Asignado</th>
+                            <th>SLA</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ticket of abiertos">
+                            <td>
+                                <button
+                                    (click)="
+                                        detalleTicket(modalTicket, ticket.id)
+                                    "
+                                    class="btn btn-sm btn-primary rounded"
+                                >
+                                    {{ ticket.id }}
+                                </button>
+                            </td>
+                            <td>{{ ticket.titulo }}</td>
+                            <td [ngSwitch]="ticket.status">
+                                <h5>
+                                    <span
+                                        *ngSwitchCase="1"
+                                        class="badge badge-success"
+                                        >Abierto</span
+                                    >
+                                    <span
+                                        *ngSwitchCase="2"
+                                        class="badge badge-info"
+                                        >En Progreso</span
+                                    ><span
+                                        *ngSwitchDefault
+                                        class="badge badge-danger"
+                                        >*ERROR*</span
+                                    >
+                                </h5>
+                            </td>
+                            <td>{{ ticket.created_at }}</td>
+                            <td>{{ ticket.updated_at }}</td>
+                            <td>
+                                {{
+                                    ticket.i_asignado
+                                        ? ticket.i_asignado
+                                        : "Sin Asignar"
+                                }}
+                            </td>
+                            <td
+                                style="margin-top: 10px; width: 50px"
+                                [ngSwitch]="ticket.sla"
+                                [ngClass]="
+                                    ticket.sla == 1
+                                        ? 'badge badge-light badge1'
+                                        : ticket.sla == 2
+                                        ? 'badge badge-light badge2'
+                                        : ticket.sla == 3
+                                        ? 'badge badge-light badge3'
+                                        : 'badge badge-danger'
+                                "
+                            >
+                                <span *ngSwitchCase="0" title="En espera"
+                                    >Sin Asignar</span
+                                >
+                                <span *ngSwitchCase="1" title="24 hrs"
+                                    >Bronce</span
+                                >
+                                <span *ngSwitchCase="2" title="16 hrs"
+                                    >Plata</span
+                                >
+                                <span *ngSwitchCase="3" title="10 hrs"
+                                    >Oro</span
+                                >
+                                <span *ngSwitchDefault>*ERROR*</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #tablaCerrados>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="tickets_cerrados">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titulo</th>
+                            <th>Cerrado</th>
+                            <th>Cerrado por</th>
+                            <th>Asignado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ticket of cerrados">
+                            <td>
+                                <button
+                                    (click)="
+                                        detalleTicket(modalTicket, ticket.id)
+                                    "
+                                    class="btn btn-sm btn-primary rounded"
+                                >
+                                    {{ ticket.id }}
+                                </button>
+                            </td>
+                            <td>{{ ticket.titulo }}</td>
+                            <td>{{ ticket.finished_at }}</td>
+                            <td>{{ ticket.i_cerrado }}</td>
+                            <td>
+                                {{
+                                    ticket.i_asignado
+                                        ? ticket.i_asignado
+                                        : "Sin Asignar"
+                                }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #tablaEliminados>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="tickets_eliminados">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titulo</th>
+                            <th>Eliminado</th>
+                            <th>Eliminado por</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ticket of eliminados">
+                            <td>
+                                <button
+                                    (click)="
+                                        detalleTicket(modalTicket, ticket.id)
+                                    "
+                                    class="btn btn-sm btn-primary rounded"
+                                >
+                                    {{ ticket.id }}
+                                </button>
+                            </td>
+                            <td>{{ ticket.titulo }}</td>
+                            <td>{{ ticket.deleted_at }}</td>
+                            <td>{{ ticket.i_eliminado }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalTicket let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion del Ticket</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label
+                    for=""
+                    class="col-form-label col-sm-2"
+                    (click)="detalleEstatus(modalEstatus)"
+                    style="cursor: pointer"
+                    >Ticket</label
+                >
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{{ data.id }}</h5>
+                        </div>
+
+                        <div class="col-md-3" [ngSwitch]="data.status">
+                            <h5>
+                                <span
+                                    *ngSwitchCase="0"
+                                    class="badge badge-danger"
+                                    >Eliminado</span
+                                >
+                                <span
+                                    *ngSwitchCase="1"
+                                    class="badge badge-success"
+                                    >Abierto</span
+                                >
+                                <span *ngSwitchCase="2" class="badge badge-info"
+                                    >En Progreso</span
+                                ><span
+                                    *ngSwitchCase="3"
+                                    class="badge badge-dark"
+                                    >Cerrado</span
+                                ><span
+                                    *ngSwitchDefault
+                                    class="badge badge-danger"
+                                    >*ERROR*</span
+                                >
+                            </h5>
+                        </div>
+
+                        <div
+                            class="col-md-3"
+                            [ngSwitch]="data.sla"
+                            [ngClass]="
+                                data.sla == 1
+                                    ? 'badge badge-light badge1'
+                                    : data.sla == 2
+                                    ? 'badge badge-light badge2'
+                                    : data.sla == 3
+                                    ? 'badge badge-light badge3'
+                                    : 'badge badge-danger'
+                            "
+                        >
+                            <span *ngSwitchCase="0" title="En espera"
+                                >Sin Asignar</span
+                            >
+                            <span *ngSwitchCase="1" title="24 hrs"
+                                >Bronce - 24 hrs</span
+                            >
+                            <span *ngSwitchCase="2" title="16 hrs"
+                                >Plata - 16 hrs</span
+                            >
+                            <span *ngSwitchCase="3" title="10 hrs"
+                                >Oro - 10 hrs</span
+                            >
+                            <span *ngSwitchDefault>*ERROR*</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Ing. Asignado</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{ data.i_asignado ? data.i_asignado : "Sin Asignar" }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Creado</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5>{{ data.created_at }}</h5>
+                        </div>
+                        <label class="col-form-label col-sm-2"
+                            >Actualizado</label
+                        >
+                        <div class="col-sm-6 inline-block">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h5>{{ data.updated_at }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Evidencia</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row m-t-10">
+                        <div class="col-md-4" *ngIf="data.evidencia1 != null">
+                            <i class="fa fa-file-image-o fa-lg"></i>
+                            <span
+                                class="text-muted"
+                                (click)="
+                                    descargarArchivo(
+                                        data.evidencia1,
+                                        data.id,
+                                        '1'
+                                    )
+                                "
+                                style="cursor: pointer"
+                                >&nbsp;&nbsp;Evidencia 1</span
+                            >
+                        </div>
+
+                        <div class="col-md-4" *ngIf="data.evidencia2 != null">
+                            <i class="fa fa-file-image-o fa-lg"></i>
+                            <span
+                                class="text-muted"
+                                (click)="
+                                    descargarArchivo(
+                                        data.evidencia2,
+                                        data.id,
+                                        '2'
+                                    )
+                                "
+                                style="cursor: pointer"
+                                >&nbsp;&nbsp;Evidencia 2</span
+                            >
+                        </div>
+
+                        <div class="col-md-4" *ngIf="data.evidencia3 != null">
+                            <i class="fa fa-file-image-o fa-lg"></i>
+                            <span
+                                class="text-muted"
+                                (click)="
+                                    descargarArchivo(
+                                        data.evidencia3,
+                                        data.id,
+                                        '3'
+                                    )
+                                "
+                                style="cursor: pointer"
+                                >&nbsp;&nbsp;Evidencia 3</span
+                            >
+                        </div>
+                        <div
+                            class="col-md-4"
+                            *ngIf="
+                                data.evidencia1 == null &&
+                                data.evidencia2 == null &&
+                                data.evidencia3 == null
+                            "
+                        >
+                            <h5>Sin Evidencias</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Contacto</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h5>{{ data.i_creado }}</h5>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h5>{{ data.contacto_metodo }}</h5>
+                        </div>
+                        <div class="col-md-8">
+                            <h5>{{ data.contacto }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Detalle</label>
+                <div class="col-sm-10 inline-block">
+                    <p>{{ data.descripcion }}</p>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block m-t-10 m-b-10">
+                    <ul class="list-unstyled">
+                        <div *ngFor="let item of seguimiento_ticket">
+                            <li
+                                class="d-flex mb-4"
+                                *ngIf="item.id_usuario == usuario.id"
+                            >
+                                <img
+                                    src="{{ item.avatar }}"
+                                    alt="User-Profile-Image"
+                                    class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong"
+                                    width="60"
+                                />
+                                <div class="card mask-custom col-sm-11">
+                                    <div
+                                        class="card-header d-flex p-3"
+                                        style="
+                                            border-bottom: 1px solid
+                                                rgba(255, 255, 255, 0.3);
+                                        "
+                                    >
+                                        <p class="fw-bold mb-0">
+                                            {{ item.nombre }} &nbsp;
+                                        </p>
+                                        <p class="text-dark small mb-0">
+                                            <i class="far fa-clock"></i>
+                                            {{ calcDiff(item.created_at) }}
+                                        </p>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mb-0">
+                                            {{ item.descripcion }}
+                                        </p>
+                                        <p></p>
+                                        <p *ngIf="item.imagen">
+                                            <i
+                                                class="fa fa-file-image-o fa-lg"
+                                            ></i>
+                                            <span
+                                                (click)="
+                                                    descargarArchivo(
+                                                        item.imagen,
+                                                        item.id_ticket,
+                                                        item.id
+                                                    )
+                                                "
+                                                class="text-muted"
+                                                style="cursor: pointer"
+                                                >&nbsp;&nbsp;Evidencia</span
+                                            >
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <li
+                                class="d-flex mb-4"
+                                *ngIf="item.id_usuario != usuario.id"
+                            >
+                                <div class="card mask-custom w-100">
+                                    <div
+                                        class="card-header d-flex justify-content-between p-3"
+                                        style="
+                                            border-bottom: 1px solid
+                                                rgba(255, 255, 255, 0.3);
+                                        "
+                                    >
+                                        <p class="fw-bold mb-0">
+                                            {{ item.nombre }}
+                                        </p>
+                                        <p class="text-dark small mb-0">
+                                            <i class="far fa-clock"></i>
+                                            {{ calcDiff(item.created_at) }}
+                                        </p>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="mb-0">
+                                            {{ item.descripcion }}
+                                        </p>
+                                        <p></p>
+                                        <p *ngIf="item.imagen">
+                                            <i
+                                                class="fa fa-file-image-o fa-lg"
+                                            ></i>
+                                            <span
+                                                (click)="
+                                                    descargarArchivo(
+                                                        item.imagen,
+                                                        item.id_ticket,
+                                                        item.id
+                                                    )
+                                                "
+                                                class="text-muted"
+                                                style="cursor: pointer"
+                                                >&nbsp;&nbsp;Evidencia</span
+                                            >
+                                        </p>
+                                    </div>
+                                </div>
+                                <img
+                                    src="{{ item.avatar }}"
+                                    alt="User-Profile-Image"
+                                    class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong"
+                                    width="60"
+                                />
+                            </li>
+                        </div>
+                        <div
+                            class="col-md-12"
+                            *ngIf="data.status != 3 && data.status != 0"
+                        >
+                            <div class="form-group form-primary">
+                                <textarea
+                                    rows="4"
+                                    type="text"
+                                    name="tarea"
+                                    class="form-control"
+                                    [(ngModel)]="seguimiento.descripcion"
+                                    required
+                                ></textarea>
+
+                                <label class="float-label"
+                                    >Agregar Seguimiento</label
+                                >
+                                <input
+                                    id="archivo"
+                                    type="file"
+                                    #file
+                                    class="form-control ngb-drop-zone text-center ripple light"
+                                    accept="image/png, image/jpeg"
+                                    (change)="agregarArchivo($event)"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Evidencia del Seguimiento (No
+                                    obligatorio)</label
+                                >
+                            </div>
+                        </div>
+                        <button
+                            *ngIf="data.status != 3 && data.status != 0"
+                            type="button"
+                            style="padding: 12px 60px"
+                            class="btn btn-outline-secondary btn-lg float-right"
+                            (click)="crearSeguimiento($event)"
+                        >
+                            <span>
+                                <i class="fa fa-paper-plane-o fa-lg"></i
+                            ></span>
+                        </button>
+                    </ul>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                *ngIf="data.status != 3 && esAdministrador && data.status != 0"
+            >
+                <label class="col-form-label col-sm-2">
+                    <button
+                        *ngIf="esAdministrador"
+                        (click)="eliminarTicket(data.id)"
+                        class="btn btn-sm btn-block btn-danger http-disabled m-t-10 m-b-10"
+                    >
+                        Eliminar Ticket
+                    </button></label
+                >
+                <div class="col-sm-10 inline-block">
+                    <button
+                        (click)="terminarTicket(data.id)"
+                        class="btn btn-sm btn-block btn-info http-disabled m-t-10 m-b-10"
+                    >
+                        Terminar Ticket
+                    </button>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                *ngIf="esAdministrador && data.status == 3"
+            >
+                <label class="col-form-label col-sm-2"> &nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        (click)="abrirTicket(data.id)"
+                        class="btn btn-sm btn-block btn-info http-disabled m-t-10 m-b-10"
+                    >
+                        Volver a abrir Ticket
+                    </button>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                *ngIf="data.status != 3 && !esAdministrador && data.status != 0"
+            >
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        (click)="terminarTicket(data.id)"
+                        class="btn btn-sm btn-block btn-info http-disabled m-t-10 m-b-10"
+                    >
+                        Terminar Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalEstatus let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Cambiar Estatus</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Estatus</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="contabilidad-linio-empresa"
+                                    class="form-control"
+                                    [(ngModel)]="actualizacion.estatus"
+                                    required
+                                >
+                                    <option value="1">Abierto</option>
+                                    <option value="2">En progreso</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Asignado</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="contabilidad-linio-empresa"
+                                    class="form-control"
+                                    [(ngModel)]="actualizacion.asignado"
+                                    required
+                                >
+                                    <option
+                                        *ngFor="let administrador of admin"
+                                        value="{{ administrador.id }}"
+                                    >
+                                        {{ administrador.nombre }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">SLA</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="contabilidad-linio-empresa"
+                                    class="form-control"
+                                    [(ngModel)]="actualizacion.sla"
+                                    required
+                                >
+                                    <option value="1">Bronze</option>
+                                    <option value="2">Plata</option>
+                                    <option value="3">Oro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        (click)="cambiarEstatus(data.id)"
+                        class="btn btn-sm btn-block btn-info http-disabled m-t-10 m-b-10"
+                    >
+                        Cambiar Estatus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

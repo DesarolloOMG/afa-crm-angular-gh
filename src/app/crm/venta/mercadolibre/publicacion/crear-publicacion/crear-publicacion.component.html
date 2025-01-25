@@ -1,0 +1,695 @@
+<div class="card">
+    <div class="card-body">
+        <form class="md-float-material form-material m-t-10">
+            <h4 class="sub-title">Área y Marketplace</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-area"
+                            id="item-area"
+                            #itemarea="ngModel"
+                            class="form-control"
+                            (change)="onChangeArea()"
+                            [(ngModel)]="data.area"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ area.id }}"
+                                *ngFor="let area of areas"
+                            >
+                                {{ area.area }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemarea.invalid &&
+                                (itemarea.dirty || itemarea.touched) &&
+                                itemarea.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-marketplace"
+                            id="item-marketplace"
+                            #itemmarketplace="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.marketplace"
+                            (change)="onChangeMarketplace()"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ marketplace.id }}"
+                                *ngFor="let marketplace of marketplaces"
+                            >
+                                {{ marketplace.marketplace }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marketplace</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemmarketplace.invalid &&
+                                (itemmarketplace.dirty ||
+                                    itemmarketplace.touched) &&
+                                itemmarketplace.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Datos de de la publicación</h4>
+
+            <div class="row" *ngIf="user_data.user_type === 'brand'">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-official-store"
+                            #itemofficialstore="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.item.official_store_id"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.official_store_id }}"
+                                *ngFor="let row of brands"
+                            >
+                                {{ row.name }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tienda Oficial</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemofficialstore.invalid &&
+                                (itemofficialstore.dirty ||
+                                    itemofficialstore.touched) &&
+                                itemofficialstore.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-listing-type"
+                            #itemlistingtype="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.item.listing_type"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of listing_types"
+                            >
+                                {{ row.name }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de publicación</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemlistingtype.invalid &&
+                                (itemlistingtype.dirty ||
+                                    itemlistingtype.touched) &&
+                                itemlistingtype.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="item-title"
+                            class="form-control"
+                            #itemtitle="ngModel"
+                            [(ngModel)]="data.item.title"
+                            (change)="onChangeTitle()"
+                            maxlength="60"
+                            placement="top"
+                            ngbTooltip="Ejemplo: Celular Samsung Galaxy S9 64 GB Negro"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Titulo de la publicación (Indica producto, marca,
+                            modelo y características principales)</label
+                        >
+                        <small class="text-success float-right messages block"
+                            >{{ data.item.title.length }} / 60</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemtitle.invalid &&
+                                (itemtitle.dirty || itemtitle.touched) &&
+                                itemtitle.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-outline-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="Ver atributos y variaciones"
+                        (click)="viewItemAttributedAndVariations()"
+                        [disabled]="!data.item.category.category_id"
+                    >
+                        <i class="fa fa-box fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <textarea
+                            class="form-control"
+                            name="item-description"
+                            #itemdescription="ngModel"
+                            [(ngModel)]="data.item.description"
+                            required
+                        ></textarea>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Descripción</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemdescription.invalid &&
+                                (itemdescription.dirty ||
+                                    itemdescription.touched) &&
+                                itemdescription.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" *ngIf="data.item.variations.length == 0">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="item-quantity"
+                            class="form-control"
+                            #itemquantity="ngModel"
+                            [(ngModel)]="data.item.quantity"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cantidad</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemquantity.invalid &&
+                                (itemquantity.dirty || itemquantity.touched) &&
+                                itemquantity.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="item-price"
+                            class="form-control"
+                            #itemprice="ngModel"
+                            [(ngModel)]="data.item.price"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Precio</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemprice.invalid &&
+                                (itemprice.dirty || itemprice.touched) &&
+                                itemprice.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <ng-container *ngIf="data.item.variations.length == 0">
+                <h4 class="sub-title m-t-20">Imagenes</h4>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <input
+                            type="file"
+                            class="form-control ngb-drop-zone text-center ripple light"
+                            accept="image/png, image/jpeg"
+                            (change)="onChangeImageAdd()"
+                            id="files"
+                            multiple
+                        />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div
+                        class="col-md-3"
+                        *ngFor="let row of data.item.pictures"
+                    >
+                        <img
+                            class="img-fluid producto-imagen"
+                            src="{{ row.data }}"
+                        />
+                        <span
+                            (click)="deletePictureFromItem()"
+                            class="float-right cursor-pointer text-danger delete-image"
+                            >Eliminar imagen</span
+                        >
+                        <!-- <i
+                            class="fa fa-trash float-right fa-2x text-danger cursor-pointer delete-image"
+                            (click)="deletePictureFromItem()"
+                            placement="top"
+                            ngbTooltip="Eliminar imagen"
+                        ></i> -->
+                    </div>
+                </div>
+            </ng-container>
+
+            <h4 class="sub-title m-t-20">Garantía</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-sale-term-warranty-type"
+                            #itemsaletermwarrantytype="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.item.warranty.type.value"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.name }}"
+                                *ngFor="let row of getWarrantyTypeValues()"
+                            >
+                                {{ row.name }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de garantía</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemsaletermwarrantytype.invalid &&
+                                (itemsaletermwarrantytype.dirty ||
+                                    itemsaletermwarrantytype.touched) &&
+                                itemsaletermwarrantytype.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="item-sale-term-warranty-time-value"
+                            #itemsaletermwarrantytimevalue="ngModel"
+                            class="form-control"
+                            #itemquantity="ngModel"
+                            [(ngModel)]="data.item.warranty.time.value"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Garantía</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemsaletermwarrantytimevalue.invalid &&
+                                (itemsaletermwarrantytimevalue.dirty ||
+                                    itemsaletermwarrantytimevalue.touched) &&
+                                itemsaletermwarrantytimevalue.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-sale-term-warranty-time-unit"
+                            #itemsaletermwarrantytimeunit="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.item.warranty.time.unit"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of getWarrantyTimeUnits()"
+                            >
+                                {{ row.name }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Unidad</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                itemsaletermwarrantytimeunit.invalid &&
+                                (itemsaletermwarrantytimeunit.dirty ||
+                                    itemsaletermwarrantytimeunit.touched) &&
+                                itemsaletermwarrantytimeunit.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <button
+                        class="btn btn-outline-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="Crear publicación"
+                        (click)="createItem($event)"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<ng-template #modalattributesvariations let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Atributos y variaciones</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10">
+            <h4 class="sub-title m-t-20" *ngIf="variations.length > 0">
+                Variaciones disponibles
+            </h4>
+
+            <div class="row" *ngIf="variations.length > 0">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div
+                            class="col-md-6"
+                            *ngFor="let row of variations; let index = index"
+                        >
+                            <div class="form-group form-primary">
+                                <select
+                                    name="item-variation-attribute-{{ index }}"
+                                    class="form-control"
+                                    [(ngModel)]="row.value"
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ subvalue.id }}"
+                                        *ngFor="let subvalue of row.values"
+                                    >
+                                        {{ subvalue.name }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">{{
+                                    row.name
+                                }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="col-md-6">
+                        <button
+                            class="btn btn-outline-info btn-sm btn-block"
+                            placement="top"
+                            ngbTooltip="Agregar variación"
+                            (click)="addVariation()"
+                        >
+                            <i class="fa fa-plus fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" *ngIf="data.item.variations.length > 0">
+                <div
+                    class="col-md-12"
+                    *ngFor="
+                        let variation of data.item.variations;
+                        let index = index
+                    "
+                >
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h4 class="sub-title m-t-30">
+                                {{ getVariationCombinedName(variation) }}
+                            </h4>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                class="btn btn-sm btn-outline-danger btn-block"
+                                placement="top"
+                                ngbTooltip="Eliminar variación"
+                                (click)="data.item.variations.splice(index, 1)"
+                            >
+                                <i class="fa fa-trash fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-primary">
+                                        <input
+                                            type="text"
+                                            name="item-variation-quantity-{{
+                                                index
+                                            }}"
+                                            class="form-control"
+                                            [(ngModel)]="
+                                                variation.available_quantity
+                                            "
+                                            required
+                                        />
+                                        <span class="form-bar"></span>
+                                        <label class="float-label"
+                                            >Cantidad</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group form-primary">
+                                        <input
+                                            type="text"
+                                            name="item-variation-price-{{
+                                                index
+                                            }}"
+                                            class="form-control"
+                                            [(ngModel)]="variation.price"
+                                            required
+                                        />
+                                        <span class="form-bar"></span>
+                                        <label class="float-label"
+                                            >Precio</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group form-primary">
+                                        <input
+                                            type="text"
+                                            name="item-variation-sku-{{
+                                                index
+                                            }}"
+                                            class="form-control"
+                                            [(ngModel)]="
+                                                variation.attributes[0]
+                                                    .value_name
+                                            "
+                                        />
+                                        <span class="form-bar"></span>
+                                        <label class="float-label"
+                                            >SKU (Opcional)</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <input
+                                        type="file"
+                                        class="form-control ngb-drop-zone text-center ripple light"
+                                        accept="image/png, image/jpeg"
+                                        (change)="
+                                            onChangeImageAddVariation(
+                                                'filesvariation' + index,
+                                                variation
+                                            )
+                                        "
+                                        id="filesvariation{{ index }}"
+                                        multiple
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div
+                                    class="col-md-4"
+                                    *ngFor="
+                                        let row of variation.pictures_data;
+                                        let index = index
+                                    "
+                                >
+                                    <img
+                                        class="img-fluid producto-imagen"
+                                        src="{{ row.data }}"
+                                    />
+                                    <span
+                                        (click)="
+                                            variation.pictures_data.splice(
+                                                index,
+                                                1
+                                            )
+                                        "
+                                        class="float-right cursor-pointer text-danger delete-image"
+                                        >Eliminar imagen</span
+                                    >
+                                    <!-- <i
+                                        class="fa fa-trash float-right fa-2x text-danger cursor-pointer delete-image"
+                                        (click)="
+                                            variation.pictures_data.splice(
+                                                index,
+                                                1
+                                            )
+                                        "
+                                        placement="top"
+                                        ngbTooltip="Eliminar imagen"
+                                    ></i> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Atributos</h4>
+
+            <div class="row">
+                <ng-container *ngFor="let row of attributes; let index = index">
+                    <div class="col-md-{{ row.allowed_units ? '4' : '6' }}">
+                        <div class="form-group form-primary">
+                            <input
+                                *ngIf="!row.values"
+                                type="text"
+                                name="item-optional-attribute-{{ index }}"
+                                class="form-control"
+                                [(ngModel)]="row.value"
+                                placement="top"
+                                ngbTooltip="{{ row.hint }}"
+                                [required]="row.tags.required"
+                            />
+                            <input
+                                *ngIf="row.values"
+                                type="text"
+                                name="item-optional-attribute-{{ index }}"
+                                class="form-control"
+                                [(ngModel)]="row.value"
+                                placement="top"
+                                ngbTooltip="{{ row.hint }}"
+                                [ngbTypeahead]="
+                                    autoCompleteSearch(
+                                        getOptionsForAttributesSelect(
+                                            row.values
+                                        )
+                                    )
+                                "
+                                [required]="row.tags.required"
+                            />
+                            <span class="form-bar"></span>
+                            <label class="float-label">{{ row.name }}</label>
+                            <small
+                                class="text-danger messages block"
+                                *ngIf="row.tags.required"
+                                >Campo requerido</small
+                            >
+                        </div>
+                    </div>
+                    <div class="col-md-2" *ngIf="row.allowed_units">
+                        <div class="form-group form-primary">
+                            <select
+                                name="item-variation-attribute-unit-{{ index }}"
+                                class="form-control"
+                                [(ngModel)]="row.unit"
+                            >
+                                <option value="" disabled selected></option>
+                                <option
+                                    value="{{ row.id }}"
+                                    *ngFor="let row of row.allowed_units"
+                                >
+                                    {{ row.name }}
+                                </option>
+                            </select>
+                            <span class="form-bar"></span>
+                            <label class="float-label">Unidad</label>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </form>
+    </div>
+</ng-template>

@@ -1,0 +1,427 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Pretransferencias pendientes</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="almacen_pretransferencia_pendiente"
+                >
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante</th>
+                            <th>Observacion</th>
+                            <th>Almacén entrada</th>
+                            <th>Almacén salida</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of documents">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm btn-block"
+                                    (click)="openModalWithData(row.id)"
+                                >
+                                    {{ row.id }}
+                                </button>
+                            </td>
+                            <td>{{ row.nombre }}</td>
+                            <td>{{ row.observacion }}</td>
+                            <td>{{ row.almacen_entrada }}</td>
+                            <td>{{ row.almacen_salida }}</td>
+                            <td>{{ row.fase }}</td>
+                            <td>{{ row.created_at }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-outline-danger btn-block"
+                                    placement="top"
+                                    ngbTooltip="Eliminar pretransferencia"
+                                    (click)="deleteDocument(row.id)"
+                                >
+                                    <i class="fa fa-trash fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modaldocument let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Información de la solicitud</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>{{ document_detail.id }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                *ngIf="document_detail.info_extra.id"
+            >
+                <label class="col-form-label col-sm-2">ID del envío</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{
+                            document_detail.info_extra
+                                ? document_detail.info_extra.numero_envio
+                                : "No especificado"
+                        }}
+                    </h5>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                [hidden]="!document_detail.pagado"
+            >
+                <label class="col-form-label col-sm-2">NC</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ document_detail.referencia }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Solicitante</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ document_detail.nombre }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Observaciones</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ document_detail.observacion }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Almacenes</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        Almacén entrada: {{ document_detail.almacen_entrada }}
+                    </h5>
+                    <h5>
+                        Almacén salida: {{ document_detail.almacen_salida }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">ID del envío</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{ document_detail.informacion_adicional.numero_envio }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Fecha de cita</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{
+                            document_detail.informacion_adicional.fecha_cita
+                                ? moment(
+                                      document_detail.informacion_adicional
+                                          .fecha_cita
+                                  )
+                                      .format("LLLL")
+                                      .charAt(0)
+                                      .toUpperCase() +
+                                  moment(
+                                      document_detail.informacion_adicional
+                                          .fecha_cita
+                                  )
+                                      .format("LLLL")
+                                      .slice(1)
+                                : "Sin registro"
+                        }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <form
+                        class="md-float-material form-material"
+                        autocomplete="0"
+                    >
+                        <div class="row m-t-20">
+                            <div
+                                class="col-md-7"
+                                [hidden]="products.length > 0"
+                            >
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="producto-busqueda"
+                                        class="form-control"
+                                        [(ngModel)]="product.busqueda"
+                                        pattern="[^'&quot;]+$"
+                                        (keyup.enter)="searchProduct()"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Código / Descripción</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="col-md-7"
+                                [hidden]="products.length == 0"
+                            >
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="producto-codigo"
+                                        class="form-control"
+                                        [(ngModel)]="product.sku"
+                                    >
+                                        <option
+                                            value=""
+                                            disabled
+                                            selected
+                                        ></option>
+                                        <option
+                                            value="{{ row.sku }}"
+                                            *ngFor="let row of products"
+                                        >
+                                            {{ row.sku + " - " + row.producto }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Selecciona un producto</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm http-disabled"
+                                    (click)="searchProduct()"
+                                    [disabled]="product.busqueda == ''"
+                                    placement="top"
+                                    ngbTooltip="Buscar producto"
+                                >
+                                    <i class="fa fa-search fa-2x"></i>
+                                </button>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="number"
+                                        name="producto-cantidad"
+                                        class="form-control"
+                                        #procantidad="ngModel"
+                                        [(ngModel)]="product.cantidad"
+                                        pattern="[0-9]+$"
+                                        maxlength="15"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Cantidad</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary btn-sm btn-block m-b-20 http-disabled"
+                                    (click)="addProduct()"
+                                    placement="top"
+                                    ngbTooltip="Agregar producto"
+                                >
+                                    <i class="fa fa-plus fa-2x"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 m-t-10">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Descripción</th>
+                                            <th>Cantidad</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let producto of data.productos;
+                                                let index = index
+                                            "
+                                        >
+                                            <td>{{ producto.sku }}</td>
+                                            <td>{{ producto.descripcion }}</td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control ngb-drop-zone text-center ripple light"
+                                                    name="producto-cantidad-{{
+                                                        index
+                                                    }}"
+                                                    [(ngModel)]="
+                                                        producto.cantidad
+                                                    "
+                                                />
+                                            </td>
+                                            <td>
+                                                <button
+                                                    class="btn btn-outline-danger btn-sm"
+                                                    placement="top"
+                                                    ngbTooltip="Eliminar producto"
+                                                    (click)="
+                                                        data.productos.splice(
+                                                            index,
+                                                            1
+                                                        )
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fa fa-trash fa-2x"
+                                                    ></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        [(ngModel)]="data.seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        [(ngModel)]="data.seguimiento"
+                        [init]="tinymce_init"
+                    ></editor> -->
+                    <div
+                        *ngFor="
+                            let seguimiento of document_detail.seguimiento_anterior
+                        "
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Archivos</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-12 m-t-10">
+                            <input
+                                type="file"
+                                class="form-control ngb-drop-zone text-center ripple light"
+                                id="archivos"
+                                (change)="addFile()"
+                            />
+                        </div>
+
+                        <div class="col-md-12 m-t-20 m-b-20">
+                            <ul
+                                class="list-group"
+                                *ngIf="document_detail.archivos.length"
+                            >
+                                <li
+                                    class="list-group-item"
+                                    *ngFor="
+                                        let archivo of document_detail.archivos
+                                    "
+                                >
+                                    <i
+                                        class="fa fa-{{ archivo.icon }} fa-2x"
+                                    ></i>
+                                    <span
+                                        class="text-muted"
+                                        (click)="downloadFile(archivo.dropbox)"
+                                        style="cursor: pointer"
+                                        >&nbsp;&nbsp;{{ archivo.nombre }}</span
+                                    >
+                                </li>
+                            </ul>
+
+                            <h5 *ngIf="!document_detail.archivos.length">
+                                Sin archivos
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Terminar</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-info btn-sm btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="saveData($event)"
+                    >
+                        Terminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

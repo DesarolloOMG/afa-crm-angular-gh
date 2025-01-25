@@ -1,0 +1,95 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10" autocomplete="off">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select name="empresa" id="empresa" required #empresa="ngModel" class="form-control"
+                            (change)="cambiarEmpresa()" [(ngModel)]="data.empresa">
+                            <option value="" disabled></option>
+                            <option value="{{ empresa.bd }}" *ngFor="let empresa of empresas">{{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small class="text-danger messages block" *ngIf="empresa.errors?.required">Campo
+                            requerido</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-10" [hidden]="entidades.length > 0">
+                    <div class="form-group form-primary">
+                        <input type="text" name="entidad_input" class="form-control" #entidadinput="ngModel"
+                            [(ngModel)]="data.entidad.input" pattern="[^'&quot;]+$" maxlength="100"
+                            (keyup.enter)="buscarEntidad()">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Buscar entidad</label>
+                        <small class="text-danger messages block"
+                            *ngIf="(entidadinput.invalid && (entidadinput.dirty || entidadinput.touched))">No se permite
+                            el caracter ' ó "</small>
+                    </div>
+                </div>
+
+                <div class="col-md-10" [hidden]="entidades.length == 0">
+                    <div class="form-group form-primary">
+                        <select name="select_entidad" id="select_entidad" class="form-control" #selectentidad="ngModel"
+                            [(ngModel)]="data.entidad.rfc" (change)="cambiarEntidad()">
+                            <option value="" disabled selected></option>
+                            <option value="{{ entidad.rfc }}" *ngFor="let entidad of entidades">
+                                {{ entidad.razon }}</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Entidad</label>
+                        <small class="text-danger messages block" *ngIf="selectentidad.errors?.required">Campo
+                            requerido</small>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-sm btn-block http-disabled" id="button_buscar"
+                        (click)="buscarEntidad()" [disabled]="!data.entidad.tipo || !data.empresa">Buscar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <form class="md-float-material form-material m-t-10" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12" *ngIf="data.archivos_anteriores.length > 0">
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Archivo</th>
+                                <th>Creador</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let archivo of data.archivos_anteriores">
+                                <td (click)="verArchivo(archivo.dropbox)" style="cursor: pointer"><i
+                                        class="fa fa-{{ archivo.icon }} fa-lg"></i>&nbsp;&nbsp;{{ archivo.nombre }}
+                                </td>
+                                <td>{{ archivo.creador }}</td>
+                                <td>{{ archivo.created_at }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-12 m-t-30">
+                    <input type="file" class="form-control ngb-drop-zone text-center ripple light" id="archivos"
+                        (change)="agregarArchivo()" multiple>
+                </div>
+
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary btn-sm btn-block http-disabled"
+                        (click)="guardarArchivos($event)"
+                        [disabled]="!data.archivos.length || !data.entidad.rfc">Guardar archivos</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,652 @@
+import {
+    backend_url,
+    tinymce_init,
+} from './../../../../../environments/environment';
+import {
+    Component,
+    OnInit,
+    ChangeDetectorRef,
+    Renderer2,
+    ViewChild,
+} from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import swal from 'sweetalert2';
+
+@Component({
+    selector: 'app-envio',
+    templateUrl: './envio.component.html',
+    styleUrls: ['./envio.component.scss'],
+})
+export class EnvioComponent implements OnInit {
+    @ViewChild('modaltoken') modaltoken: NgbModal;
+
+    modalReferenceToken: any;
+    modalReferenceSerie: any;
+    modalReferenceProducto: any;
+    modalReference: any;
+    datatable: any;
+
+    tinymce_init = tinymce_init;
+
+    solicitudes: any[] = [];
+    usuarios: any[] = [];
+
+    detalle = {
+        id: 0,
+        area: '',
+        marketplace: '',
+        productos: [],
+        archivos: [],
+        publicaciones: [],
+    };
+
+    data = {
+        tipo: 5,
+        almacen_entrada: '',
+        almacen_salida: '',
+        serie: '',
+        producto_escaneado: '',
+        cantidad_producto_escaneado: 0,
+        producto_serie: '',
+        series: [],
+        regresar: 0,
+        informacion_adicional: {
+            costo_flete: 0,
+            cantidad_tarimas: 0,
+            fecha_entrega: '',
+            archivos: [],
+        },
+    };
+
+    authy = {
+        authy: '',
+        token: '',
+    };
+
+    constructor(
+        private http: HttpClient,
+        private chRef: ChangeDetectorRef,
+        private modalService: NgbModal,
+        private renderer: Renderer2
+    ) {
+        const table: any = $('#almacen_pretransferencia_envio');
+
+        this.datatable = table.DataTable();
+    }
+
+    ngOnInit() {
+        this.http
+            .get(`${backend_url}almacen/pretransferencia/envio/data`)
+            .subscribe(
+                (res) => {
+                    this.datatable.destroy();
+                    this.solicitudes = res['solicitudes'];
+                    this.chRef.detectChanges();
+
+                    const table: any = $('#almacen_pretransferencia_envio');
+                    this.datatable = table.DataTable();
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+
+        this.http.get(`${backend_url}venta/venta/cancelar/data`).subscribe(
+            (res) => {
+                this.usuarios = res['usuarios'];
+            },
+            (response) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        response.status == 0
+                            ? response.message
+                            : typeof response.error === 'object'
+                            ? response.error.error_summary
+                            : response.error,
+                });
+            }
+        );
+    }
+
+    verDetalle(modal, id_solicitud) {
+        const solicitud = this.solicitudes.find(
+            (solicitud) => solicitud.id == id_solicitud
+        );
+
+        this.detalle = solicitud;
+
+        this.data.almacen_entrada = solicitud.id_almacen_principal;
+        this.data.almacen_salida = solicitud.id_almacen_secundario;
+
+        this.detalle.productos.map((producto) => {
+            producto.series = [];
+            producto.cantidad_sku_escaneado = 0;
+        });
+
+        this.detalle.archivos.forEach((archivo) => {
+            var re = /(?:\.([^.]+))?$/;
+            var ext = re.exec(archivo.archivo)[1];
+
+            if ($.inArray(ext, ['jpg', 'jpeg', 'png']) !== -1) {
+                archivo.icon = 'file-image-o';
+            } else if (ext == 'pdf') {
+                archivo.icon = 'file-pdf-o';
+            } else {
+                archivo.icon = 'file';
+            }
+        });
+
+        this.modalReference = this.modalService.open(modal, {
+            size: 'lg',
+            windowClass: 'bigger-modal-lg',
+            backdrop: 'static',
+        });
+    }
+
+    guardarDocumento() {
+        const producto = this.detalle.productos.find(
+            (producto) =>
+                producto.serie && producto.cantidad > producto.series.length
+        );
+
+        if (!this.data.regresar && producto) {
+            return swal({
+                type: 'error',
+                html:
+                    'La cantidad de series registradas no concuerda con la cantidad requerida ' +
+                    producto.sku +
+                    '.<br><br>Faltan: ' +
+                    (producto.cantidad - producto.series.length) +
+                    '',
+            });
+        }
+
+        if (
+            !this.data.regresar &&
+            this.data.informacion_adicional.cantidad_tarimas < 1
+        ) {
+            return swal({
+                type: 'error',
+                html: 'Favor de escribir un número positivo de tarimas enviadas',
+            });
+        }
+
+        const productos_sin_serie_no_escaneados = this.detalle.productos.find(
+            (producto) =>
+                !producto.serie &&
+                producto.cantidad != producto.cantidad_sku_escaneado
+        );
+
+        if (!this.data.regresar && productos_sin_serie_no_escaneados) {
+            return swal({
+                type: 'error',
+                html: `La cantidad escaneada del producto ${
+                    productos_sin_serie_no_escaneados.sku
+                } no concuerda con la cantidad requerida<br><br>Faltan: ${
+                    productos_sin_serie_no_escaneados.cantidad -
+                    productos_sin_serie_no_escaneados.cantidad_sku_escaneado
+                }`,
+            });
+        }
+
+        var form_data = new FormData();
+        form_data.append('data', JSON.stringify(this.detalle));
+        form_data.append('regresar', String(this.data.regresar));
+
+        this.http
+            .post(
+                `${backend_url}almacen/pretransferencia/envio/guardar`,
+                form_data
+            )
+            .subscribe(
+                (res) => {
+                    swal({
+                        title: '',
+                        type: res['code'] == 200 ? 'success' : 'error',
+                        html: res['message'],
+                    });
+
+                    if (res['code'] == 200) {
+                        const index = this.solicitudes.findIndex(
+                            (solicitud) => solicitud.id == this.detalle.id
+                        );
+                        this.solicitudes.splice(index, 1);
+
+                        this.detalle = {
+                            id: 0,
+                            area: '',
+                            marketplace: '',
+                            productos: [],
+                            archivos: [],
+                            publicaciones: [],
+                        };
+
+                        this.modalReference.close();
+
+                        if (this.data.regresar) {
+                            return;
+                        }
+
+                        this.http
+                            .get(
+                                `${backend_url}almacen/movimiento/documento/${res['documento']}`
+                            )
+                            .subscribe(
+                                (res) => {
+                                    if (res['code'] != 200) {
+                                        swal('', res['message'], 'error');
+
+                                        return;
+                                    }
+
+                                    let dataURI =
+                                        'data:application/pdf;base64, ' +
+                                        res['file'];
+
+                                    let a = window.document.createElement('a');
+                                    a.href = dataURI;
+                                    a.download = res['name'];
+                                    a.setAttribute('id', 'etiqueta_descargar');
+
+                                    a.click();
+
+                                    $('#etiqueta_descargar').remove();
+                                },
+                                (response) => {
+                                    swal({
+                                        title: '',
+                                        type: 'error',
+                                        html:
+                                            response.status == 0
+                                                ? response.message
+                                                : typeof response.error ===
+                                                  'object'
+                                                ? response.error.error_summary
+                                                : response.error,
+                                    });
+                                }
+                            );
+                    }
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+
+    agregarSeries(modal, codigo) {
+        this.data.producto_serie = codigo;
+
+        const producto = this.detalle.productos.find(
+            (producto) => producto.sku == codigo
+        );
+
+        if (!producto.serie) {
+            swal('', 'Este producto no lleva series.', 'error');
+
+            return;
+        }
+
+        this.data.series = producto.series;
+
+        this.modalReferenceSerie = this.modalService.open(modal, {
+            backdrop: 'static',
+        });
+
+        let inputElement = this.renderer.selectRootElement('#serie');
+        inputElement.focus();
+    }
+
+    agregarSerie() {
+        if (!$.trim(this.data.serie)) {
+            let inputElement = this.renderer.selectRootElement('#serie');
+            inputElement.focus();
+
+            return;
+        }
+
+        const series = $.trim(this.data.serie).split(' ');
+
+        if (series.length > 1) {
+            series.forEach((serie) => {
+                this.serieRepetida(serie);
+            });
+
+            return;
+        }
+
+        this.serieRepetida(this.data.serie);
+    }
+
+    eliminarSerie(serie) {
+        const index = this.data.series.findIndex(
+            (serie_ip) => serie_ip == serie
+        );
+
+        this.data.series.splice(index, 1);
+
+        const producto = this.detalle.productos.find(
+            (producto) => producto.sku == this.data.producto_serie
+        );
+
+        producto.series = this.data.series;
+    }
+
+    confirmarSeries() {
+        var form_data = new FormData();
+
+        form_data.append('producto', this.data.producto_serie);
+        form_data.append('series', JSON.stringify(this.data.series));
+
+        this.http
+            .post(`${backend_url}almacen/packing/confirmar`, form_data)
+            .subscribe(
+                (res) => {
+                    if (res['code'] == 200) {
+                        const series = res['series'].filter(
+                            (serie) => serie.status == 0
+                        );
+
+                        if (series.length > 0) {
+                            series.forEach((serie) => {
+                                $("li:contains('" + serie.serie + "')").css(
+                                    'border-color',
+                                    'red'
+                                );
+                            });
+
+                            return swal({
+                                type: 'error',
+                                html: 'Las series marcadas en rojo no fueron encontradas, se necesita un administrador para que autorice el movimiento.',
+                            }).then(() => {
+                                this.modalReferenceToken =
+                                    this.modalService.open(this.modaltoken, {
+                                        backdrop: 'static',
+                                    });
+                            });
+                        }
+
+                        const producto = this.detalle.productos.find(
+                            (producto) =>
+                                producto.sku == this.data.producto_serie
+                        );
+                        producto.series = this.data.series;
+
+                        this.data.series = [];
+
+                        this.modalReferenceSerie.close();
+                    }
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+
+    agregarProductosEscaneados(modal, codigo) {
+        const producto = this.detalle.productos.find(
+            (producto) => producto.sku == codigo
+        );
+
+        this.data.producto_serie = codigo;
+        this.data.cantidad_producto_escaneado = producto.cantidad_sku_escaneado;
+
+        this.modalReferenceProducto = this.modalService.open(modal, {
+            backdrop: 'static',
+        });
+
+        let inputElement =
+            this.renderer.selectRootElement('#productoescaneado');
+        inputElement.focus();
+    }
+
+    agregarProductoEscaneado() {
+        let continuar = 1;
+
+        if (this.data.producto_escaneado != this.data.producto_serie) {
+            let producto = this.detalle.productos.find((producto) =>
+                producto.sinonimos.find(
+                    (sinonimo) => sinonimo == this.data.producto_escaneado
+                )
+            );
+
+            if (!producto) continuar = 0;
+        }
+
+        if (!continuar) {
+            this.data.producto_escaneado = '';
+
+            return swal({
+                type: 'error',
+                html: 'Codigo erroneo',
+            });
+        }
+
+        const producto = this.detalle.productos.find(
+            (producto) => producto.sku == this.data.producto_serie
+        );
+
+        if (producto.cantidad == this.data.cantidad_producto_escaneado) {
+            producto.cantidad_sku_escaneado =
+                this.data.cantidad_producto_escaneado;
+            this.data.producto_escaneado = '';
+            this.data.cantidad_producto_escaneado = 0;
+            this.data.producto_serie = '';
+            this.modalReferenceProducto.close();
+
+            return;
+        }
+
+        this.data.cantidad_producto_escaneado++;
+
+        if (producto.cantidad == this.data.cantidad_producto_escaneado) {
+            producto.cantidad_sku_escaneado =
+                this.data.cantidad_producto_escaneado;
+            this.data.producto_escaneado = '';
+            this.data.cantidad_producto_escaneado = 0;
+            this.data.producto_serie = '';
+            this.modalReferenceProducto.close();
+        }
+
+        this.data.producto_escaneado = '';
+
+        let inputElement =
+            this.renderer.selectRootElement('#productoescaneado');
+        inputElement.focus();
+    }
+
+    confirmarAuthy() {
+        const form_data = new FormData();
+
+        form_data.append('data', JSON.stringify(this.authy));
+
+        this.http
+            .post(`${backend_url}almacen/packing/confirmar-authy`, form_data)
+            .subscribe(
+                (res) => {
+                    if (res['code'] != 200) {
+                        return swal({
+                            title: '',
+                            type: 'error',
+                            html: res['message'],
+                        });
+                    }
+
+                    const producto = this.detalle.productos.find(
+                        (producto) => producto.sku == this.data.producto_serie
+                    );
+                    producto.series = this.data.series;
+
+                    this.data.series = [];
+
+                    this.modalReferenceToken.close();
+                    this.modalReferenceSerie.close();
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+
+    sanitizeInput() {
+        // Elimina los caracteres no deseados
+        this.data.serie = this.data.serie.replace(/['\\]/g, '');
+    }
+
+    async serieRepetida(serie) {
+        try {
+            serie = serie.replace(/['\\]/g, '');
+            const form_data = new FormData();
+            form_data.append('serie', serie);
+
+            const res = await this.http
+                .post(`${backend_url}developer/busquedaSerieVsSku`, form_data)
+                .toPromise();
+
+            if (!res['valido']) {
+                this.data.serie = '';
+                swal({
+                    type: 'error',
+                    html: `La serie es un SKU`,
+                });
+                return;
+            }
+            const repetida = this.detalle.productos.find((producto) =>
+                producto.series.find((serie_ip) => serie_ip == serie)
+            );
+
+            if (repetida) {
+                this.data.serie = '';
+                swal(
+                    '',
+                    `La serie ya se encuentra registrada en el sku ${repetida.sku}`,
+                    'error'
+                );
+
+                return 0;
+            }
+
+            const producto = this.detalle.productos.find(
+                (producto) => producto.sku == this.data.producto_serie
+            );
+
+            if (producto.cantidad == this.data.series.length) {
+                this.data.serie = '';
+                swal('', 'Ya no puedes agregar más series.', 'warning');
+
+                return;
+            }
+
+            this.data.series.push($.trim(serie));
+
+            this.data.serie = '';
+
+            let inputElement = this.renderer.selectRootElement('#serie');
+            inputElement.focus();
+        } catch (error) {
+            swal({
+                title: '',
+                type: 'error',
+            });
+        }
+    }
+
+    verArchivo(id_dropbox) {
+        var form_data = JSON.stringify({ path: id_dropbox });
+
+        const httpOptions = {
+            headers: new HttpHeaders({
+                'Content-Type': 'application/json',
+                Authorization:
+                    'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
+            }),
+        };
+
+        this.http
+            .post(
+                'https://api.dropboxapi.com/2/files/get_temporary_link',
+                form_data,
+                httpOptions
+            )
+            .subscribe(
+                (res) => {
+                    window.open(res['link']);
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+
+    imprimirEtiquetas(publicacion_id, etiqueta) {
+        etiqueta = etiqueta == 'N/A' ? 'na' : etiqueta;
+
+        this.http
+            .get(
+                `${backend_url}almacen/pretransferencia/envio/etiqueta/${this.detalle.id}/${publicacion_id}/${etiqueta}`
+            )
+            .subscribe(
+                (res) => {},
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+}

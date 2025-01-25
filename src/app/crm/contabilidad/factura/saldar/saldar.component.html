@@ -1,0 +1,117 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10" autocomplete="off" #f="ngForm">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select name="empresa" id="empresa" required #empresa="ngModel" class="form-control"
+                            [(ngModel)]="documento.empresa">
+                            <option value="" disabled></option>
+                            <option value="{{ empresa.bd }}" *ngFor="let empresa of empresas">{{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small class="text-danger messages block" *ngIf="empresa.errors?.required">Campo
+                            requerido</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <select name="tipo_documento" id="tipo_documento" class="form-control"
+                            [(ngModel)]="documento.tipo" required>
+                            <option value="" disabled></option>
+                            <option value="1">Ingreso</option>
+                            <option value="2">Nota de credito</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo documento</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input type="text" name="folio" class="form-control" #folio="ngModel" required
+                            [(ngModel)]="documento.ingreso" pattern="[^'&quot;]+$">
+                        <span class="form-bar"></span>
+                        <label class="float-label">ID del documento</label>
+                        <small class="text-danger messages block"
+                            *ngIf="(folio.invalid && (folio.dirty || folio.touched))">No se permite el caracter ' ó
+                            "</small>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input type="text" name="factura" class="form-control" #factura="ngModel"
+                            [(ngModel)]="documento.factura" pattern="[^'&quot;]+$">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Factura (Folio)</label>
+                        <small class="text-danger messages block"
+                            *ngIf="(factura.invalid && (factura.dirty || factura.touched))">No se permite el caracter '
+                            ó
+                            "</small>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-primary btn-sm btn-block http-disabled" id="button_buscar"
+                        (click)="buscarIngreso()"
+                        [disabled]="!f.valid">{{ documento.factura ? 'Aplicar' : 'Buscar' }}</button>
+                </div>
+
+                <div class="col-md-1">
+                    <button class="btn btn-primary btn-sm btn-block http-disabled" [disabled]="documento.rango_de == 1"
+                        (click)="sumarRestarRango(0)">De {{ documento.rango_de }}</button>
+                </div>
+
+                <div class="col-md-1">
+                    <button class="btn btn-primary btn-sm btn-block http-disabled" (click)="sumarRestarRango(1)">A
+                        {{ documento.rango_a }}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="contabilidad_factura_saldar">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Folio</th>
+                            <th>Almacén</th>
+                            <th>Total</th>
+                            <th>Saldo</th>
+                            <th>Moneda</th>
+                            <th>T.C</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let factura of facturas | slice:(documento.rango_de):(documento.rango_a)">
+                            <td>{{ factura.id }}</td>
+                            <td>{{ factura.factura }}</td>
+                            <td>{{ factura.almacen }}</td>
+                            <td>$ {{ commaNumber(factura.total) }}</td>
+                            <td>$ {{ commaNumber(factura.resta) }}</td>
+                            <td>{{ factura.moneda }}</td>
+                            <td>{{ factura.tipo_cambio }}</td>
+                            <td>{{ factura.fecha }}</td>
+                            <td>{{ ((factura.cancelado != 0 && factura.cancelado != null) || (factura.eliminado != 0 && factura.eliminado != null)) ? 'Cancelada' : 'Activa' }}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-block http-disabled"
+                                    [disabled]="(factura.cancelado != 0 && factura.cancelado != null) || (factura.eliminado != 0 && factura.eliminado != null)"
+                                    (click)="aplicarIngreso(factura.id)">Aplicar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

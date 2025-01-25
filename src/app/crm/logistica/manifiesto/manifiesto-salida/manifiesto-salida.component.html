@@ -1,0 +1,174 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="sub-title m-t-20">
+                        Agregar guía al manifiesto de salida
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="manifiest-output-label"
+                                    id="manifiest-output-label"
+                                    class="form-control"
+                                    [(ngModel)]="label"
+                                    maxlength="50"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Guía</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button
+                                class="btn btn-sm btn-outline-info btn-block http-disabled"
+                                (click)="addLabel()"
+                                placement="top"
+                                ngbTooltip="Agregar aguía"
+                            >
+                                <i class="fa fa-plus fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="sub-title m-t-20">Generar Manifiesto</h4>
+
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="output-manifest-shipping-provider"
+                                    class="form-control"
+                                    [(ngModel)]="print.shipping_provider"
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of shipping_providers"
+                                    >
+                                        {{ row.paqueteria }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Paqueteria</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-info btn-block http-disabled"
+                                (click)="printOutputManifest(1)"
+                                placement="top"
+                                ngbTooltip="Imprimir Manifiesto"
+                            >
+                                <i class="fa fa-print fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="output-manifest-shipping-printer"
+                                    class="form-control"
+                                    [(ngModel)]="print.printer"
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of printers"
+                                    >
+                                        {{ row.nombre }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Impresora</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-warning btn-block http-disabled"
+                                (click)="printOutputManifest(2)"
+                                placement="top"
+                                ngbTooltip="Reimprimir Manifiesto"
+                            >
+                                <i class="fa fa-print fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="logistica-manifiesto-manifiesto-salida"
+                >
+                    <thead>
+                        <tr>
+                            <th>Guía</th>
+                            <th>Impresora</th>
+                            <th>Destinatario</th>
+                            <th>Dirección</th>
+                            <th>Paquetería</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of labels">
+                            <td>{{ row.guia }}</td>
+                            <td>{{ row.nombre }}</td>
+                            <td>
+                                {{
+                                    row.contacto == null
+                                        ? "DESCONOCIDO"
+                                        : row.contacto
+                                }}
+                            </td>
+                            <td>
+                                {{
+                                    row.codigo_postal == null
+                                        ? "DESCONOCIDO"
+                                        : row.calle +
+                                          " " +
+                                          row.numero +
+                                          " " +
+                                          row.numero_int +
+                                          ", " +
+                                          row.colonia +
+                                          ", " +
+                                          row.ciudad +
+                                          ", " +
+                                          row.estado +
+                                          ", " +
+                                          row.codigo_postal
+                                }}
+                            </td>
+                            <td>{{ row.paqueteria }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-outline-danger btn-sm http-disabled"
+                                    (click)="deleteLabel(row.guia)"
+                                    placement="top"
+                                    ngbTooltip="Borrar guía"
+                                >
+                                    <i class="fa fa-trash fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

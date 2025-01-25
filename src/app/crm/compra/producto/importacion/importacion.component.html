@@ -1,0 +1,129 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <div
+                        class="form-group form-primary"
+                        [hidden]="empresas_usuario.length < 2"
+                    >
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.empresa"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <a
+                        href="assets/files/ProductosMasivoTemplate.xlsx"
+                        class="btn btn-outline-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="Descargar template"
+                        download
+                    >
+                        <i class="fa fa-file-download fa-2x"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary m-t-30">
+                        <input
+                            type="file"
+                            multiple
+                            class="form-control"
+                            id="productos_excel"
+                            (change)="visualizarProductosExcel()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Excel</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="compra_producto_importacion"
+                >
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>MPN</th>
+                            <th>Descripción</th>
+                            <th>Medidas</th>
+                            <th>Serie</th>
+                            <th>Código SAT</th>
+                            <th>Cat 1</th>
+                            <th>Cat 2</th>
+                            <th>Cat 3</th>
+                            <th>Cat 4</th>
+                            <th>Tipo</th>
+                            <th>Clave de unidad</th>
+                            <!-- <th>Cva</th>
+                            <th>Portenntum</th>
+                            <th>Arroba</th>
+                            <th>Exel</th> -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of data.productos">
+                            <td>{{ row.codigo }}</td>
+                            <td>{{ row.mpn }}</td>
+                            <td>{{ row.descripcion }}</td>
+                            <td>{{ row.medidas }}</td>
+                            <td>{{ row.serie == "1" ? "Sí" : "No" }}</td>
+                            <td>{{ row.sat }}</td>
+                            <td>{{ row.cat1 }}</td>
+                            <td>{{ row.cat2 }}</td>
+                            <td>{{ row.cat3 }}</td>
+                            <td>{{ row.cat4 }}</td>
+                            <td>
+                                {{ row.tipo == 1 ? "Producto" : "Servicio" }}
+                            </td>
+                            <td>
+                                {{
+                                    row.claveunidad == "E48"
+                                        ? "Unidad de Servicio"
+                                        : "Pieza"
+                                }}
+                            </td>
+                            <td>{{ row.cva }}</td>
+                            <td>{{ row.portenntum }}</td>
+                            <td>{{ row.arroba }}</td>
+                            <td>{{ row.exel }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-12 mt-3">
+                <button
+                    class="btn btn-info btn-sm btn-block http-disabled"
+                    (click)="crearProductos()"
+                    [disabled]="!data.productos.length"
+                >
+                    Crear productos
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

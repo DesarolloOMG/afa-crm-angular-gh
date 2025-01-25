@@ -1,0 +1,400 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row m-t-10">
+            <div class="col-md-1 offset-md-11" style="margin-top: -18px">
+                <label style="display: block; font-size: 9pt"
+                    >Fulfillment</label
+                >
+                <ui-switch
+                    class="js-single"
+                    color="#4680ff"
+                    switchColor="#fff"
+                    size="medium"
+                    name="fulfillmentswitch"
+                    id="fulfillmentswitch"
+                    [(ngModel)]="fulfillment"
+                    (change)="filtrarVentas()"
+                ></ui-switch>
+            </div>
+        </div>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="venta_venta_pedido_pendiente"
+                >
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Almacén</th>
+                            <th>Venta</th>
+                            <th>Marketplace</th>
+                            <th>Cliente</th>
+                            <th>Paquetería</th>
+                            <th>Vendedor</th>
+                            <th>Productos</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                            <th>TEE</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let venta of ventas">
+                            <td>{{ venta.id }}</td>
+                            <td>{{ venta.almacen }}</td>
+                            <td>{{ venta.no_venta }}</td>
+                            <td>
+                                {{ venta.marketplace + " / " + venta.area }}
+                            </td>
+                            <td>{{ venta.cliente }}</td>
+                            <td>{{ venta.paqueteria }}</td>
+                            <td>{{ venta.usuario }}</td>
+                            <td>
+                                <ul>
+                                    <li
+                                        *ngFor="let producto of venta.productos"
+                                    >
+                                        • {{ producto.descripcion }}
+                                    </li>
+                                </ul>
+                            </td>
+                            <td class="no-wrap">
+                                $ {{ commaNumber(venta.total) }}
+                            </td>
+                            <td>{{ venta.created_at }}</td>
+                            <td
+                                class="{{
+                                    venta.dias_restantes > 10
+                                        ? 'verde'
+                                        : venta.dias_restantes > 5
+                                        ? 'amarillo'
+                                        : 'rojo'
+                                }}"
+                                *ngIf="!venta.fulfillment"
+                            >
+                                <b>{{ venta.dias_restantes }} días</b>
+                            </td>
+                            <td class="verde" *ngIf="venta.fulfillment"></td>
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm btn-block"
+                                    (click)="
+                                        informacionExtraMercadolibre(
+                                            venta.no_venta
+                                        )
+                                    "
+                                >
+                                    Información
+                                </button>
+                            </td>
+                            <td>
+                                <a
+                                    class="btn btn-info btn-sm"
+                                    target="_blank"
+                                    [routerLink]="[
+                                        '/venta/venta/editar',
+                                        venta.id
+                                    ]"
+                                    >Editar</a
+                                >
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="convertirVenta(venta.id)"
+                                >
+                                    Convertir
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <div
+                        *ngFor="let seguimiento of extra_info.seguimiento"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Venta</label>
+                <div class="col-sm-10 inline-block">
+                    <p class="no-margin">
+                        Pack: <b>{{ extra_info.pack_id }}</b>
+                    </p>
+                    <p class="no-margin">
+                        Venta: <b>{{ extra_info.id }}</b>
+                    </p>
+                    <p class="no-margin">
+                        Fecha de creación:
+                        <b>{{ extra_info.date_created }}</b>
+                    </p>
+                    <p class="no-margin">
+                        Fecha de cierre:
+                        <b>{{ extra_info.date_closed }}</b>
+                    </p>
+                    <p class="no-margin">
+                        Estado: <b>{{ extra_info.status }}</b>
+                    </p>
+                    <p class="no-margin">
+                        Total: <b>{{ extra_info.total_amount }}</b>
+                    </p>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Cliente</label>
+                <div class="col-sm-10 inline-block">
+                    <p class="no-margin">
+                        Pseudonimo: <b>{{ extra_info.buyer.nickname }}</b>
+                    </p>
+                    <p class="no-margin">
+                        Nombre:
+                        <b>{{
+                            extra_info.buyer.first_name +
+                                " " +
+                                extra_info.buyer.last_name
+                        }}</b>
+                    </p>
+                    <p class="no-margin">
+                        Email: <b>{{ extra_info.buyer.email }}</b>
+                    </p>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Cobros</label>
+                <div class="col-sm-10 inline-block">
+                    <div *ngFor="let cobro of extra_info.payments">
+                        <p class="no-margin">
+                            Cobro: <b>{{ cobro.id }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Fecha de creación: <b>{{ cobro.date_created }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Fecha ult. modificación:
+                            <b>{{ cobro.date_last_modified }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Estado: <b>{{ cobro.status }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Detalle: <b>{{ cobro.status_detail }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Total de la transacción:
+                            <b>{{ cobro.transaction_amount }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Costo del envio: <b>{{ cobro.shipping_cost }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Cupon: <b>{{ cobro.coupon_amount }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Comisión: <b>{{ cobro.marketplace_fee }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Tipo de pago: <b>{{ cobro.payment_type }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Metodo de pago: <b>{{ cobro.payment_method_id }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Total del pago a plazos:
+                            <b>{{ cobro.installment_amount }}</b>
+                        </p>
+                        <p></p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block">
+                    <div *ngFor="let producto of extra_info.order_items">
+                        <p class="no-margin">
+                            ID: <b>{{ producto.item.id }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Producto: <b>{{ producto.item.title }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Seller SKU: <b>{{ producto.item.seller_sku }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Garantía: <b>{{ producto.warranty }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Cantidad: <b>{{ producto.quantity }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Precio: <b>{{ producto.unit_price }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Comisión: <b>{{ producto.sale_fee }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Tipo de prodcto:
+                            <b>{{ producto.listing_type_id }}</b>
+                        </p>
+                        <p *ngIf="producto.item.variation_attributes">
+                            Variaciónes:
+                        </p>
+                        <ul *ngIf="producto.item.variation_attributes">
+                            <li
+                                *ngFor="
+                                    let variacion of producto.item
+                                        .variation_attributes
+                                "
+                            >
+                                <b>{{ variacion.name }}</b
+                                >: {{ variacion.value_name }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Envio</label>
+                <div class="col-sm-10 inline-block">
+                    <div *ngIf="extra_info.status != 'cancelled'">
+                        <p class="no-margin">
+                            Estado: <b>{{ extra_info.shipping.status }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Subestado:
+                            <b>{{ extra_info.shipping.substatus }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Logistica:
+                            <b>{{ extra_info.shipping.tracking_method }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Guía:
+                            <b>{{ extra_info.shipping.tracking_number }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Tipo de logistica:
+                            <b>{{ extra_info.shipping.logistic_type }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Fecha de creación:
+                            <b>{{ extra_info.shipping.date_created }}</b>
+                        </p>
+                        <p class="no-margin">
+                            Fecha primera impresion:
+                            <b>{{ extra_info.shipping.date_first_printed }}</b>
+                        </p>
+                        <ng-container
+                            *ngIf="extra_info.shipping.status_history"
+                        >
+                            <p class="no-margin">
+                                Fecha de envio listo:
+                                <b>{{
+                                    extra_info.shipping.status_history
+                                        .date_ready_to_ship
+                                }}</b>
+                            </p>
+                            <p class="no-margin">
+                                Fecha de envio:
+                                <b>{{
+                                    extra_info.shipping.status_history
+                                        .date_shipped
+                                }}</b>
+                            </p>
+                            <p class="no-margin">
+                                Fecha de entrega:
+                                <b>{{
+                                    extra_info.shipping.status_history
+                                        .date_delivered
+                                }}</b>
+                            </p>
+                            <p class="no-margin">
+                                Fecha primera visita:
+                                <b>{{
+                                    extra_info.shipping.status_history
+                                        .date_first_visit
+                                }}</b>
+                            </p>
+                        </ng-container>
+                        <p class="no-margin">
+                            Fecha ult. actualización:
+                            <b>{{ extra_info.shipping.last_updated }}</b>
+                        </p>
+                    </div>
+                    <div *ngIf="extra_info.status == 'cancelled'">
+                        Venta cancelada
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Reclamos</label>
+                <div class="col-sm-10 inline-block">
+                    <div *ngIf="extra_info.mediations?.length > 0">
+                        <div *ngFor="let reclamo of extra_info.mediations">
+                            <p class="no-margin">
+                                Reclamo: <b>{{ reclamo.id }}</b>
+                            </p>
+                            <p class="no-margin">
+                                Tipo: <b>{{ reclamo.type }}</b>
+                            </p>
+                            <p class="no-margin">
+                                Escenario: <b>{{ reclamo.stage }}</b>
+                            </p>
+                            <p class="no-margin">
+                                Estado: <b>{{ reclamo.status }}</b>
+                            </p>
+                        </div>
+                    </div>
+                    <div *ngIf="extra_info.mediations?.length == 0">
+                        Sin reclamos
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

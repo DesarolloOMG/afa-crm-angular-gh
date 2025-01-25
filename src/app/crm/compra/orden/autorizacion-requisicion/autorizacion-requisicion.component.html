@@ -1,0 +1,189 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="float-left">Requisiciones</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="compra_orden_autorizacion_requisicion"
+                >
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Productos</th>
+                            <th>Creador</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of documentos; let index = index">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm btn-block"
+                                    (click)="abrirModal(row.id, modalautorizar)"
+                                >
+                                    {{ row.id }}
+                                </button>
+                            </td>
+                            <td class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Precio de salida (MXN)</th>
+                                            <th>Condicion</th>
+                                            <th>Marketplace</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let producto of row.productos
+                                            "
+                                        >
+                                            <td>{{ producto.descripcion }}</td>
+                                            <td>{{ producto.cantidad }}</td>
+                                            <td>
+                                                $
+                                                {{
+                                                    commaNumber(producto.costo)
+                                                }}
+                                            </td>
+                                            <td>{{ producto.condicion }}</td>
+                                            <td>{{ producto.marketplace }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td>{{ row.nombre }}</td>
+                            <td>{{ row.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalautorizar let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Autorizar requisición</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Requisición</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.id }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio de salida (MXN)</th>
+                                <th>Condicion</th>
+                                <th>Marketplace</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let producto of data.productos">
+                                <td>{{ producto.descripcion }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                                <td>$ {{ commaNumber(producto.costo) }}</td>
+                                <td>{{ producto.condicion }}</td>
+                                <td>{{ producto.marketplace }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        [(ngModel)]="data.seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        [(ngModel)]="data.seguimiento"
+                        [init]="tinymce_init"
+                    ></editor> -->
+
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento_anterior"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-block btn-danger http-disabled"
+                        style="margin: 10px"
+                        (click)="cancelarRequisicion($event)"
+                        [disabled]="!data.seguimiento"
+                    >
+                        Eliminar
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        style="margin: 10px"
+                        (click)="autorizarRequisicion($event)"
+                        [disabled]="!data.seguimiento"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

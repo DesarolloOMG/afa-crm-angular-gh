@@ -1,0 +1,104 @@
+<section class="login-block">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <form
+                    class="md-float-material form-material"
+                    action="javascript:"
+                    #f="ngForm"
+                >
+                    <div class="text-center">
+                        <img src="assets/images/logo_omg.png" alt="omg.png" />
+                    </div>
+                    <div class="auth-box card">
+                        <div class="card-block">
+                            <div class="row m-b-20">
+                                <div class="col-md-12">
+                                    <h4 class="text-center">
+                                        Resetear Contraseña
+                                    </h4>
+                                </div>
+                            </div>
+
+                            <div class="form-group form-primary">
+                                <input
+                                    #email="ngModel"
+                                    type="email"
+                                    name="email"
+                                    class="form-control"
+                                    [(ngModel)]="data.email"
+                                    required
+                                    email
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Correo electronico</label
+                                >
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="
+                                        email.invalid &&
+                                        (email.dirty || email.touched) &&
+                                        email.errors?.email
+                                    "
+                                    >Favor de escribir un correo electronico
+                                    valido</small
+                                >
+                            </div>
+
+                            <div class="form-group form-primary">
+                                <input
+                                    #authy="ngModel"
+                                    type="text"
+                                    name="authy"
+                                    class="form-control"
+                                    [(ngModel)]="data.authy"
+                                    required
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Código de confirmación (Authy)</label
+                                >
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="
+                                        authy.invalid &&
+                                        (authy.dirty || authy.touched) &&
+                                        authy.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+
+                            <div class="row m-t-25 text-left">
+                                <div class="col-12">
+                                    <div
+                                        class="forgot-phone text-right f-right"
+                                    >
+                                        <a
+                                            [routerLink]="['/auth/login']"
+                                            class="textright fw600"
+                                        >
+                                            Iniciar sesión</a
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-t-30">
+                                <div class="col-md-12">
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                                        (click)="reset()"
+                                    >
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

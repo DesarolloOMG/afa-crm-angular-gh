@@ -1,0 +1,1043 @@
+<form class="md-float-material form-material" #f="ngForm">
+    <div class="auth-box card">
+        <div class="card-block">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.empresa"
+                            (change)="cambiarEmpresa()"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="empresa.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Tipo de documento</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="tipo_documento"
+                            id="tipo_documento"
+                            #tipodocumento="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.tipo_documento"
+                            (change)="cambiarTipoDocumento()"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option value="1">Ingreso</option>
+                            <option value="0">Egreso</option>
+                            <option value="2">Traspaso</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Afectación</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="tipodocumento.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <label style="display: block; font-size: 9pt"
+                        >Buscar facturas con saldo</label
+                    >
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="buscarfacturas"
+                        id="buscarfacturas"
+                        [(ngModel)]="data.buscar_facturas"
+                    ></ui-switch>
+                </div>
+            </div>
+
+            <div class="row" [hidden]="data.tipo_documento != '0'">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="clasificacion_select"
+                            id="clasificacion_select"
+                            [required]="data.tipo_documento == '0'"
+                            #clasificacion="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.clasificacion"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ clasificacion.id }}"
+                                *ngFor="let clasificacion of clasificaciones"
+                            >
+                                {{ clasificacion.clasificacion }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Clasificación</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="clasificacion.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="vertical_select"
+                            id="vertical_select"
+                            #vertical="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.vertical"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ vertical.id }}"
+                                *ngFor="let vertical of verticales"
+                            >
+                                {{ vertical.vertical }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Vertical</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="vertical.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" [hidden]="1">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="categoria_select"
+                            id="categoria_select"
+                            #categoria="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.categoria"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ categoria.id }}"
+                                *ngFor="let categoria of categorias"
+                            >
+                                {{ categoria.categoria }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Categoria</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="categoria.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-6">
+                    <h4 class="sub-title">Origen</h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="origen_fecha_operacion"
+                                    class="form-control"
+                                    #origenfechaoperacion="ngModel"
+                                    [(ngModel)]="data.origen.fecha_operacion"
+                                    required
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de operación</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        origenfechaoperacion.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="number"
+                                    name="origen_monto"
+                                    class="form-control"
+                                    #origenmonto="ngModel"
+                                    [(ngModel)]="data.origen.monto"
+                                    step="0.001"
+                                    required
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Monto</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        origenmonto.invalid &&
+                                        (origenmonto.dirty ||
+                                            origenfechaoperacion.touched)
+                                    "
+                                    >Sólo datos númericos</small
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="origenmonto.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <p
+                                    class="m-t-10"
+                                    style="font-size: 16px; font-weight: 400"
+                                >
+                                    $
+                                    {{
+                                        data.origen.monto == undefined
+                                            ? 0
+                                            : commaNumber(data.origen.monto)
+                                    }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="origen_entidad"
+                                    id="origen_entidad"
+                                    #origenentidad="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.origen.entidad"
+                                    (change)="cambiarEntidad(0)"
+                                    required
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ entidad.id }}"
+                                        *ngFor="
+                                            let entidad of tipo_entidad_origen
+                                        "
+                                    >
+                                        {{ entidad.tipo }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="origenentidad.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="col-md-10"
+                            [hidden]="entidades_origen.length > 0"
+                        >
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="origen_entidad_text"
+                                    id="origen_entidad_text"
+                                    class="form-control"
+                                    #origenentidadtext="ngModel"
+                                    [(ngModel)]="data.origen.entidad_text"
+                                    pattern="[^'&quot;]+$"
+                                    (keydown.enter)="buscarEntidad(0)"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Escribe tu búsqueda aquí</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="origenentidadtext.errors?.required"
+                                    >Campo requerido</small
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="origenentidadtext.errors?.pattern"
+                                    >No se permite el caracter ' ó "</small
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="col-md-10"
+                            [hidden]="entidades_origen.length == 0"
+                        >
+                            <div class="form-group form-primary">
+                                <select
+                                    name="origen_cuenta_bancaria"
+                                    id="origen_cuenta_bancaria"
+                                    #origencuentabancaria="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.origen.cuenta_bancaria"
+                                    (change)="cambiarCuentaBancaria(1)"
+                                    required
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ entidad.id }}"
+                                        *ngFor="let entidad of entidades_origen"
+                                    >
+                                        {{ entidad.cuenta }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        origencuentabancaria.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-block http-disabled"
+                                (click)="buscarEntidad(0)"
+                            >
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="sub-title">Destino</h4>
+
+                    <div class="row">
+                        <div class="col-md-12" [hidden]="1">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="destino_fecha_operacion"
+                                    class="form-control"
+                                    #destinofechaoperacion="ngModel"
+                                    [(ngModel)]="data.destino.fecha_operacion"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de operación</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        destinofechaoperacion.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="col-md-6"
+                            [hidden]="data.moneda == 3 || data.moneda == 0"
+                        >
+                            <div class="form-group form-primary">
+                                <input
+                                    type="number"
+                                    name="tipo_cambio"
+                                    [required]="data.moneda != 3"
+                                    class="form-control"
+                                    #tipocambio="ngModel"
+                                    [(ngModel)]="data.tipo_cambio"
+                                    step="0.001"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Tipo de cambio</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        data.tipo_cambio < '1' &&
+                                        data.tipo_cambio != ''
+                                    "
+                                    >El TC debe ser mayor a 0</small
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        tipocambio.invalid &&
+                                        (origenmonto.dirty ||
+                                            origenfechaoperacion.touched)
+                                    "
+                                    >Sólo datos númericos</small
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="tipocambio.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="destino_entidad"
+                                    id="destino_entidad"
+                                    required
+                                    #destinoentidad="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.destino.entidad"
+                                    (change)="cambiarEntidad(1)"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ entidad.id }}"
+                                        *ngFor="
+                                            let entidad of tipo_entidad_destino
+                                        "
+                                    >
+                                        {{ entidad.tipo }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="destinoentidad.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="col-md-10"
+                            [hidden]="entidades_destino.length > 0"
+                        >
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="destino_entidad_text"
+                                    id="destino_entidad_text"
+                                    class="form-control"
+                                    #destinoentidadtext="ngModel"
+                                    [(ngModel)]="data.destino.entidad_text"
+                                    pattern="[^'&quot;]+$"
+                                    (keydown.enter)="buscarEntidad(1)"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Escribe tu búsqueda aquí</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="destinoentidadtext.errors?.required"
+                                    >Campo requerido</small
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="destinoentidadtext.errors?.pattern"
+                                    >No se permite el caracter ' ó "</small
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="col-md-10"
+                            [hidden]="entidades_destino.length == 0"
+                        >
+                            <div class="form-group form-primary">
+                                <select
+                                    name="destino_cuenta_bancaria"
+                                    id="destino_cuenta_bancaria"
+                                    required
+                                    #destinocuentabancaria="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.destino.cuenta_bancaria"
+                                    (change)="cambiarCuentaBancaria(0)"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ entidad.id }}"
+                                        *ngFor="
+                                            let entidad of entidades_destino
+                                        "
+                                    >
+                                        {{ entidad.cuenta }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        destinocuentabancaria.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-block http-disabled"
+                                (click)="buscarEntidad(1)"
+                            >
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Método de pago y referencia</h4>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <select
+                            name="metodo_pago"
+                            id="metodo_pago"
+                            required
+                            #metodopago="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.metodo_pago"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ metodo.id }}"
+                                *ngFor="let metodo of metodos_pago"
+                            >
+                                {{ metodo.metodo_pago }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Metodo de pago</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="metodopago.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="referencia"
+                            required
+                            class="form-control"
+                            #referencia="ngModel"
+                            [(ngModel)]="data.referencia"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Referencia</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                referencia.invalid &&
+                                (referencia.dirty || referencia.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="referencia.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div
+                    class="col-md-3"
+                    [hidden]="
+                        ['1', '31'].indexOf(data.metodo_pago) != -1 ||
+                        data.metodo_pago == ''
+                    "
+                >
+                    <div class="form-group form-primary">
+                        <select
+                            name="cuenta_proveedor"
+                            id="cuenta_proveedor"
+                            #cuentaproveedor="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.cuenta_proveedor"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ cuenta.FinancialEntityID }}"
+                                *ngFor="let cuenta of cuentas_pago"
+                            >
+                                {{ cuenta.cuenta }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cuenta bancaria</label>
+                    </div>
+                </div>
+
+                <div
+                    class="col-md-1 m-t-10"
+                    [hidden]="
+                        ['1', '31'].indexOf(data.metodo_pago) != -1 ||
+                        data.metodo_pago == ''
+                    "
+                >
+                    <div class="form-group form-primary">
+                        <button
+                            type="button"
+                            class="btn btn-info btn-sm btn-block"
+                            (click)="nuevaCuenta(modalcuenta)"
+                        >
+                            <i class="fa fa-credit-card"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-md-4" [hidden]="data.metodo_pago != '3'">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="clave_rastreo"
+                            class="form-control"
+                            #claverastreo="ngModel"
+                            [(ngModel)]="data.clave_rastreo"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Clave de rastreo</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                claverastreo.invalid &&
+                                (claverastreo.dirty || claverastreo.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div
+                    class="col-md-4"
+                    [hidden]="['2', '3'].indexOf(data.metodo_pago) == -1"
+                >
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="autorizacion"
+                            class="form-control"
+                            #autorizacion="ngModel"
+                            [(ngModel)]="data.autorizacion"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >No. de autorización / Cheque</label
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                autorizacion.invalid &&
+                                (autorizacion.dirty || autorizacion.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30" *ngIf="facturas_con_saldo.length > 0">
+                Facturas con saldo
+            </h4>
+
+            <div class="row" *ngIf="aux.indexes.length > 1">
+                <div class="col-md-2 m-t-10" *ngFor="let item of aux.indexes">
+                    <button
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="changetableData(item[2])"
+                    >
+                        {{ item[0] }} - {{ item[1] }}
+                    </button>
+                </div>
+            </div>
+            <div class="row" *ngIf="aux.indexes.length > 1">
+                <div class="col-md-12 m-t-10">
+                    <small
+                        >Por eficiencia, se dividen los resultados en diferentes
+                        cargas, seleccione el botón</small
+                    >
+                </div>
+            </div>
+
+            <div class="row m-t-20" *ngIf="facturas_con_saldo.length > 0">
+                <div class="col-md-12 table-responsive">
+                    <table
+                        class="table table-striped"
+                        id="contabilidad_ingreso_generar_facturas"
+                    >
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Documento</th>
+                                <th>Entidad</th>
+                                <th>Total</th>
+                                <th>Pagado</th>
+                                <th>Resta</th>
+                                <th>T.C</th>
+                                <th>Monto a aplicar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let row of facturas_con_saldo;
+                                    let index = index
+                                "
+                            >
+                                <td>{{ row.fecha }}</td>
+                                <td>{{ row.serie + " " + row.folio }}</td>
+                                <td>{{ row.empresa }}</td>
+                                <td>
+                                    $
+                                    {{ commaNumber(row.total) }}
+                                </td>
+                                <td>
+                                    $
+                                    {{ commaNumber(row.pagadoreal) }}
+                                </td>
+                                <td>
+                                    $
+                                    {{ commaNumber(row.balancereal) }}
+                                </td>
+                                <td>
+                                    <div class="form-group form-primary">
+                                        <input
+                                            type="number"
+                                            name="tc{{ index }}"
+                                            class="form-control"
+                                            [(ngModel)]="row.tc"
+                                        />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-group form-primary">
+                                        <input
+                                            type="number"
+                                            name="montoaaplicar{{ index }}"
+                                            class="form-control"
+                                            [(ngModel)]="row.monto_aplicar"
+                                            (change)="
+                                                montoAplicarFactura(
+                                                    row.documento
+                                                )
+                                            "
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-info btn-sm btn-block http-disabled"
+                        (click)="guardarDocumento($event)"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<ng-template #modalcuenta let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Cuenta bancaria</h4>
+
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10" #form="ngForm">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="cuenta_nombre"
+                            required
+                            #cuentanombre="ngModel"
+                            id="cuenta_nombre"
+                            class="form-control"
+                            [(ngModel)]="cuenta.nombre"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Nombre</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                cuentanombre.invalid &&
+                                (cuentanombre.dirty || cuentanombre.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuentanombre.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="cuenta_banco"
+                            id="cuenta_banco"
+                            required
+                            #cuentabanco="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cuenta.banco"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ banco.id }}"
+                                *ngFor="let banco of bancos"
+                            >
+                                {{ banco.banco }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Banco</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuentabanco.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="cuenta_razon"
+                            id="cuenta_razon"
+                            required
+                            #cuentarazon="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cuenta.razon_social_banco"
+                            (change)="cambiarBanco()"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ razon.razon }}"
+                                *ngFor="let razon of razones"
+                            >
+                                {{ razon.razon }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Razón social banco</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuentarazon.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="cuenta_rfc"
+                            id="cuenta_rfc"
+                            required
+                            #cuentarfc="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cuenta.rfc_banco"
+                            pattern="[^ '&quot;]+$"
+                            maxlength="13"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">RFC banco</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                cuentarfc.invalid &&
+                                (cuentarfc.dirty || cuentarfc.touched)
+                            "
+                            >No se permite el caracter ' ó " ni tampoco espacios
+                            en blanco</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuentarfc.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="cuenta_no"
+                            id="cuenta_no"
+                            required
+                            #cuentano="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cuenta.no_cuenta"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">No. cuenta</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                cuentano.invalid &&
+                                (cuentano.dirty || cuentano.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuentano.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="cuenta_clabe"
+                            id="cuenta_clabe"
+                            required
+                            #cuentaclabe="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cuenta.clabe"
+                            minlength="18"
+                            maxlength="18"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">CLABE</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                cuentaclabe.invalid &&
+                                (cuentaclabe.dirty || cuentaclabe.touched)
+                            "
+                            >No se permite el caracter ' ó " y el número debe
+                            ser de 18 digitos</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuentaclabe.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="cuenta_divisa"
+                            id="cuenta_divisa"
+                            required
+                            #cuentadivisa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cuenta.divisa"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ divisa.id }}"
+                                *ngFor="let divisa of divisas"
+                            >
+                                {{ divisa.moneda }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Divisa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuentadivisa.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-info btn-sm btn-block http-disabled"
+                        [disabled]="!form.valid"
+                        (click)="crearCuenta()"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

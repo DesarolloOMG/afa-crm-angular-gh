@@ -1,0 +1,571 @@
+<!-- <div>
+    <button class="btn btn-block btn-danger" (click)="ngOnInit()"></button>
+</div> -->
+
+<div class="card">
+    <div class="card-header">
+        <h5>Pagos</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="contabilidad_pago">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Marketplace</th>
+                            <th>Cliente</th>
+                            <th>Paquetería</th>
+                            <th>Vendedor</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let venta of ventas">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="detalleVenta(modalventa, venta.id)"
+                                >
+                                    {{ venta.id }}
+                                </button>
+                            </td>
+                            <td>
+                                {{ venta.marketplace + " / " + venta.area }}
+                            </td>
+                            <td>{{ venta.cliente }}</td>
+                            <td>{{ venta.paqueteria }}</td>
+                            <td>{{ venta.usuario }}</td>
+                            <td>{{ venta.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalventa let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ final_data.documento }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Marketplace</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.marketplace + " / " + data.area }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Paquetería</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.paqueteria }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Costo</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="let producto of data.productos"
+                                class="{{ producto.class_tr }}"
+                            >
+                                <td>{{ producto.sku }}</td>
+                                <td>{{ producto.descripcion }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                                <td>$ {{ producto.costo }}</td>
+                                <td>$ {{ producto.precio }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div
+                class="form-group group-div"
+                *ngIf="
+                    nota != undefined &&
+                    data.marketplace == 'GARANTIAS / SERVICIOS'
+                "
+            >
+                <label class="col-form-label col-sm-2">Nota de crédito</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-12 m-t-10">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID Nota</th>
+                                        <th>Monto</th>
+                                        <th>PDF</th>
+                                        <th>XML</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr *ngFor="let nota of nota">
+                                        <td>{{ nota.documento }}</td>
+                                        <td>{{ nota.total }}</td>
+
+                                        <td>
+                                            <button
+                                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
+                                                (click)="
+                                                    descargarNotaCredito(
+                                                        nota.documento,
+                                                        2
+                                                    )
+                                                "
+                                                placement="top"
+                                                ngbTooltip="Descargar PDF"
+                                            >
+                                                <i
+                                                    class="fa fa-2x fa-file-pdf"
+                                                ></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button
+                                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
+                                                (click)="
+                                                    descargarNotaCredito(
+                                                        nota.documento,
+                                                        1
+                                                    )
+                                                "
+                                                placement="top"
+                                                ngbTooltip="Descargar XML"
+                                            >
+                                                <i
+                                                    class="fa fa-2x fa-file-code"
+                                                ></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <h5>
+                        Este pedido tiene esta nota de credito relacionada por
+                        garantía con diferencia,
+                        <span style="color: red">se tiene que aplicar</span>.
+                        Abajo se restará al monto quedando el resto a pagar en
+                        el importe.
+                    </h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Datos del cobro</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <form class="md-float-material form-material" #f="ngForm">
+                        <div class="row m-t-20">
+                            <div class="col-md-6">
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="entidad_destino"
+                                        id="entidad_destino"
+                                        class="form-control"
+                                        [(ngModel)]="final_data.entidad_destino"
+                                        (change)="cambiarEntidadDestino()"
+                                        required
+                                    >
+                                        <option value="0" disabled selected>
+                                            Seleccione una opción
+                                        </option>
+                                        <option value="1">
+                                            Cuenta bancaria
+                                        </option>
+                                        <option value="3">Caja chica</option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Depositado en</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="pago_cuenta"
+                                        id="pago_cuenta"
+                                        class="form-control"
+                                        [(ngModel)]="final_data.destino"
+                                        required
+                                    >
+                                        <option
+                                            value=""
+                                            disabled
+                                            selected
+                                        ></option>
+                                        <option
+                                            value="{{ cuenta.id }}"
+                                            *ngFor="let cuenta of cuentas"
+                                        >
+                                            {{ cuenta.destino }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Cuenta bancaria</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="metodo_pago"
+                                        id="metodo_pago"
+                                        class="form-control"
+                                        required
+                                        #metodopago="ngModel"
+                                        [(ngModel)]="final_data.metodo_pago"
+                                    >
+                                        <option
+                                            value=""
+                                            disabled
+                                            selected
+                                        ></option>
+                                        <option
+                                            value="{{ metodo.id }}"
+                                            *ngFor="let metodo of metodos"
+                                        >
+                                            {{ metodo.metodo_pago }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Método de pago</label
+                                    >
+                                    <small
+                                        class="text-danger messages block"
+                                        *ngIf="metodopago.errors?.required"
+                                        >Campo requerido</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="referencia"
+                                        class="form-control"
+                                        #referencia="ngModel"
+                                        [(ngModel)]="final_data.referencia"
+                                        pattern="[^'&quot;]+$"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Referencia</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            referencia.invalid &&
+                                            (referencia.dirty ||
+                                                referencia.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="number"
+                                        name="importe"
+                                        id="importe"
+                                        required
+                                        class="form-control"
+                                        #importe="ngModel"
+                                        [(ngModel)]="final_data.importe"
+                                        min="1"
+                                        (change)="comprobarImporte()"
+                                        step="0.0001"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Importe</label>
+                                    <small
+                                        class="text-danger messages block"
+                                        *ngIf="importe.errors?.required"
+                                        >Campo requerido</small
+                                    >
+                                </div>
+                            </div>
+                            <div
+                                class="col-md-6"
+                                *ngIf="
+                                    nota != undefined &&
+                                    data.marketplace == 'GARANTIAS / SERVICIOS'
+                                "
+                            >
+                                <div class="form-group form-primary">
+                                    <h5>Cálculo del importe :</h5>
+                                    <h5>
+                                        ${{ precioanterior }} - ${{
+                                            rebajarnota
+                                        }}
+                                        = ${{ precionuevo }}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row m-t-20">
+                            <div class="col-md-6">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="date"
+                                        name="fecha_cobro"
+                                        required
+                                        class="form-control"
+                                        #fechacobro="ngModel"
+                                        [(ngModel)]="final_data.fecha_cobro"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Fecha</label>
+                                    <small
+                                        class="text-danger messages block"
+                                        *ngIf="fechacobro.errors?.required"
+                                        >Campo requerido</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="col-md-4"
+                                [hidden]="
+                                    ['1', '31'].indexOf(
+                                        final_data.metodo_pago
+                                    ) != -1 || final_data.metodo_pago == ''
+                                "
+                            >
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="pago_cuenta_cliente"
+                                        id="pago_cuenta_cliente"
+                                        class="form-control"
+                                        [(ngModel)]="final_data.cuenta_cliente"
+                                    >
+                                        <option
+                                            value=""
+                                            disabled
+                                            selected
+                                        ></option>
+                                        <option
+                                            value="{{ cuenta.id }}"
+                                            *ngFor="
+                                                let cuenta of cuentas_cliente
+                                            "
+                                        >
+                                            {{ cuenta.cuenta }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Cuentas del cliente</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="col-md-2 m-t-10"
+                                [hidden]="
+                                    ['1', '31'].indexOf(
+                                        final_data.metodo_pago
+                                    ) != -1 || final_data.metodo_pago == ''
+                                "
+                            >
+                                <div class="form-group form-primary">
+                                    <button
+                                        type="button"
+                                        class="btn btn-info btn-sm btn-block"
+                                        (click)="nuevaCuenta(modalcuenta)"
+                                    >
+                                        <i class="fa fa-credit-card"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div
+                                class="col-md-6"
+                                [hidden]="final_data.metodo_pago != '3'"
+                            >
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="pago_clave_rastreo"
+                                        class="form-control"
+                                        #pagoclaverastreo="ngModel"
+                                        [(ngModel)]="final_data.clave_rastreo"
+                                        pattern="[^'&quot;]+$"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Clave rastreo</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            pagoclaverastreo.invalid &&
+                                            (pagoclaverastreo.dirty ||
+                                                pagoclaverastreo.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="col-md-6"
+                                [hidden]="
+                                    ['2', '3'].indexOf(
+                                        final_data.metodo_pago
+                                    ) == -1
+                                "
+                            >
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="pago_autorizacion"
+                                        class="form-control"
+                                        #pagoautorizacion="ngModel"
+                                        [(ngModel)]="final_data.numero_aut"
+                                        pattern="[^'&quot;]+$"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Número de autorización / Cheque</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            pagoautorizacion.invalid &&
+                                            (pagoautorizacion.dirty ||
+                                                pagoautorizacion.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        [(ngModel)]="final_data.seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        [(ngModel)]="final_data.seguimiento"
+                        [init]="tinymce_init"
+                    ></editor> -->
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento_anterior"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Archivos</label>
+                <div class="col-sm-10 inline-block">
+                    <ul class="m-t-10" *ngIf="data.archivos.length > 0">
+                        <li *ngFor="let archivo of data.archivos">
+                            <i class="fa fa-{{ archivo.icon }}"></i>
+                            <span
+                                class="text-muted"
+                                (click)="verArchivo(archivo.dropbox)"
+                                style="cursor: pointer"
+                                >{{ archivo.archivo }}</span
+                            >
+                        </li>
+                    </ul>
+                    <h5 *ngIf="data.archivos.length == 0">Sin archivos</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Terminar</label>
+                <div class="col-sm-10 inline-block">
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="terminar"
+                        id="terminar"
+                        [disabled]="data.puede_terminar == 0"
+                        [(ngModel)]="final_data.terminar"
+                    >
+                    </ui-switch>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        style="margin: 10px"
+                        (click)="guardarDocumento($event)"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

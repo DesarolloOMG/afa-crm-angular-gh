@@ -1,0 +1,642 @@
+<form class="md-float-material form-material" #f="ngForm" autocomplete="off">
+    <div class="auth-box card">
+        <div class="card-block">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            #empresa="ngModel"
+                            class="form-control"
+                            (change)="cambiarEmpresa()"
+                            [(ngModel)]="data.empresa"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                empresa.errors?.required &&
+                                empresa.invalid &&
+                                (empresa.dirty || empresa.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-20">
+                <div class="col-md-5" [hidden]="proveedores.length > 0">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="proveedor_input"
+                            class="form-control"
+                            #proveedorinput="ngModel"
+                            [(ngModel)]="data.proveedor.busqueda"
+                            (keyup.enter)="buscarProveedor()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Proveedor</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                proveedorinput.invalid &&
+                                (proveedorinput.dirty || proveedorinput.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-5" [hidden]="proveedores.length == 0">
+                    <div class="form-group form-primary">
+                        <select
+                            name="proveedor_select"
+                            id="proveedor_select"
+                            class="form-control"
+                            [(ngModel)]="data.proveedor.id"
+                            #proveedordocumento="ngModel"
+                            (change)="cambiarProveedor()"
+                            required
+                        >
+                            <option value=""></option>
+                            <option
+                                value="{{ proveedor.idproveedor }}"
+                                *ngFor="let proveedor of proveedores"
+                            >
+                                {{ proveedor.razon }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Proveedor</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                proveedordocumento.errors?.required &&
+                                proveedordocumento.invalid &&
+                                (proveedordocumento.dirty ||
+                                    proveedordocumento.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm btn-block http-disabled"
+                        (click)="buscarProveedor()"
+                        id="button_proveedor"
+                    >
+                        Buscar
+                    </button>
+                </div>
+
+                <div class="col-md-6">
+                    <input
+                        type="file"
+                        class="form-control ngb-drop-zone text-center ripple light"
+                        id="xml_gasto"
+                        (change)="cargarXML()"
+                    />
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Dato de de la compra</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="serie"
+                            class="form-control"
+                            [(ngModel)]="data.serie"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Serie</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="folio"
+                            class="form-control"
+                            [(ngModel)]="data.folio"
+                            #foliodocumento="ngModel"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Folio</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                foliodocumento.errors?.required &&
+                                foliodocumento.invalid &&
+                                (foliodocumento.dirty || foliodocumento.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                foliodocumento.errors?.required &&
+                                foliodocumento.invalid &&
+                                (foliodocumento.dirty || foliodocumento.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="date"
+                            name="fecha_documento"
+                            class="form-control"
+                            [(ngModel)]="data.fecha"
+                            #fechadocumento="ngModel"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                fechadocumento.errors?.required &&
+                                fechadocumento.invalid &&
+                                (fechadocumento.dirty || fechadocumento.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="moneda"
+                            id="moneda"
+                            class="form-control"
+                            #monedadocumento="ngModel"
+                            [(ngModel)]="data.moneda"
+                            (change)="
+                                data.tipo_cambio = data.moneda == '3' ? 1 : 0
+                            "
+                            step="0.01"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ moneda.id }}"
+                                *ngFor="let moneda of monedas"
+                            >
+                                {{ moneda.moneda }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Moneda</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                monedadocumento.errors?.required &&
+                                monedadocumento.invalid &&
+                                (monedadocumento.dirty ||
+                                    monedadocumento.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="tc"
+                            class="form-control"
+                            [(ngModel)]="data.tipo_cambio"
+                            #tipocambio="ngModel"
+                            min="1"
+                            step="0.0001"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de cambio</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                tipocambio.errors?.required &&
+                                tipocambio.invalid &&
+                                (tipocambio.dirty || tipocambio.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="metodo_pago"
+                            id="metodo_pago"
+                            class="form-control"
+                            [(ngModel)]="data.metodo_pago"
+                            #metodopago="ngModel"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ metodo.id }}"
+                                *ngFor="let metodo of metodos"
+                            >
+                                {{ metodo.metodo_pago }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Metodo de pago</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                metodopago.errors?.required &&
+                                metodopago.invalid &&
+                                (metodopago.dirty || metodopago.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="periodo"
+                            id="periodo"
+                            #periodo="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.periodo"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ periodo.id }}"
+                                *ngFor="let periodo of periodos"
+                            >
+                                {{ periodo.periodo }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Periodo</label>
+                        <small class="text-success messages block">{{
+                            data.periodo_text
+                        }}</small>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                periodo.errors?.required &&
+                                periodo.invalid &&
+                                (periodo.dirty || periodo.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="uso_cfdi"
+                            id="uso_cfdi"
+                            #usocfdi="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.uso_cfdi"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ uso.codigo }}"
+                                *ngFor="let uso of usos"
+                            >
+                                {{ uso.descripcion }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Uso de la factura</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                usocfdi.errors?.required &&
+                                usocfdi.invalid &&
+                                (usocfdi.dirty || usocfdi.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Productos</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="prodescripcion"
+                            class="form-control"
+                            #prodescripcion="ngModel"
+                            [(ngModel)]="producto.descripcion"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Descripción</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                prodescripcion.invalid &&
+                                (prodescripcion.dirty || prodescripcion.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="procantidad"
+                            class="form-control"
+                            #procantidad="ngModel"
+                            [(ngModel)]="producto.cantidad"
+                            pattern="[0-9]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cantidad</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                procantidad.invalid &&
+                                (procantidad.dirty || procantidad.touched)
+                            "
+                            >Solo se permiten valores numericos</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="pro_costo"
+                            class="form-control"
+                            #procosto="ngModel"
+                            [(ngModel)]="producto.precio"
+                            pattern="^[.0-9]+$"
+                            step="0.0001"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Costo</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                procosto.invalid &&
+                                (procosto.dirty || procosto.touched)
+                            "
+                            >Solo se permiten valores numericos</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="pro_cantidad"
+                            class="form-control"
+                            #prodeducible="ngModel"
+                            [(ngModel)]="producto.deducible"
+                            pattern="[0-9]+$"
+                            min="0"
+                            max="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Deducible</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                prodeducible.invalid &&
+                                (prodeducible.dirty || prodeducible.touched)
+                            "
+                            >Solo se permiten valores numericos</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <select
+                            name="proimpuesto"
+                            #periodo="ngModel"
+                            class="form-control"
+                            [(ngModel)]="producto.impuesto_id"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ impuesto.id }}"
+                                *ngFor="let impuesto of impuestos"
+                            >
+                                {{ impuesto.impuesto }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Impuesto</label>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="pro_descuento"
+                            class="form-control"
+                            [(ngModel)]="producto.descuento"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Descuento</label>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <select
+                            name="protipogasto"
+                            #periodo="ngModel"
+                            class="form-control"
+                            [(ngModel)]="producto.tipo_gasto"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ tipo.id }}"
+                                *ngFor="let tipo of tipos_gasto"
+                            >
+                                {{ tipo.gasto }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de gasto</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                        (click)="agregarProducto()"
+                    >
+                        Agregar
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div
+                    class="col-md-12 m-t-30 table-responsive border-checkbox-section"
+                >
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Costo</th>
+                                <th>Deducible</th>
+                                <th>Impuesto</th>
+                                <th>Descuento</th>
+                                <th>Tipo de gasto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let producto of data.productos;
+                                    let index = index
+                                "
+                            >
+                                <td>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        name="productodescripcion{{ index }}"
+                                        [(ngModel)]="producto.descripcion"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="cantidadproducto{{ index }}"
+                                        [(ngModel)]="producto.cantidad"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="costoproducto{{ index }}"
+                                        [(ngModel)]="producto.precio"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="deducibleproducto{{ index }}"
+                                        [(ngModel)]="producto.deducible"
+                                    />
+                                </td>
+                                <td>
+                                    <select
+                                        name="impuestoproducto{{ index }}"
+                                        #periodo="ngModel"
+                                        class="form-control"
+                                        [(ngModel)]="producto.impuesto_id"
+                                    >
+                                        <option value="" disabled></option>
+                                        <option
+                                            value="{{ impuesto.id }}"
+                                            *ngFor="let impuesto of impuestos"
+                                        >
+                                            {{ impuesto.impuesto }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        class="form-control"
+                                        name="cantidaddescuento{{ index }}"
+                                        [(ngModel)]="producto.descuento"
+                                    />
+                                </td>
+                                <td>
+                                    <select
+                                        name="tipogastoproducto{{ index }}"
+                                        #periodo="ngModel"
+                                        class="form-control"
+                                        [(ngModel)]="producto.tipo_gasto_id"
+                                    >
+                                        <option value="" disabled></option>
+                                        <option
+                                            value="{{ tipo.id }}"
+                                            *ngFor="let tipo of tipos_gasto"
+                                        >
+                                            {{ tipo.gasto }}
+                                        </option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm btn-block"
+                                        (click)="
+                                            data.productos.splice(index, 1)
+                                        "
+                                    >
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-sm btn-info btn-block http-disabled"
+                        type="button"
+                        (click)="crearGasto($event)"
+                    >
+                        Crear gasto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

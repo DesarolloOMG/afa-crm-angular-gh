@@ -1,0 +1,130 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="sub-title">Buscar producto</h4>
+
+                    <div class="row">
+                        <div class="col-md-10" [hidden]="productos.length > 0">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="criterio"
+                                    class="form-control"
+                                    [(ngModel)]="criterio"
+                                    (keydown.enter)="buscarProducto()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Criterio</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-10" [hidden]="productos.length == 0">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="producto"
+                                    #empresa="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="producto.id"
+                                    (change)="cambiarProducto()"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ producto.id }}"
+                                        *ngFor="let producto of productos"
+                                    >
+                                        {{
+                                            producto.sku +
+                                                " | " +
+                                                producto.descripcion
+                                        }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Productos</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-info btn-block http-disabled"
+                                placement="top"
+                                ngbTooltip="Buscar productos"
+                                (click)="buscarProducto()"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-30">
+                        <div class="col-md-12">
+                            <button
+                                type="button"
+                                class="btn btn-info btn-sm btn-block http-disabled"
+                                placement="top"
+                                ngbTooltip="Guardar producto"
+                                (click)="guardarProducto()"
+                            >
+                                <i class="fa fa-2x fa-save"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="sub-title">Sinonimos</h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="sinonimo"
+                                    class="form-control"
+                                    [(ngModel)]="sinonimo"
+                                    (keydown.enter)="agregarSinonimo()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Codigo</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <ul
+                                class="list-group"
+                                *ngIf="producto.sinonimos.length"
+                            >
+                                <li
+                                    class="list-group-item"
+                                    *ngFor="
+                                        let row of producto.sinonimos;
+                                        let index = index
+                                    "
+                                >
+                                    {{ row }}
+                                    <span
+                                        (click)="
+                                            producto.sinonimos.splice(index, 1)
+                                        "
+                                        class="float-right cursor-pointer text-danger"
+                                        >Quitar</span
+                                    >
+                                    <!-- <i
+                                        style="color: red"
+                                        class="fa fa-2x fa-trash float-right pointer"
+                                        (click)="
+                                            producto.sinonimos.splice(index, 1)
+                                        "
+                                    ></i> -->
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

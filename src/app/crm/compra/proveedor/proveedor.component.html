@@ -1,0 +1,461 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <div class="row" *ngIf="tienePermisosParaEditar()">
+                <div class="col-md-2 offset-md-10">
+                    <button
+                        type="button"
+                        class="btn btn-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="Crear proveedor"
+                        (click)="crearEditarProveedor(0)"
+                    >
+                        <i class="fa fa-plus fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row m-t-10">
+                <div class="col-md-10">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="proveedorbusqueda"
+                            class="form-control"
+                            [(ngModel)]="proveedor_busqueda"
+                            #proveedorbusqueda="ngModel"
+                            pattern="[^'&quot;]+$"
+                            (keyup.enter)="btnbuscarproveedor.click()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Criterio (Razon Social, RFC)</label
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorbusqueda.errors?.pattern &&
+                                (proveedorbusqueda.dirty ||
+                                    proveedorbusqueda.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-info btn-block http-disabled"
+                        (click)="buscarProveedor()"
+                        [disabled]="
+                            !proveedorbusqueda.valid || !proveedor_busqueda
+                        "
+                        placement="top"
+                        ngbTooltip="Buscar proveedores"
+                        #btnbuscarproveedor
+                    >
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="compra_proveedor">
+                    <thead>
+                        <tr>
+                            <th>Razón Social</th>
+                            <th>RFC</th>
+                            <th>Correo electronico</th>
+                            <th>Telefono</th>
+                            <th>Celular</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of proveedores">
+                            <td>{{ row.razon_social }}</td>
+                            <td>{{ row.rfc }}</td>
+                            <td>{{ row.correo }}</td>
+                            <td>{{ row.telefono }}</td>
+                            <td>{{ row.telefono_alt }}</td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm btn-block"
+                                    placement="top"
+                                    ngbTooltip="Editar proveedor"
+                                    (click)="crearEditarProveedor(row.id)"
+                                >
+                                    <i class="fa fa-edit fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalproveedor let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">
+            {{ proveedor.id == 0 ? "Crear" : "Editar" }} proveedor
+        </h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material" #f="ngForm">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            id="proveedorempresa"
+                            name="proveedorempresa"
+                            #proveedorempresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.empresa"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorempresa.errors?.required &&
+                                (proveedorempresa.dirty ||
+                                    proveedorempresa.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            id="proveedorpais"
+                            name="proveedorpais"
+                            #proveedorpais="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.pais"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of paises"
+                            >
+                                {{ row.pais }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Pais</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorpais.errors?.required &&
+                                (proveedorpais.dirty || proveedorpais.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="proveedorrazonsocial"
+                            name="proveedorrazonsocial"
+                            #proveedorrazonsocial="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.razon_social"
+                            pattern="[^'&quot;]+$"
+                            maxlength="150"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Razón social</label>
+                        <small class="text-success float-right messages block"
+                            >{{ proveedor.razon_social.length }} / 150</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorrazonsocial.errors?.required &&
+                                (proveedorrazonsocial.dirty ||
+                                    proveedorrazonsocial.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorrazonsocial.errors?.pattern &&
+                                (proveedorrazonsocial.dirty ||
+                                    proveedorrazonsocial.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="proveedorrfc"
+                            name="proveedorrfc"
+                            #proveedorrfc="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.rfc"
+                            pattern="[^'&quot;]+$"
+                            maxlength="13"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">RFC</label>
+                        <small class="text-success float-right messages block"
+                            >{{ proveedor.rfc.length }} / 13</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorrfc.errors?.required &&
+                                (proveedorrfc.dirty || proveedorrfc.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorrfc.errors?.pattern &&
+                                (proveedorrfc.dirty || proveedorrfc.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            id="proveedorregimen"
+                            name="proveedorregimen"
+                            #proveedorregimen="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.regimen"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row }}"
+                                *ngFor="let row of regimenes"
+                            >
+                                {{ row }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Régimen Fiscal</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorregimen.errors?.required &&
+                                (proveedorregimen.dirty ||
+                                    proveedorregimen.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Comunicación</h4>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="email"
+                            id="proveedoremail"
+                            name="proveedoremail"
+                            #proveedoremail="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.email"
+                            email
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Correo electrónico</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedoremail.errors?.required &&
+                                (proveedoremail.dirty || proveedoremail.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedoremail.errors?.pattern &&
+                                (proveedoremail.dirty || proveedoremail.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="proveedortelefono"
+                            name="proveedortelefono"
+                            #proveedortelefono="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.telefono"
+                            pattern="[^'&quot;]+$"
+                            maxlength="20"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Télefono</label>
+                        <small class="text-success float-right messages block"
+                            >{{ proveedor.telefono.length }} / 20</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedortelefono.errors?.required &&
+                                (proveedortelefono.dirty ||
+                                    proveedortelefono.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedortelefono.errors?.pattern &&
+                                (proveedortelefono.dirty ||
+                                    proveedortelefono.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="proveedorcelular"
+                            name="proveedorcelular"
+                            #proveedorcelular="ngModel"
+                            class="form-control"
+                            [(ngModel)]="proveedor.celular"
+                            pattern="[^'&quot;]+$"
+                            maxlength="20"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Celular</label>
+                        <small class="text-success float-right messages block"
+                            >{{ proveedor.celular.length }} / 20</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorcelular.errors?.required &&
+                                (proveedorcelular.dirty ||
+                                    proveedorcelular.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                proveedorcelular.errors?.pattern &&
+                                (proveedorcelular.dirty ||
+                                    proveedorcelular.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Dirección Fiscal</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="codigo_postal_fiscal"
+                            class="form-control"
+                            #codigopostalfiscal="ngModel"
+                            [(ngModel)]="proveedor.cp"
+                            pattern="^[0-9]+$"
+                            maxlength="5"
+                            minlength="5"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código Postal Fiscal</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                codigopostalfiscal.invalid &&
+                                (codigopostalfiscal.dirty ||
+                                    codigopostalfiscal.touched)
+                            "
+                        >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="{{
+                            proveedor.id == 0 ? 'Crear' : 'Editar'
+                        }} proveedor"
+                        (click)="guardarProveedor($event)"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

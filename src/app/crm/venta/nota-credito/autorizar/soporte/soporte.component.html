@@ -1,0 +1,770 @@
+<ng-template #title let-name="name">
+    <h5>{{ name }}</h5>
+</ng-template>
+
+<div class="card">
+    <div class="card-body">
+        <!-- <button class="btn btn-sm btn-danger" (click)="ngOnInit()">GET</button> -->
+        <form
+            class="md-float-material form-material m-t-10"
+            [hidden]="!esAdministrador"
+        >
+            <div class="md-tabs">
+                <ngb-tabset (tabChange)="onChangeTab($event.nextId)" #tabs>
+                    <ngb-tab id="tab-pendientes">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Pendientes'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaPendientes"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+
+                    <ngb-tab id="tab-terminados">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Terminados'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaTerminados"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
+            </div>
+        </form>
+        <h2 [hidden]="esAdministrador">
+            No cuenta con los permisos para ver este modulo!
+        </h2>
+    </div>
+    <!-- <button class="btn btn-sm btn-danger" (click)="getAutorizaciones()">
+        GET
+    </button> -->
+</div>
+
+<ng-template #tablaPendientes>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="ncs_pendientes">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Doc. Garantia</th>
+                            <th>Solicitante</th>
+                            <th>Creado</th>
+                            <th>Módulo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of pendientes">
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="goToLink(item.documento)"
+                                >
+                                    {{ item.documento }}
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="
+                                        detalleVenta(
+                                            item.modulo == 'D'
+                                                ? modaldevoluciones
+                                                : modalgarantias,
+                                            item.data,
+                                            item.json,
+                                            item.modulo
+                                        )
+                                    "
+                                >
+                                    {{ item.documento_garantia }}
+                                </button>
+                            </td>
+                            <td>{{ item.solicitante }}</td>
+                            <td>{{ item.created_at }}</td>
+                            <td>
+                                {{
+                                    item.modulo == "D"
+                                        ? "Devoluciones"
+                                        : "Garantias"
+                                }}
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-danger rounded"
+                                    (click)="
+                                        rechazarNdc(
+                                            item.documento,
+                                            item.documento_garantia
+                                        )
+                                    "
+                                >
+                                    Rechazar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #tablaTerminados>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="ncs_terminados">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Garantia</th>
+                            <th>Estado</th>
+                            <th>Solicitante</th>
+                            <th>Módulo</th>
+                            <th>Autorizado/Rechazado por</th>
+                            <th>Creado</th>
+                            <th>Autorizado/Rechazado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of terminados">
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="goToLink(item.documento)"
+                                >
+                                    {{ item.documento }}
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="
+                                        detalleVenta(
+                                            item.modulo == 'D'
+                                                ? modaldevoluciones
+                                                : modalgarantias,
+                                            item.data,
+                                            item.json,
+                                            item.modulo
+                                        )
+                                    "
+                                >
+                                    {{ item.documento_garantia }}
+                                </button>
+                            </td>
+                            <td [ngSwitch]="item.estado">
+                                <span
+                                    class="badge badge-success"
+                                    *ngSwitchCase="2"
+                                    >Autorizado</span
+                                >
+                                <span
+                                    class="badge badge-danger"
+                                    *ngSwitchCase="3"
+                                    >Rechazado</span
+                                >
+                            </td>
+
+                            <td>{{ item.solicitante }}</td>
+                            <td>
+                                {{
+                                    item.modulo == "D"
+                                        ? "Devoluciones"
+                                        : "Garantias"
+                                }}
+                            </td>
+
+                            <td>
+                                {{
+                                    item.estado == 2
+                                        ? item.autorizante
+                                        : item.denegente
+                                }}
+                            </td>
+                            <td>{{ item.created_at }}</td>
+                            <td>
+                                {{
+                                    item.estado == 2
+                                        ? item.authorized_at
+                                        : item.denied_at
+                                }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modaldevoluciones let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Información del documento</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.documento }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Marketplace</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.marketplace + " / " + data.area }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Paquetería</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{
+                            data.paqueteria
+                                ? data.paqueteria
+                                : "SIN PAQUETERIA ASIGNADA"
+                        }}
+                    </h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Cliente</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>- {{ data.cliente }}</h5>
+                    <h5>- {{ data.rfc }}</h5>
+                    <h5>- {{ data.correo }}</h5>
+                    <h5>- {{ data.telefono }}</h5>
+                    <h5>- {{ data.telefono_alt }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Técnico Asignado</label>
+                <div class="col-sm-10 inline-block">
+                    <form class="md-float-material form-material">
+                        <div class="row m-t-20">
+                            <div class="col-md-12">
+                                <div class="form-group form-primary">
+                                    <h5>
+                                        {{
+                                            tecnico.nombre
+                                                ? tecnico.nombre
+                                                : "TÉCNICO NO ASIGNADO"
+                                        }}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <table class="table table-striped m-t-10">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Series</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let producto of final_data.productos">
+                                <td>{{ producto.sku }}</td>
+                                <td>{{ producto.descripcion }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        (click)="
+                                            agregarSeries(
+                                                modalserie,
+                                                producto.sku,
+                                                'devoluciones'
+                                            )
+                                        "
+                                    >
+                                        Agregar
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2"
+                    >Información del paquete</label
+                >
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Guia: {{ final_data.guia }}</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>
+                                Paqueteria:
+                                {{
+                                    paqueteria
+                                        ? paqueteria.paqueteria
+                                        : "SIN PAQUETERIA ASIGNADA"
+                                }}
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimientos</label>
+                <div class="col-sm-10 inline-block">
+                    <h4 class="sub-title m-t-20">
+                        Seguimiento que se insertará
+                    </h4>
+
+                    <div class="media chat-messages">
+                        <div class="media-body chat-menu-content">
+                            <div class="">
+                                <p
+                                    class="chat-cont"
+                                    [innerHTML]="final_data.seguimiento"
+                                ></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h4 class="sub-title m-t-20">
+                        Seguimiento de la devolucion
+                    </h4>
+
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento_garantia"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="sub-title m-t-20">Seguimiento de la venta</h4>
+
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento_venta"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Archivos</label>
+                <div class="col-sm-10 inline-block">
+                    <ul class="m-t-10" *ngIf="data.archivos.length > 0">
+                        <li *ngFor="let archivo of data.archivos">
+                            <i class="fa fa-{{ archivo.icon }}"></i>
+                            <span
+                                class="text-muted"
+                                style="cursor: pointer"
+                                (click)="verArchivo(archivo.dropbox)"
+                            >
+                                {{ archivo.archivo }}</span
+                            >
+                        </li>
+                    </ul>
+                    <h5 *ngIf="data.archivos.length == 0">Sin archivos</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Motivo</label>
+                <div class="col-sm-10 inline-block">
+                    <form class="md-float-material form-material">
+                        <div class="row">
+                            <div class="col-md-12 m-t-10">
+                                <div class="form-group form-primary">
+                                    <h5>
+                                        {{
+                                            causa
+                                                ? causa.causa
+                                                : "Sin Causa Asignada"
+                                        }}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row" *ngIf="current_tab != 'TERMINADOS'">
+                <div class="col-md-5">
+                    <button
+                        class="btn btn-sm btn-block btn-primary http-disabled"
+                        style="margin: 10px"
+                        (click)="
+                            autorizarNdcdevoluciones(
+                                final_data.documento,
+                                final_data.documento_garantia
+                            )
+                        "
+                    >
+                        Autorizar
+                    </button>
+                </div>
+                <div class="col-md-5">
+                    <button
+                        class="btn btn-sm btn-block btn-danger http-disabled"
+                        style="margin: 10px"
+                        (click)="
+                            rechazarNdc(
+                                final_data.documento,
+                                final_data.documento_garantia
+                            )
+                        "
+                    >
+                        Rechazar
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        style="margin: 10px"
+                        (click)="
+                            repararNDCdevoluciones(
+                                final_data.documento,
+                                final_data.documento_garantia
+                            )
+                        "
+                    >
+                        Reparar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalserie let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Series</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal_serie"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Series</label>
+                <div class="col-sm-10 inline-block">
+                    <ul class="list-group m-b-20" id="ul_series">
+                        <li
+                            class="list-group-item"
+                            *ngFor="let serie of data.series"
+                        >
+                            {{ serie }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalgarantias let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion del documento</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.documento }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Marketplace</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.marketplace + " / " + data.area }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Paquetería</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{
+                            data.paqueteria
+                                ? data.paqueteria
+                                : "SIN PAQUETERIA ASIGNADA"
+                        }}
+                    </h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Cliente</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>- {{ data.cliente }}</h5>
+                    <h5>- {{ data.rfc }}</h5>
+                    <h5>- {{ data.correo }}</h5>
+                    <h5>- {{ data.telefono }}</h5>
+                    <h5>- {{ data.telefono_alt }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Nota de credito</label>
+                <div class="col-sm-10 inline-block">
+                    <ui-switch
+                        disabled
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="nota_credito"
+                        id="cambiar_producto"
+                        [(ngModel)]="final_data.nota"
+                    >
+                    </ui-switch>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Cambiar series</label>
+                <div class="col-sm-10 inline-block">
+                    <form class="md-float-material form-material" #f="ngForm">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Cantidad</th>
+                                    <th>Cambio</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    *ngFor="
+                                        let producto of final_data.productos_anteriores;
+                                        let index = index
+                                    "
+                                >
+                                    <td>{{ producto.sku }}</td>
+                                    <td>{{ producto.descripcion }}</td>
+                                    <td>{{ producto.cantidad }}</td>
+
+                                    <td>
+                                        <ui-switch
+                                            disabled
+                                            class="js-single"
+                                            color="#4680ff"
+                                            switchColor="#fff"
+                                            size="medium"
+                                            name="producto_cambio{{ index }}"
+                                            [(ngModel)]="producto.cambio"
+                                        ></ui-switch>
+                                    </td>
+                                    <td>
+                                        <button
+                                            type="button"
+                                            class="btn btn-danger btn-sm"
+                                            (click)="
+                                                agregarSeries(
+                                                    modalserie,
+                                                    producto.sku,
+                                                    'garantias'
+                                                )
+                                            "
+                                        >
+                                            Series
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <h4 class="sub-title m-t-20">
+                        Seguimiento que se insertará
+                    </h4>
+
+                    <div class="media chat-messages">
+                        <div class="media-body chat-menu-content">
+                            <div class="">
+                                <p
+                                    class="chat-cont"
+                                    [innerHTML]="final_data.seguimiento"
+                                ></p>
+                            </div>
+                        </div>
+                    </div>
+                    <h4 class="sub-title m-t-20">
+                        Seguimiento de la devolucion
+                    </h4>
+
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento_garantia"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="sub-title m-t-20">Seguimiento de la venta</h4>
+
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento_venta"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                *ngIf="current_tab != 'TERMINADOS'"
+            >
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-primary http-disabled"
+                                style="margin: 10px"
+                                (click)="
+                                    autorizarNdcgarantias(
+                                        final_data.documento,
+                                        final_data.documento_garantia
+                                    )
+                                "
+                            >
+                                Autorizar
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-danger http-disabled"
+                                style="margin: 10px"
+                                (click)="
+                                    rechazarNdc(
+                                        final_data.documento,
+                                        final_data.documento_garantia
+                                    )
+                                "
+                            >
+                                Rechazar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

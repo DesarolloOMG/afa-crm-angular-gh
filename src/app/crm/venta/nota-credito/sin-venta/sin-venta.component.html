@@ -1,0 +1,615 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Crear nota de credito sin pedido</h5>
+    </div>
+
+    <div class="card-body">
+        <form class="md-float-material form-material">
+            <h4 class="sub-title">
+                Selecciona una empresa para la nota de credito
+            </h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.empresa"
+                            (change)="cambiarEmpresa()"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of empresas"
+                            >
+                                {{ row.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                empresa.invalid &&
+                                (empresa.dirty || empresa.touched) &&
+                                empresa.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Busca y selecciona un cliente</h4>
+
+            <div class="row">
+                <div class="col-md-5" [hidden]="clientes.length > 0">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="clientebusqueda"
+                            class="form-control"
+                            #clientebusqueda="ngModel"
+                            [(ngModel)]="data.cliente.busqueda"
+                            (keyup.enter)="buscarCliente()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Buscar cliente</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientebusqueda.invalid &&
+                                (clientebusqueda.dirty ||
+                                    clientebusqueda.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-5" [hidden]="clientes.length == 0">
+                    <div class="form-group form-primary">
+                        <select
+                            name="selectcliente"
+                            class="form-control"
+                            #selectcliente="ngModel"
+                            [(ngModel)]="data.cliente.id"
+                            (change)="cambiarCliente()"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of clientes"
+                            >
+                                {{ row.nombre_oficial }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Selecciona un cliente</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="selectcliente.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm btn-block http-disabled"
+                        (click)="buscarCliente()"
+                        placement="top"
+                        ngbTooltip="Buscar clientes"
+                    >
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="facturabusqueda"
+                            class="form-control"
+                            [(ngModel)]="invoice"
+                            (keyup.enter)="getInvoiceData()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Buscar datos (Folio Factura)</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm btn-block http-disabled"
+                        (click)="getInvoiceData()"
+                        placement="top"
+                        ngbTooltip="Buscar Factura"
+                    >
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Información de la nota de credito</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="notaserie"
+                            class="form-control"
+                            #notaserie="ngModel"
+                            [(ngModel)]="data.serie"
+                            pattern="[^'&quot;]+$"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Serie</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notaserie.invalid &&
+                                (notaserie.dirty || notaserie.touched) &&
+                                notaserie.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notaserie.invalid &&
+                                (notaserie.dirty || notaserie.touched) &&
+                                notaserie.errors?.pattern
+                            "
+                            >No se permiten las comillas</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="notatitulo"
+                            class="form-control"
+                            #notatitulo="ngModel"
+                            [(ngModel)]="data.titulo"
+                            pattern="[^'&quot;]+$"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Titulo</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notatitulo.invalid &&
+                                (notatitulo.dirty || notatitulo.touched) &&
+                                notatitulo.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notatitulo.invalid &&
+                                (notatitulo.dirty || notatitulo.touched) &&
+                                notatitulo.errors?.pattern
+                            "
+                            >No se permiten las comillas</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div>
+                        <label class="text-danger messages block"
+                            >Se añadirá la fecha y hora al titulo de la NDC
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="uso_venta"
+                            class="form-control"
+                            #usoventa="ngModel"
+                            [(ngModel)]="data.uso_cfdi"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option
+                                value="{{ uso.codigo }}"
+                                *ngFor="let uso of usos_factura"
+                            >
+                                {{ uso.codigo + " - " + uso.descripcion }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Uso de la venta</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                usoventa.invalid &&
+                                (usoventa.dirty || usoventa.touched) &&
+                                usoventa.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="notaalmacen"
+                            class="form-control"
+                            #notaalmacen="ngModel"
+                            [(ngModel)]="data.almacen"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of almacenes"
+                            >
+                                {{ row.almacen }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Almacén</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notaalmacen.invalid &&
+                                (notaalmacen.dirty || notaalmacen.touched) &&
+                                notaalmacen.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="notaperiodo"
+                            class="form-control"
+                            #notaperiodo="ngModel"
+                            [(ngModel)]="data.periodo"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of periodos"
+                            >
+                                {{ row.periodo }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Periodo de pago</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notaperiodo.invalid &&
+                                (notaperiodo.dirty || notaperiodo.touched) &&
+                                notaperiodo.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="notaforma"
+                            class="form-control"
+                            #notaforma="ngModel"
+                            [(ngModel)]="data.metodo_pago"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option
+                                value="{{ row.codigo }}"
+                                *ngFor="let row of metodos_pago"
+                            >
+                                {{ row.metodo_pago }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Forma de pago</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notaforma.invalid &&
+                                (notaforma.dirty || notaforma.touched) &&
+                                notaforma.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="notamoneda"
+                            class="form-control"
+                            #notamoneda="ngModel"
+                            [(ngModel)]="data.moneda"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of monedas"
+                            >
+                                {{ row.moneda }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Moneda</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notamoneda.invalid &&
+                                (notamoneda.dirty || notamoneda.touched) &&
+                                notamoneda.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="notatipocambio"
+                            class="form-control"
+                            #notatipocambio="ngModel"
+                            [(ngModel)]="data.tc"
+                            step="0.001"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">T.C</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                notatipocambio.invalid &&
+                                (notatipocambio.dirty ||
+                                    notatipocambio.touched) &&
+                                notatipocambio.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Productos de la nota de credito</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-10" [hidden]="productos.length > 0">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="productobusqueda"
+                                    id="productobusqueda"
+                                    class="form-control"
+                                    [(ngModel)]="producto.busqueda"
+                                    (keyup.enter)="buscarProducto()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Código / Descripción</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-10" [hidden]="productos.length == 0">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="productoselect"
+                                    id="productoselect"
+                                    class="form-control"
+                                    [(ngModel)]="producto.codigo"
+                                >
+                                    <option value="" selected disabled></option>
+                                    <option
+                                        value="{{ producto.sku }}"
+                                        *ngFor="let producto of productos"
+                                    >
+                                        {{
+                                            producto.sku +
+                                                " - " +
+                                                producto.producto
+                                        }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Selecciona un producto</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary btn-sm btn-block http-disabled"
+                                (click)="buscarProducto()"
+                                placement="top"
+                                ngbTooltip="{{
+                                    productos.length > 0
+                                        ? 'Limpiar búsqueda'
+                                        : 'Buscar productos'
+                                }}"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="number"
+                                    name="productocantidad"
+                                    class="form-control"
+                                    #notaserie="ngModel"
+                                    [(ngModel)]="producto.cantidad"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Cantidad</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="productoprecio"
+                                    class="form-control"
+                                    #notaserie="ngModel"
+                                    [(ngModel)]="producto.precio"
+                                    step="0.0001"
+                                    [textMask]="{ mask: mask }"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Precio</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                type="button"
+                                class="btn btn-outline-primary btn-sm btn-block"
+                                placement="top"
+                                ngbTooltip="Agregar producto"
+                                (click)="agregarProducto()"
+                            >
+                                <i class="fa fa-2x fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-50">
+                <div class="col-md-12 table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let row of data.productos;
+                                    let index = index
+                                "
+                            >
+                                <td>{{ row.codigo }}</td>
+                                <td>{{ row.descripcion }}</td>
+                                <td>{{ row.cantidad }}</td>
+                                <td>$ {{ commaNumber(row.precio) }}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm btn-block"
+                                        placement="top"
+                                        ngbTooltip="Eliminar producto"
+                                        (click)="
+                                            data.productos.splice(index, 1)
+                                        "
+                                    >
+                                        <i class="fa fa-trash fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12 table-responsive">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th class="text-right" width="90%">IVA</th>
+                                <td width="10%">
+                                    $
+                                    {{
+                                        (
+                                            totalDocumento() -
+                                            totalDocumento() / 1.16
+                                        ).toFixed(2)
+                                    }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-right">SUBTOTAL</th>
+                                <td>
+                                    $ {{ (totalDocumento() / 1.16).toFixed(2) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-right">TOTAL</th>
+                                <td>$ {{ totalDocumento().toFixed(2) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row m-t-50">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-primary btn-sm btn-block"
+                        (click)="crearNotaCredito($event)"
+                        placement="top"
+                        ngbTooltip="Crear nota de credito"
+                    >
+                        <i class="fa fa-2x fa-save"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

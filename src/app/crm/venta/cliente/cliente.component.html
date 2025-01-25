@@ -1,0 +1,545 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            id="clienteempresa"
+                            name="clienteempresa"
+                            #clienteempresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.empresa"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienteempresa.errors?.required &&
+                                (clienteempresa.dirty || clienteempresa.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" *ngIf="tienePermisosParaEditar()">
+                <div class="col-md-2 offset-md-10">
+                    <button
+                        type="button"
+                        class="btn btn-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="Crear cliente"
+                        (click)="crearEditarCliente(0)"
+                    >
+                        <i class="fa fa-plus fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row m-t-10">
+                <div class="col-md-10">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="clientebusqueda"
+                            class="form-control"
+                            [(ngModel)]="cliente_busqueda"
+                            #clientebusqueda="ngModel"
+                            pattern="[^'&quot;]+$"
+                            (keyup.enter)="btnbuscarcliente.click()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Criterio (Razon Social, RFC)</label
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientebusqueda.errors?.pattern &&
+                                (clientebusqueda.dirty ||
+                                    clientebusqueda.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-info btn-block http-disabled"
+                        (click)="buscarCliente()"
+                        [disabled]="!clientebusqueda.valid || !cliente_busqueda"
+                        placement="top"
+                        ngbTooltip="Buscar clientes"
+                        #btnbuscarcliente
+                    >
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="venta_cliente">
+                    <thead>
+                        <tr>
+                            <th>Razón Social</th>
+                            <th>RFC</th>
+                            <th>Correo electronico</th>
+                            <th>Telefono</th>
+                            <th>Celular</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of clientes">
+                            <td>{{ row.razon_social }}</td>
+                            <td>{{ row.rfc }}</td>
+                            <td>{{ row.correo }}</td>
+                            <td>{{ row.telefono }}</td>
+                            <td>{{ row.telefono_alt }}</td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm btn-block"
+                                    placement="top"
+                                    ngbTooltip="Editar cliente"
+                                    (click)="crearEditarCliente(row.id)"
+                                >
+                                    <i class="fa fa-edit fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalcliente let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">
+            {{ cliente.id == 0 ? "Crear" : "Editar" }} cliente
+        </h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material" #f="ngForm">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            id="clienteempresa"
+                            name="clienteempresa"
+                            #clienteempresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.empresa"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienteempresa.errors?.required &&
+                                (clienteempresa.dirty || clienteempresa.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            id="clientepais"
+                            name="clientepais"
+                            #clientepais="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.pais"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of paises"
+                            >
+                                {{ row.pais }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Pais</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientepais.errors?.required &&
+                                (clientepais.dirty || clientepais.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="clienterazonsocial"
+                            name="clienterazonsocial"
+                            #clienterazonsocial="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.razon_social"
+                            pattern="[^'&quot;]+$"
+                            maxlength="150"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Razón social</label>
+                        <small class="text-success float-right messages block"
+                            >{{ cliente.razon_social.length }} / 150</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienterazonsocial.errors?.required &&
+                                (clienterazonsocial.dirty ||
+                                    clienterazonsocial.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienterazonsocial.errors?.pattern &&
+                                (clienterazonsocial.dirty ||
+                                    clienterazonsocial.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="clienterfc"
+                            name="clienterfc"
+                            #clienterfc="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.rfc"
+                            pattern="[^'&quot;]+$"
+                            maxlength="13"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">RFC</label>
+                        <small class="text-success float-right messages block"
+                            >{{ cliente.rfc.length }} / 13</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienterfc.errors?.required &&
+                                (clienterfc.dirty || clienterfc.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienterfc.errors?.pattern &&
+                                (clienterfc.dirty || clienterfc.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            id="clienteregimen"
+                            name="clienteregimen"
+                            #clienteregimen="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.regimen"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of regimenPorTamanioRFC()"
+                            >
+                                {{ row.regimen }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Régimen Fiscal</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienteregimen.errors?.required &&
+                                (clienteregimen.dirty || clienteregimen.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            id="clientecondicion"
+                            name="clientecondicion"
+                            #clientecondicion="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.condicion"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of condiciones"
+                            >
+                                {{ row.condicion }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Condición de pago</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientecondicion.errors?.required &&
+                                (clientecondicion.dirty ||
+                                    clientecondicion.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            id="clientelimite"
+                            name="clientelimite"
+                            #clientelimite="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.limite"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Limite de credito</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientelimite.errors?.required &&
+                                (clientelimite.dirty || clientelimite.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Comunicación</h4>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="email"
+                            id="clienteemail"
+                            name="clienteemail"
+                            #clienteemail="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.email"
+                            email
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Correo electrónico</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienteemail.errors?.required &&
+                                (clienteemail.dirty || clienteemail.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clienteemail.errors?.pattern &&
+                                (clienteemail.dirty || clienteemail.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="clientetelefono"
+                            name="clientetelefono"
+                            #clientetelefono="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.telefono"
+                            pattern="[^'&quot;]+$"
+                            maxlength="20"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Télefono</label>
+                        <small class="text-success float-right messages block"
+                            >{{ cliente.telefono.length }} / 20</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientetelefono.errors?.required &&
+                                (clientetelefono.dirty ||
+                                    clientetelefono.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientetelefono.errors?.pattern &&
+                                (clientetelefono.dirty ||
+                                    clientetelefono.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            id="clientecelular"
+                            name="clientecelular"
+                            #clientecelular="ngModel"
+                            class="form-control"
+                            [(ngModel)]="cliente.celular"
+                            pattern="[^'&quot;]+$"
+                            maxlength="20"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Celular</label>
+                        <small class="text-success float-right messages block"
+                            >{{ cliente.celular.length }} / 20</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientecelular.errors?.required &&
+                                (clientecelular.dirty || clientecelular.touched)
+                            "
+                            >Este campo es requerido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                clientecelular.errors?.pattern &&
+                                (clientecelular.dirty || clientecelular.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Dirección Fiscal</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="codigo_postal_fiscal"
+                            class="form-control"
+                            #codigopostalfiscal="ngModel"
+                            [(ngModel)]="cliente.cp"
+                            pattern="^[0-9]+$"
+                            maxlength="5"
+                            minlength="5"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código Postal Fiscal</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                codigopostalfiscal.invalid &&
+                                (codigopostalfiscal.dirty ||
+                                    codigopostalfiscal.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30" *ngIf="tienePermisosParaEditar()">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="{{
+                            cliente.id == 0 ? 'Crear' : 'Editar'
+                        }} cliente"
+                        (click)="guardarCliente($event)"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

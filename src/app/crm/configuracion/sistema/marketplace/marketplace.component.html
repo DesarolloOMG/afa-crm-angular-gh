@@ -1,0 +1,463 @@
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title" style="float: left">Marketplaces</h4>
+        <button
+            class="btn btn-sm btn-outline-primary"
+            (click)="openModalMarketplaceArea()"
+            style="float: right"
+            placement="top"
+            ngbTooltip="Registrar nuevo marketplace"
+        >
+            <i class="fa fa-plus fa-2x"></i>
+        </button>
+    </div>
+    <div class="card-block table-responsive">
+        <table
+            class="table table-striped"
+            id="configuracion_sistema_marketplace"
+        >
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Marketplace</th>
+                    <th>Área</th>
+                    <th>Serie factura</th>
+                    <th>Serie NC</th>
+                    <th>API</th>
+                    <th>Empresa externa</th>
+                    <th>Público</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of marketplaces">
+                    <td>{{ row.id }}</td>
+                    <td>{{ row.marketplace.marketplace }}</td>
+                    <td>{{ row.area.area }}</td>
+                    <td>{{ row.serie }}</td>
+                    <td>{{ row.serie_nota }}</td>
+                    <td>
+                        <i
+                            class="fa fa-2x fa-{{
+                                row.api?.id
+                                    ? 'check text-success'
+                                    : 'times text-danger'
+                            }}"
+                        ></i>
+                    </td>
+                    <td>
+                        <i
+                            class="fa fa-2x fa-{{
+                                row.empresa?.id
+                                    ? 'check text-success'
+                                    : 'times text-danger'
+                            }}"
+                        ></i>
+                    </td>
+                    <td>
+                        <i
+                            class="fa fa-2x fa-{{
+                                row.publico
+                                    ? 'check text-success'
+                                    : 'times text-danger'
+                            }}"
+                        ></i>
+                    </td>
+                    <td>
+                        <button
+                            (click)="openModalMarketplaceArea(row)"
+                            class="btn btn-sm btn-outline-primary"
+                            placement="top"
+                            ngbTooltip="Editar Marketplace"
+                        >
+                            <i class="fa fa-eye fa-2x"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10" #f="ngForm">
+            <div class="row m-t-30">
+                <div class="col-sm-5">
+                    <div class="form-group form-primary">
+                        <select
+                            name="marketplace-area"
+                            #marketplacearea="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.area.id"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of areas"
+                            >
+                                {{ row.area }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplacearea.invalid &&
+                                (marketplacearea.dirty ||
+                                    marketplacearea.touched) &&
+                                marketplacearea.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-sm-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="marketplace-marketplace"
+                            class="form-control"
+                            #marketplacemarketplace="ngModel"
+                            [(ngModel)]="data.marketplace.marketplace"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marketplace</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.marketplace.marketplace.length }} /
+                            30</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplacemarketplace.invalid &&
+                                (marketplacemarketplace.dirty ||
+                                    marketplacemarketplace.touched) &&
+                                marketplacemarketplace.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-xs-12">
+                    <label
+                        for=""
+                        style="display: block; margin-top: -14px; font: 11px"
+                        >Público</label
+                    >
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="publico"
+                        id="publico"
+                        [(ngModel)]="data.publico"
+                    ></ui-switch>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="marketplace-serie"
+                            class="form-control"
+                            #marketplaceserie="ngModel"
+                            [(ngModel)]="data.serie"
+                            pattern="[^'&quot;]+$"
+                            maxlength="6"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Serie</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.serie.length }} / 6</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceserie.invalid &&
+                                (marketplaceserie.dirty ||
+                                    marketplaceserie.touched) &&
+                                marketplaceserie.errors?.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceserie.invalid &&
+                                (marketplaceserie.dirty ||
+                                    marketplaceserie.touched) &&
+                                marketplaceserie.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="marketplace-serie-nota"
+                            class="form-control"
+                            #marketplaceserienota="ngModel"
+                            [(ngModel)]="data.serie_nota"
+                            pattern="[^'&quot;]+$"
+                            maxlength="6"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Serie NC</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.serie_nota.length }} / 6</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceserienota.invalid &&
+                                (marketplaceserienota.dirty ||
+                                    marketplaceserienota.touched) &&
+                                marketplaceserienota.errors?.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceserienota.invalid &&
+                                (marketplaceserienota.dirty ||
+                                    marketplaceserienota.touched) &&
+                                marketplaceserienota.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12 m-t-20">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h4 class="sub-title">API Rest</h4>
+                        </div>
+                        <div class="col-md-2">
+                            <ui-switch
+                                class="js-single"
+                                color="#4680ff"
+                                switchColor="#fff"
+                                size="medium"
+                                name="api"
+                                (click)="getAccessToViewApi()"
+                            ></ui-switch>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" [hidden]="!visualizar_api">
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="marketplace-api-extra-1"
+                            class="form-control"
+                            #marketplaceapiextra1="ngModel"
+                            [(ngModel)]="data.api.extra_1"
+                            pattern="[^'&quot;]+$"
+                            maxlength="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Extra 1</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.api.extra_1.length }} / 100</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceapiextra1.invalid &&
+                                (marketplaceapiextra1.dirty ||
+                                    marketplaceapiextra1.touched) &&
+                                marketplaceapiextra1.errors?.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="marketplace-api-extra-2"
+                            class="form-control"
+                            #marketplaceapiextra2="ngModel"
+                            [(ngModel)]="data.api.extra_2"
+                            pattern="[^'&quot;]+$"
+                            maxlength="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Extra 2</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.api.extra_2.length }} / 100</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceapiextra2.invalid &&
+                                (marketplaceapiextra2.dirty ||
+                                    marketplaceapiextra2.touched) &&
+                                marketplaceapiextra2.errors?.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-xs-12">
+                    <label
+                        for=""
+                        style="display: block; margin-top: -14px; font: 11px"
+                        placement="top"
+                        ngbTooltip="Este indicador es para seleccionar si la api del marketplace nos regresa una guía ya creada"
+                        >Guía</label
+                    >
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="marketplace-api-guia"
+                        [(ngModel)]="data.api.guia"
+                    ></ui-switch>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="marketplace-api-app-id"
+                            class="form-control"
+                            #marketplaceapiappid="ngModel"
+                            [(ngModel)]="data.api.app_id"
+                            pattern="[^'&quot;]+$"
+                            maxlength="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">App ID</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.api.app_id.length }} / 100</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceapiappid.invalid &&
+                                (marketplaceapiappid.dirty ||
+                                    marketplaceapiappid.touched) &&
+                                marketplaceapiappid.errors?.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="marketplace-api-app-secret"
+                            class="form-control"
+                            #marketplaceapiappsecret="ngModel"
+                            [(ngModel)]="data.api.secret"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">App Secret</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                marketplaceapiappsecret.invalid &&
+                                (marketplaceapiappsecret.dirty ||
+                                    marketplaceapiappsecret.touched) &&
+                                marketplaceapiappsecret.errors?.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Empresa externa</h4>
+
+            <div class="row" [hidden]="$any(data).empresa_externa == 0">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="marketplace-area-empresa"
+                            class="form-control"
+                            [(ngModel)]="data.empresa.id_empresa"
+                        >
+                            <option value="">Selecciona una empresa</option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of empresas"
+                            >
+                                {{ row.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="marketplace-empresa-utilidad"
+                            class="form-control"
+                            #marketplaceempresautilidad="ngModel"
+                            [(ngModel)]="data.empresa.utilidad"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Utilidad (%)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm btn-block m-b-20 http-disabled"
+                        (click)="saveMarketplace($event)"
+                        placement="top"
+                        ngbTooltip="Guardar Marketplace"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

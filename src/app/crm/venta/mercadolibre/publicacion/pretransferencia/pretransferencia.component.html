@@ -1,0 +1,766 @@
+<div class="row">
+    <div
+        class="col-md-3 offset-md-3 link"
+        (click)="filtrarPublicaciones($event, 0, 1)"
+    >
+        <div class="card text-center">
+            <div class="card-block">
+                <div class="row align-items-center m-l-0">
+                    <div class="col-auto">
+                        <i
+                            class="fa fa-thumbs-up f-30 text-c-purple status_publicacion bounce"
+                        ></i>
+                    </div>
+                    <div class="col-auto">
+                        <h2 class="m-b-0">
+                            Activas
+                            <b class="text-success">{{
+                                publicacionesActivasInactivas(1)
+                            }}</b>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 link" (click)="filtrarPublicaciones($event, 0, 0)">
+        <div class="card text-center">
+            <div class="card-block">
+                <div class="row align-items-center m-l-0">
+                    <div class="col-auto">
+                        <i
+                            class="fa fa-thumbs-down f-30 text-c-purple status_publicacion"
+                        ></i>
+                    </div>
+                    <div class="col-auto">
+                        <h2 class="m-b-0">
+                            Pausadas
+                            <b class="text-danger">{{
+                                publicacionesActivasInactivas(0)
+                            }}</b>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5>Publicaciones de marketplaces</h5>
+        <button
+            type="button"
+            class="btn btn-info btn-sm http-disabled"
+            style="float: right"
+            (click)="agruparPublicaciones()"
+        >
+            Generar pretransferencia
+        </button>
+    </div>
+    <div class="card-block">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="md-tabs">
+                    <ngb-tabset (tabChange)="cambiarTab()">
+                        <ngb-tab *ngFor="let marketplace of marketplaces">
+                            <ng-template ngbTabTitle>
+                                <h5
+                                    (click)="
+                                        marketplace_activo = marketplace.id
+                                    "
+                                >
+                                    {{ marketplace.marketplace }}
+                                </h5>
+                            </ng-template>
+                            <ng-template ngbTabContent>
+                                <div
+                                    [@fadeInOutTranslate]
+                                    class="m-t-50 table-responsive"
+                                >
+                                    <table
+                                        class="table table-striped venta_publicacion"
+                                    >
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Publicación</th>
+                                                <th>Total</th>
+                                                <th>Productos</th>
+                                                <th>Inventario</th>
+                                                <th>15 días</th>
+                                                <th>Surtir</th>
+                                                <th>Envio</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ng-container
+                                                *ngFor="
+                                                    let publicacion of marketplace.publicaciones;
+                                                    let index = index
+                                                "
+                                            >
+                                                <tr
+                                                    *ngIf="
+                                                        publicacion.status ==
+                                                        filtro_status
+                                                    "
+                                                >
+                                                    <td>
+                                                        <a
+                                                            class="text-success"
+                                                            href="{{
+                                                                publicacion.url
+                                                            }}"
+                                                            target="_blank"
+                                                            *ngIf="
+                                                                publicacion.url !=
+                                                                'N/A'
+                                                            "
+                                                            >{{
+                                                                publicacion.publicacion_id
+                                                            }}</a
+                                                        >
+                                                        <ng-container
+                                                            *ngIf="
+                                                                publicacion.url ==
+                                                                'N/A'
+                                                            "
+                                                        >
+                                                            {{
+                                                                publicacion.publicacion_id
+                                                            }}</ng-container
+                                                        >
+                                                    </td>
+                                                    <td>
+                                                        {{
+                                                            publicacion.publicacion
+                                                        }}
+                                                    </td>
+                                                    <td class="no-wrap">
+                                                        $
+                                                        {{
+                                                            commaNumber(
+                                                                publicacion.total
+                                                            )
+                                                        }}
+                                                    </td>
+                                                    <td>
+                                                        <table>
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>SKU</th>
+                                                                    <th>
+                                                                        Descripción
+                                                                    </th>
+                                                                    <th>
+                                                                        Garantía
+                                                                    </th>
+                                                                    <th>
+                                                                        Color
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr
+                                                                    *ngFor="
+                                                                        let producto of publicacion.productos
+                                                                    "
+                                                                >
+                                                                    <td>
+                                                                        {{
+                                                                            producto.sku
+                                                                        }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{
+                                                                            producto.descripcion
+                                                                        }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{
+                                                                            producto.garantia
+                                                                        }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{
+                                                                            producto.color
+                                                                        }}
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                    <td>
+                                                        {{
+                                                            publicacion.disponible
+                                                        }}
+                                                    </td>
+                                                    <td
+                                                        (click)="
+                                                            ventasPublicacion(
+                                                                publicacion
+                                                            )
+                                                        "
+                                                    >
+                                                        {{
+                                                            publicacion.ventas_15_dias
+                                                        }}
+                                                    </td>
+                                                    <td
+                                                        (click)="
+                                                            ventasPublicacion(
+                                                                publicacion
+                                                            )
+                                                        "
+                                                    >
+                                                        {{
+                                                            publicacion.surtido_sugerido
+                                                        }}
+                                                    </td>
+                                                    <td>
+                                                        {{
+                                                            publicacion.logistic_type
+                                                        }}
+                                                    </td>
+                                                    <td>
+                                                        <ui-switch
+                                                            class="js-single"
+                                                            color="#4680ff"
+                                                            switchColor="#fff"
+                                                            size="medium"
+                                                            name="agrupar{{
+                                                                index
+                                                            }}"
+                                                            id="agrupar{{
+                                                                index
+                                                            }}"
+                                                            [(ngModel)]="
+                                                                publicacion.agrupar
+                                                            "
+                                                        ></ui-switch>
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+                    </ngb-tabset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalpublicacion let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Generar pretransferencia</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material m-t-10">
+            <h4 class="sub-title">Empresa</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.empresa"
+                            (change)="cambiarEmpresa()"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="empresa.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Almacenes</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="publicacion_almacen"
+                            id="publicacion_almacen"
+                            class="form-control"
+                            [(ngModel)]="data.almacen_principal"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ almacen.id }}"
+                                *ngFor="let almacen of almacenes"
+                            >
+                                {{ almacen.almacen }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Almacen donde llega la mercancía</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="publicacion_almacen_ful"
+                            id="publicacion_almacen_ful"
+                            class="form-control"
+                            [(ngModel)]="data.almacen_secundario"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ almacen.id }}"
+                                *ngFor="let almacen of almacenes"
+                            >
+                                {{ almacen.almacen }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Almacén de la mercancía</label
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <textarea
+                            rows="2"
+                            name="pretransferenciaobservacion"
+                            class="form-control m-t-20"
+                            [(ngModel)]="data.observacion"
+                        ></textarea>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Observación</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Dirección de envío</h4>
+
+            <div class="row m-b-20">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_contacto"
+                            class="form-control"
+                            #decontacto="ngModel"
+                            [(ngModel)]="data.direccion_envio.contacto"
+                            pattern="[^'&quot;]+$"
+                            maxlength="50"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contacto</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                decontacto.invalid &&
+                                (decontacto.dirty || decontacto.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_calle"
+                            class="form-control"
+                            #decalle="ngModel"
+                            [(ngModel)]="data.direccion_envio.calle"
+                            pattern="[^'&quot;]+$"
+                            maxlength="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Calle</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                decalle.invalid &&
+                                (decalle.dirty || decalle.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_numero"
+                            class="form-control"
+                            #denumero="ngModel"
+                            [(ngModel)]="data.direccion_envio.numero"
+                            pattern="[^'&quot;]+$"
+                            maxlength="10"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Número</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                denumero.invalid &&
+                                (denumero.dirty || denumero.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_numero_int"
+                            class="form-control"
+                            #denumeroint="ngModel"
+                            [(ngModel)]="data.direccion_envio.numero_int"
+                            pattern="[^'&quot;]+$"
+                            maxlength="10"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Número Int</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                denumeroint.invalid &&
+                                (denumeroint.dirty || denumeroint.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_codigo_postal"
+                            class="form-control"
+                            #decodigopostal="ngModel"
+                            [(ngModel)]="data.direccion_envio.codigo_postal"
+                            pattern="^[0-9]+$"
+                            maxlength="5"
+                            minlength="5"
+                            (change)="
+                                cambiarCodigoPostal(
+                                    data.direccion_envio.codigo_postal
+                                )
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código postal</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                decodigopostal.invalid &&
+                                (decodigopostal.dirty || decodigopostal.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="de_colonia"
+                            id="de_colonia"
+                            class="form-control"
+                            #decolonia="ngModel"
+                            [(ngModel)]="data.direccion_envio.colonia"
+                        >
+                            <option value=""></option>
+                            <option
+                                value="{{ colonia.codigo }}"
+                                *ngFor="let colonia of colonias_e"
+                            >
+                                {{ colonia.colonia }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Colonia</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="decolonia.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_ciudad"
+                            class="form-control"
+                            #deciudad="ngModel"
+                            [(ngModel)]="data.direccion_envio.ciudad"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Ciudad</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                deciudad.invalid &&
+                                (deciudad.dirty || deciudad.touched) &&
+                                deciudad.error.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_estado"
+                            class="form-control"
+                            #deestado="ngModel"
+                            [(ngModel)]="data.direccion_envio.estado"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Estado</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                deestado.invalid &&
+                                (deestado.dirty || deestado.touched) &&
+                                deestado.error.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_referencia"
+                            class="form-control"
+                            #dereferencia="ngModel"
+                            [(ngModel)]="data.direccion_envio.referencia"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Referencia (30 caracteres)</label
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                dereferencia.invalid &&
+                                (dereferencia.dirty || dereferencia.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12" *ngFor="let row of publicaciones">
+                    <h4 class="sub-title m-t-10" style="color: orange">
+                        {{ row.publicacion }}
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table
+                                class="table table-striped"
+                                *ngIf="row.variaciones.length > 0"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th>Variación</th>
+                                        <th>Productos</th>
+                                        <th>Cantidad</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <tr
+                                        *ngFor="
+                                            let variacion of row.variaciones;
+                                            let index = index
+                                        "
+                                    >
+                                        <th>{{ variacion.valor }}</th>
+                                        <th>
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>SKU</th>
+                                                        <th>Descripción</th>
+                                                        <th>Cantidad</th>
+                                                        <th>
+                                                            Cantidad a enviar
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody>
+                                                    <tr
+                                                        *ngFor="
+                                                            let producto of filtrarProductosPorEtiqueta(
+                                                                row.productos,
+                                                                variacion.id_etiqueta
+                                                            )
+                                                        "
+                                                    >
+                                                        <td>
+                                                            {{ producto.sku }}
+                                                        </td>
+                                                        <td>
+                                                            {{
+                                                                producto.descripcion
+                                                            }}
+                                                        </td>
+                                                        <td>
+                                                            {{
+                                                                producto.cantidad_envio
+                                                            }}
+                                                        </td>
+                                                        <td>
+                                                            {{
+                                                                producto.cantidad
+                                                            }}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </th>
+                                        <th>
+                                            <div
+                                                class="form-group form-primary"
+                                            >
+                                                <input
+                                                    type="number"
+                                                    name="variacioncantidad{{
+                                                        index
+                                                    }}"
+                                                    class="form-control"
+                                                    [(ngModel)]="
+                                                        variacion.cantidad_envio
+                                                    "
+                                                    (change)="
+                                                        cambiarCantidadProductosPorEtiqueta(
+                                                            row.id,
+                                                            variacion
+                                                        )
+                                                    "
+                                                />
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table
+                                class="table table-striped"
+                                *ngIf="row.variaciones.length == 0"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Descripción</th>
+                                        <th>Variación</th>
+                                        <th>Cantidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        *ngFor="
+                                            let producto of row.productos;
+                                            let index = index
+                                        "
+                                    >
+                                        <td>{{ producto.sku }}</td>
+                                        <td>{{ producto.descripcion }}</td>
+                                        <td>
+                                            {{
+                                                producto.color
+                                                    ? producto.color
+                                                    : "N/A"
+                                            }}
+                                        </td>
+                                        <td>
+                                            <div
+                                                class="form-group form-primary"
+                                            >
+                                                <input
+                                                    type="number"
+                                                    name="productocantidad{{
+                                                        index
+                                                    }}"
+                                                    class="form-control"
+                                                    [(ngModel)]="
+                                                        producto.cantidad
+                                                    "
+                                                />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-info btn-sm btn-block http-disabled"
+                        (click)="generarPretransferencia()"
+                    >
+                        <i class="fa fa-2x fa-save"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

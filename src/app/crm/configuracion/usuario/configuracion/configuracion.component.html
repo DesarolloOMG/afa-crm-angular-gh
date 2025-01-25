@@ -1,0 +1,198 @@
+<div class="row">
+    <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title" style="float: left">Áreas</h4>
+                <button class="btn btn-sm btn-success" (click)="openModal(modalarea)"
+                    style="float: right">Agregar</button>
+            </div>
+            <div class="card-block table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Área</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let area of areas">
+                            <td>{{ area.id }}</td>
+                            <td>{{ area.area }}</td>
+                            <td>
+                                <button (click)="editarArea(area, modalarea)"
+                                    class="btn btn-sm btn-info">Editar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title" style="float: left">Niveles</h4>
+                <button class="btn btn-sm btn-success" (click)="openModal(modalnivel)"
+                    style="float: right">Agregar</button>
+            </div>
+            <div class="card-block table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nivel</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let nivel of niveles" (click)="subnivelNivel(nivel.id)" style="cursor: pointer">
+                            <td>{{ nivel.id }}</td>
+                            <td>{{ nivel.nivel }}</td>
+                            <td>
+                                <button (click)="editarNivel(nivel, modalnivel)"
+                                    class="btn btn-sm btn-info">Editar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title" style="float: left">Subniveles por área</h4>
+                <button class="btn btn-sm btn-success" (click)="openModal(modalsubnivel)"
+                    style="float: right">Agregar</button>
+            </div>
+            <div class="card-block table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Subnivel</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let subnivel of subniveles">
+                            <td>{{ subnivel.id }}</td>
+                            <td>{{ subnivel.subnivel }}</td>
+                            <td>
+                                <button (click)="editarSubnivel(subnivel, modalsubnivel)"
+                                    class="btn btn-sm btn-info">Editar</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalarea let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')" id="cerrar_modal">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10" #farea="ngForm">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group form-primary">
+                        <input type="text" name="area" class="form-control" required #area="ngModel"
+                            [(ngModel)]="data.area.area" pattern="[^'&quot;]+$" maxlength="20">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                        <small class="text-danger messages"
+                            *ngIf="(area.invalid && (area.dirty || area.touched)) && area.errors.pattern">No se permite
+                            el caracter ' ó "</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary btn-md btn-block m-b-20 http-disabled"
+                        id="button_registrar" (click)="guardarArea()" [disabled]="!farea.valid">Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalnivel let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')" id="cerrar_modal">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10" #fnivel="ngForm">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group form-primary">
+                        <input type="text" name="nivel" class="form-control" required #nivel="ngModel"
+                            [(ngModel)]="data.nivel.nivel" pattern="[^'&quot;]+$" maxlength="20">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Nivel</label>
+                        <small class="text-danger messages"
+                            *ngIf="(nivel.invalid && (nivel.dirty || nivel.touched)) && nivel.errors.pattern">No se
+                            permite el caracter ' ó "</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary btn-md btn-block m-b-20 http-disabled"
+                        id="button_registrar" (click)="guardarNivel()" [disabled]="!fnivel.valid">Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalsubnivel let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')" id="cerrar_modal">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10" #fsubnivel="ngForm">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group form-primary">
+                        <select name="select-nivel" id="select-nivel" required class="form-control"
+                            [(ngModel)]="data.subnivel.nivel">
+                            <option value="" disabled selected></option>
+                            <option value="{{ nivel.id }}" *ngFor="let nivel of niveles">{{ nivel.nivel }}</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Nivel</label>
+                    </div>
+                </div>
+                <div class="col-sm-12">
+                    <div class="form-group form-primary">
+                        <input type="text" name="subnivel" class="form-control" required #subnivel="ngModel"
+                            [(ngModel)]="data.subnivel.subnivel" pattern="[^'&quot;]+$" maxlength="20">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Subnivel</label>
+                        <small class="text-danger messages"
+                            *ngIf="(subnivel.invalid && (subnivel.dirty || subnivel.touched)) && subnivel.errors.pattern">No
+                            se permite el caracter ' ó "</small>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary btn-md btn-block m-b-20 http-disabled"
+                        id="button_registrar" (click)="guardarSubnivel()" [disabled]="!fsubnivel.valid">Guardar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

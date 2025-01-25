@@ -1,0 +1,18 @@
+$color_1: transparent;
+
+.custom-date-input {
+    &:disabled {
+        &::-webkit-datetime-edit-text {
+            color: $color_1;
+        }
+        &::-webkit-datetime-edit-month-field {
+            color: $color_1;
+        }
+        &::-webkit-datetime-edit-day-field {
+            color: $color_1;
+        }
+        &::-webkit-datetime-edit-year-field {
+            color: $color_1;
+        }
+    }
+}

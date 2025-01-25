@@ -1,0 +1,138 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    id="empresa"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.empresa"
+                                >
+                                    <option
+                                        value="{{ empresa.id }}"
+                                        *ngFor="let empresa of empresas"
+                                    >
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_inicial"
+                                    [(ngModel)]="busqueda.fecha_inicial"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de inicio</label
+                                >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_final"
+                                    [(ngModel)]="busqueda.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha final</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="generarReporte()"
+                                id="generar_reporte"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-file-excel fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="descargarReporte()"
+                                [disabled]="excel == ''"
+                                placement="top"
+                                ngbTooltip="Descargar reporte"
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <table
+            class="table table-striped"
+            id="general_reporte_producto_top_venta"
+        >
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Ultimo costo</th>
+                    <th>Almacenes</th>
+                    <th>Inventario</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of productos">
+                    <td>{{ row.sku }}</td>
+                    <td>{{ row.descripcion }}</td>
+                    <td>{{ row.cantidad }}</td>
+                    <td>$ {{ commaNumber(row.total) }}</td>
+                    <td>$ {{ commaNumber(row.ultimo_costo) }}</td>
+                    <td>
+                        <ul style="list-style-type: none">
+                            <li
+                                style="border-bottom: 1px solid"
+                                *ngFor="let almacen of row.almacenes"
+                            >
+                                {{ almacen.almacen }}
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul style="list-style-type: none">
+                            <li
+                                style="border-bottom: 1px solid"
+                                *ngFor="let almacen of row.almacenes"
+                            >
+                                {{ almacen.disponible }}
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

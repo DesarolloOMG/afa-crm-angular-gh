@@ -1,0 +1,161 @@
+<form class="md-float-material form-material">
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    id="empresa"
+                                    class="form-control"
+                                    [(ngModel)]="data.empresa"
+                                >
+                                    <option value="" disabled>
+                                        Selecciona una opción
+                                    </option>
+                                    <option
+                                        value="{{ empresa.bd }}"
+                                        *ngFor="let empresa of empresas"
+                                    >
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="tipodocumento"
+                                    id="tipodocumento"
+                                    class="form-control"
+                                    [(ngModel)]="data.tipo"
+                                >
+                                    <option value="">
+                                        Selecciona una opción
+                                    </option>
+                                    <option value="1">Ingreso</option>
+                                    <option value="0" disabled>Egreso</option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Tipo de documento a eliminar</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-10" [hidden]="entidades.length > 0">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="entidadbusqueda"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda"
+                                    (keyup.enter)="buscarEntidad()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Busca una entidad</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-10" [hidden]="entidades.length == 0">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="entidad"
+                                    id="entidad"
+                                    class="form-control"
+                                    [(ngModel)]="data.entidad"
+                                    (change)="cambiarEntidad()"
+                                >
+                                    <option value=""></option>
+                                    <option
+                                        value="{{ entidad.rfc }}"
+                                        *ngFor="let entidad of entidades"
+                                    >
+                                        {{ entidad.razon }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="
+                                    btn btn-primary btn-sm btn-block
+                                    http-disabled
+                                "
+                                (click)="buscarEntidad()"
+                                placement="top"
+                                ngbTooltip="Buscar entidad"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-12 table-responsive">
+                    <table
+                        class="table table-striped"
+                        id="contabilidad_ingreso_eliminar"
+                    >
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Modulo</th>
+                                <th>Descripción</th>
+                                <th>Moneda</th>
+                                <th>T.C</th>
+                                <th>Total</th>
+                                <th>Fecha</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of movimientos">
+                                <td>{{ row.id }}</td>
+                                <td>{{ row.modulo }}</td>
+                                <td>{{ row.descripcion }}</td>
+                                <td>{{ row.moneda }}</td>
+                                <td>$ {{ commaNumber(row.tc) }}</td>
+                                <td>$ {{ commaNumber(row.monto) }}</td>
+                                <td>{{ row.fecha_operacion }}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="
+                                            btn btn-outline-danger btn-block
+                                            http-disabled
+                                        "
+                                        placement="top"
+                                        ngbTooltip="Eliminar movimiento"
+                                        (click)="eliminarMovimiento(row.id)"
+                                    >
+                                        <i class="fa fa-2x fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

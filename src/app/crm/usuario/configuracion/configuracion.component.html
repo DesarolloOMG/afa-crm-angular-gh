@@ -1,0 +1,255 @@
+<div class="page-body">
+    <!--profile cover start-->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="cover-profile">
+                <div class="profile-bg-img">
+                    <img
+                        class="profile-bg-img img-fluid"
+                        src="assets/images/user-profile/bg-img1.jpg"
+                        alt="bg-img"
+                    />
+                    <div class="card-block user-info">
+                        <div class="col-md-12">
+                            <div class="media-left">
+                                <a href="javascript:" class="profile-image">
+                                    <img
+                                        class="user-img img-radius"
+                                        src="{{ usuario.imagen }}"
+                                        width="150px"
+                                        height="150px"
+                                        alt="user-img"
+                                    />
+                                </a>
+                            </div>
+                            <div class="media-body row">
+                                <div class="col-lg-12">
+                                    <div class="user-title">
+                                        <h2>{{ usuario.nombre }}</h2>
+                                        <span class="text-white">{{
+                                            usuario.email
+                                        }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--profile cover end-->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="md-tabs md-card-tabs">
+                <ngb-tabset>
+                    <ngb-tab title="Información general">
+                        <ng-template ngbTabContent>
+                            <div class="m-t-15">
+                                <!-- info card start -->
+                                <div class="card">
+                                    <div class="card-body">
+                                        <form
+                                            class="md-float-material form-material m-t-30"
+                                            #f="ngForm"
+                                        >
+                                            <div class="row">
+                                                <div
+                                                    class="col-md-6"
+                                                    id="div_input_cliente"
+                                                >
+                                                    <div
+                                                        class="form-group form-primary"
+                                                    >
+                                                        <input
+                                                            type="text"
+                                                            name="nombre"
+                                                            id="nombre"
+                                                            required
+                                                            class="form-control"
+                                                            #nombre="ngModel"
+                                                            [(ngModel)]="
+                                                                usuario.nombre
+                                                            "
+                                                            pattern="[^'&quot;]+$"
+                                                            maxlength="100"
+                                                        />
+                                                        <span
+                                                            class="form-bar"
+                                                        ></span>
+                                                        <label
+                                                            class="float-label"
+                                                            >Nombre</label
+                                                        >
+                                                        <small
+                                                            class="text-danger messages block"
+                                                            *ngIf="
+                                                                nombre.invalid &&
+                                                                (nombre.dirty ||
+                                                                    nombre.touched)
+                                                            "
+                                                            >No se permite el
+                                                            caracter ' ó
+                                                            "</small
+                                                        >
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="col-md-6"
+                                                    id="div_input_cliente"
+                                                >
+                                                    <div
+                                                        class="form-group form-primary"
+                                                    >
+                                                        <input
+                                                            type="email"
+                                                            name="email"
+                                                            id="email"
+                                                            required
+                                                            class="form-control"
+                                                            #email="ngModel"
+                                                            [(ngModel)]="
+                                                                usuario.email
+                                                            "
+                                                            email
+                                                        />
+                                                        <span
+                                                            class="form-bar"
+                                                        ></span>
+                                                        <label
+                                                            class="float-label"
+                                                            >Email</label
+                                                        >
+                                                        <small
+                                                            class="text-danger messages block"
+                                                            *ngIf="
+                                                                email.invalid &&
+                                                                (email.dirty ||
+                                                                    email.touched)
+                                                            "
+                                                            >No se permite el
+                                                            caracter ' ó
+                                                            "</small
+                                                        >
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="col-md-6"
+                                                    id="div_input_cliente"
+                                                >
+                                                    <div
+                                                        class="form-group form-primary"
+                                                    >
+                                                        <input
+                                                            type="text"
+                                                            name="celular"
+                                                            id="celular"
+                                                            required
+                                                            class="form-control"
+                                                            #email="ngModel"
+                                                            [(ngModel)]="
+                                                                usuario.celular
+                                                            "
+                                                            pattern="^[.0-9]+$"
+                                                            maxlength="10"
+                                                            minlength="10"
+                                                        />
+                                                        <span
+                                                            class="form-bar"
+                                                        ></span>
+                                                        <label
+                                                            class="float-label"
+                                                            >Celular</label
+                                                        >
+                                                        <small
+                                                            class="text-danger messages block"
+                                                            *ngIf="
+                                                                email.invalid &&
+                                                                (email.dirty ||
+                                                                    email.touched)
+                                                            "
+                                                            >Sólo se permiten
+                                                            números</small
+                                                        >
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="col-md-6"
+                                                    id="div_input_cliente"
+                                                >
+                                                    <div
+                                                        class="form-group form-primary"
+                                                    >
+                                                        <input
+                                                            type="password"
+                                                            name="contrasena"
+                                                            id="contrasena"
+                                                            class="form-control"
+                                                            #contrasena="ngModel"
+                                                            [(ngModel)]="
+                                                                usuario.contrasena
+                                                            "
+                                                            pattern="[^'&quot;]+$"
+                                                        />
+                                                        <span
+                                                            class="form-bar"
+                                                        ></span>
+                                                        <label
+                                                            class="float-label"
+                                                            >Contraseña</label
+                                                        >
+                                                        <small
+                                                            class="text-danger messages block"
+                                                            *ngIf="
+                                                                contrasena.invalid &&
+                                                                (contrasena.dirty ||
+                                                                    contrasena.touched)
+                                                            "
+                                                            >Sólo se permiten
+                                                            números</small
+                                                        >
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <label
+                                                        >Imagen de perfil</label
+                                                    >
+                                                    <input
+                                                        type="file"
+                                                        class="form-control text-center ripple light"
+                                                        id="imagen_perfil"
+                                                        (change)="
+                                                            agregarArchivo()
+                                                        "
+                                                    />
+                                                </div>
+
+                                                <div class="col-md-12 m-t-30">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-info btn-sm btn-block http-disabled"
+                                                        [disabled]="!f.valid"
+                                                        (click)="
+                                                            actualizarUsuario()
+                                                        "
+                                                    >
+                                                        Guardar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <!-- info card end -->
+                            </div>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
+            </div>
+        </div>
+    </div>
+</div>

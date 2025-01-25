@@ -1,0 +1,294 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <h4 class="sub-title">Marketplace</h4>
+
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <select
+                            name="area_busqueda"
+                            id="area_busqueda"
+                            class="form-control"
+                            (change)="cambiarArea()"
+                            [(ngModel)]="data.area"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ area.id }}"
+                                *ngFor="let area of areas"
+                            >
+                                {{ area.area }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <select
+                            name="marketplace_busqueda"
+                            id="marketplace_busqueda"
+                            class="form-control"
+                            [(ngModel)]="data.marketplace"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ marketplace.id }}"
+                                *ngFor="let marketplace of marketplaces"
+                            >
+                                {{ marketplace.marketplace }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marketplace</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">
+                Filtros de la búsqueda
+                <small
+                    >(Para evitar fallos en el servicio de ML, se recomienda
+                    seleccionar máximo 10 días)</small
+                >
+            </h4>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="publicacion"
+                            [(ngModel)]="data.publicacion"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >ID de la publicación (MLM)</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input
+                            type="date"
+                            class="form-control"
+                            name="fecha_inicio"
+                            [(ngModel)]="data.fecha_inicio"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha de inicio</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input
+                            type="date"
+                            class="form-control"
+                            name="fecha_final"
+                            [(ngModel)]="data.fecha_final"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha final</label>
+                    </div>
+                </div>
+                <div class="col-md-1" style="margin-top: -18px">
+                    <label style="display: block; font-size: 9pt">CRM</label>
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="crm"
+                        id="crm"
+                        [(ngModel)]="data.crm"
+                    ></ui-switch>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <button
+                        class="btn btn-sm btn-block btn-info btn-block m-t-10 http-disabled"
+                        (click)="generarReporte()"
+                        [disabled]="$any(data).marketplace == 0"
+                    >
+                        <i class="fa fa-search"></i> Reporte de ventas
+                    </button>
+                </div>
+                <!-- <div class="col-md-4">
+                    <button
+                        class="btn btn-sm btn-block btn-info btn-block m-t-10 http-disabled"
+                        (click)="descargarReporte()"
+                        [disabled]="data.excel == ''"
+                    >
+                        <i class="fa fa-download"></i> Descargar Reporte de
+                        ventas
+                    </button>
+                </div> -->
+                <div class="col-md-4">
+                    <button
+                        (click)="openmodal(reporteModal, 1)"
+                        class="btn btn-sm btn-block btn-info btn-block m-t-10 http-disabled"
+                    >
+                        <i class="fa fa-check-square-o"></i> Reporte de
+                        Canceladas
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button
+                        (click)="openmodal(reporteModal, 2)"
+                        class="btn btn-sm btn-block btn-info btn-block m-t-10 http-disabled"
+                    >
+                        <i class="fa fa-check-square-o"></i> Reporte de
+                        Faltantes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<ng-template #reporteModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Creacion del reporte</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal5"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <div class="row">
+                    <div class="col-sm-6 m-t-10">
+                        <label>Conseguir Ventas Mercadolibre</label>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.ml == 1">
+                        <ng-container *ngTemplateOutlet="activa"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.ml == 2">
+                        <ng-container *ngTemplateOutlet="exito"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.ml == 3">
+                        <ng-container *ngTemplateOutlet="error"></ng-container>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 m-t-10">
+                        <label>Conseguir Ventas CRM</label>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.crm == 1">
+                        <ng-container *ngTemplateOutlet="activa"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.crm == 2">
+                        <ng-container *ngTemplateOutlet="exito"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.crm == 3">
+                        <ng-container *ngTemplateOutlet="error"></ng-container>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6 m-t-10">
+                        <label>Comparar ventas</label>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.comp == 1">
+                        <ng-container *ngTemplateOutlet="activa"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.comp == 2">
+                        <ng-container *ngTemplateOutlet="exito"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.comp == 3">
+                        <ng-container *ngTemplateOutlet="error"></ng-container>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6 m-t-10">
+                        <label>Revisión de estatus</label>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.rev == 1">
+                        <ng-container *ngTemplateOutlet="activa"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.rev == 2">
+                        <ng-container *ngTemplateOutlet="exito"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.rev == 3">
+                        <ng-container *ngTemplateOutlet="error"></ng-container>
+                    </div>
+                </div>
+
+                <div class="row" *ngIf="reporte_variables.rep == 4">
+                    <div class="col-sm-6 m-t-10">
+                        <label>No hay elementos para generar el reporte</label>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.rep == 4">
+                        <ng-container *ngTemplateOutlet="exito"></ng-container>
+                    </div>
+                </div>
+
+                <div class="row" *ngIf="reporte_variables.rep != 4">
+                    <div class="col-sm-6 m-t-10">
+                        <label>Generación y descarga del reporte</label>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.rep == 1">
+                        <ng-container *ngTemplateOutlet="activa"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.rep == 2">
+                        <ng-container *ngTemplateOutlet="exito"></ng-container>
+                    </div>
+                    <div class="col-sm-6" *ngIf="reporte_variables.rep == 3">
+                        <ng-container *ngTemplateOutlet="error"></ng-container>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #activa>
+    <div class="progress">
+        <div
+            class="progress-bar progress-bar-striped progress-bar-animated"
+            role="progressbar"
+            aria-valuenow="100"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [style.width]="'100%'"
+        ></div>
+    </div>
+</ng-template>
+
+<ng-template #error>
+    <div class="progress">
+        <div
+            class="progress-bar progress-bar-striped bg-danger"
+            role="progressbar"
+            style="width: 100%"
+            aria-valuenow="100"
+            aria-valuemin="0"
+            aria-valuemax="100"
+        ></div>
+    </div>
+</ng-template>
+
+<ng-template #exito>
+    <div class="progress">
+        <div
+            class="progress-bar progress-bar-striped bg-success"
+            role="progressbar"
+            style="width: 100%"
+            aria-valuenow="100"
+            aria-valuemin="0"
+            aria-valuemax="100"
+        ></div>
+    </div>
+</ng-template>

@@ -1,0 +1,208 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Categorias registradas</h5>
+        <button
+            class="btn btn-info btn-sm float-right"
+            (click)="modalCategoria(0)"
+        >
+            Crear categoria
+        </button>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-3">
+                <table class="table table-striped compra_producto_categoria">
+                    <thead>
+                        <tr>
+                            <th>TIPO DE PRODUCTO</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of categorias_uno">
+                            <td>{{ row.categoria }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-warning btn-sm btn-block"
+                                    (click)="modalCategoria(row.id)"
+                                >
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-3">
+                <table class="table table-striped compra_producto_categoria">
+                    <thead>
+                        <tr>
+                            <th>MARCA</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of categorias_dos">
+                            <td>{{ row.categoria }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-warning btn-sm btn-block"
+                                    (click)="modalCategoria(row.id)"
+                                >
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-3">
+                <table class="table table-striped compra_producto_categoria">
+                    <thead>
+                        <tr>
+                            <th>SUBTIPO</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of categorias_tres">
+                            <td>{{ row.categoria }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-warning btn-sm btn-block"
+                                    (click)="modalCategoria(row.id)"
+                                >
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-3">
+                <table class="table table-striped compra_producto_categoria">
+                    <thead>
+                        <tr>
+                            <th>VERTICAL</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of categorias_cuatro">
+                            <td>{{ row.categoria }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-warning btn-sm btn-block"
+                                    (click)="modalCategoria(row.id)"
+                                >
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">
+            {{ data.id == 0 ? "Crear" : "Editar" }} categoria
+        </h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material" #f="ngForm">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            class="form-control"
+                            name="tipocategoria"
+                            #tipocategoria="ngModel"
+                            [(ngModel)]="data.tipo"
+                            required
+                        >
+                            <option value="1">TIPO DE PRODUCTO</option>
+                            <option value="2">MARCA</option>
+                            <option value="3">SUBTIPO</option>
+                            <option value="4">VERTICAL</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de categoria</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                (tipocategoria.dirty ||
+                                    tipocategoria.touched) &&
+                                tipocategoria.errors?.required
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="nombrecategoria"
+                            #nombrecategoria="ngModel"
+                            [(ngModel)]="data.categoria"
+                            pattern="[^'&quot;]+$"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Categoria</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                (nombrecategoria.dirty ||
+                                    nombrecategoria.touched) &&
+                                nombrecategoria.errors?.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                (nombrecategoria.dirty ||
+                                    nombrecategoria.touched) &&
+                                nombrecategoria.errors?.required
+                            "
+                            >Este campo es requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-info btn-sm btn-block"
+                        (click)="crearCategoria()"
+                        [disabled]="!f.valid"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

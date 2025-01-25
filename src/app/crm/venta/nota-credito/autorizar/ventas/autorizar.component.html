@@ -1,0 +1,197 @@
+<ng-template #title let-name="name">
+    <h5>{{ name }}</h5>
+</ng-template>
+
+<div class="card">
+    <div class="card-body">
+        <form
+            class="md-float-material form-material m-t-10"
+            [hidden]="!esAdministrador"
+        >
+            <div class="md-tabs">
+                <ngb-tabset (tabChange)="onChangeTab($event.nextId)" #tabs>
+                    <ngb-tab id="tab-pendientes">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Pendientes'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaPendientes"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+
+                    <ngb-tab id="tab-terminados">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Terminados'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaTerminados"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
+            </div>
+        </form>
+        <h2 [hidden]="esAdministrador">
+            No cuenta con los permisos para ver este modulo!
+        </h2>
+    </div>
+    <!-- <button class="btn btn-sm btn-danger" (click)="getAutorizaciones()">
+        GET
+    </button> -->
+</div>
+
+<ng-template #tablaPendientes>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="nc_pendientes">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Venta</th>
+                            <th>Solicitante</th>
+                            <th>Creado</th>
+                            <th>Módulo</th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of pendientes">
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="goToLink(item.id_documento)"
+                                >
+                                    {{ item.id_documento }}
+                                </button>
+                            </td>
+                            <td>{{ item.no_venta }}</td>
+                            <td>{{ item.solicitante }}</td>
+                            <td>{{ item.created_at }}</td>
+                            <td>{{ item.modulo }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-success rounded"
+                                    (click)="
+                                        autorizarNdc(
+                                            item.id,
+                                            item.id_documento,
+                                            item.modulo
+                                        )
+                                    "
+                                >
+                                    Autorizar
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-danger rounded"
+                                    (click)="
+                                        rechazarNdc(item.id, item.id_documento)
+                                    "
+                                >
+                                    Rechazar
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-info rounded"
+                                    (click)="
+                                        repararNDCVentas(
+                                            item.id,
+                                            item.id_documento
+                                        )
+                                    "
+                                >
+                                    Reparar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #tablaTerminados>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="nc_terminados">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Venta</th>
+                            <th>Estado</th>
+                            <th>Solicitante</th>
+                            <th>Módulo</th>
+                            <th>Autorizado/Rechazado por</th>
+                            <th>Creado</th>
+                            <th>Autorizado/Rechazado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of terminados">
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="goToLink(item.id_documento)"
+                                >
+                                    {{ item.id_documento }}
+                                </button>
+                            </td>
+                            <td>{{ item.no_venta }}</td>
+                            <td [ngSwitch]="item.estado">
+                                <span
+                                    class="badge badge-success"
+                                    *ngSwitchCase="2"
+                                    >Autorizado</span
+                                >
+                                <span
+                                    class="badge badge-danger"
+                                    *ngSwitchCase="3"
+                                    >Rechazado</span
+                                >
+                            </td>
+
+                            <td>{{ item.solicitante }}</td>
+                            <td>{{ item.modulo }}</td>
+
+                            <td>
+                                {{
+                                    item.estado == 2
+                                        ? item.autorizante
+                                        : item.denegente
+                                }}
+                            </td>
+                            <td>{{ item.created_at }}</td>
+                            <td>
+                                {{
+                                    item.estado == 2
+                                        ? item.authorized_at
+                                        : item.denied_at
+                                }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>

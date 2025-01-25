@@ -1,0 +1,132 @@
+<div class="row">
+    <div
+        class="col-md-4"
+        *ngFor="let marketplace of marketplaces"
+        style="cursor: pointer"
+        (click)="
+            importarVentas(
+                marketplace.id,
+                marketplace.marketplace.toLowerCase(),
+                modal,
+                $event
+            )
+        "
+    >
+        <div class="card">
+            <div class="card-block">
+                <div class="row align-items-center m-l-0">
+                    <div class="col-auto">
+                        <h4>{{ marketplace.area }}</h4>
+                        <h4>{{ marketplace.marketplace }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10">
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            class="form-control"
+                            [(ngModel)]="marketplace.empresa"
+                            (change)="cambiarEmpresa()"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-t-20" *ngIf="marketplace.marketplace != 'amazon'">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="almacen"
+                            id="almacen"
+                            class="form-control"
+                            [(ngModel)]="marketplace.almacen"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ almacen.id }}"
+                                *ngFor="let almacen of almacenes"
+                            >
+                                {{ almacen.almacen }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Almacén</label>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="row m-t-20"
+                *ngIf="!noNeed.includes(marketplace.marketplace)"
+            >
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="cargar_archivo"
+                            name="cargar_archivo"
+                            (change)="cargarArchivoMarketplace()"
+                            multiple
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Archivo</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-info btn-sm btn-block http-disabled"
+                        (click)="importarVentasAmazon($event)"
+                        [disabled]="
+                            marketplace.ventas.length == 0 && necesita_archivo
+                        "
+                        id="importar_ventas"
+                    >
+                        Crear
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ngx-spinner
+    bdColor="rgba(51,51,51,0.8)"
+    size="medium"
+    color="#fff"
+    type="ball-scale-multiple"
+>
+    <p style="font-size: 20px; color: white">Procesando {{ loadingTitle }}</p>
+</ngx-spinner>

@@ -1,0 +1,265 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Buscar información de una Nota de Credito</h5>
+    </div>
+
+    <div class="card-body">
+        <form class="md-float-material form-material">
+            <h4 class="sub-title">
+                Selecciona una empresa de la nota de credito
+            </h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="nota-credito-empresa"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.empresa"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ row.bd }}"
+                                        *ngFor="let row of empresas"
+                                    >
+                                        {{ row.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="nota-credito-documento"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.documento"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >ID Nota Credito</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-block btn-sm"
+                                placement="top"
+                                ngbTooltip="Buscar NC"
+                                (click)="searchDocument()"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-50">Detalle de la Nota</h4>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-horizontal form-bordered">
+                        <div class="form-group group-div">
+                            <label class="col-form-label col-sm-2">ID</label>
+                            <div class="col-sm-10 inline-block">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>{{ data.documento }}</h5>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <button
+                                            class="btn btn-outline-info btn-sm btn-block m-b-10 http-disabled"
+                                            (click)="downloadXMLorPDF(true)"
+                                            style="float: right"
+                                            placement="top"
+                                            ngbTooltip="Descargar XML"
+                                        >
+                                            <i
+                                                class="fa fa-2x fa-file-code"
+                                            ></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <button
+                                            class="btn btn-outline-info btn-sm btn-block m-b-10 http-disabled"
+                                            style="float: right"
+                                            (click)="downloadXMLorPDF(false)"
+                                            placement="top"
+                                            ngbTooltip="Descargar PDF"
+                                        >
+                                            <i class="fa fa-2x fa-file-pdf"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2"
+                            >Serie y Folio</label
+                        >
+                        <div class="col-sm-10 inline-block">
+                            <h5>{{ data.serie + " " + data.folio }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">UUID</label>
+                        <div class="col-sm-10 inline-block">
+                            <h5>{{ data.uuid }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">Almacén</label>
+                        <div class="col-sm-10 inline-block">
+                            <h5>{{ data.almacen }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">Estado</label>
+                        <div class="col-sm-10 inline-block">
+                            <h5>
+                                {{
+                                    data.cancelado
+                                        ? "CANCELADO"
+                                        : data.eliminado_por
+                                        ? "ELIMINADO"
+                                        : "ACTIVA"
+                                }}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">Fecha</label>
+                        <div class="col-sm-10 inline-block">
+                            <h5>{{ data.fecha }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">Total</label>
+                        <div class="col-sm-10 inline-block">
+                            <h5>$ {{ data.total | number : "1.2-2" }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">Saldo</label>
+                        <div class="col-sm-10 inline-block">
+                            <h5>$ {{ data.resta | number : "1.2-2" }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2"
+                            >Moneda y T.C</label
+                        >
+                        <div class="col-sm-10 inline-block">
+                            <h5>
+                                {{ data.moneda }} | $
+                                {{ data.tipo_cambio | number : "1.2-2" }}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">Cliente</label>
+                        <div class="col-sm-10 inline-block">
+                            <h5>- {{ data.cliente }}</h5>
+                            <h5>- {{ data.rfc }}</h5>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2">Productos</label>
+                        <div class="col-sm-10 inline-block">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Descripción</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let row of data.detalle">
+                                        <td>{{ row.cvearticulo }}</td>
+                                        <td>
+                                            {{ row.articulo }}
+                                        </td>
+                                        <td>{{ row.cantidad }}</td>
+                                        <td>
+                                            $
+                                            {{
+                                                addIVAtoNumber(row.precio)
+                                                    | number : "1.2-2"
+                                            }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="form-group group-div">
+                        <label class="col-form-label col-sm-2"
+                            >Documentos Relacionados</label
+                        >
+                        <div class="col-sm-10 inline-block">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Serie y Folio</th>
+                                        <th>Modulo</th>
+                                        <th>Titulo</th>
+                                        <th>Total Documento</th>
+                                        <th>Total Aplicado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        *ngFor="
+                                            let row of data.documentos_pagos
+                                        "
+                                    >
+                                        <td>{{ row.documento_id }}</td>
+                                        <td>
+                                            {{ row.serie + " " + row.folio }}
+                                        </td>
+                                        <td>{{ row.modulo }}</td>
+                                        <td>{{ row.titulo }}</td>
+                                        <td>
+                                            $ {{ row.total | number : "1.2-2" }}
+                                        </td>
+                                        <td>
+                                            $ {{ row.monto | number : "1.2-2" }}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

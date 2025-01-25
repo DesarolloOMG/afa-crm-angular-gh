@@ -1,0 +1,317 @@
+<div class="card">
+    <!-- <button (click)="ngOnInit()">GET</button> -->
+    <div class="card-header">
+        <h5>Usuarios</h5>
+        <button
+            style="float: right"
+            class="btn btn-info btn-sm"
+            [routerLink]="['/auth/register']"
+        >
+            Crear usuario
+        </button>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="configuracion-usuario-gestion"
+                >
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let usuario of usuarios">
+                            <td>{{ usuario.nombre }}</td>
+                            <td>{{ usuario.email }}</td>
+                            <td>
+                                <button
+                                    (click)="editUser(usuario)"
+                                    class="btn btn-sm btn-outline-info"
+                                    placement="top"
+                                    ngbTooltip="Editar Usuario"
+                                >
+                                    <i class="fa fa-pencil fa-2x"></i>
+                                </button>
+                                <button
+                                    (click)="disableUser(usuario)"
+                                    class="btn btn-sm btn-outline-warning m-l-10"
+                                    placement="top"
+                                    ngbTooltip="Desactivar Usuario"
+                                >
+                                    <i class="fa fa-2x fa-user-slash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modaledit let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Editar usuario {{ usuario.nombre }}</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10" #f="ngForm">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="nombre"
+                            class="form-control"
+                            required
+                            #nombre="ngModel"
+                            [(ngModel)]="usuario.nombre"
+                            pattern="[^'&quot;]+$"
+                            maxlength="150"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Nombre</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                nombre.invalid &&
+                                (nombre.dirty || nombre.touched) &&
+                                $any(nombre).error.pattern
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="email"
+                            name="email"
+                            class="form-control"
+                            required
+                            email
+                            [(ngModel)]="usuario.email"
+                            maxlength="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Email</label>
+                    </div>
+                </div>
+
+                <div class="col-sm-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="celular"
+                            class="form-control"
+                            #celular="ngModel"
+                            required
+                            [(ngModel)]="usuario.celular"
+                            maxlength="10"
+                            pattern="^[0-9]{10}$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Celular</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                celular.invalid &&
+                                (celular.dirty || celular.touched) &&
+                                celular.errors.pattern
+                            "
+                            >Solo se permiten números</small
+                        >
+                    </div>
+                    <div class="form-group form-primary">
+                        <select
+                            name="area"
+                            class="form-control"
+                            [(ngModel)]="usuario.area"
+                        >
+                            <option
+                                value="{{ row.area }}"
+                                *ngFor="let row of area"
+                            >
+                                {{ row.area }}
+                            </option>
+                        </select>
+                        <label class="float-label">Area</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30" style="font-size: 30px">EMPRESAS</h4>
+
+            <div class="row">
+                <div class="col-md-6 m-t-30" *ngFor="let empresa of empresas">
+                    <div class="border-checkbox-section">
+                        <div
+                            class="border-checkbox-group border-checkbox-group-info"
+                        >
+                            <input
+                                class="border-checkbox"
+                                type="checkbox"
+                                id="empresa_{{ empresa.id }}"
+                                (click)="addCompany($event, empresa.id)"
+                                [checked]="
+                                    usuario.empresas.indexOf(empresa.id) != -1
+                                        ? true
+                                        : false
+                                "
+                            />
+                            <label
+                                class="border-checkbox-label"
+                                for="empresa_{{ empresa.id }}"
+                                >{{ empresa.empresa }}</label
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30" style="font-size: 30px">NIVELES</h4>
+
+            <div class="row">
+                <div class="col-md-6 m-t-30" *ngFor="let nivel of niveles">
+                    <h4 class="sub-title">{{ nivel.nivel }}</h4>
+                    <div class="border-checkbox-section">
+                        <div
+                            class="border-checkbox-group border-checkbox-group-info"
+                            *ngFor="let subnivel of nivel.subniveles"
+                        >
+                            <input
+                                class="border-checkbox"
+                                type="checkbox"
+                                id="subnivel_{{ subnivel.pivot.id }}"
+                                (click)="addSubnivel($event, subnivel.pivot.id)"
+                                [checked]="
+                                    usuario.subniveles.indexOf(
+                                        subnivel.pivot.id
+                                    ) != -1
+                                        ? true
+                                        : false
+                                "
+                                [disabled]="
+                                    subnivel.id != 1 &&
+                                    usuario.subniveles.indexOf(1) != -1
+                                        ? true
+                                        : false
+                                "
+                            />
+                            <label
+                                class="border-checkbox-label"
+                                for="subnivel_{{ subnivel.pivot.id }}"
+                                >{{ subnivel.subnivel }}</label
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30" style="font-size: 30px">
+                MARKETPLACES
+            </h4>
+
+            <div class="row">
+                <div class="col-md-12 m-t-30" *ngFor="let area of areas">
+                    <h4 class="sub-title">{{ area.area }}</h4>
+                    <div class="border-checkbox-section">
+                        <div
+                            class="border-checkbox-group border-checkbox-group-info"
+                            *ngFor="let marketplace of area.marketplaces"
+                        >
+                            <input
+                                class="border-checkbox"
+                                type="checkbox"
+                                id="marketplace_{{ marketplace.pivot.id }}"
+                                (click)="
+                                    addMarketplace($event, marketplace.pivot.id)
+                                "
+                                [checked]="
+                                    usuario.marketplaces.indexOf(
+                                        marketplace.pivot.id
+                                    ) != -1
+                                        ? true
+                                        : false
+                                "
+                            />
+                            <label
+                                class="border-checkbox-label"
+                                for="marketplace_{{ marketplace.pivot.id }}"
+                                >{{ marketplace.marketplace }}</label
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h4 class="sub-title m-t-30" style="font-size: 30px">ALMACENES</h4>
+
+            <div class="row">
+                <div
+                    class="col-md-12 m-t-30"
+                    *ngFor="let empresa of empresa_almacen"
+                >
+                    <h4 class="sub-title">{{ empresa.nombre }}</h4>
+                    <div class="border-checkbox-section">
+                        <div
+                            class="border-checkbox-group border-checkbox-group-info"
+                            *ngFor="let almacen of empresa.data"
+                        >
+                            <input
+                                class="border-checkbox"
+                                type="checkbox"
+                                id="empresa_almacen_{{ almacen.id }}"
+                                (click)="addAlmacen($event, almacen.id)"
+                                [checked]="
+                                    usuario.empresa_almacen.indexOf(
+                                        almacen.id
+                                    ) != -1
+                                        ? true
+                                        : false
+                                "
+                            />
+                            <label
+                                class="border-checkbox-label"
+                                for="empresa_almacen_{{ almacen.id }}"
+                                >{{ almacen.almacen }}</label
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                        (click)="registerUser($event)"
+                        [disabled]="!f.valid"
+                        placement="top"
+                        ngbTooltip="{{
+                            usuario.id != 0
+                                ? 'Actualizar Usuario'
+                                : 'Registrar Usuario'
+                        }}"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

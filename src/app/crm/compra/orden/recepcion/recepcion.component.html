@@ -1,0 +1,503 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Ordenes de compra</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="compra_orden_recepcion">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Proveedor</th>
+                            <th>Creador</th>
+                            <th>Fecha</th>
+                            <th>Fecha de arribo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of documentos; let index = index">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm btn-block"
+                                    (click)="detalleDocumento(row.id)"
+                                >
+                                    {{ row.id }}
+                                </button>
+                            </td>
+                            <td>{{ row.razon_social }}</td>
+                            <td>{{ row.nombre }}</td>
+                            <td>{{ row.created_at }}</td>
+                            <td>{{ row.fecha_entrega }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la OC</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10" autocomplete="off">
+            <div class="form-horizontal form-bordered">
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Documento</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.id }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Empresa</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.empresa }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Proveedor</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.proveedor }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Almacén</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.almacen }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2"
+                        >Información extra para series</label
+                    >
+                    <div class="col-sm-10 inline-block">
+                        <input
+                            type="text"
+                            name="textoextraseries"
+                            class="form-control m-b-10"
+                            [(ngModel)]="series.extra"
+                        />
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Productos</label>
+                    <div class="col-sm-10 inline-block">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descripción</th>
+                                    <th>Cantidad</th>
+                                    <th>Recepcionada</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                    *ngFor="
+                                        let row of final_data.productos;
+                                        let index = index
+                                    "
+                                >
+                                    <td>{{ row.oculto }}</td>
+                                    <td>{{ row.descripcion }}</td>
+                                    <td>{{ row.cantidad }}</td>
+                                    <td>
+                                        {{ row.cantidad_recepcionada_anterior }}
+                                    </td>
+                                    <td *ngIf="row.serie">
+                                        <button
+                                            class="btn btn-outline-info btn-sm btn-block"
+                                            placement="top"
+                                            ngbTooltip="Agregar series"
+                                            (click)="
+                                                checkUPCserie(row.codigo, 1)
+                                            "
+                                        >
+                                            <i class="fa fa-barcode fa-2x"></i>
+                                        </button>
+                                    </td>
+                                    <td *ngIf="!row.serie">
+                                        <button
+                                            class="btn btn-outline-info btn-sm btn-block"
+                                            placement="top"
+                                            name="cantidadrecepcionada{{
+                                                index
+                                            }}"
+                                            ngbTooltip="Agregar cantidad"
+                                            (click)="
+                                                checkUPCserie(row.codigo, 0)
+                                            "
+                                        >
+                                            <i class="">{{
+                                                row.cantidad_recepcionada
+                                            }}</i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button
+                                            class="btn btn-sm btn-block btn-outline-info"
+                                            (click)="generarCodigos(row.codigo)"
+                                            placement="top"
+                                            ngbTooltip="Generar etiquetas"
+                                        >
+                                            <i class="fa fa-barcode fa-2x"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Seguimiento</label>
+                    <div class="col-sm-10 inline-block">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <app-new-editor
+                                    class="m-t-20"
+                                    name="seguimiento"
+                                    #seguimiento="ngModel"
+                                    [(ngModel)]="final_data.seguimiento"
+                                >
+                                </app-new-editor>
+                                <!-- <editor
+                                    class="m-t-20"
+                                    apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                                    name="seguimiento"
+                                    #seguimiento="ngModel"
+                                    [(ngModel)]="final_data.seguimiento"
+                                    [init]="tinymce_init"
+                                >
+                                </editor> -->
+                            </div>
+
+                            <div class="col-md-12">
+                                <div
+                                    *ngFor="let seguimiento of data.comentarios"
+                                    class="m-t-20 m-b-20"
+                                >
+                                    <div class="media chat-messages">
+                                        <div
+                                            class="media-body chat-menu-content"
+                                        >
+                                            <div class="">
+                                                <p class="chat-cont">
+                                                    {{
+                                                        seguimiento.nombre +
+                                                            " - " +
+                                                            seguimiento.created_at
+                                                    }}
+                                                </p>
+                                                <p
+                                                    class="chat-cont"
+                                                    [innerHTML]="
+                                                        seguimiento.seguimiento
+                                                    "
+                                                ></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2"
+                        >Adjuntar archivos</label
+                    >
+                    <div class="col-sm-10 inline-block m-t-10">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input
+                                    type="file"
+                                    class="form-control ngb-drop-zone text-center ripple light"
+                                    id="archivos"
+                                    (change)="agregarArchivos()"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group group-div" *ngIf="autorizado">
+                    <label class="col-form-label col-sm-2">Finalizar ODC</label>
+                    <div class="col-sm-10 inline-block m-t-10">
+                        <ui-switch
+                            class="js-single"
+                            color="#4680ff"
+                            switchColor="#fff"
+                            size="medium"
+                            name="finalizarodc"
+                            id="finalizarodc"
+                            [(ngModel)]="final_data.finalizar"
+                            placement="top"
+                            ngbTooltio="Para finalizar la ODC, es necesario autorización con 'Authy'"
+                            (change)="modalUsuarioAuthy()"
+                        ></ui-switch>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2"></label>
+                    <div class="col-sm-10 inline-block">
+                        <button
+                            class="btn btn-info btn-sm btn-block http-disabled m-t-10 m-b-10"
+                            placement="top"
+                            ngbTooltip="Recepcionar Orden de Compra"
+                            (click)="guardarDocumento($event)"
+                        >
+                            <i class="fa fa-save fa-2x"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalseries let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Series</h4>
+        <h4 class="modal-title m-l-10" style="color: red">
+            {{ series.series.length }}
+        </h4>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group">
+                <label class="float-label ol-form-label col-sm-2">Serie</label>
+                <div class="col-sm-10 inline-block">
+                    <input
+                        type="text"
+                        id="serie"
+                        name="serie"
+                        class="form-control"
+                        [(ngModel)]="series.serie"
+                        (keyup.enter)="sanitizeInput(); agregarSerie()"
+                    />
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-info btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="confirmarSeries()"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Series</label>
+                <div class="col-sm-10 inline-block">
+                    <ul class="list-group m-t-10 m-b-10">
+                        <ng-container
+                            *ngFor="let serie of series.series.reverse()"
+                        >
+                            <li class="list-group-item">
+                                {{ serie.serie }}
+                                {{
+                                    serie.fecha_caducidad
+                                        ? " - Cad." + serie.fecha_caducidad
+                                        : ""
+                                }}
+
+                                <span
+                                    (click)="eliminarSerie(serie.serie)"
+                                    class="float-right cursor-pointer text-danger"
+                                    >Quitar</span
+                                >
+                            </li>
+                        </ng-container>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalupc let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Confirmacion del UPC</h4>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group">
+                <label class="float-label ol-form-label col-sm-2">UPC</label>
+                <div class="col-sm-10 inline-block">
+                    <input
+                        type="text"
+                        id="upc"
+                        name="upc"
+                        class="form-control"
+                        [(ngModel)]="checkupc.checkupc"
+                        (keyup.enter)="validateUPC()"
+                    />
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-info btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="validateUPC()"
+                    >
+                        Validar
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2"></label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        Para capturar las series escribe el código del producto
+                        en el recuadro.
+                    </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modaltoken let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="usuario"
+                            id="usuario"
+                            class="form-control"
+                            required
+                            [(ngModel)]="authy.usuario"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ usuario.authy }}"
+                                *ngFor="let usuario of usuarios"
+                            >
+                                {{ usuario.nombre }} - {{ usuario.nivel }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Usuario</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="token"
+                            id="token"
+                            class="form-control http-disabled"
+                            [(ngModel)]="authy.token"
+                            #tokenmodel="ngModel"
+                            (keyup.enter)="confirmarAuthyFinalizar()"
+                            pattern="^[0-9]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Token</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalcaducidad let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Agregar caducidad</h4>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group">
+                <label class="float-label ol-form-label col-sm-4">Serie</label>
+                <div class="col-sm-8 inline-block">
+                    {{ caducidad.serie }}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="float-label ol-form-label col-sm-4"
+                    >Mes/Año (MM/YY)</label
+                >
+                <div class="col-sm-5 inline-block">
+                    <!-- Month Input -->
+                    <input
+                        type="text"
+                        id="monthInput"
+                        name="monthInput"
+                        class="form-control"
+                        [(ngModel)]="expirationMonth"
+                        (keyup)="onMonthInput($event)"
+                        maxlength="2"
+                        placeholder="MM"
+                    />
+                    <!-- Year Input -->
+                    <input
+                        type="text"
+                        id="yearInput"
+                        name="yearInput"
+                        class="form-control"
+                        [(ngModel)]="expirationYear"
+                        maxlength="2"
+                        placeholder="YY"
+                        (keyup.enter)="addCaducidad()"
+                    />
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-4">&nbsp;</label>
+                <div class="col-sm-8 inline-block">
+                    <button
+                        class="btn btn-sm btn-info btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="addCaducidad()"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

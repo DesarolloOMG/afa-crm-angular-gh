@@ -1,0 +1,14 @@
+<div class="toolbar">
+    <button (click)="format('bold')">B</button>
+    <button (click)="format('italic')"><i>I</i></button>
+    <button (click)="format('underline')"><u>U</u></button>
+    <button (click)="format('insertUnorderedList')">• List</button>
+    <button (click)="insertLink()">Link</button>
+    <button (click)="insertImage()">Image</button>
+</div>
+<div
+    #editor
+    contenteditable="true"
+    class="editor"
+    (input)="updateContent()"
+></div>

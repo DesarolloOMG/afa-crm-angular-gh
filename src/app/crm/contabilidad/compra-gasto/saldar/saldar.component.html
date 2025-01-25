@@ -1,0 +1,209 @@
+<form class="md-float-material form-material" #f="ngForm" autocomplete="off">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    id="empresa"
+                                    #empresa="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.empresa"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ empresa.bd }}"
+                                        *ngFor="let empresa of empresas"
+                                    >
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        empresa.errors?.required &&
+                                        empresa.invalid &&
+                                        (empresa.dirty || empresa.touched)
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div
+                            class="col-md-10"
+                            [hidden]="proveedores.length > 0"
+                        >
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="proveedor_input"
+                                    class="form-control"
+                                    #proveedorinput="ngModel"
+                                    [(ngModel)]="busqueda"
+                                    (keyup.enter)="buscarProveedor()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Proveedor</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="
+                                        proveedorinput.invalid &&
+                                        (proveedorinput.dirty ||
+                                            proveedorinput.touched)
+                                    "
+                                    >No se permite el caracter ' ó "</small
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="col-md-10"
+                            [hidden]="proveedores.length == 0"
+                        >
+                            <div class="form-group form-primary">
+                                <select
+                                    name="proveedor_select"
+                                    id="proveedor_select"
+                                    class="form-control"
+                                    [(ngModel)]="data.proveedor"
+                                    #proveedordocumento="ngModel"
+                                    (change)="cambiarProveedor()"
+                                    required
+                                >
+                                    <option value=""></option>
+                                    <option
+                                        value="{{ proveedor.idproveedor }}"
+                                        *ngFor="let proveedor of proveedores"
+                                    >
+                                        {{ proveedor.razon }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Proveedor</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="
+                                        proveedordocumento.errors?.required &&
+                                        proveedordocumento.invalid &&
+                                        (proveedordocumento.dirty ||
+                                            proveedordocumento.touched)
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-sm btn-block http-disabled"
+                                placement="top"
+                                ngbTooltip="{{
+                                    proveedores.length
+                                        ? 'Limpiar búsqueda'
+                                        : 'Buscar proveedor'
+                                }}"
+                                (click)="buscarProveedor()"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-50">
+                        <div class="col-md-4">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="documento"
+                                    class="form-control"
+                                    [(ngModel)]="data.documento"
+                                    (change)="cambiarCantidadAplicar()"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ documento.documento }}"
+                                        *ngFor="let documento of documentos"
+                                    >
+                                        {{
+                                            documento.documento +
+                                                " | " +
+                                                documento.modulo +
+                                                " | " +
+                                                documento.serie +
+                                                " " +
+                                                documento.folio +
+                                                " | $ " +
+                                                documento.balancereal
+                                        }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Documento a saldar</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="documento"
+                                    class="form-control"
+                                    [(ngModel)]="data.egreso"
+                                    (change)="cambiarCantidadAplicar()"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ egreso.id }}"
+                                        *ngFor="let egreso of egresos"
+                                    >
+                                        {{ egreso.id + " | $ " + egreso.monto }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Egreso</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="number"
+                                    name="montosaldar"
+                                    class="form-control"
+                                    [(ngModel)]="data.monto"
+                                    step="0.001"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Monto</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block http-disabled"
+                                (click)="saldarDocumento()"
+                                placement="top"
+                                ngbTooltip="Saldar documento"
+                            >
+                                <i class="fa fa-2x fa-cash-register"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

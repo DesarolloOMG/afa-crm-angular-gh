@@ -1,0 +1,73 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Productos con Back orders</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="compra_compra_backorder">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Publicación</th>
+                            <th>Productos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of publicaciones">
+                            <td>{{ row.publicacion_id }}</td>
+                            <td>{{ row.publicacion }}</td>
+                            <td>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>SKU</th>
+                                            <th>Descripcion</th>
+                                            <th></th>
+                                            <th>Existencia</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let row_children of row.productos">
+                                            <td>{{ row_children.sku }}</td>
+                                            <td>{{ row_children.descripcion }}</td>
+                                            <td>
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Fecha</th>
+                                                            <th>Cantidad</th>
+                                                            <th>Resta</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr
+                                                            *ngFor="let row_children_children of row_children.ventas; let index = index">
+                                                            <td>{{ row_children_children.fecha }}</td>
+                                                            <td>{{ row_children_children.cantidad }}</td>
+                                                            <td
+                                                                class="{{ row_children_children.resta > 10 ? 'verde' : (row_children_children.resta > 5) ? 'amarillo' : 'rojo' }}">
+                                                                {{ row_children_children.resta }} días</td>
+                                                        </tr>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <th></th>
+                                                            <th>{{ row_children.total }}</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </td>
+                                            <td>{{ row_children.existencia }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

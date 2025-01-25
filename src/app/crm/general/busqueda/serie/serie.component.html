@@ -1,0 +1,180 @@
+<div class="card">
+    <div class="card-block">
+        <form class="md-float-material form-material mt-10" autocomplete="off">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="serie"
+                            id="serie"
+                            class="form-control"
+                            [(ngModel)]="serie"
+                            maxlength="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Serie</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-sm btn-info btn-block http-disabled"
+                        (click)="buscarSerie()"
+                        [disabled]="serie == ''"
+                    >
+                        Buscar
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-sm btn-info btn-block http-disabled"
+                        type="button"
+                        (click)="generarEtiqueta()"
+                        [disabled]="serie_buscada == ''"
+                    >
+                        Etiqueta
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="row m-t-20">
+            <div class="col-md-8">
+                <table class="table table-striped table-sm" id="proveedor">
+                    <tbody *ngIf="empresas.length > 0">
+                        <tr>
+                            <th>Serie</th>
+                            <td>{{ serie_buscada }}</td>
+                        </tr>
+                        <tr>
+                            <th>Producto (s)</th>
+                            <td>
+                                <p
+                                    *ngFor="
+                                        let movimiento of empresas[0].movimientos.reverse()
+                                            | slice : 0 : 5;
+                                        let index = index
+                                    "
+                                >
+                                    <b class="b-color">{{
+                                        index == 0
+                                            ? "CODIGO ACTUAL"
+                                            : "CODIGO ANTERIOR"
+                                    }}</b
+                                    ><br />
+                                    <b>Codigo:</b> {{ movimiento.sku }}<br />
+                                    <b>Descripción:</b>
+                                    {{ movimiento.descripcion }}<br />
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Comentario</th>
+                            <td>{{ empresas[0].serie[0].comentario }}</td>
+                        </tr>
+                        <tr>
+                            <th>Almacén</th>
+                            <td>{{ empresas[0].serie[0].almacen }}</td>
+                        </tr>
+                        <tr>
+                            <th>Estado</th>
+                            <td>
+                                {{
+                                    empresas[0].serie[0].status
+                                        ? "DISPONIBLE"
+                                        : "NO DISPONIBLE"
+                                }}
+                            </td>
+                        </tr>
+                        <tr
+                            *ngIf="empresas[0].serie[0].fecha_caducidad != null"
+                        >
+                            <th>Caducidad</th>
+                            <td>
+                                {{ empresas[0].serie[0].fecha_caducidad }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-4">
+                <ngx-barcode
+                    [bc-value]="serie_buscada"
+                    [bc-display-value]="true"
+                    [bc-format]="'CODE128'"
+                    [bc-element-type]="'svg'"
+                    [bc-width]="2"
+                    [bc-height]="100"
+                    [bc-background]="'#ffffff'"
+                    id="serie_barcode"
+                ></ngx-barcode>
+            </div>
+        </div>
+
+        <h4 class="sub-title m-t-20">Movimientos</h4>
+
+        <ng-container *ngFor="let row of empresas.slice().reverse()">
+            <h4 class="sub-title m-t-10" style="color: blue">
+                {{ row.empresa }}
+            </h4>
+
+            <div class="row m-t-20">
+                <div class="col-md-12 table-responsive">
+                    <table class="table table-striped movimientos">
+                        <thead>
+                            <tr>
+                                <th>Doc CRM</th>
+                                <th>Doc Comercial</th>
+                                <th>Tipo</th>
+                                <th>Almacén</th>
+                                <th>Observacion</th>
+                                <th>Creador</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let movimiento of row.movimientos.reverse()
+                                "
+                                class="{{
+                                    !movimiento.status ? 'cancelado' : ''
+                                }}"
+                            >
+                                <td>{{ movimiento.id }}</td>
+                                <td>{{ movimiento.factura_folio }}</td>
+                                <td>{{ movimiento.tipo }}</td>
+                                <td [ngSwitch]="movimiento.id_tipo">
+                                    <span *ngSwitchCase="4">{{
+                                        movimiento.almacen_alterno
+                                    }}</span>
+                                    <span *ngSwitchCase="5"
+                                        >SALIDA: {{ movimiento.almacen_alterno
+                                        }}<br />ENTRADA:
+                                        {{ movimiento.almacen_principal }}</span
+                                    >
+                                    <span *ngSwitchDefault>{{
+                                        movimiento.almacen_principal
+                                    }}</span>
+                                </td>
+                                <td>{{ movimiento.observacion }}</td>
+                                <td>{{ movimiento.nombre }}</td>
+                                <td>{{ movimiento.created_at }}</td>
+                                <td>
+                                    {{
+                                        !movimiento.status
+                                            ? "Cancelado"
+                                            : "Activo"
+                                    }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

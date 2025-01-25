@@ -1,0 +1,69 @@
+<div class="card">
+    <!--    <button class="btn btn-block btn-danger" (click)="initData()">GET</button>-->
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <h4 class="sub-title">Marketplace</h4>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <select
+                            name="venta-area"
+                            (change)="onChangeArea()"
+                            class="form-control"
+                            [(ngModel)]="data.area"
+                        >
+                            <option value="0" disabled selected></option>
+                            <option
+                                value="{{ area.id }}"
+                                *ngFor="let area of areas"
+                            >
+                                {{ area.area }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <select
+                            name="venta-marketplace"
+                            class="form-control"
+                            [(ngModel)]="data.marketplace"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ marketplace.id }}"
+                                *ngFor="let marketplace of marketplaces"
+                            >
+                                {{ marketplace.marketplace }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marketplace</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Importación</h4>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="importOrders()"
+                                placement="top"
+                                ngbTooltip="Importar ventas"
+                            >
+                                <i class="fa fa-file-import fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

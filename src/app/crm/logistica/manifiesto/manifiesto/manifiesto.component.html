@@ -1,0 +1,155 @@
+<div class="card">
+    <!-- <button class="btn btn-block btn-outline-danger" (click)="ngOnInit()">GET</button> -->
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10" autocomplete="off">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="manifest-printer"
+                                    class="form-control"
+                                    [(ngModel)]="label.printer"
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of printers"
+                                    >
+                                        {{ row.nombre }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Impresora</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    id="manifest-label"
+                                    name="manifest-label"
+                                    class="form-control"
+                                    [(ngModel)]="label.label"
+                                    maxlength="50"
+                                />
+                                <!-- (keyup)="cambio_para_paqueteria()" -->
+
+                                <span class="form-bar"></span>
+                                <label class="float-label">Guía</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-block btn-sm btn-outline-info http-disabled"
+                                (click)="addLabel()"
+                                placement="top"
+                                ngbTooltip="Agregar Guía"
+                            >
+                                <i class="fa fa-plus fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6 m-t-20" style="margin-left: -15px">
+                        <div class="form-group form-primary">
+                            <select
+                                id="shipment-selector"
+                                name="shipment-selector"
+                                class="form-control"
+                                [(ngModel)]="label.shipment"
+                                required
+                            >
+                                <!-- (change)="cambio_para_drop()" -->
+                                <option value="" disabled selected>
+                                    Selecciona una Opción
+                                </option>
+                                <option
+                                    *ngFor="let row of shipment"
+                                    [ngValue]="row.id"
+                                >
+                                    {{ row.paqueteria }}
+                                </option>
+                            </select>
+                            <span class="form-bar"></span>
+                            <label class="float-label">Paqueteria</label>
+                            <small class="text-danger messages block"
+                                >*Validar paqueteria*</small
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="logistica-manifiesto-manifiesto"
+                >
+                    <thead>
+                        <tr>
+                            <th>Guía</th>
+                            <th>Impresora</th>
+                            <th>Destinatario</th>
+                            <th>Dirección</th>
+                            <th>Paquetería</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of labels">
+                            <td>{{ row.guia }}</td>
+                            <td>{{ row.nombre }}</td>
+                            <td>
+                                {{
+                                    row.contacto == null
+                                        ? "DESCONOCIDO"
+                                        : row.contacto
+                                }}
+                            </td>
+                            <td>
+                                {{
+                                    row.codigo_postal == null
+                                        ? "DESCONOCIDO"
+                                        : row.calle +
+                                          " " +
+                                          row.numero +
+                                          " " +
+                                          row.numero_int +
+                                          ", " +
+                                          row.colonia +
+                                          ", " +
+                                          row.ciudad +
+                                          ", " +
+                                          row.estado +
+                                          ", " +
+                                          row.codigo_postal
+                                }}
+                            </td>
+                            <td>{{ row.paqueteria }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-outline-danger btn-sm http-disabled"
+                                    (click)="deleteLabel(row.guia)"
+                                    placement="top"
+                                    ngbTooltip="Borrar Guía"
+                                >
+                                    <i class="fa fa-trash fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

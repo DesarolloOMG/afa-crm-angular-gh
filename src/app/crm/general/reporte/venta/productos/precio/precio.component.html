@@ -1,0 +1,149 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <div class="row" *ngIf="niveles.indexOf(6) >= 0">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="marca"
+                            class="form-control"
+                            [(ngModel)]="busqueda.marca"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ marca.cat2 }}"
+                                *ngFor="let marca of marcas"
+                                >{{ marca.cat2 }}</option
+                            >
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marca</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3" *ngIf="areas.length > 0">
+                    <div class="form-group form-primary">
+                        <select
+                            name="area_busqueda"
+                            id="area_busqueda"
+                            class="form-control"
+                            (change)="cambiarArea()"
+                            [(ngModel)]="busqueda.area"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ area.id }}"
+                                *ngFor="let area of areas"
+                                >{{ area.area }}</option
+                            >
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                    </div>
+                </div>
+                <div class="col-md-3" *ngIf="marketplaces.length > 0">
+                    <div class="form-group form-primary">
+                        <select
+                            name="marketplace_busqueda"
+                            id="marketplace_busqueda"
+                            class="form-control"
+                            [(ngModel)]="busqueda.marketplace"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ marketplace.id }}"
+                                *ngFor="let marketplace of marketplaces"
+                            >
+                                {{ marketplace.marketplace }}</option
+                            >
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marketplace</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="date"
+                            class="form-control"
+                            name="fecha_inicio"
+                            [(ngModel)]="busqueda.fecha_inicio"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha de inicio</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="date"
+                            class="form-control"
+                            name="fecha_final"
+                            [(ngModel)]="busqueda.fecha_final"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha final</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row m-t-30">
+                <div class="col-md-6">
+                    <button
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        (click)="generarReporte()"
+                        id="generar_reporte"
+                    >
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <a
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        [href]="backend_url + busqueda.archivo"
+                        [hidden]="busqueda.archivo == ''"
+                        ><i class="fa fa-download"></i
+                    ></a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="busqueda">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Descripcion</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of productos">
+                            <td>{{ row.sku }}</td>
+                            <td>{{ row.descripcion }}</td>
+                            <td>{{ row.cantidad }}</td>
+                            <td>$ {{ commaNumber(row.precio) }}</td>
+                            <td>
+                                $ {{ commaNumber(row.precio * row.cantidad) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>Total:</th>
+                            <th>$ {{ commaNumber(totalVendido()) }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

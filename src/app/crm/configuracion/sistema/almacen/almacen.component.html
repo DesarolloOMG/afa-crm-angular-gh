@@ -1,0 +1,54 @@
+<div class="card">
+    <div class="card">
+        <!-- <button (click)="ngOnInit()">GET</button> -->
+        <div class="card-header">
+            <h5>Almacenes</h5>
+            <button
+                style="float: right"
+                class="btn btn-info btn-sm"
+            >
+                Crear almacen
+            </button>
+        </div>
+        <div class="card-block table-responsive">
+            <div class="row">
+                <div class="col-md-12">
+                    <table
+                        class="table table-striped"
+                        id="tabla-almacenes"
+                    >
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Empresa</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let almacen of almacenes">
+                            <td>{{ almacen.almacen.almacen }}</td>
+                            <td>{{ almacen.empresa.empresa }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-outline-info"
+                                    placement="top"
+                                    ngbTooltip="Editar Almacen"
+                                >
+                                    <i class="fa fa-pencil fa-2x"></i>
+                                </button>
+                                <button
+                                    class="btn btn-sm btn-outline-warning m-l-10"
+                                    placement="top"
+                                    ngbTooltip="Desactivar Almacen"
+                                >
+                                    <i class="fa fa-ban fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

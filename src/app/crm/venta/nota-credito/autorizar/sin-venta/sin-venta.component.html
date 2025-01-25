@@ -1,0 +1,368 @@
+<!-- <div>
+    <button class="btn btn-block btn-danger" (click)="ngOnInit()">INIT</button>
+</div> -->
+<ng-template #title let-name="name">
+    <h5>{{ name }}</h5>
+</ng-template>
+
+<div class="card">
+    <div class="card-body">
+        <form
+            class="md-float-material form-material m-t-10"
+            [hidden]="!esAdministrador"
+        >
+            <div class="md-tabs">
+                <ngb-tabset (tabChange)="onChangeTab($event.nextId)" #tabs>
+                    <ngb-tab id="tab-pendientes">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Pendientes'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaPendientes"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+
+                    <ngb-tab id="tab-terminados">
+                        <ng-template ngbTabTitle>
+                            <ng-container
+                                [ngTemplateOutlet]="title"
+                                [ngTemplateOutletContext]="{
+                                    name: 'Terminados'
+                                }"
+                            ></ng-container>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <ng-container
+                                [ngTemplateOutlet]="tablaTerminados"
+                            ></ng-container>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
+            </div>
+        </form>
+        <h2 [hidden]="esAdministrador">
+            No cuenta con los permisos para ver este modulo!
+        </h2>
+    </div>
+</div>
+
+<ng-template #tablaPendientes>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="ncsv_pendientes">
+                    <thead>
+                        <tr>
+                            <th>Factura</th>
+                            <th>Solicitante</th>
+                            <th>Creado</th>
+                            <th>Módulo</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of pendientes">
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="detalleVenta(modalSinVenta, item)"
+                                >
+                                    {{ item.id_documento }}
+                                </button>
+                            </td>
+                            <td>{{ item.solicitante }}</td>
+                            <td>{{ item.created_at }}</td>
+                            <td>{{ item.modulo }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-success rounded"
+                                    (click)="
+                                        autorizarNdc(
+                                            item.id,
+                                            item.modulo,
+                                            item.data,
+                                            item.info
+                                        )
+                                    "
+                                >
+                                    Autorizar
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-danger rounded"
+                                    (click)="rechazarNdc(item.id)"
+                                >
+                                    Rechazar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #tablaTerminados>
+    <div [@fadeInOutTranslate] class="m-t-50">
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped" id="ncsv_terminados">
+                    <thead>
+                        <tr>
+                            <th>Factura</th>
+                            <th>Estado</th>
+                            <th>Solicitante</th>
+                            <th>Módulo</th>
+                            <th>Autorizado/Rechazado por</th>
+                            <th>Creado</th>
+                            <th>Autorizado/Rechazado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of terminados">
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-primary rounded"
+                                    (click)="detalleVenta(modalSinVenta, item)"
+                                >
+                                    <td>{{ item.id_documento }}</td>
+                                </button>
+                            </td>
+                            <td [ngSwitch]="item.estado">
+                                <span
+                                    class="badge badge-success"
+                                    *ngSwitchCase="2"
+                                    >Autorizado</span
+                                >
+                                <span
+                                    class="badge badge-danger"
+                                    *ngSwitchCase="3"
+                                    >Rechazado</span
+                                >
+                            </td>
+
+                            <td>{{ item.solicitante }}</td>
+                            <td>{{ item.modulo }}</td>
+
+                            <td>
+                                {{
+                                    item.estado == 2
+                                        ? item.autorizante
+                                        : item.denegente
+                                }}
+                            </td>
+                            <td>{{ item.created_at }}</td>
+                            <td>
+                                {{
+                                    item.estado == 2
+                                        ? item.authorized_at
+                                        : item.denied_at
+                                }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalSinVenta let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Información de la nota de credito Sin Venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body table-responsive">
+        <h4 class="sub-title">Empresa</h4>
+        <h5>{{ final_data.empresa }}</h5>
+
+        <h4 class="sub-title m-t-20">Cliente y Factura</h4>
+
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-group form-primary">
+                    <label class="float-label">Cliente</label>
+                    <h5>{{ data.data.nombre_cliente }}</h5>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group form-primary">
+                    <label class="float-label">Factura</label>
+                    <h5>{{ data.id_documento }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="sub-title m-t-20">Información de la nota de credito</h4>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group form-primary">
+                    <label class="float-label">Serie</label>
+                    <h5>{{ data.data.serie }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group form-primary">
+                    <label class="float-label">Titulo</label>
+                    <h5>{{ data.data.titulo }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group form-primary">
+                    <label class="float-label">Uso de la venta</label>
+                    <h5>{{ data.data.uso_cfdi }} - {{ final_data.uso }}</h5>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group form-primary">
+                    <label class="float-label">Almacén</label>
+                    <h5>{{ final_data.almacen }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group form-primary">
+                    <label class="float-label">Periodo de pago</label>
+                    <h5>{{ final_data.periodo }}</h5>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group form-primary">
+                    <label class="float-label">Forma de pago</label>
+                    <h5>{{ final_data.forma }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group form-primary">
+                    <label class="float-label">Moneda</label>
+                    <h5>{{ final_data.moneda }}</h5>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-group form-primary">
+                    <label class="float-label">T.C</label>
+                    <h5>{{ data.data.tipo_cambio }}</h5>
+                </div>
+            </div>
+        </div>
+
+        <h4 class="sub-title m-t-20">Productos de la nota de credito</h4>
+
+        <div class="row m-t-50">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr
+                            *ngFor="
+                                let row of data.data.productos;
+                                let index = index
+                            "
+                        >
+                            <td>{{ row.codigo }}</td>
+                            <td>{{ row.descripcion }}</td>
+                            <td>{{ row.cantidad }}</td>
+                            <td style="width: 25%">
+                                $ {{ commaNumber(row.precio) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row m-t-30">
+            <div class="col-md-12 table-responsive">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <th class="text-right" width="90%">IVA</th>
+                            <td width="10%">
+                                $
+                                {{
+                                    (
+                                        totalDocumento() -
+                                        totalDocumento() / 1.16
+                                    ).toFixed(2)
+                                }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-right">SUBTOTAL</th>
+                            <td>
+                                $ {{ (totalDocumento() / 1.16).toFixed(2) }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-right">TOTAL</th>
+                            <td>$ {{ totalDocumento().toFixed(2) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row" *ngIf="current_tab != 'TERMINADOS'">
+            <div class="col-md-6">
+                <button
+                    class="btn btn-sm btn-block btn-primary http-disabled"
+                    style="margin: 10px"
+                    (click)="autorizarNdc(data.id, data.modulo, data.data)"
+                >
+                    Autorizar
+                </button>
+            </div>
+            <div class="col-md-6">
+                <button
+                    class="btn btn-sm btn-block btn-danger http-disabled"
+                    style="margin: 10px"
+                    (click)="rechazarNdc(data.id)"
+                >
+                    Rechazar
+                </button>
+            </div>
+        </div>
+    </div>
+</ng-template>

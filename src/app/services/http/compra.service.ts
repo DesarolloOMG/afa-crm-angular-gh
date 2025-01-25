@@ -1,0 +1,70 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { backend_url } from '@env/environment';
+import { Modelo } from '@models/Modelo.model';
+
+@Injectable({
+    providedIn: 'root',
+})
+export class CompraService {
+    constructor(private http: HttpClient) {}
+
+    /* Compras > Productos */
+    getProductManagementData() {
+        return this.http.get(`${backend_url}compra/producto/gestion/data`);
+    }
+
+    getProductManagementProducts(data: object) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(
+            `${backend_url}compra/producto/gestion/producto`,
+            form_data
+        );
+    }
+
+    getProductManagementBTOBProviderProducts(provider_id, product) {
+        const form_data = new FormData();
+        form_data.append(
+            'data',
+            JSON.stringify({
+                proveedor: provider_id,
+                producto: product,
+            })
+        );
+
+        return this.http.post(
+            `${backend_url}compra/producto/gestion/producto-proveedor`,
+            form_data
+        );
+    }
+
+    getProductSynonym(product_synonym: string) {
+        const form_data = new FormData();
+        form_data.append('data', product_synonym);
+
+        return this.http.post(
+            `${backend_url}compra/producto/sinonimo/sinonimo`,
+            form_data
+        );
+    }
+
+    deleteProductManagementDropboxPicture(dropbox_id: string) {
+        return this.http.get(
+            `${backend_url}compra/producto/gestion/imagen/${dropbox_id}`
+        );
+    }
+
+    saveProductManagementProductData(data: Modelo, company: number) {
+        const form_data = new FormData();
+
+        form_data.append('data', JSON.stringify(data));
+        form_data.append('company', String(company));
+
+        return this.http.post(
+            `${backend_url}compra/producto/gestion/crear`,
+            form_data
+        );
+    }
+}

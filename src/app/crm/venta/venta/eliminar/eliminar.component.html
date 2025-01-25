@@ -1,0 +1,135 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-9">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="documento"
+                                    class="form-control"
+                                    [(ngModel)]="venta"
+                                    maxlength="100"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Documento</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="margin-top: -18px">
+                            <label style="display: block; font-size: 9pt"
+                                >Mercancia a garantías</label
+                            >
+                            <ui-switch
+                                class="js-single"
+                                color="#4680ff"
+                                switchColor="#fff"
+                                size="medium"
+                                name="garantia"
+                                id="garantia"
+                                [(ngModel)]="garantia"
+                            ></ui-switch>
+                        </div>
+                    </div>
+
+                    <h4 class="sub-title m-t-20">
+                        Favor de escribir un motivo para la cancelación
+                    </h4>
+
+                    <div class="row m-t-20">
+                        <div class="col-md-12">
+                            <app-new-editor
+                                class="m-t-20"
+                                name="motivo"
+                                #seguimiento="ngModel"
+                                [(ngModel)]="motivo"
+                            >
+                            </app-new-editor>
+                            <!-- <editor
+                                apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                                name="motivo"
+                                #seguimiento="ngModel"
+                                [(ngModel)]="motivo"
+                                [init]="tinymce_init"
+                            ></editor> -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-info btn-block http-disabled"
+                                (click)="cancelarVenta(modaltoken)"
+                                [disabled]="!venta"
+                            >
+                                Cancelar Venta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<ng-template #modaltoken let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="usuario"
+                            id="usuario"
+                            class="form-control"
+                            required
+                            [(ngModel)]="authy"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ usuario.authy }}"
+                                *ngFor="let usuario of usuarios"
+                            >
+                                {{ usuario.nombre }} - {{ usuario.nivel }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Usuario</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="token"
+                            id="token"
+                            class="form-control http-disabled"
+                            [(ngModel)]="token"
+                            #tokenmodel="ngModel"
+                            (keyup.enter)="cancelarVenta(modaltoken)"
+                            pattern="^[0-9]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Token</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

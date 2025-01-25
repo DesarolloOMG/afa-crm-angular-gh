@@ -1,0 +1,338 @@
+<section class="login-block">
+    <!-- Container-fluid starts -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <form class="md-float-material form-material" #f="ngForm">
+                    <div class="text-center">
+                        <img src="assets/images/logo_omg.png" alt="omg.png" />
+                    </div>
+                    <div class="auth-box card">
+                        <div class="card-block">
+                            <div class="row m-b-20">
+                                <div class="col-md-12">
+                                    <h3 class="text-center txt-primary">
+                                        Registrar usuario
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="nombre"
+                                    class="form-control"
+                                    required
+                                    #nombre="ngModel"
+                                    [(ngModel)]="usuario.nombre"
+                                    pattern="[^'&quot;]+$"
+                                    maxlength="150"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Nombre</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="
+                                        nombre.invalid &&
+                                        (nombre.dirty || nombre.touched) &&
+                                        nombre.errors.pattern
+                                    "
+                                    >No se permite el caracter ' ó "</small
+                                >
+                            </div>
+
+                            <div class="form-group form-primary">
+                                <input
+                                    type="email"
+                                    name="email"
+                                    class="form-control"
+                                    required
+                                    [(ngModel)]="usuario.email"
+                                    email
+                                    maxlength="100"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Correo electrónico</label
+                                >
+                            </div>
+
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="celular"
+                                    class="form-control"
+                                    #celular="ngModel"
+                                    required
+                                    [(ngModel)]="usuario.celular"
+                                    maxlength="10"
+                                    pattern="^[0-9]{10}$"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Celular</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="
+                                        celular.invalid &&
+                                        (celular.dirty || celular.touched) &&
+                                        celular.errors.pattern
+                                    "
+                                    >Solo se permiten números</small
+                                >
+                            </div>
+
+                            <div class="form-group form-primary">
+                                <select
+                                    name="area"
+                                    class="form-control"
+                                    [(ngModel)]="selected_area"
+                                >
+                                    <option
+                                        value="{{ row.area }}"
+                                        *ngFor="let row of area"
+                                    >
+                                        {{ row.area }}
+                                    </option>
+                                </select>
+                                <label class="float-label">Area</label>
+                            </div>
+
+                            <h4
+                                class="sub-title m-t-30"
+                                style="font-size: 30px"
+                            >
+                                EMPRESAS
+                            </h4>
+
+                            <div class="row">
+                                <div
+                                    class="col-md-6 m-t-30"
+                                    *ngFor="let empresa of empresas"
+                                >
+                                    <div class="border-checkbox-section">
+                                        <div
+                                            class="border-checkbox-group border-checkbox-group-info"
+                                        >
+                                            <input
+                                                class="border-checkbox"
+                                                type="checkbox"
+                                                id="empresa_{{ empresa.id }}"
+                                                (click)="
+                                                    addCompany(
+                                                        $event,
+                                                        empresa.id
+                                                    )
+                                                "
+                                                [checked]="
+                                                    usuario.empresas?.indexOf(
+                                                        empresa.id
+                                                    ) != -1
+                                                        ? true
+                                                        : false
+                                                "
+                                            />
+                                            <label
+                                                class="border-checkbox-label"
+                                                for="empresa_{{ empresa.id }}"
+                                                >{{ empresa.empresa }}</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4
+                                class="sub-title m-t-30"
+                                style="font-size: 30px"
+                            >
+                                NIVELES
+                            </h4>
+
+                            <div class="row">
+                                <div
+                                    class="col-md-6 m-t-30"
+                                    *ngFor="let nivel of niveles"
+                                >
+                                    <h4 class="sub-title">{{ nivel.nivel }}</h4>
+                                    <div class="border-checkbox-section">
+                                        <div
+                                            class="border-checkbox-group border-checkbox-group-info"
+                                            *ngFor="
+                                                let subnivel of nivel.subniveles
+                                            "
+                                        >
+                                            <input
+                                                class="border-checkbox"
+                                                type="checkbox"
+                                                id="subnivel_{{
+                                                    subnivel.pivot.id
+                                                }}"
+                                                (click)="
+                                                    addSubnivel(
+                                                        $event,
+                                                        subnivel.pivot.id
+                                                    )
+                                                "
+                                                [checked]="
+                                                    usuario.subniveles?.indexOf(
+                                                        subnivel.pivot.id
+                                                    ) != -1
+                                                        ? true
+                                                        : false
+                                                "
+                                                [disabled]="
+                                                    subnivel.pivot.id != 1 &&
+                                                    usuario.subniveles?.indexOf(
+                                                        1
+                                                    ) != -1
+                                                        ? true
+                                                        : false
+                                                "
+                                            />
+                                            <label
+                                                class="border-checkbox-label"
+                                                for="subnivel_{{
+                                                    subnivel.pivot.id
+                                                }}"
+                                                >{{ subnivel.subnivel }}</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4
+                                class="sub-title m-t-30"
+                                style="font-size: 30px"
+                            >
+                                MARKETPLACES
+                            </h4>
+
+                            <div class="row">
+                                <div
+                                    class="col-md-12 m-t-30"
+                                    *ngFor="let area of areas"
+                                >
+                                    <h4 class="sub-title">{{ area.area }}</h4>
+                                    <div class="border-checkbox-section">
+                                        <div
+                                            class="border-checkbox-group border-checkbox-group-info"
+                                            *ngFor="
+                                                let marketplace of area.marketplaces
+                                            "
+                                        >
+                                            <input
+                                                class="border-checkbox"
+                                                type="checkbox"
+                                                id="marketplace_{{
+                                                    marketplace.pivot.id
+                                                }}"
+                                                (click)="
+                                                    addMarketplace(
+                                                        $event,
+                                                        marketplace.pivot.id
+                                                    )
+                                                "
+                                            />
+                                            <label
+                                                class="border-checkbox-label"
+                                                for="marketplace_{{
+                                                    marketplace.pivot.id
+                                                }}"
+                                                >{{
+                                                    marketplace.marketplace
+                                                }}</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4
+                                class="sub-title m-t-30"
+                                style="font-size: 30px"
+                            >
+                                ALMACENES
+                            </h4>
+
+                            <div class="row">
+                                <div
+                                    class="col-md-12 m-t-30"
+                                    *ngFor="let empresa of empresa_almacen"
+                                >
+                                    <h4 class="sub-title">
+                                        {{ empresa.nombre }}
+                                    </h4>
+                                    <div class="border-checkbox-section">
+                                        <div
+                                            class="border-checkbox-group border-checkbox-group-info"
+                                            *ngFor="let almacen of empresa.data"
+                                        >
+                                            <input
+                                                class="border-checkbox"
+                                                type="checkbox"
+                                                id="empresa_almacen_{{
+                                                    almacen.id
+                                                }}"
+                                                (click)="
+                                                    addAlmacen(
+                                                        $event,
+                                                        almacen.id
+                                                    )
+                                                "
+                                                [checked]="
+                                                    usuario.empresa_almacen.indexOf(
+                                                        almacen.id
+                                                    ) != -1
+                                                        ? true
+                                                        : false
+                                                "
+                                            />
+                                            <label
+                                                class="border-checkbox-label"
+                                                for="empresa_almacen_{{
+                                                    almacen.id
+                                                }}"
+                                                >{{ almacen.almacen }}</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-t-30">
+                                <div class="col-md-12">
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                                        id="button_registrar"
+                                        (click)="registerUser($event)"
+                                        [disabled]="!f.valid"
+                                    >
+                                        Registrar
+                                    </button>
+                                </div>
+                            </div>
+
+                            <hr />
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="text-inverse text-left">
+                                        <a
+                                            [routerLink]="[
+                                                '/configuracion/usuario/gestion'
+                                            ]"
+                                            ><b>Volver al sistema</b></a
+                                        >
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- end of col-sm-12 -->
+        </div>
+        <!-- end of row -->
+    </div>
+    <!-- end of container-fluid -->
+</section>

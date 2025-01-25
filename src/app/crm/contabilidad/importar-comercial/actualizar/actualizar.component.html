@@ -1,0 +1,84 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Documentos Timbrados en fase 5</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-sm-3">
+                <input
+                    class="form-control"
+                    id="traspasoPendiente"
+                    name="traspasoPendiente"
+                    [(ngModel)]="documento"
+                    (keyup.enter)="buscarDocumento()"
+                    required
+                />
+                <span class="form-bar">Documento timbrado en fase Factura</span>
+            </div>
+            <div class="col-sm-3">
+                <button
+                    class="btn btn-info btn-block"
+                    (click)="buscarDocumento()"
+                >
+                    Buscar
+                </button>
+            </div>
+        </div>
+        <div class="row m-t-20"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="documentos_importar">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Empresa</th>
+                            <th>Almacen</th>
+                            <th>Marketplace</th>
+                            <th>Area</th>
+                            <th>Tipo</th>
+                            <th>Fase</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let venta of ventas">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="goToLink(venta.id)"
+                                >
+                                    {{ venta.id }}
+                                </button>
+                            </td>
+                            <td>{{ venta.empresa }}</td>
+                            <td>{{ venta.almacen }}</td>
+                            <td>{{ venta.marketplace }}</td>
+                            <td>{{ venta.area }}</td>
+                            <td>{{ venta.tipo }}</td>
+                            <td>{{ venta.fase }}</td>
+                            <td>{{ venta.created_at }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="actualizarDocumento(venta.id)"
+                                >
+                                    Actualizar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ngx-spinner
+    bdColor="rgba(51,51,51,0.8)"
+    size="medium"
+    color="#fff"
+    type="ball-scale-multiple"
+>
+    <p style="font-size: 20px; color: white">{{ loadingTitle }}</p>
+</ngx-spinner>

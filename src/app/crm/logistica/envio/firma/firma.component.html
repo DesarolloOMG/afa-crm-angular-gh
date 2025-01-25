@@ -1,0 +1,104 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-10 col-xs-12">
+                    <div class="form-group form-primary">
+                        <input type="text" name="pedido" class="form-control" [(ngModel)]="data.documento"
+                            maxlength="10">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Número de pedido</label>
+                    </div>
+                </div>
+                <div class="col-md-2 col-xs-3">
+                    <button class="btn btn-block btn-sm btn-info http-disabled" (click)="buscarDocumento()"
+                        [disabled]="data.documento == ''" id="button_buscar">Buscar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th>Pedido</th>
+                            <td>{{ data.documento }}</td>
+                        </tr>
+                        <tr>
+                            <th>Cliente</th>
+                            <td>{{ data.cliente }}</td>
+                        </tr>
+                        <tr>
+                            <th>Subtotal</th>
+                            <td>$ {{ (data.total / 1.16)| number:0 }}</td>
+                        </tr>
+                        <tr>
+                            <th>IVA</th>
+                            <td>$ {{ (data.total - (data.total / 1.16))| number:0 }}</td>
+                        </tr>
+                        <tr>
+                            <th>Total</th>
+                            <td>$ {{ data.total }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row m-t-20">
+            <div class="col-md-12">
+                <form class="md-float-material form-material">
+                    <div class="form-group form-primary">
+                        <input type="text" class="form-control" name="recoge" [(ngModel)]="data.recoge">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Persona quien recoge</label>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row m-t-20">
+            <div class="col-md-12">
+                <h5>Productos</h5>
+            </div>
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Garantía</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let producto of data.productos">
+                            <td>{{ producto.sku }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>{{ producto.cantidad }}</td>
+                            <td>{{ producto.precio }}</td>
+                            <td>{{ producto.garantia }} DÍAS</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row m-t-20">
+            <div class="col-md-12">
+                <button class="btn btn-sm btn-block btn-info m-b-20 http-disabled" (click)="guardarFirma()"
+                    id="button_guardar" [disabled]="data.documento == ''">Guardar</button>
+            </div>
+            <div class="col-md-12">
+                <div id="signature_div" style="border: solid 1px;">
+                    <signature-pad [options]="signaturePadOptions"></signature-pad>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<canvas id="logo_canvas" height="149" width="400" style="display: none"></canvas>

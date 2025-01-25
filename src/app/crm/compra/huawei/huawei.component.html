@@ -1,0 +1,118 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    id="empresa"
+                                    class="form-control"
+                                    [(ngModel)]="data.empresa"
+                                    (change)="cambiarEmpresa()"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ empresa.id }}"
+                                        *ngFor="let empresa of empresas"
+                                    >
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="almacen"
+                                    id="almacen"
+                                    class="form-control"
+                                    [(ngModel)]="data.almacen"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ almacen.id }}"
+                                        *ngFor="let almacen of almacenes"
+                                    >
+                                        {{ almacen.almacen }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Almacén</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-30">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    id="cargar_archivo_xml"
+                                    name="cargar_archivo_xml"
+                                    (change)="cargarArchivoXML()"
+                                    multiple
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Cargar XML de compras</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-20">
+                        <div class="col-md-12">
+                            <button
+                                class="btn btn-info btn-sm btn-block http-disabled"
+                                (click)="importar($event)"
+                            >
+                                Importar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row m-t-30">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    id="carcar_archivo_excel"
+                                    name="carcar_archivo_excel"
+                                    (change)="cargarArchivoExcel()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Cargar Excel de series (Exel del
+                                    norte)</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-30">
+                        <div class="col-md-12">
+                            <button
+                                class="btn btn-info btn-sm btn-block http-disabled"
+                                (click)="importarSeries($event)"
+                            >
+                                Cargar series
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

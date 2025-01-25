@@ -1,0 +1,234 @@
+<div class="card">
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="soporte_garantia_devolucion_servicio_envio"
+                >
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Cliente</th>
+                            <th>Creador por</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let garantia of garantias">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="
+                                        detalleVenta(modalventa, garantia.id)
+                                    "
+                                >
+                                    {{ garantia.id }}
+                                </button>
+                            </td>
+                            <td>{{ garantia.contacto.nombre }}</td>
+                            <td>{{ garantia.nombre }}</td>
+                            <td>{{ garantia.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalventa let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.documento }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Cliente</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>- {{ data.contacto.nombre }}</h5>
+                    <h5>- {{ data.contacto.correo }}</h5>
+                    <h5>- {{ data.contacto.telefono }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Paquetería</label>
+                <div class="col-sm-10 inline-block">
+                    <form class="md-float-material form-material" #f="ngForm">
+                        <div class="row m-t-20">
+                            <div class="col-md-9">
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="paqueteria"
+                                        id="paqueteria"
+                                        class="form-control"
+                                        [(ngModel)]="final_data.paqueteria"
+                                    >
+                                        <option
+                                            value=""
+                                            disabled
+                                            selected
+                                        ></option>
+                                        <option
+                                            value="{{ paqueteria.id }}"
+                                            *ngFor="
+                                                let paqueteria of paqueterias
+                                            "
+                                        >
+                                            {{ paqueteria.paqueteria }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Paquetería</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-3 m-t-10">
+                                <a
+                                    class="btn btn-info btn-sm btn-block"
+                                    [routerLink]="[
+                                        '/logistica/guia/crear',
+                                        final_data.documento
+                                    ]"
+                                    target="_blank"
+                                    >Generar guía</a
+                                >
+                            </div>
+                        </div>
+
+                        <div
+                            class="row m-t-20"
+                            [hidden]="
+                                ['6', '7', '8'].indexOf(
+                                    final_data.paqueteria
+                                ) != -1
+                            "
+                        >
+                            <div class="col-md-12">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="guia"
+                                        id="guia"
+                                        class="form-control"
+                                        [(ngModel)]="final_data.guia"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Guía</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let producto of data.productos">
+                                <td>{{ producto.producto }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        [(ngModel)]="final_data.seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        [(ngModel)]="final_data.seguimiento"
+                        [init]="tinymce_init"
+                    ></editor> -->
+
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Terminar</label>
+                <div class="col-sm-10 inline-block">
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="terminar"
+                        id="terminar"
+                        [(ngModel)]="final_data.terminar"
+                    ></ui-switch>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        style="margin: 10px"
+                        (click)="guardarDocumento()"
+                        [disabled]="
+                            final_data.seguimiento == '' ||
+                            (final_data.terminar == 1 &&
+                                final_data.tecnico == '')
+                        "
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

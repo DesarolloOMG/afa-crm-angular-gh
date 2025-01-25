@@ -1,0 +1,1394 @@
+<div class="card">
+    <div class="card-body">
+        <form class="md-float-material form-material">
+            <h4 class="sub-title m-t-20">Paquetería</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="paqueteria"
+                            class="form-control"
+                            #paqueteria="ngModel"
+                            [(ngModel)]="data.paqueteria"
+                            (change)="cambiarPaqueteria()"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ paqueteria.id }}"
+                                *ngFor="let paqueteria of paqueterias"
+                            >
+                                {{ paqueteria.paqueteria }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Paqueteria</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                paqueteria.errors?.required &&
+                                (paqueteria.dirty || paqueteria.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="documento"
+                            class="form-control"
+                            #documento="ngModel"
+                            [(ngModel)]="data.documento"
+                            pattern="^[0-9]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Documento</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                documento.errors?.pattern &&
+                                (documento.dirty || documento.touched)
+                            "
+                            >Número de pedido invalido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2" style="margin-top: -10px">
+                    <label style="font-size: 11px; display: block"
+                        >Invertir direcciones</label
+                    >
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="invertir"
+                        id="invertir"
+                        (change)="invertirDirecciones()"
+                    ></ui-switch>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Datos de la guía</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="tipoenvio"
+                            class="form-control"
+                            #tipoenvio="ngModel"
+                            [(ngModel)]="data.tipo_envio"
+                            (change)="cambiarPaqueteriaTipo()"
+                            required
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.codigo }}"
+                                *ngFor="let row of tipo_envios"
+                            >
+                                {{ row.tipo }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de envío</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                tipoenvio.errors?.required &&
+                                (tipoenvio.dirty || tipoenvio.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="contenido"
+                            class="form-control"
+                            #contenido="ngModel"
+                            [(ngModel)]="data.contenido"
+                            pattern="[^'&quot;]+$"
+                            maxlength="20"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contenido</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.contenido.length }} / 20</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                contenido.errors?.pattern &&
+                                (contenido.dirty || contenido.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                contenido.errors?.required &&
+                                (contenido.dirty || contenido.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6" [hidden]="data.paqueteria != '1'">
+                    <div class="form-group form-primary">
+                        <select
+                            name="tipo_paquete"
+                            class="form-control"
+                            #tipopaquete="ngModel"
+                            [(ngModel)]="data.tipo_paquete"
+                            [required]="data.paqueteria == '1'"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.codigo }}"
+                                *ngFor="let row of tipo_paquetes"
+                            >
+                                {{ row.subtipo }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Tipo de paquete (Estafeta)</label
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                tipopaquete.errors?.required &&
+                                (tipopaquete.dirty || tipopaquete.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="monto_seguro"
+                            class="form-control"
+                            #montoseguro="ngModel"
+                            [(ngModel)]="data.seguro"
+                            pattern="^[.0-9]+$"
+                            step="0.01"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Total del seguro</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                montoseguro.invalid &&
+                                (montoseguro.dirty || montoseguro.touched)
+                            "
+                            >Sólo números.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Peso y medidas</h4>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="peso"
+                            class="form-control"
+                            #peso="ngModel"
+                            [(ngModel)]="data.peso"
+                            pattern="^[0-9]+$"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Peso (KG)</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                peso.errors?.required &&
+                                (peso.dirty || peso.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                peso.errors?.pattern &&
+                                (peso.dirty || peso.touched)
+                            "
+                            >Sólo valores numéricos enteros.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="largo"
+                            class="form-control"
+                            #largo="ngModel"
+                            [(ngModel)]="data.largo"
+                            pattern="^[0-9]+$"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Largo (CM)</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                largo.errors?.required &&
+                                (largo.dirty || largo.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                largo.errors?.pattern &&
+                                (largo.dirty || largo.touched)
+                            "
+                            >Sólo valores numéricos enteros.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="ancho"
+                            class="form-control"
+                            #ancho="ngModel"
+                            [(ngModel)]="data.ancho"
+                            pattern="^[0-9]+$"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Ancho (CM)</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                ancho.errors?.required &&
+                                (ancho.dirty || ancho.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                ancho.errors?.pattern &&
+                                (ancho.dirty || ancho.touched)
+                            "
+                            >Sólo valores numéricos enteros.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="alto"
+                            class="form-control"
+                            #alto="ngModel"
+                            [(ngModel)]="data.alto"
+                            pattern="^[0-9]+$"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Alto (CM)</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                alto.errors?.required &&
+                                (alto.dirty || alto.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                alto.errors?.pattern &&
+                                (alto.dirty || alto.touched)
+                            "
+                            >Sólo valores númericos enteros.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Datos del remitente</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="reempresa"
+                            class="form-control"
+                            #reempresa="ngModel"
+                            [(ngModel)]="data.info_remitente.empresa"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_remitente.empresa.length }} /
+                            30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                reempresa.errors?.pattern &&
+                                (reempresa.dirty || reempresa.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                reempresa.errors?.required &&
+                                (reempresa.dirty || reempresa.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="recontacto"
+                            class="form-control"
+                            #recontacto="ngModel"
+                            [(ngModel)]="data.info_remitente.contacto"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contacto</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_remitente.contacto.length }} /
+                            30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recontacto.errors?.pattern &&
+                                (recontacto.dirty || recontacto.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recontacto.errors?.required &&
+                                (recontacto.dirty || recontacto.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="retelefono"
+                            class="form-control"
+                            #retelefono="ngModel"
+                            [(ngModel)]="data.info_remitente.telefono"
+                            pattern="^[0-9]{1,10}$"
+                            maxlength="10"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Télefono</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_remitente.telefono.length }} /
+                            10</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                retelefono.errors?.pattern &&
+                                (retelefono.dirty || retelefono.touched)
+                            "
+                            >Sólo valores numéricos</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                retelefono.errors?.required &&
+                                (retelefono.dirty || retelefono.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_celular"
+                            class="form-control"
+                            #recelular="ngModel"
+                            [(ngModel)]="data.info_remitente.celular"
+                            pattern="^[0-9]{1,10}$"
+                            maxlength="10"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Celular</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_remitente.celular.length }} /
+                            10</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recelular.errors?.pattern &&
+                                (recelular.dirty || recelular.touched)
+                            "
+                            >Solo valores numéricos.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recelular.errors?.required &&
+                                (recelular.dirty || recelular.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Dirección del remitente</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_direccion_1"
+                            class="form-control"
+                            #redireccion1="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.direccion_1
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 1</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_remitente.direccion.direccion_1.length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                redireccion1.errors?.pattern &&
+                                (redireccion1.dirty || redireccion1.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                redireccion1.errors?.required &&
+                                (redireccion1.dirty || redireccion1.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_direccion_2"
+                            class="form-control"
+                            #redireccion2="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.direccion_2
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 2</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_remitente.direccion.direccion_2.length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                redireccion2.errors?.pattern &&
+                                (redireccion2.dirty || redireccion2.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                redireccion2.errors?.required &&
+                                (redireccion2.dirty || redireccion2.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_direccion_3"
+                            class="form-control"
+                            #redireccion3="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.direccion_3
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 3</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_remitente.direccion.direccion_3.length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                redireccion3.errors?.pattern &&
+                                (redireccion3.dirty || redireccion3.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                redireccion3.errors?.required &&
+                                (redireccion3.dirty || redireccion3.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_referencia"
+                            class="form-control"
+                            #rereferencia="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.referencia
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="25"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Referencia</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_remitente.direccion.referencia.length
+                            }}
+                            / 25</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                rereferencia.errors?.pattern &&
+                                (rereferencia.dirty || rereferencia.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                rereferencia.errors?.required &&
+                                (rereferencia.dirty || rereferencia.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_colonia"
+                            class="form-control"
+                            #recolonia="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.colonia"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Colonia</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_remitente.direccion.colonia.length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recolonia.errors?.pattern &&
+                                (recolonia.dirty || recolonia.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recolonia.errors?.required &&
+                                (recolonia.dirty || recolonia.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_ciudad"
+                            class="form-control"
+                            #reciudad="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.ciudad"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Ciudad</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_remitente.direccion.ciudad.length }} /
+                            30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                reciudad.errors?.pattern &&
+                                (reciudad.dirty || reciudad.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                reciudad.errors?.required &&
+                                (reciudad.dirty || reciudad.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3" [hidden]="seleccionar_estado">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_estado"
+                            class="form-control"
+                            #reestado="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.estado"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Estado</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_remitente.direccion.estado.length }} /
+                            30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                reestado.errors?.pattern &&
+                                (reestado.dirty || reestado.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                reestado.errors?.required &&
+                                (reestado.dirty || reestado.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3" [hidden]="!seleccionar_estado">
+                    <div class="form-group form-primary">
+                        <select
+                            name="estado"
+                            class="form-control"
+                            [(ngModel)]="data.info_remitente.direccion.estado"
+                        >
+                            <option value="" selected>
+                                Selecciona un Estado
+                            </option>
+                            <option
+                                value="{{ row.name }}"
+                                *ngFor="let row of estados"
+                            >
+                                {{ row.name }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Estado</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_codigo_postal"
+                            class="form-control"
+                            #recodigopostal="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.cp"
+                            maxlength="5"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código postal</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_remitente.direccion.cp.length }} /
+                            5</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recodigopostal.errors?.pattern &&
+                                (recodigopostal.dirty || recodigopostal.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                recodigopostal.errors?.required &&
+                                (recodigopostal.dirty || recodigopostal.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Datos del destinatario</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_empresa"
+                            class="form-control"
+                            #deempresa="ngModel"
+                            [(ngModel)]="data.info_destinatario.empresa"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_destinatario.empresa.length }} /
+                            30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deempresa.errors?.pattern &&
+                                (deempresa.dirty || deempresa.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deempresa.errors?.required &&
+                                (deempresa.dirty || deempresa.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_contacto"
+                            class="form-control"
+                            #decontacto="ngModel"
+                            [(ngModel)]="data.info_destinatario.contacto"
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contacto</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_destinatario.contacto.length }} /
+                            30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decontacto.errors?.pattern &&
+                                (decontacto.dirty || decontacto.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decontacto.errors?.required &&
+                                (decontacto.dirty || decontacto.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="email"
+                            name="de_email"
+                            class="form-control"
+                            #deemail="ngModel"
+                            [(ngModel)]="data.info_destinatario.email"
+                            pattern="[^'&quot;]+$"
+                            required
+                            email
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Email</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deempresa.errors?.email &&
+                                (deempresa.dirty || deempresa.touched)
+                            "
+                            >Favor de escribir un correo electronico
+                            valido.</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deempresa.errors?.required &&
+                                (deempresa.dirty || deempresa.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_telefono"
+                            class="form-control"
+                            #detelefono="ngModel"
+                            [(ngModel)]="data.info_destinatario.telefono"
+                            pattern="^[0-9]{1,10}$"
+                            maxlength="10"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Télefono</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_destinatario.telefono.length }} /
+                            10</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                detelefono.errors?.pattern &&
+                                (detelefono.dirty || detelefono.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                detelefono.errors?.required &&
+                                (detelefono.dirty || detelefono.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_celular"
+                            class="form-control"
+                            #decelular="ngModel"
+                            [(ngModel)]="data.info_destinatario.celular"
+                            pattern="^[0-9]{1,10}$"
+                            maxlength="10"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Celular</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_destinatario.celular.length }} /
+                            10</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decelular.errors?.pattern &&
+                                (decelular.dirty || decelular.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decelular.errors?.required &&
+                                (decelular.dirty || decelular.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Dirección del destinatario</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_direccion_1"
+                            class="form-control"
+                            #dedireccion1="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.direccion_1
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 1</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_destinatario.direccion.direccion_1
+                                    .length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dedireccion1.errors?.pattern &&
+                                (dedireccion1.dirty || dedireccion1.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dedireccion1.errors?.required &&
+                                (dedireccion1.dirty || dedireccion1.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_direccion_2"
+                            class="form-control"
+                            #dedireccion2="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.direccion_2
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 2</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_destinatario.direccion.direccion_2
+                                    .length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dedireccion2.errors?.pattern &&
+                                (dedireccion2.dirty || dedireccion2.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dedireccion2.errors?.required &&
+                                (dedireccion2.dirty || dedireccion2.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_direccion_3"
+                            class="form-control"
+                            #dedireccion3="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.direccion_3
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 3</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_destinatario.direccion.direccion_3
+                                    .length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dedireccion3.errors?.pattern &&
+                                (dedireccion3.dirty || dedireccion3.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dedireccion3.errors?.required &&
+                                (dedireccion3.dirty || dedireccion3.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_referencia"
+                            class="form-control"
+                            #dereferencia="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.referencia
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="25"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Referencia</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_destinatario.direccion.referencia
+                                    .length
+                            }}
+                            / 25</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dereferencia.errors?.pattern &&
+                                (dereferencia.dirty || dereferencia.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                dereferencia.errors?.required &&
+                                (dereferencia.dirty || dereferencia.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_colonia"
+                            class="form-control"
+                            #decolonia="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.colonia
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Colonia</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_destinatario.direccion.colonia.length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decolonia.errors?.pattern &&
+                                (decolonia.dirty || decolonia.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decolonia.errors?.required &&
+                                (decolonia.dirty || decolonia.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_ciudad"
+                            class="form-control"
+                            #deciudad="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.ciudad
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Ciudad</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_destinatario.direccion.ciudad.length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deciudad.errors?.pattern &&
+                                (deciudad.dirty || deciudad.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deciudad.errors?.required &&
+                                (deciudad.dirty || deciudad.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3" [hidden]="seleccionar_estado">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_estado"
+                            class="form-control"
+                            #deestado="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.estado
+                            "
+                            pattern="[^'&quot;]+$"
+                            maxlength="30"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Estado</label>
+                        <small class="text-success messages block float-right"
+                            >{{
+                                data.info_destinatario.direccion.estado.length
+                            }}
+                            / 30</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deestado.errors?.pattern &&
+                                (deestado.dirty || deestado.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                deestado.errors?.required &&
+                                (deestado.dirty || deestado.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3" [hidden]="!seleccionar_estado">
+                    <div class="form-group form-primary">
+                        <select
+                            name="estado"
+                            class="form-control"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.estado
+                            "
+                        >
+                            <option value="" selected>
+                                Selecciona un Estado
+                            </option>
+                            <option
+                                value="{{ row.name }}"
+                                *ngFor="let row of estados"
+                            >
+                                {{ row.name }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Estado</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_codigo_postal"
+                            class="form-control"
+                            #decodigopostal="ngModel"
+                            [(ngModel)]="data.info_destinatario.direccion.cp"
+                            maxlength="5"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código postal</label>
+                        <small class="text-success messages block float-right"
+                            >{{ data.info_destinatario.direccion.cp.length }} /
+                            5</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decodigopostal.errors?.pattern &&
+                                (decodigopostal.dirty || decodigopostal.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                decodigopostal.errors?.required &&
+                                (decodigopostal.dirty || decodigopostal.touched)
+                            "
+                            >Campo requerido.</small
+                        >
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <button
+                    type="button"
+                    class="btn btn-primary btn-sm btn-block http-disabled"
+                    (click)="crearGuia($event)"
+                    *ngIf="crear_guia"
+                >
+                    Crear guía
+                </button>
+            </div>
+
+            <div class="col-md-6">
+                <button
+                    type="button"
+                    class="btn btn-primary btn-sm btn-block http-disabled"
+                    (click)="cotizarGuia($event)"
+                >
+                    Cotizar guía
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

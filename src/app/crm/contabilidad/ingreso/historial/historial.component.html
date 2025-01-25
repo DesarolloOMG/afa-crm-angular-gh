@@ -1,0 +1,1158 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    id="empresa"
+                                    #empresa="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.empresa"
+                                    (change)="cambiarEmpresa()"
+                                    required
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ empresa.id }}"
+                                        *ngFor="let empresa of empresas"
+                                    >
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="empresa.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="cuenta"
+                                    id="cuenta"
+                                    #cuenta="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.cuenta"
+                                >
+                                    <option value=""></option>
+                                    <option
+                                        value="{{ cuenta.id }}"
+                                        *ngFor="let cuenta of cuentas"
+                                    >
+                                        {{ cuenta.cuenta }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Cuenta</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="cuenta.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="tipo"
+                                    id="tipo"
+                                    class="form-control"
+                                    [(ngModel)]="data.tipo"
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option value="1">Ingreso</option>
+                                    <option value="0">Egreso</option>
+                                    <option value="2">Traspaso</option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Tipo de documento</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_inicio"
+                                    class="form-control"
+                                    [(ngModel)]="data.fecha_inicial"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de inicio</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_final"
+                                    class="form-control"
+                                    [(ngModel)]="data.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha final</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="folio"
+                                    class="form-control"
+                                    [(ngModel)]="data.folio"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Folio</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-outline-info btn-block http-disabled"
+                                (click)="buscarFacturas()"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-file-alt fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block m-t-10 http-disabled"
+                                (click)="descargarExcel()"
+                                [disabled]="excel.data == ''"
+                                placement="top"
+                                ngbTooltip="Descargar excel"
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--
+            <h4 class="sub-title m-t-20" [hidden]="data.tipo != 1">
+                Generar traspaso
+            </h4>
+
+            <div class="row" [hidden]="data.tipo != 1">
+                <div class="col-md-3" [hidden]="empresas_usuario.length < 2">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            required
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="traspaso.empresa"
+                            (change)="cambiarEmpresa()"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                                >{{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="empresa.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-{{ traspaso.moneda == 3 ? '7' : '5' }}">
+                    <div class="form-group form-primary">
+                        <select
+                            name="cuenta"
+                            id="cuenta"
+                            required
+                            #cuenta="ngModel"
+                            class="form-control"
+                            [(ngModel)]="traspaso.cuenta"
+                            (change)="cambiarCuenta()"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ cuenta.id }}"
+                                *ngFor="let cuenta of cuentas"
+                                >{{ cuenta.cuenta }}</option
+                            >
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cuenta</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="cuenta.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2" [hidden]="traspaso.moneda == 3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="tipo_cambio"
+                            id="tipo_cambio"
+                            #tipocambio="ngModel"
+                            class="form-control"
+                            [(ngModel)]="traspaso.tipo_cambio"
+                            step="0.001"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de cambio</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="tipocambio.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2 m-t-10">
+                    <button
+                        class="btn btn-sm btn-info btn-block http-disabled"
+                        (click)="generarTraspaso()"
+                        [disabled]="
+                            traspaso.empresa == '' ||
+                            traspaso.cuenta == '' ||
+                            traspaso.tipo_cambio < 1
+                        "
+                    >
+                        Generar
+                    </button>
+                </div>
+            </div>
+            -->
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="contabilidad_ingreso_historial"
+                >
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Cuenta</th>
+                            <th>Monto</th>
+                            <th>Referencia</th>
+                            <th>PI/E</th>
+                            <!--
+                            <th>Traspaso</th>
+                            -->
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            *ngFor="
+                                let documento of documentos;
+                                let index = index
+                            "
+                            class="{{ documento.eliminado ? 'cancelado' : '' }}"
+                        >
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="verDetalle(documento, content)"
+                                    [disabled]="documento.eliminado"
+                                >
+                                    {{ documento.folio }}
+                                </button>
+                            </td>
+                            <td>{{ documento.entidad_origen }}</td>
+                            <td>{{ documento.entidad_destino }}</td>
+                            <td>{{ documento.cuenta }}</td>
+                            <td>
+                                $
+                                {{
+                                    commaNumber(
+                                        documento.origen_importe == 0
+                                            ? documento.destino_importe
+                                            : documento.origen_importe
+                                    )
+                                }}
+                            </td>
+                            <td>{{ documento.referencia }}</td>
+                            <td
+                                class="text-center"
+                                *ngIf="!documento.poliza; else hayPoliza"
+                            >
+                                <button
+                                    class="btn btn-sm"
+                                    (click)="
+                                        generarPolizaModal(
+                                            documento.id,
+                                            modalpoliza
+                                        )
+                                    "
+                                >
+                                    <i
+                                        class="fa fa-2x fa-times text-danger cursor-pointer"
+                                    ></i>
+                                </button>
+                                <!-- <i
+                                    class="fa fa-2x fa-{{
+                                        !documento.poliza
+                                            ? 'times text-danger cursor-pointer'
+                                            : 'check text-success'
+                                    }}"
+                                    (click)="
+                                        !documento.poliza &&
+                                            generarPolizaModal(
+                                                documento.id,
+                                                modalpoliza
+                                            )
+                                    "
+                                ></i> -->
+                            </td>
+                            <ng-template #hayPoliza>
+                                <td class="text-center">
+                                    <i
+                                        *ngIf="documento.poliza"
+                                        class="fa fa-2x fa-check text-success"
+                                    ></i>
+                                </td>
+                            </ng-template>
+
+                            <!--
+                            <td>
+                                <ui-switch
+                                    class="js-single"
+                                    color="#4680ff"
+                                    switchColor="#fff"
+                                    size="medium"
+                                    name="traspaso_{{ index }}"
+                                    [disabled]="documento.traspasado == 1"
+                                    [(ngModel)]="documento.traspaso"
+                                ></ui-switch>
+                            </td>
+                            -->
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="eliminar(documento.id)"
+                                >
+                                    Eliminar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #content let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Detalle del documento</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="vertical"
+                            [value]="documento.vertical"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Vertical</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" [hidden]="data.tipo != 0">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="categoria"
+                            [value]="documento.categoria"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Categoria</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-30">
+                <div class="col-md-6">
+                    <h4 class="sub-title">Origen</h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="origen_fecha_operacion"
+                                    class="form-control"
+                                    [value]="documento.origen_fecha_operacion"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de operación</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="origen_monto"
+                                    class="form-control"
+                                    [value]="documento.origen_importe"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Monto</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="origen_entidad"
+                                    [value]="documento.entidad_origen"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Tipo Entidad</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="origen_cuenta"
+                                    [value]="documento.origen_entidad"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="sub-title">Destino</h4>
+
+                    <div class="row">
+                        <div class="col-md-12" [hidden]="data.tipo != 2">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="destino_fecha_operacion"
+                                    class="form-control"
+                                    [value]="documento.destino_fecha_operacion"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de operación</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="destino_entidad"
+                                    [value]="documento.entidad_destino"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="destino_entidad_cuenta"
+                                    [value]="documento.destino_entidad"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Entidad</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Método de pago y referencia</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="metodo_pago"
+                            [value]="documento.metodo_pago"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Metodo de pago</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="referencia"
+                            class="form-control"
+                            [value]="documento.referencia"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Referencia</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            class="form-control"
+                            name="cuenta_cliente"
+                            [value]="documento.cuenta_cliente"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cuenta bancaria</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="clave_rastreo"
+                            class="form-control"
+                            [value]="documento.clave_rastreo"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Clave de rastreo</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="autorizacion"
+                            class="form-control"
+                            [value]="documento.autorizacion"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >No. de autorización / Cheque</label
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Documentos relacionados</h4>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Monto</th>
+                                <th>T.C</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let factura of documento.facturas">
+                                <td>
+                                    {{ factura.serie + " " + factura.folio }}
+                                </td>
+                                <td>$ {{ commaNumber(factura.monto) }}</td>
+                                <td>$ {{ commaNumber(factura.tc) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalpoliza let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">
+            Generar poliza del documento {{ poliza.documento }}
+        </h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <ngb-tabset class="nav-fill">
+                    <ngb-tab>
+                        <ng-template ngbTabTitle>
+                            <h5>Crear poliza manual</h5>
+                        </ng-template>
+
+                        <ng-template ngbTabContent>
+                            <form class="md-float-material form-material">
+                                <h4 class="sub-title m-t-30">
+                                    Facturas relacionadas
+                                </h4>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Modulo</th>
+                                                    <th>Folio</th>
+                                                    <th>UUID</th>
+                                                    <th>Monto</th>
+                                                    <th>Moneda</th>
+                                                    <th>T.C</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <tr
+                                                    *ngFor="
+                                                        let row of poliza.facturas
+                                                    "
+                                                >
+                                                    <td>{{ row.modulo }}</td>
+                                                    <td>
+                                                        {{
+                                                            row.serie +
+                                                                " " +
+                                                                row.folio
+                                                        }}
+                                                    </td>
+                                                    <td>{{ row.uuid }}</td>
+                                                    <td>{{ row.monto }}</td>
+                                                    <td>{{ row.moneda }}</td>
+                                                    <td>{{ row.tc }}</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <h4 class="sub-title m-t-50">
+                                    Información de la poliza
+                                </h4>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="date"
+                                                name="polizafecha"
+                                                class="form-control"
+                                                [(ngModel)]="poliza.fecha"
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Fecha</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="text"
+                                                name="polizaconcepto"
+                                                class="form-control"
+                                                [(ngModel)]="poliza.concepto"
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Concepto</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="polizatipo"
+                                                class="form-control"
+                                                [(ngModel)]="poliza.tipo"
+                                                (change)="cambiarTipoPoliza()"
+                                            >
+                                                <option
+                                                    value=""
+                                                    disabled
+                                                ></option>
+                                                <option
+                                                    value="{{ row.id }}"
+                                                    *ngFor="
+                                                        let row of polizas_tipos
+                                                    "
+                                                >
+                                                    {{ row.tipo }}
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Tipo de poliza</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="polizadefinicion"
+                                                class="form-control"
+                                                [(ngModel)]="poliza.definicion"
+                                            >
+                                                <option
+                                                    value=""
+                                                    disabled
+                                                ></option>
+                                                <option
+                                                    value="{{ row.id }}"
+                                                    *ngFor="
+                                                        let row of polizas_definiciones
+                                                    "
+                                                >
+                                                    {{ row.definicion }}
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Definición de poliza</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="polizamoneda"
+                                                class="form-control"
+                                                [(ngModel)]="poliza.moneda"
+                                            >
+                                                <option
+                                                    value=""
+                                                    disabled
+                                                ></option>
+                                                <option
+                                                    value="{{ row.id }}"
+                                                    *ngFor="let row of monedas"
+                                                >
+                                                    {{ row.moneda }}
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Moneda</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="number"
+                                                name="polizatc"
+                                                class="form-control"
+                                                [(ngModel)]="poliza.tc"
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >T.C</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="sub-title m-t-50">Transacciones</h4>
+
+                                <div class="row">
+                                    <div
+                                        class="col-md-4"
+                                        [hidden]="cuentas_contables.length"
+                                    >
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="text"
+                                                name="transaccioncriterio"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    transaccion_poliza.cuenta_criterio
+                                                "
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Buscar cuenta contable</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="col-md-4"
+                                        [hidden]="!cuentas_contables.length"
+                                    >
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="transaccioncuenta"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    transaccion_poliza.cuenta_alias
+                                                "
+                                            >
+                                                <option
+                                                    value=""
+                                                    disabled
+                                                ></option>
+                                                <option
+                                                    value="{{ row.cuenta }}"
+                                                    *ngFor="
+                                                        let row of cuentas_contables
+                                                    "
+                                                >
+                                                    {{
+                                                        row.cuenta +
+                                                            " | " +
+                                                            row.nombre
+                                                    }}
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Cuenta contable</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <button
+                                            class="btn btn-outline-info btn-sm btn-block"
+                                            placement="top"
+                                            ngbTooltip="{{
+                                                cuentas_contables.length
+                                                    ? 'Limpiar búsqueda'
+                                                    : 'Buscar cuentas'
+                                            }}"
+                                            (click)="buscarCuentasContables()"
+                                        >
+                                            <i class="fa fa-search fa-2x"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="text"
+                                                name="transaccionconcepto"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    transaccion_poliza.concepto
+                                                "
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Concepto</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="number"
+                                                name="transacciondeberme"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    transaccion_poliza.debe_me
+                                                "
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Debe M.E</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="number"
+                                                name="transaccionhaberme"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    transaccion_poliza.haber_me
+                                                "
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Haber M.E</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="number"
+                                                name="transacciondebe"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    transaccion_poliza.debe
+                                                "
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Debe</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="number"
+                                                name="transaccionhaber"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    transaccion_poliza.haber
+                                                "
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Haber</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button
+                                            class="btn btn-outline-info btn-sm btn-block"
+                                            placement="top"
+                                            ngbTooltip="Agregar transacción"
+                                            (click)="agregarTransaccionPoliza()"
+                                        >
+                                            <i class="fa fa-2x fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row m-t-50">
+                                    <div class="col-md-12">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Cuenta</th>
+                                                    <th>Debe M.E</th>
+                                                    <th>Haber M.E</th>
+                                                    <th>Debe</th>
+                                                    <th>Haber</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr
+                                                    *ngFor="
+                                                        let row of poliza.transacciones;
+                                                        let index = index
+                                                    "
+                                                >
+                                                    <td>
+                                                        {{
+                                                            row.cuenta_alias +
+                                                                " | " +
+                                                                row.cuenta_nombre
+                                                        }}
+                                                    </td>
+                                                    <td>{{ row.debe_me }}</td>
+                                                    <td>{{ row.haber_me }}</td>
+                                                    <td>{{ row.debe }}</td>
+                                                    <td>{{ row.haber }}</td>
+                                                    <td>
+                                                        <button
+                                                            class="btn btn-outline-danger btn-sm btn-block"
+                                                            (click)="
+                                                                poliza.transacciones.splice(
+                                                                    index,
+                                                                    1
+                                                                )
+                                                            "
+                                                            placement="top"
+                                                            ngbTooltip="Eliminar transacción"
+                                                        >
+                                                            <i
+                                                                class="fa fa-trash fa-2x"
+                                                            ></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>Totales:</th>
+                                                    <th>{{ totalDebeMe() }}</th>
+                                                    <th>
+                                                        {{ totalHaberMe() }}
+                                                    </th>
+                                                    <th>{{ totalDebe() }}</th>
+                                                    <th>{{ totalHaber() }}</th>
+                                                    <th></th>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="row m-t-30">
+                                    <div class="col-md-12">
+                                        <button
+                                            class="btn btn-outline-info btn-sm btn-block"
+                                            placement="top"
+                                            ngbTooltip="Generar poliza"
+                                            (click)="generarPoliza($event)"
+                                        >
+                                            <i
+                                                class="fa fa-2x fa-folder-plus"
+                                            ></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </ng-template>
+                    </ngb-tab>
+
+                    <ngb-tab>
+                        <ng-template ngbTabTitle>
+                            <h5>Crear poliza automatica</h5>
+                        </ng-template>
+
+                        <ng-template ngbTabContent>
+                            <form class="md-float-material form-material">
+                                <div class="row m-t-30">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="polizatemplate"
+                                                class="form-control"
+                                                [(ngModel)]="
+                                                    poliza_automatica.template
+                                                "
+                                            >
+                                                <option
+                                                    value=""
+                                                    disabled
+                                                ></option>
+                                                <option
+                                                    value="{{ row.id }}"
+                                                    *ngFor="
+                                                        let row of templates_poliza
+                                                    "
+                                                >
+                                                    {{ row.asiento }}
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Template para generar la
+                                                poliza</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button
+                                            class="btn btn-info btn-sm btn-block"
+                                            (click)="generarPolizaAutomatica()"
+                                            placement="top"
+                                            ngbTooltip="Generar poliza"
+                                        >
+                                            <i class="fa fa-save fa-2x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
+            </div>
+        </div>
+    </div>
+</ng-template>

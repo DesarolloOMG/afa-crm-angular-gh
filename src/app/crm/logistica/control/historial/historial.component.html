@@ -1,0 +1,64 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10" #form="ngForm">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input type="date" name="fecha_inicial" class="form-control" [(ngModel)]="fecha.inicial"
+                            required>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha inicial</label>
+                    </div>
+                </div>
+
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input type="date" name="fecha_final" class="form-control" [(ngModel)]="fecha.final" required>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha final</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button class="btn btn-info btn-sm btn-block http-disabled" (click)="cargarDocumentos()"
+                        [disabled]="!form.valid">Cargar
+                        documentos</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="logistica_control_historial">
+                    <thead>
+                        <tr>
+                            <th>Paquetería</th>
+                            <th>Creador</th>
+                            <th>Guía</th>
+                            <th>Contenido</th>
+                            <th>Observación</th>
+                            <th>Notificados</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let documento of documentos">
+                            <td>{{ documento.paqueteria }}</td>
+                            <td>{{ documento.nombre }}</td>
+                            <td>{{ documento.guia }}</td>
+                            <td>{{ documento.contenido }}</td>
+                            <td>{{ documento.observacione }}</td>
+                            <td>
+                                <ul>
+                                    <li *ngFor="let notificado of documento.notificados">{{ notificado.nombre }}</li>
+                                </ul>
+                            </td>
+                            <td>{{ documento.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

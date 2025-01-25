@@ -1,0 +1,508 @@
+<div class="card">
+    <form class="md-float-material form-material" autocomplete="off">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="sub-title m-t-20">Empresa del documento</h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="movimiento-empresa"
+                                    #movimentoempresa="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.empresa"
+                                    (change)="onChangeCompany()"
+                                    required
+                                >
+                                    <option value="" selected disabled></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of empresas"
+                                    >
+                                        {{ row.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        (movimentoempresa.dirty ||
+                                            movimentoempresa.touched) &&
+                                        movimentoempresa.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="sub-title m-t-20">Información del documento</h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="movimiento-tipo"
+                                    #movimientotipo="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.tipo"
+                                    (change)="onChangeDocumentType()"
+                                    required
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of tipos"
+                                    >
+                                        {{ row.tipo }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Tipo de documento</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        (movimientotipo.dirty ||
+                                            movimientotipo.touched) &&
+                                        movimientotipo.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="movimiento-almacen-entrada"
+                                    #movimientoalmacenentrada="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.almacen_entrada"
+                                    [disabled]="
+                                        checkAlmacenesWithDocumentType([
+                                            EnumDocumentoTipo.SALIDA,
+                                            EnumDocumentoTipo.USO_INTERNO
+                                        ])
+                                    "
+                                    [required]="
+                                        checkAlmacenesWithDocumentType([
+                                            EnumDocumentoTipo.ENTRADA,
+                                            EnumDocumentoTipo.TRASPASO,
+                                            EnumDocumentoTipo.USO_INTERNO
+                                        ])
+                                    "
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of almacenes"
+                                    >
+                                        {{ row.almacen.almacen }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Almacén de entrada</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        (movimientoalmacenentrada.dirty ||
+                                            movimientoalmacenentrada.touched) &&
+                                        movimientoalmacenentrada.errors
+                                            ?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="movimiento-almacen-salida"
+                                    #movimientoalmacensalida="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.almacen_salida"
+                                    [disabled]="
+                                        checkAlmacenesWithDocumentType([
+                                            EnumDocumentoTipo.ENTRADA
+                                        ])
+                                    "
+                                    [required]="
+                                        checkAlmacenesWithDocumentType([
+                                            EnumDocumentoTipo.SALIDA,
+                                            EnumDocumentoTipo.TRASPASO,
+                                            EnumDocumentoTipo.USO_INTERNO
+                                        ])
+                                    "
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of almacenes"
+                                    >
+                                        {{ row.almacen.almacen }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Almacén de salida</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        (movimientoalmacensalida.dirty ||
+                                            movimientoalmacensalida.touched) &&
+                                        movimientoalmacensalida.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <textarea
+                                    class="form-control"
+                                    name="movimiento-observacion"
+                                    #movimientoobservacion="ngModel"
+                                    [(ngModel)]="data.observacion"
+                                    required
+                                >
+                                </textarea>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Observación</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        (movimientoobservacion.dirty ||
+                                            movimientoobservacion.touched) &&
+                                        movimientoobservacion.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="sub-title m-t-20">
+                        Cargar información mediante un excel
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    id="movimiento-archivo-excel"
+                                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                    (change)="loadExcelWithProducts()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Cargar Archivo con productos</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 offset-md-4">
+                            <a
+                                href="assets/files/CrearMovimientoAlmacenTemplate.xlsx"
+                                class="btn btn-outline-info btn-sm btn-block"
+                                placement="top"
+                                ngbTooltip="Descargar template"
+                                download
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title">Productos</h4>
+
+            <div class="row m-t-20">
+                <div class="col-md-5" [hidden]="productos.length">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="movimiento-buscar-producto"
+                            class="form-control"
+                            #movimientobuscarproducto="ngModel"
+                            [(ngModel)]="search_product"
+                            (keyup.enter)="searchProduct()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código / Descripción</label>
+                    </div>
+                </div>
+
+                <div class="col-md-5" [hidden]="!productos.length">
+                    <div class="form-group form-primary">
+                        <select
+                            name="movimiento-producto-sku"
+                            class="form-control"
+                            [(ngModel)]="producto.sku"
+                            (change)="onChangeProducto()"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.sku }}"
+                                *ngFor="let row of productos"
+                            >
+                                {{ row.producto }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Selecciona un producto</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-block btn-sm http-disabled"
+                        placement="top"
+                        ngbTooltip="{{
+                            producto.id ? 'Limpiar Búsqueda' : 'Buscar Producto'
+                        }}"
+                        (click)="searchProduct()"
+                    >
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="movimiento-producto-cantidad"
+                            class="form-control"
+                            [(ngModel)]="producto.cantidad"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cantidad</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="movimiento-producto-costo"
+                            class="form-control"
+                            [(ngModel)]="producto.costo"
+                            [textMask]="{ mask: mask }"
+                            step="0.000001"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Costo</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="movimiento-producto-comentario"
+                            class="form-control"
+                            [(ngModel)]="producto.comentarios"
+                            maxlength="200"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Comentario</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm btn-block m-b-20 http-disabled"
+                        placement="top"
+                        ngbTooltip="Agregar Producto"
+                        (click)="addProduct()"
+                    >
+                        <i class="fa fa-plus fa-2x"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-12 m-t-30 table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Costo</th>
+                                <th>Comentario</th>
+                                <th>Series</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let producto of data.productos;
+                                    let index = index
+                                "
+                            >
+                                <td>{{ producto.sku }}</td>
+                                <td>{{ producto.descripcion }}</td>
+                                <td>
+                                    {{
+                                        producto.serie
+                                            ? producto.series.length
+                                            : producto.cantidad
+                                    }}
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        name="movimiento-producto-costo-{{
+                                            index
+                                        }}"
+                                        class="form-control"
+                                        [(ngModel)]="producto.costo"
+                                        step="0.000001"
+                                        [textMask]="{ mask: mask }"
+                                    />
+                                </td>
+                                <td>{{ producto.comentario }}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm"
+                                        placement="top"
+                                        ngbTooltip="Agregar Series"
+                                        (click)="addSeries(producto)"
+                                        [disabled]="!producto.serie"
+                                        *ngIf="producto.serie"
+                                    >
+                                        <i class="fa fa-plus fa-2x"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm"
+                                        placement="top"
+                                        ngbTooltip="Eliminar Producto"
+                                        (click)="deleteProduct(producto.sku)"
+                                    >
+                                        <i class="fa fa-trash fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row m-t-20">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-outline-info btn-sm btn-block http-disabled"
+                        placement="top"
+                        ngbTooltip="Guardar Documento"
+                        (click)="createDocument($event)"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<ng-template #modalseries let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Series</h4>
+        <h4 class="modal-title m-l-10" style="color: red">
+            {{ data.series.length }}
+        </h4>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material" autocomplete="off">
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="form-group form-primary">
+                        <input
+                            (paste)="handlePaste($event)"
+                            (drop)="handleDrop($event)"
+                            id="serie"
+                            type="text"
+                            name="movimiento-producto-serie"
+                            class="form-control"
+                            [(ngModel)]="data.serie"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Serie</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-sm btn-outline-info btn-block"
+                        (click)="sanitizeInput(); addSerie()"
+                        [disabled]="!data.serie"
+                    >
+                        <i class="fa fa-plus fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row m-t-20">
+                <div class="col-md-12">
+                    <ul class="list-group m-b-20">
+                        <li
+                            class="list-group-item"
+                            *ngFor="let row of data.series"
+                            [ngClass]="{
+                                'text-danger': invalidSeries.includes(
+                                    row.toLowerCase()
+                                )
+                            }"
+                        >
+                            {{ row }}
+                            <span
+                                (click)="deleteSerie(row)"
+                                class="float-right cursor-pointer text-danger"
+                                >Quitar</span
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row m-t-20">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-sm btn-outline-info btn-block m-t-10 m-b-10 http-disabled"
+                        placement="top"
+                        ngbTooltip="Guardar Series"
+                        (click)="confirmSeries()"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

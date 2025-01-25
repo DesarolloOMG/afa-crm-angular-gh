@@ -1,0 +1,118 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="documento"
+                            class="form-control"
+                            [(ngModel)]="data.documento"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Documento (folio)</label>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="date"
+                            name="promesa"
+                            class="form-control"
+                            [(ngModel)]="data.fecha"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Promesa de pago (fecha)</label
+                        >
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-sm btn-info btn-block http-disabled"
+                        (click)="buscarVenta()"
+                        [disabled]="!data.documento"
+                    >
+                        Buscar venta
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-body">
+        <h4 class="sub-title m-t-20" *ngIf="data.cliente">CLIENTE</h4>
+
+        <div class="row" *ngIf="data.cliente">
+            <div class="col-md-12">
+                <table class="table table-striped table-sm">
+                    <tbody>
+                        <tr>
+                            <th>Razón Social</th>
+                            <td>{{ data.cliente }}</td>
+                        </tr>
+                        <tr>
+                            <th>RFC</th>
+                            <td>{{ data.cliente_rfc }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <h4
+            class="sub-title m-t-30"
+            [hidden]="data.seguimiento_anterior.length > 0"
+        >
+            No hay seguimiento anterior
+        </h4>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div
+                    *ngFor="let seguimiento of data.seguimiento_anterior"
+                    class="m-t-50 m-b-20"
+                >
+                    <div class="media chat-messages">
+                        <div class="media-body chat-menu-content">
+                            <div class="">
+                                <p class="chat-cont">
+                                    {{
+                                        seguimiento.nombre +
+                                            " - " +
+                                            seguimiento.created_at
+                                    }}
+                                </p>
+                                <p
+                                    class="chat-cont"
+                                    [innerHTML]="seguimiento.seguimiento"
+                                ></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <app-new-editor
+                    class="m-t-20"
+                    name="seguimiento"
+                    [(ngModel)]="data.seguimiento"
+                >
+                </app-new-editor>
+                <!-- <editor class="m-t-20"
+                apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                name="seguimiento"
+                    [(ngModel)]="data.seguimiento" [init]="tinymce_init"></editor> -->
+            </div>
+            <div class="col-md-12 m-t-10">
+                <button
+                    class="btn btn-info btn-sm btn-block http-disabled"
+                    (click)="guardarSeguimiento()"
+                    [disabled]="
+                        !data.seguimiento || !data.documento || !data.fecha
+                    "
+                >
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

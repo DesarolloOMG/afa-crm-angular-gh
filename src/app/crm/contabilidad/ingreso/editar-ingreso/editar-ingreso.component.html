@@ -1,0 +1,92 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Editar entidad de movimiento (Ingreso / Egreso)</h5>
+    </div>
+
+    <div class="card-body">
+        <form class="md-float-material form-material">
+            <h4 class="sub-title">Selecciona la empresa del ingreso</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="ingreso-empresa"
+                            #ingresoempresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.empresa"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row.bd }}"
+                                *ngFor="let row of empresas"
+                            >
+                                {{ row.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                ingresoempresa.invalid &&
+                                (ingresoempresa.dirty ||
+                                    ingresoempresa.touched) &&
+                                ingresoempresa.errors?.required
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title">
+                Ingresa el folio del ingreso y el RFC del nuevo cliente
+            </h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="ingreso-folio"
+                            class="form-control"
+                            [(ngModel)]="data.movimiento"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >ID/Folio del movimiento (Ingreso / Egreso)</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="ingreso-rfc"
+                            class="form-control"
+                            [(ngModel)]="data.cliente"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">RFC del nuevo cliente</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-50">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-outline-primary btn-sm btn-block http-disabled"
+                        (click)="editarIngreso($event)"
+                        placement="down"
+                        ngbTooltip="Editar Ingreso"
+                    >
+                        <i class="fa fa-2x fa-save"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

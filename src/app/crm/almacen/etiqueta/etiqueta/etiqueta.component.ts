@@ -1,0 +1,508 @@
+import {
+    backend_url,
+    backend_url_erp,
+    swalErrorHttpResponse,
+} from './../../../../../environments/environment';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
+import { AuthService } from '@services/auth.service';
+
+@Component({
+    selector: 'app-etiqueta',
+    templateUrl: './etiqueta.component.html',
+    styleUrls: ['./etiqueta.component.scss'],
+})
+export class EtiquetaComponent implements OnInit {
+    modalReference: any;
+    //! VERIFICAR 2024 '7'
+
+    empresa: string = '7';
+
+    etiqueta_archivo = {
+        archivo: '',
+        impresora: '',
+    };
+
+    etiqueta_generar = {
+        codigo: '',
+        descripcion: '',
+        cantidad: 0,
+        impresora: '',
+        extra: '',
+        etiquetas: [],
+    };
+
+    etiqueta_serie = {
+        codigo: '',
+        descripcion: '',
+        cantidad: 0,
+        impresora: '',
+    };
+
+    etiqueta_qr = {
+        serie: '',
+        series: [],
+        impresora: '',
+    };
+
+    impresoras: any[] = [];
+    empresas: any[] = [];
+
+    is_su: boolean;
+    usuario_subniveles: any[] = [];
+
+    constructor(
+        private modalService: NgbModal,
+        private http: HttpClient,
+        private auth: AuthService
+    ) {
+        const usuario = JSON.parse(this.auth.userData().sub);
+
+        this.http
+            .get(`${backend_url}dashboard/user/subnivel-nivel/${usuario.id}`)
+            .subscribe(
+                (res) => {
+                    this.usuario_subniveles = [res];
+                    this.usuario_subniveles = this.usuario_subniveles[0];
+                    this.is_su = this.usuario_subniveles.includes(70);
+                    console.log(this.is_su);
+                },
+                (response) => {
+                    swalErrorHttpResponse(response);
+                }
+            );
+    }
+
+    ngOnInit() {
+        this.http.get(`${backend_url}almacen/etiqueta/data`).subscribe(
+            (res: any) => {
+                this.impresoras = [...res.impresoras];
+                this.empresas = [...res.empresas];
+            },
+            (response) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        response.status == 0
+                            ? response.message
+                            : typeof response.error === 'object'
+                            ? response.error.error_summary
+                            : response.error,
+                });
+            }
+        );
+    }
+
+    modal(modal) {
+        this.etiqueta_archivo = {
+            archivo: '',
+            impresora: '',
+        };
+
+        this.etiqueta_generar = {
+            codigo: '',
+            descripcion: '',
+            cantidad: 0,
+            impresora: '',
+            extra: '',
+            etiquetas: [],
+        };
+
+        this.etiqueta_serie = {
+            codigo: '',
+            descripcion: '',
+            cantidad: 0,
+            impresora: '',
+        };
+
+        this.etiqueta_qr = {
+            serie: '',
+            series: [],
+            impresora: '',
+        };
+
+        this.modalReference = this.modalService.open(modal, {
+            backdrop: 'static',
+        });
+    }
+
+    cargarArchivo() {
+        var files = $('#archivo_zpl').prop('files');
+        var $this = this;
+
+        for (var i = 0, len = files.length; i < len; i++) {
+            var file = files[i];
+
+            var reader = new FileReader();
+
+            reader.onload = (function (f: any) {
+                return function (e: any) {
+                    var extension = f.name
+                        .split('.')
+                        [f.name.split('.').length - 1].toLowerCase();
+
+                    if (extension != 'txt' && extension != 'zpl') {
+                        $('#archivo_zpl').val('');
+
+                        return swal({
+                            type: 'error',
+                            html: 'Archivo incorrecto, favor de seleccionar un archivo TXT o ZPL',
+                        });
+                    }
+
+                    $this.etiqueta_archivo.archivo = e.target.result;
+                };
+            })(file);
+
+            reader.onerror = (function (f) {
+                return function (e) {};
+            })(file);
+
+            reader.readAsText(file);
+        }
+    }
+
+    cargarArchivoEtiquetas() {
+        var files = $('#archivo-excel-etiqueta').prop('files');
+        var $this = this;
+        var BreakException = {};
+
+        this.etiqueta_generar.etiquetas = [];
+
+        for (var i = 0, len = files.length; i < len; i++) {
+            var file = files[i];
+
+            var reader = new FileReader();
+
+            reader.onload = (function (f: any) {
+                return function (e: any) {
+                    var extension =
+                        f.name.split('.')[f.name.split('.').length - 1];
+
+                    if (extension != 'xlsx') {
+                        return swal({
+                            type: 'error',
+                            html: `El archivo debe contener la extension XLSX`,
+                        });
+                    }
+
+                    const bstr: string = e.target.result;
+
+                    const wb: XLSX.WorkBook = XLSX.read(bstr, {
+                        type: 'binary',
+                    });
+
+                    /* grab first sheet */
+                    const wsname: string = wb.SheetNames[0];
+                    const ws: XLSX.WorkSheet = wb.Sheets[wsname];
+
+                    var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                    rows.shift();
+
+                    rows.forEach((row) => {
+                        if (!row[0] || !row[1] || !row[2]) {
+                            $this.etiqueta_generar.etiquetas = [];
+
+                            swal({
+                                type: 'error',
+                                html: `El archivo contiene espacios en blanco en uno de los campos requeridos<br>
+                                1.- Código<br>
+                                2.- Descripción<br>
+                                3.- Cantidad<br><br>
+
+                                Favor de revisar y corregir el archivo para generar las etiquetas.`,
+                            });
+
+                            throw BreakException;
+                        }
+
+                        $this.etiqueta_generar.etiquetas.push({
+                            codigo: row[0],
+                            descripcion: row[1],
+                            cantidad: row[2],
+                            extra: row[3] ? row[3] : '',
+                        });
+                    });
+                };
+            })(file);
+
+            reader.onerror = (function (f) {
+                return function (e) {
+                    swal('', 'Ocurrió un error al leer el archivo', 'error');
+                };
+            })(file);
+
+            reader.readAsBinaryString(file);
+        }
+    }
+
+    buscarProducto() {
+        if (!this.etiqueta_generar.codigo && !this.etiqueta_serie.codigo) {
+            return;
+        }
+
+        let codigo = !this.etiqueta_generar.codigo
+            ? this.etiqueta_serie.codigo
+            : this.etiqueta_generar.codigo;
+
+        this.http
+            .get(
+                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${
+                    this.empresa
+                }/${$.trim(codigo)}`
+            )
+            .subscribe(
+                (res) => {
+                    if (Object.values(res).length == 0) {
+                        var form_data = new FormData();
+                        form_data.append('data', $.trim(codigo));
+
+                        this.http
+                            .post(
+                                `${backend_url}compra/producto/sinonimo/sinonimo`,
+                                form_data
+                            )
+                            .subscribe(
+                                (res) => {
+                                    if (res['sinonimo'].length != 0) {
+                                        codigo = res['sinonimo'];
+
+                                        this.http
+                                            .get(
+                                                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.empresa}/${codigo}`
+                                            )
+                                            .subscribe(
+                                                (res) => {
+                                                    if (
+                                                        Object.values(res)
+                                                            .length == 0
+                                                    )
+                                                        return;
+
+                                                    if (
+                                                        Object.values(res)
+                                                            .length > 0
+                                                    ) {
+                                                        this.etiqueta_generar.codigo =
+                                                            codigo;
+                                                        this.etiqueta_generar.descripcion =
+                                                            Object.values(
+                                                                res
+                                                            )[0].producto;
+
+                                                        this.etiqueta_serie.descripcion =
+                                                            Object.values(
+                                                                res
+                                                            )[0].producto;
+                                                    }
+                                                },
+                                                (response) => {
+                                                    swal({
+                                                        title: '',
+                                                        type: 'error',
+                                                        html:
+                                                            response.status == 0
+                                                                ? response.message
+                                                                : typeof response.error ===
+                                                                  'object'
+                                                                ? response.error
+                                                                      .error_summary
+                                                                : response.error,
+                                                    });
+                                                }
+                                            );
+
+                                        return;
+                                    }
+
+                                    swal({
+                                        type: 'error',
+                                        html: 'No se encontró el producto, favor de revisar la información e intentar de nuevo',
+                                    });
+                                },
+                                (response) => {
+                                    swal({
+                                        title: '',
+                                        type: 'error',
+                                        html:
+                                            response.status == 0
+                                                ? response.message
+                                                : typeof response.error ===
+                                                  'object'
+                                                ? response.error.error_summary
+                                                : response.error,
+                                    });
+                                }
+                            );
+
+                        return;
+                    }
+
+                    this.etiqueta_generar.descripcion =
+                        Object.values(res)[0].producto;
+
+                    this.etiqueta_serie.descripcion =
+                        Object.values(res)[0].producto;
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+
+    imprimirEtiqueta(tipo) {
+        if (
+            this.etiqueta_generar.etiquetas.length === 0 &&
+            this.etiqueta_generar.codigo.trim().length > 17
+        ) {
+            swal({
+                type: 'error',
+                html: 'No puedes generar etiquetas con codigos mayor a 17 caracteres, favor de reducir el codigo',
+            });
+
+            return;
+        }
+
+        $($('.ng-invalid').get().reverse()).each((index, value) => {
+            $(value).focus();
+        });
+
+        if (
+            $('.ng-invalid').length > 0 &&
+            this.etiqueta_generar.etiquetas.length === 0
+        ) {
+            return;
+        }
+
+        const form_data = new FormData();
+        form_data.append('tipo', tipo);
+        form_data.append(
+            'data',
+            tipo
+                ? JSON.stringify(this.etiqueta_generar)
+                : JSON.stringify(this.etiqueta_archivo)
+        );
+
+        this.http.post(`${backend_url}almacen/etiqueta`, form_data).subscribe(
+            (res) => {},
+            (response) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        response.status == 0
+                            ? response.message
+                            : typeof response.error === 'object'
+                            ? response.error.error_summary
+                            : response.error,
+                });
+            }
+        );
+    }
+
+    generarEtiquetaSerie() {
+        if (!this.etiqueta_serie.codigo)
+            return swal({
+                type: 'error',
+                html: 'Favor de escribir el código de producto.',
+            });
+
+        if (this.etiqueta_serie.cantidad <= 0)
+            return swal({
+                type: 'error',
+                html: 'La cantidad de series a generar debe ser mayor a 0',
+            });
+
+        if (!this.etiqueta_serie.impresora)
+            return swal({
+                type: 'error',
+                html: 'Selecciona una impresora donde se mandarán a imprimir las series',
+            });
+
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(this.etiqueta_serie));
+
+        this.http
+            .post(`${backend_url}almacen/etiqueta/serie`, form_data)
+            .subscribe(
+                (res) => {},
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+
+    agregarSerieQR() {
+        const existe = this.etiqueta_qr.series.find(
+            (serie) => serie == this.etiqueta_qr.serie
+        );
+
+        if (existe) {
+            return swal({
+                type: 'error',
+                html: 'La serie ya está repetida',
+            });
+        }
+
+        this.etiqueta_qr.series.push(this.etiqueta_qr.serie);
+
+        this.etiqueta_qr.serie = '';
+    }
+
+    generarQRSerie() {
+        if (!this.etiqueta_qr.impresora)
+            return swal({
+                type: 'error',
+                html: 'Para generar el código QR, selecciona una impresora',
+            });
+
+        if (!this.etiqueta_qr.series.length)
+            return swal({
+                type: 'error',
+                html: 'Debes agregar al menos 1 serie para generar el código QR',
+            });
+
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(this.etiqueta_qr));
+
+        this.http
+            .post(`${backend_url}almacen/etiqueta/serie-qr`, form_data)
+            .subscribe(
+                (res) => {},
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
+                    });
+                }
+            );
+    }
+}

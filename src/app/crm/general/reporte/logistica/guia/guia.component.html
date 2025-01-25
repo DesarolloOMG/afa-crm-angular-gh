@@ -1,0 +1,781 @@
+<div class="card">
+    <div class="card-header">
+        <form
+            class="md-float-material form-material m-t-30"
+            #formFechas="ngForm"
+        >
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_inicial"
+                                    #fechainicial="ngModel"
+                                    required
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.fecha_inicial"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha inicial</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="fechainicial.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_final"
+                                    #fechafinal="ngModel"
+                                    required
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha inicial</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="fechafinal.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                type="button"
+                                class="
+                                    btn btn-outline-info btn-sm btn-block
+                                    http-disabled
+                                "
+                                [disabled]="!formFechas.valid"
+                                (click)="generarReporte()"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-2x fa-file-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                type="button"
+                                class="
+                                    btn btn-outline-info btn-sm btn-block
+                                    http-disabled
+                                "
+                                (click)="descargarReporte()"
+                                placement="top"
+                                ngbTooltip="Descargar Reporte"
+                                [disabled]="this.excel.data == ''"
+                            >
+                                <i class="fa fa-2x fa-file-excel"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="general_reporte_logistica_guia"
+                >
+                    <thead>
+                        <tr>
+                            <th>Pedido</th>
+                            <th>Paquetería</th>
+                            <th>Guía</th>
+                            <th>Costo</th>
+                            <th>Creador</th>
+                            <th>Fecha</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let guia of guias">
+                            <td>
+                                {{
+                                    guia.id_documento == 0
+                                        ? "Sin pedido"
+                                        : guia.id_documento
+                                }}
+                            </td>
+                            <td>{{ guia.paqueteria }}</td>
+                            <td>{{ guia.guia }}</td>
+                            <td>{{ guia.costo }}</td>
+                            <td>{{ guia.nombre }}</td>
+                            <td>{{ guia.created_at }}</td>
+                            <td>
+                                <button
+                                    class="
+                                        btn btn-sm btn-info btn-block
+                                        http-disabled
+                                    "
+                                    (click)="descargarGuia(guia.id)"
+                                >
+                                    Descargar
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-sm btn-info btn-block"
+                                    (click)="verDetalle(modaldetalle, guia.id)"
+                                >
+                                    Detalle
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modaldetalle let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Información de la guía</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10">
+            <h4 class="sub-title m-t-20">Paquetería</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="paqueteria"
+                            class="form-control"
+                            #contenido="ngModel"
+                            [(ngModel)]="data.paqueteria"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Paqueteria</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="contenido"
+                            class="form-control"
+                            required
+                            #contenido="ngModel"
+                            [(ngModel)]="data.contenido"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contenido</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="documento"
+                            class="form-control"
+                            #documento="ngModel"
+                            [(ngModel)]="data.documento"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Documento</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Datos para la guía</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="totalguias"
+                            class="form-control"
+                            required
+                            #totalguias="ngModel"
+                            [(ngModel)]="data.total_guias"
+                            min="1"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Número de guías</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="peso"
+                            class="form-control"
+                            required
+                            #peso="ngModel"
+                            [(ngModel)]="data.peso"
+                            min="1"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Peso</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="tipo_envio"
+                            id="tipo_envio"
+                            required
+                            class="form-control"
+                            [(ngModel)]="data.tipo_envio"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ envio.id }}"
+                                *ngFor="let envio of tipo_envios"
+                            >
+                                {{ envio.envio }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de envío</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="tipo_paquete"
+                            id="tipo_paquete"
+                            [required]="data.paqueteria == 'Estafeta'"
+                            class="form-control"
+                            [(ngModel)]="data.tipo_paquete"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ paquete.id }}"
+                                *ngFor="let paquete of tipo_paquetes"
+                            >
+                                {{ paquete.paquete }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de paquete</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="largo"
+                            class="form-control"
+                            required
+                            #largo="ngModel"
+                            [(ngModel)]="data.largo"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Largo (CM)</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="ancho"
+                            class="form-control"
+                            required
+                            #ancho="ngModel"
+                            [(ngModel)]="data.ancho"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Ancho (CM)</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="alto"
+                            class="form-control"
+                            required
+                            #alto="ngModel"
+                            [(ngModel)]="data.alto"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Alto (CM)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <label style="display: block">Asegurar envío</label>
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="seguro"
+                        id="seguro"
+                        [(ngModel)]="data.seguro"
+                    ></ui-switch>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="monto_seguro"
+                            class="form-control"
+                            #montoseguro
+                            [required]="data.seguro"
+                            [disabled]="
+                                data.paqueteria == 'Estafeta' ||
+                                data.paqueteria == 'Fedex' ||
+                                data.paqueteria == '' ||
+                                !data.seguro
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Monto $</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Datos del remitente</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="reempresa"
+                            class="form-control"
+                            required
+                            #reempresa="ngModel"
+                            [(ngModel)]="data.info_remitente.empresa"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_contacto"
+                            class="form-control"
+                            required
+                            #recontacto="ngModel"
+                            [(ngModel)]="data.info_remitente.contacto"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contacto</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="re_telefono"
+                            class="form-control"
+                            #retelefono="ngModel"
+                            [(ngModel)]="data.info_remitente.telefono"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Télefono</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="re_celular"
+                            class="form-control"
+                            #recelular="ngModel"
+                            [(ngModel)]="data.info_remitente.celular"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Celular</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Dirección del remitente</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_direccion_1"
+                            class="form-control"
+                            required
+                            #redireccion1="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.direccion_1
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 1</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_direccion_2"
+                            class="form-control"
+                            required
+                            #redireccion2="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.direccion_2
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 2</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_direccion_3"
+                            class="form-control"
+                            required
+                            #redireccion3="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.direccion_3
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 3</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_referencia"
+                            class="form-control"
+                            #rereferencia="ngModel"
+                            [(ngModel)]="
+                                data.info_remitente.direccion.referencia
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Referencia</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_colonia"
+                            class="form-control"
+                            required
+                            #recolonia="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.colonia"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Colonia</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_ciudad"
+                            class="form-control"
+                            required
+                            #reciudad="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.ciudad"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Ciudad</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_estado"
+                            class="form-control"
+                            required
+                            #reestado="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.estado"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Estado</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="re_codigo_postal"
+                            class="form-control"
+                            required
+                            #recodigopostal="ngModel"
+                            [(ngModel)]="data.info_remitente.direccion.cp"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código postal</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Datos del destinatario</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_empresa"
+                            class="form-control"
+                            required
+                            #deempresa="ngModel"
+                            [(ngModel)]="data.info_destinatario.empresa"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_contacto"
+                            class="form-control"
+                            required
+                            #decontacto="ngModel"
+                            [(ngModel)]="data.info_destinatario.contacto"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contacto</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="email"
+                            name="de_email"
+                            class="form-control"
+                            required
+                            #deemail="ngModel"
+                            [(ngModel)]="data.info_destinatario.email"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Email</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="de_telefono"
+                            class="form-control"
+                            #detelefono="ngModel"
+                            [(ngModel)]="data.info_destinatario.telefono"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Télefono</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="de_celular"
+                            class="form-control"
+                            #decelular="ngModel"
+                            [(ngModel)]="data.info_destinatario.celular"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Celular</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">Dirección del destinatario</h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_direccion_1"
+                            class="form-control"
+                            #dedireccion1="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.direccion_1
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 1</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_direccion_2"
+                            class="form-control"
+                            #dedireccion2="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.direccion_2
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 3</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_direccion_3"
+                            class="form-control"
+                            #dedireccion3="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.direccion_3
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Direccion 3</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_referencia"
+                            class="form-control"
+                            #dereferencia="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.referencia
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Referencia</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_colonia"
+                            class="form-control"
+                            required
+                            #decolonia="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.colonia
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Colonia</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_ciudad"
+                            class="form-control"
+                            required
+                            #deciudad="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.ciudad
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Ciudad</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_estado"
+                            class="form-control"
+                            required
+                            #deestado="ngModel"
+                            [(ngModel)]="
+                                data.info_destinatario.direccion.estado
+                            "
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Estado</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="de_codigo_postal"
+                            class="form-control"
+                            required
+                            #decodigopostal="ngModel"
+                            [(ngModel)]="data.info_destinatario.direccion.cp"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código postal</label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

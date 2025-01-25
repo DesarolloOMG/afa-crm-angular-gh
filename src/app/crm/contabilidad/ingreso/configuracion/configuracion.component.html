@@ -1,0 +1,193 @@
+<form class="md-float-material form-material" #f="ngForm">
+    <div class="auth-box card">
+        <div class="card-block">
+            <div class="row">
+                <div class="col-md-3">
+                    <h4 class="sub-title" style="cursor: pointer" (click)="nuevaVertical(modalvertical, 0)">Verticales
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-md-12 table-responsive">
+                            <table class="table table-striped" id="contabilidad_ingreso_configuracion_categoria">
+                                <thead>
+                                    <tr>
+                                        <th>Vertical</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let vertical of verticales">
+                                        <td>{{ vertical.vertical }}</td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm waves-effect"
+                                                (click)="nuevaVertical(modalvertical, vertical)">Editar</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-9">
+                    <h4 class="sub-title" style="cursor: pointer" (click)="nuevaCategoria(modalcategoria, 0)">Categorias
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-md-12 table-responsive">
+                            <table class="table table-striped" id="contabilidad_ingreso_configuracion_vertical">
+                                <thead>
+                                    <tr>
+                                        <th>Categoria</th>
+                                        <th>Tipo de gasto</th>
+                                        <th>Afectación</th>
+                                        <th>Familia</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let categoria of categorias">
+                                        <td>{{ categoria.categoria }}</td>
+                                        <td>{{ categoria.tipo_gasto }}</td>
+                                        <td>{{ categoria.afectacion }}</td>
+                                        <td>{{ categoria.familia }}</td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm waves-effect"
+                                                (click)="nuevaCategoria(modalcategoria, categoria)">Editar</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<ng-template #modalvertical let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Crear vertical</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')" id="cerrar_modal_vertical">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input type="text" name="input_vertical" id="input_vertical" class="form-control" required
+                            #verticalinput="ngModel" [(ngModel)]="vertical.vertical" pattern="[^'&quot;]+$"
+                            maxlength="50">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Vertical</label>
+                        <small class="text-danger messages block"
+                            *ngIf="(verticalinput.invalid && (verticalinput.dirty || verticalinput.touched))">No se
+                            permite el caracter ' ó "</small>
+                        <small class="text-danger messages block"
+                            *ngIf="verticalinput.touched && verticalinput.errors?.required">Campo requerido</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-info btn-sm btn-block http-disabled" (click)="crearVertical()"
+                        [disabled]="(verticalinput.invalid && (verticalinput.dirty || verticalinput.touched)) || vertical.vertical == ''"
+                        id="button_vertical">Agregar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalcategoria let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Crear categoria</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')" id="cerrar_modal_categoria">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material" #f="ngForm">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input type="text" name="input_categoria" id="input_categoria" class="form-control" required
+                            #categoriainput="ngModel" [(ngModel)]="categoria.categoria" pattern="[^'&quot;]+$"
+                            maxlength="100">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Categoria</label>
+                        <small class="text-danger messages block"
+                            *ngIf="(categoriainput.invalid && (categoriainput.dirty || categoriainput.touched))">No se
+                            permite el caracter ' ó "</small><br>
+                        <small class="text-danger messages block"
+                            *ngIf="categoriainput.touched && categoriainput.errors?.required">Campo requerido</small>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select name="tipo_gasto" id="tipo_gasto" required #tipogasto="ngModel" class="form-control"
+                            [(ngModel)]="categoria.tipo_gasto">
+                            <option value="" disabled selected></option>
+                            <option value="VARIABLE">VARIABLE</option>
+                            <option value="FIJO">FIJO</option>
+                            <option value="SIN CATEGORIA">SIN CATEGORIA</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo de gasto</label>
+                        <small class="text-danger messages block" *ngIf="tipogasto.errors?.required">Campo
+                            requerido</small>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select name="afectacion" id="afectacion" required #afectacion="ngModel" class="form-control"
+                            [(ngModel)]="categoria.afectacion">
+                            <option value="" disabled selected></option>
+                            <option value="INVERSIÓN">INVERSIÓN</option>
+                            <option value="GASTO">GASTO</option>
+                            <option value="COSTO DE VENTA">COSTO DE VENTA</option>
+                            <option value="TRASPASOS">TRASPASOS</option>
+                            <option value="SIN CATEGORIA">SIN CATEGORIA</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Afectación</label>
+                        <small class="text-danger messages block" *ngIf="afectacion.errors?.required">Campo
+                            requerido</small>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select name="familia" id="familia" required #familia="ngModel" class="form-control"
+                            [(ngModel)]="categoria.familia">
+                            <option value="" disabled selected></option>
+                            <option value="INVERSIONES">INVERSIONES</option>
+                            <option value="GASTOS">GASTOS</option>
+                            <option value="COMPRAS">COMPRAS</option>
+                            <option value="IMPUESTOS">IMPUESTOS</option>
+                            <option value="TRASPASOS">TRASPASOS</option>
+                            <option value="SIN CATEGORIA">SIN CATEGORIA</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Familia</label>
+                        <small class="text-danger messages block" *ngIf="familia.errors?.required">Campo
+                            requerido</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-info btn-sm btn-block http-disabled" (click)="crearCategoria()"
+                        id="button_categoria" [disabled]="!f.valid">Agregar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

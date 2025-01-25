@@ -1,0 +1,705 @@
+<div class="card">
+    <div class="card-body">
+        <form class="md-float-material form-material m-t-10">
+            <div class="md-tabs">
+                <ngb-tabset (tabChange)="onChangeTab($event)" #tabs>
+                    <ngb-tab id="tab-agregar-promocion">
+                        <ng-template ngbTabTitle>
+                            <h5>Agregar promoción</h5>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <div [@fadeInOutTranslate] class="m-t-50">
+                                <div
+                                    class="row"
+                                    [hidden]="empresas.length <= 1"
+                                >
+                                    <div class="col-md-6">
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="empresa"
+                                                id="empresa"
+                                                #empresa="ngModel"
+                                                class="form-control"
+                                                [(ngModel)]="promocion.empresa"
+                                                required
+                                            >
+                                                <option
+                                                    value=""
+                                                    disabled
+                                                ></option>
+                                                <option
+                                                    value="{{ empresa.id }}"
+                                                    *ngFor="
+                                                        let empresa of empresas
+                                                    "
+                                                >
+                                                    {{ empresa.empresa }}
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Empresa</label
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    empresa.errors?.required &&
+                                                    (productobusqueda.dirty ||
+                                                        productobusqueda.touched)
+                                                "
+                                                >Campo requerido</small
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="text"
+                                                name="promociontitulo"
+                                                class="form-control"
+                                                #promociontitulo="ngModel"
+                                                [(ngModel)]="promocion.titulo"
+                                                pattern="[^'&quot;]+$"
+                                                maxlength="100"
+                                                required
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Titulo</label
+                                            >
+                                            <small
+                                                class="text-success messages block"
+                                                >{{ promocion.titulo.length }} /
+                                                100</small
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    promociontitulo.errors
+                                                        ?.pattern &&
+                                                    (promociontitulo.dirty ||
+                                                        promociontitulo.touched)
+                                                "
+                                                >No se permite el caracter ' ó
+                                                "</small
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    promociontitulo.errors
+                                                        ?.required &&
+                                                    (promociontitulo.dirty ||
+                                                        promociontitulo.touched)
+                                                "
+                                                >Este campo es requerido</small
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="date"
+                                                name="promocioninicio"
+                                                class="form-control"
+                                                #promocioninicio="ngModel"
+                                                [(ngModel)]="promocion.inicio"
+                                                required
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Fecha de inicio</label
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    promocioninicio.invalid &&
+                                                    (promocioninicio.dirty ||
+                                                        promocioninicio.touched)
+                                                "
+                                                >Favor de escoger una fecha
+                                                valida.</small
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    promocioninicio.errors
+                                                        ?.required &&
+                                                    (promocioninicio.dirty ||
+                                                        promocioninicio.touched)
+                                                "
+                                                >Este campo es requerido.</small
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="date"
+                                                name="promocionfin"
+                                                class="form-control"
+                                                #promocionfin="ngModel"
+                                                [(ngModel)]="promocion.fin"
+                                                required
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Fecha de terminación</label
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    promocionfin.invalid &&
+                                                    (promocionfin.dirty ||
+                                                        promocionfin.touched)
+                                                "
+                                                >Favor de escoger una fecha
+                                                valida.</small
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    promocionfin.errors
+                                                        ?.required &&
+                                                    (promocionfin.dirty ||
+                                                        promocionfin.touched)
+                                                "
+                                                >Este campo es requerido.</small
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h4 class="sub-title m-t-20">Productos</h4>
+
+                                <div class="row">
+                                    <div
+                                        class="col-md-5"
+                                        [hidden]="productos.length > 0"
+                                    >
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="text"
+                                                name="productobusqueda"
+                                                class="form-control"
+                                                #productobusqueda="ngModel"
+                                                [(ngModel)]="producto.busqueda"
+                                                pattern="[^'&quot;]+$"
+                                                (keyup.enter)="
+                                                    buscarProducto(
+                                                        productobusqueda
+                                                    )
+                                                "
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Buscar producto (Código,
+                                                Descripción)</label
+                                            >
+                                            <small
+                                                class="text-danger messages"
+                                                *ngIf="
+                                                    productobusqueda.errors
+                                                        ?.pattern &&
+                                                    (productobusqueda.dirty ||
+                                                        productobusqueda.touched)
+                                                "
+                                                >No se permite el caracter ' ó
+                                                "</small
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="col-md-5"
+                                        [hidden]="productos.length == 0"
+                                    >
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="productocodigo"
+                                                id="productocodigo"
+                                                class="form-control"
+                                                [(ngModel)]="producto.codigo"
+                                            >
+                                                <option
+                                                    value=""
+                                                    selected
+                                                    disabled
+                                                ></option>
+                                                <option
+                                                    value="{{ producto.sku }}"
+                                                    *ngFor="
+                                                        let producto of productos
+                                                    "
+                                                >
+                                                    {{
+                                                        producto.sku +
+                                                            " - " +
+                                                            producto.producto
+                                                    }}
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Codigo / Descripción</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-info btn-sm btn-block http-disabled"
+                                            placement="top"
+                                            ngbTooltip="{{
+                                                productos.length > 0
+                                                    ? 'Limpiar búsqueda'
+                                                    : 'Buscar producto'
+                                            }}"
+                                            (click)="
+                                                buscarProducto(productobusqueda)
+                                            "
+                                        >
+                                            <i class="fa fa-search fa-2x"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="number"
+                                                name="productocantidad"
+                                                class="form-control"
+                                                #productocantidad="ngModel"
+                                                [(ngModel)]="producto.cantidad"
+                                                pattern="[0-9]+$"
+                                                maxlength="9"
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Cantidad</label
+                                            >
+                                            <small
+                                                class="text-danger messages"
+                                                *ngIf="
+                                                    productocantidad.errors
+                                                        ?.pattern &&
+                                                    (productocantidad.dirty ||
+                                                        productocantidad.touched)
+                                                "
+                                                >Sólo caracteres
+                                                númericos</small
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-1">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="number"
+                                                name="productoprecio"
+                                                class="form-control"
+                                                #productoprecio="ngModel"
+                                                [(ngModel)]="producto.precio"
+                                                pattern="^[.0-9]+$"
+                                                step="0.0001"
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Precio</label
+                                            >
+                                            <small
+                                                class="text-danger messages"
+                                                *ngIf="
+                                                    productoprecio.errors
+                                                        ?.pattern &&
+                                                    (productoprecio.dirty ||
+                                                        productoprecio.touched)
+                                                "
+                                                >Sólo caracteres
+                                                númericos</small
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <div class="form-group form-primary">
+                                            <select
+                                                name="productogarantia"
+                                                class="form-control"
+                                                [(ngModel)]="producto.garantia"
+                                            >
+                                                <option
+                                                    value=""
+                                                    selected
+                                                    disabled
+                                                ></option>
+                                                <option value="0">
+                                                    0 Días
+                                                </option>
+                                                <option value="10">
+                                                    10 Días
+                                                </option>
+                                                <option value="20">
+                                                    20 Días
+                                                </option>
+                                                <option value="30">
+                                                    30 Días
+                                                </option>
+                                                <option value="40">
+                                                    40 Días
+                                                </option>
+                                                <option value="50">
+                                                    50 Días
+                                                </option>
+                                                <option value="60">
+                                                    60 Días
+                                                </option>
+                                                <option value="70">
+                                                    70 Días
+                                                </option>
+                                                <option value="80">
+                                                    80 Días
+                                                </option>
+                                                <option value="90">
+                                                    90 Días
+                                                </option>
+                                                <option value="100">
+                                                    100 Días
+                                                </option>
+                                                <option value="120">
+                                                    120 Días
+                                                </option>
+                                                <option value="150">
+                                                    150 Días
+                                                </option>
+                                                <option value="180">
+                                                    180 Días
+                                                </option>
+                                                <option value="360">
+                                                    360 Días
+                                                </option>
+                                                <option value="fabricante">
+                                                    Con Fabricante
+                                                </option>
+                                            </select>
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Garantía</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="col-md-2"
+                                        style="margin-top: -18px"
+                                    >
+                                        <label
+                                            style="
+                                                display: block;
+                                                font-size: 9pt;
+                                            "
+                                            >Regalo</label
+                                        >
+                                        <ui-switch
+                                            class="js-single"
+                                            color="#4680ff"
+                                            switchColor="#fff"
+                                            size="medium"
+                                            name="productoregalo"
+                                            [(ngModel)]="producto.regalo"
+                                        ></ui-switch>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button
+                                            type="button"
+                                            class="btn btn-info btn-sm btn-block http-disabled"
+                                            placement="top"
+                                            ngbTooltip="Agregar producto"
+                                            (click)="
+                                                agregarProducto(
+                                                    productocantidad,
+                                                    productoprecio
+                                                )
+                                            "
+                                        >
+                                            <i class="fa fa-plus fa-2x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row m-t-50">
+                                    <div class="col-md-12 table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Código</th>
+                                                    <th>Descripción</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Precio</th>
+                                                    <th>Garantía</th>
+                                                    <th>Regalo</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr
+                                                    *ngFor="
+                                                        let row of promocion.productos;
+                                                        let index = index
+                                                    "
+                                                >
+                                                    <td>{{ row.codigo }}</td>
+                                                    <td>
+                                                        {{ row.descripcion }}
+                                                    </td>
+                                                    <td>
+                                                        {{ row.cantidad }}
+                                                    </td>
+                                                    <td class="no-wrap">
+                                                        $
+                                                        {{
+                                                            commaNumber(
+                                                                row.precio
+                                                            )
+                                                        }}
+                                                    </td>
+                                                    <td>
+                                                        {{
+                                                            row.garantia ==
+                                                            "fabricante"
+                                                                ? row.garantia
+                                                                : row.garantia +
+                                                                  " días"
+                                                        }}
+                                                    </td>
+                                                    <td>
+                                                        <i
+                                                            class="fa {{
+                                                                row.regalo
+                                                                    ? 'fa-check text-success'
+                                                                    : 'fa-times text-danger'
+                                                            }} fa-2x"
+                                                        ></i>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-danger btn-sm btn-block"
+                                                            placement="top"
+                                                            ngbTooltip="Eliminar"
+                                                            (click)="
+                                                                promocion.productos.splice(
+                                                                    index,
+                                                                    1
+                                                                )
+                                                            "
+                                                        >
+                                                            <i
+                                                                class="fa fa-trash fa-2x"
+                                                            ></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="row m-t-30">
+                                    <div class="col-md-12">
+                                        <button
+                                            type="button"
+                                            class="btn btn-info btn-sm btn-block http-disabled"
+                                            placement="top"
+                                            ngbTooltip="Agregar promoción"
+                                            (click)="agregarPromocion($event)"
+                                        >
+                                            <i class="fa fa-save fa-2x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </ngb-tab>
+
+                    <ngb-tab id="tab-promociones">
+                        <ng-template ngbTabTitle>
+                            <h5>Promociones registradas</h5>
+                        </ng-template>
+                        <ng-template ngbTabContent>
+                            <div [@fadeInOutTranslate] class="m-t-50">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="date"
+                                                name="busquedainicio"
+                                                class="form-control"
+                                                #busquedainicio="ngModel"
+                                                [(ngModel)]="
+                                                    busqueda.fecha_inicial
+                                                "
+                                                required
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Fecha de inicio</label
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    busquedainicio.invalid &&
+                                                    (busquedainicio.dirty ||
+                                                        busquedainicio.touched)
+                                                "
+                                                >Favor de escoger una fecha
+                                                valida.</small
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    busquedainicio.errors
+                                                        ?.required &&
+                                                    (busquedainicio.dirty ||
+                                                        busquedainicio.touched)
+                                                "
+                                                >Este campo es requerido.</small
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group form-primary">
+                                            <input
+                                                type="date"
+                                                name="busquedafin"
+                                                class="form-control"
+                                                #busquedafin="ngModel"
+                                                [(ngModel)]="
+                                                    busqueda.fecha_final
+                                                "
+                                                required
+                                            />
+                                            <span class="form-bar"></span>
+                                            <label class="float-label"
+                                                >Fecha de terminación</label
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    busquedafin.invalid &&
+                                                    (busquedafin.dirty ||
+                                                        busquedafin.touched)
+                                                "
+                                                >Favor de escoger una fecha
+                                                valida.</small
+                                            >
+                                            <small
+                                                class="text-danger messages block"
+                                                *ngIf="
+                                                    busquedafin.errors
+                                                        ?.required &&
+                                                    (busquedafin.dirty ||
+                                                        busquedafin.touched)
+                                                "
+                                                >Este campo es requerido.</small
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button
+                                            type="button"
+                                            class="btn btn-info btn-sm btn-block"
+                                            placement="top"
+                                            ngbTooltip="Buscar promociones"
+                                            (click)="cargarPromociones()"
+                                        >
+                                            <i class="fa fa-search fa-2x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="row m-t-50">
+                                    <div class="col-md-12 table-responsive">
+                                        <table
+                                            class="table table-striped"
+                                            id="venta_promocion"
+                                        >
+                                            <thead>
+                                                <tr>
+                                                    <th>Titulo</th>
+                                                    <th>Empresa</th>
+                                                    <th>Fecha de inicio</th>
+                                                    <th>Fecha a fin</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr
+                                                    *ngFor="
+                                                        let row of promociones
+                                                    "
+                                                >
+                                                    <td>{{ row.titulo }}</td>
+                                                    <td>{{ row.empresa }}</td>
+                                                    <td>{{ row.inicio }}</td>
+                                                    <td>{{ row.fin }}</td>
+                                                    <td>
+                                                        <button
+                                                            class="btn btn-info btn-sm btn-block"
+                                                            placement="top"
+                                                            ngbTooltip="Editar promoción"
+                                                            (click)="
+                                                                editarPromocion(
+                                                                    row.id
+                                                                )
+                                                            "
+                                                        >
+                                                            <i
+                                                                class="fa fa-edit fa-2x"
+                                                            ></i>
+                                                        </button>
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            class="btn btn-danger btn-sm btn-block"
+                                                            placement="top"
+                                                            ngbTooltip="Eliminar promoción"
+                                                            (click)="
+                                                                eliminarPromocion(
+                                                                    row.id
+                                                                )
+                                                            "
+                                                        >
+                                                            <i
+                                                                class="fa fa-trash fa-2x"
+                                                            ></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+                    </ngb-tab>
+                </ngb-tabset>
+            </div>
+        </form>
+    </div>
+</div>

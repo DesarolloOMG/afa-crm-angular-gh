@@ -1,0 +1,1252 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="criterio"
+                                    class="form-control"
+                                    [(ngModel)]="data.criterio"
+                                    maxlength="100"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Criterio</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button
+                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10"
+                                (click)="buscarProducto()"
+                                [disabled]="!data.criterio"
+                                placement="top"
+                                ngbTooltip="Buscar productos"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-12">
+                            <button
+                                class="btn btn-sm btn-outline-info btn-block m-t-10"
+                                (click)="agregarProducto(0)"
+                                placement="top"
+                                ngbTooltip="Crear producto"
+                            >
+                                <i class="fa fa-plus fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <h4
+            class="sub-title m-t-20"
+            (click)="agregarProducto(0)"
+            style="cursor: pointer"
+        >
+            Productos
+        </h4>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="compra_producto_producto"
+                >
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Costo</th>
+                            <th>Tipo</th>
+                            <th>Serie</th>
+                            <th>Caducidad</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let producto of productos">
+                            <td>{{ producto.sku }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>$ {{ producto.costo }}</td>
+                            <td>{{ producto.tipo_text }}</td>
+                            <td>
+                                <i
+                                    class="fa {{
+                                        producto.serie ? 'fa-check' : 'fa-times'
+                                    }}"
+                                ></i>
+                            </td>
+                            <td>
+                                <i
+                                    class="fa {{
+                                        producto.caducidad
+                                            ? 'fa-check'
+                                            : 'fa-times'
+                                    }}"
+                                ></i>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm btn-block"
+                                    (click)="agregarProducto(producto.id)"
+                                    placement="top"
+                                    ngbTooltip="Editar producto"
+                                >
+                                    <i class="fa fa-edit fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Crear / Editar Producto</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="md-tabs">
+                    <ngb-tabset>
+                        <ngb-tab>
+                            <ng-template ngbTabTitle>
+                                <h5>Información general</h5>
+                            </ng-template>
+                            <ng-template ngbTabContent>
+                                <div [@fadeInOutTranslate] class="m-t-50">
+                                    <form
+                                        class="md-float-material form-material"
+                                        #f="ngForm"
+                                    >
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        name="empresa"
+                                                        id="empresa"
+                                                        #empresa="ngModel"
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            data.empresa
+                                                        "
+                                                        required
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                empresa.id
+                                                            }}"
+                                                            *ngFor="
+                                                                let empresa of empresas
+                                                            "
+                                                        >
+                                                            {{
+                                                                empresa.empresa
+                                                            }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Empresa</label
+                                                    >
+                                                    <small
+                                                        class="text-danger messages block"
+                                                        *ngIf="
+                                                            empresa.errors
+                                                                ?.required
+                                                        "
+                                                        >Campo requerido</small
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="sub-title m-t-30">
+                                            Categorias
+                                        </h4>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        class="form-control"
+                                                        name="categoria1"
+                                                        required
+                                                        [(ngModel)]="
+                                                            producto.cat1
+                                                        "
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                row.categoria
+                                                            }}"
+                                                            *ngFor="
+                                                                let row of categorias_uno
+                                                            "
+                                                        >
+                                                            {{ row.categoria }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Tipo de producto</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        class="form-control"
+                                                        name="categoria2"
+                                                        required
+                                                        [(ngModel)]="
+                                                            producto.cat2
+                                                        "
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                row.categoria
+                                                            }}"
+                                                            *ngFor="
+                                                                let row of categorias_dos
+                                                            "
+                                                        >
+                                                            {{ row.categoria }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Marca</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        class="form-control"
+                                                        name="categoria3"
+                                                        required
+                                                        [(ngModel)]="
+                                                            producto.cat3
+                                                        "
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                row.categoria
+                                                            }}"
+                                                            *ngFor="
+                                                                let row of categorias_tres
+                                                            "
+                                                        >
+                                                            {{ row.categoria }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Subtipo de
+                                                        producto</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        class="form-control"
+                                                        name="categoria4"
+                                                        required
+                                                        [(ngModel)]="
+                                                            producto.cat4
+                                                        "
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                row.categoria
+                                                            }}"
+                                                            *ngFor="
+                                                                let row of categorias_cuatro
+                                                            "
+                                                        >
+                                                            {{ row.categoria }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Vertical de
+                                                        negocio</label
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="sub-title m-t-30">
+                                            Información general del producto
+                                        </h4>
+
+                                        <div class="row m-t-20">
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="productosku"
+                                                        class="form-control"
+                                                        required
+                                                        #productosku="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.sku
+                                                        "
+                                                        pattern="[^'&quot;]+$"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Código</label
+                                                    >
+                                                    <small
+                                                        class="text-danger messages"
+                                                        *ngIf="
+                                                            productosku.invalid &&
+                                                            (productosku.dirty ||
+                                                                productosku.touched)
+                                                        "
+                                                        >No se permite el
+                                                        caracter ' ó "</small
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="productonp"
+                                                        class="form-control"
+                                                        required
+                                                        #productonp="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.np
+                                                        "
+                                                        pattern="[^'&quot;]+$"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Número de parte</label
+                                                    >
+                                                    <small
+                                                        class="text-danger messages"
+                                                        *ngIf="
+                                                            productonp.invalid &&
+                                                            (productonp.dirty ||
+                                                                productonp.touched)
+                                                        "
+                                                        >No se permite el
+                                                        caracter ' ó "</small
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="productodescripcion"
+                                                        class="form-control"
+                                                        required
+                                                        #productodescripcion="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.descripcion
+                                                        "
+                                                        pattern="[^'&quot;]+$"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Descripción</label
+                                                    >
+                                                    <small
+                                                        class="text-danger messages"
+                                                        *ngIf="
+                                                            productodescripcion.invalid &&
+                                                            (productodescripcion.dirty ||
+                                                                productodescripcion.touched)
+                                                        "
+                                                        >No se permite el
+                                                        caracter ' ó "</small
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="number"
+                                                        name="productocosto"
+                                                        class="form-control"
+                                                        required
+                                                        #productocosto="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.costo
+                                                        "
+                                                        min="1"
+                                                        step="0.0001"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Costo</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="number"
+                                                        name="productoalto"
+                                                        class="form-control"
+                                                        required
+                                                        #productoalto="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.alto
+                                                        "
+                                                        min="0"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Alto</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="number"
+                                                        name="productoancho"
+                                                        class="form-control"
+                                                        required
+                                                        #productoancho="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.ancho
+                                                        "
+                                                        min="0"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Ancho</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="number"
+                                                        name="productolargo"
+                                                        class="form-control"
+                                                        required
+                                                        #productolargo="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.largo
+                                                        "
+                                                        min="0"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Largo</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="number"
+                                                        name="prodcutopeso"
+                                                        class="form-control"
+                                                        required
+                                                        #prodcutopeso="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.peso
+                                                        "
+                                                        min="0"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Peso</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        name="productotipo"
+                                                        id="productotipo"
+                                                        class="form-control"
+                                                        required
+                                                        [(ngModel)]="
+                                                            producto.tipo
+                                                        "
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                tipo.id
+                                                            }}"
+                                                            *ngFor="
+                                                                let tipo of tipos
+                                                            "
+                                                        >
+                                                            {{ tipo.tipo }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Tipo</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="col-md-2"
+                                                style="margin-top: -16px"
+                                            >
+                                                <label
+                                                    style="
+                                                        display: block;
+                                                        font-size: 9pt;
+                                                    "
+                                                    >Serie</label
+                                                >
+                                                <ui-switch
+                                                    class="js-single"
+                                                    color="#4680ff"
+                                                    switchColor="#fff"
+                                                    size="medium"
+                                                    name="productoserie"
+                                                    id="productoserie"
+                                                    [(ngModel)]="producto.serie"
+                                                ></ui-switch>
+                                            </div>
+
+                                            <div
+                                                class="col-md-2"
+                                                style="margin-top: -16px"
+                                            >
+                                                <label
+                                                    style="
+                                                        display: block;
+                                                        font-size: 9pt;
+                                                    "
+                                                    >Refurbished</label
+                                                >
+                                                <ui-switch
+                                                    class="js-single"
+                                                    color="#4680ff"
+                                                    switchColor="#fff"
+                                                    size="medium"
+                                                    name="productorefurbished"
+                                                    id="productorefurbished"
+                                                    [(ngModel)]="
+                                                        producto.refurbished
+                                                    "
+                                                >
+                                                </ui-switch>
+                                            </div>
+                                            <div
+                                                class="col-md-2"
+                                                style="margin-top: -16px"
+                                            >
+                                                <label
+                                                    style="
+                                                        display: block;
+                                                        font-size: 9pt;
+                                                    "
+                                                    >Caducidad</label
+                                                >
+                                                <ui-switch
+                                                    class="js-single"
+                                                    color="#4680ff"
+                                                    switchColor="#fff"
+                                                    size="medium"
+                                                    name="productocaducidad"
+                                                    id="productocaducidad"
+                                                    [(ngModel)]="
+                                                        producto.caducidad
+                                                    "
+                                                >
+                                                </ui-switch>
+                                            </div>
+
+                                            <div
+                                                class="col-md-10"
+                                                [hidden]="
+                                                    codigos_sat.length > 0
+                                                "
+                                            >
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="selectcodigosat"
+                                                        id="selectcodigosat"
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            producto.codigo_text
+                                                        "
+                                                        min="0"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Descripción (Codigo
+                                                        para el sat)</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="col-md-10"
+                                                [hidden]="
+                                                    codigos_sat.length == 0
+                                                "
+                                            >
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        name="codigo_sat"
+                                                        id="codigo_sat"
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            producto.clave_sat
+                                                        "
+                                                        required
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                codigo.clave
+                                                            }}"
+                                                            *ngFor="
+                                                                let codigo of codigos_sat
+                                                            "
+                                                        >
+                                                            {{
+                                                                codigo.descripcion
+                                                            }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Codigo para el
+                                                        sat</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <button
+                                                    class="btn btn-info btn-block btn-sm btn-block http-disabled"
+                                                    (click)="buscarCodigoSat()"
+                                                >
+                                                    <i
+                                                        class="fa fa-search fa-2x"
+                                                    ></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        name="codigo_unidad"
+                                                        id="codigo_unidad"
+                                                        required
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            producto.clave_unidad
+                                                        "
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option value="H87">
+                                                            Pieza
+                                                        </option>
+                                                        <option value="E48">
+                                                            Unidad de servicio
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Codigo unidad</label
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="sub-title m-t-30">
+                                            Codigo y descripción de amazon
+                                            (etiquetas)
+                                        </h4>
+
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="amazoncodigo"
+                                                        class="form-control"
+                                                        #amazoncodigo="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.amazon
+                                                                .codigo
+                                                        "
+                                                        pattern="[^'&quot;]+$"
+                                                        maxlength="20"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Código</label
+                                                    >
+                                                    <small
+                                                        class="text-danger messages"
+                                                        *ngIf="
+                                                            amazoncodigo.invalid &&
+                                                            (amazoncodigo.dirty ||
+                                                                amazoncodigo.touched) &&
+                                                            amazoncodigo.errors
+                                                                ?.pattern
+                                                        "
+                                                        >No se permite el
+                                                        caracter ' ó "</small
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="amazondescripcion"
+                                                        class="form-control"
+                                                        #amazondescripcion="ngModel"
+                                                        [(ngModel)]="
+                                                            producto.amazon
+                                                                .descripcion
+                                                        "
+                                                        pattern="[^'&quot;]+$"
+                                                        maxlength="100"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Descripción</label
+                                                    >
+                                                    <small
+                                                        class="text-danger messages"
+                                                        *ngIf="
+                                                            amazondescripcion.invalid &&
+                                                            (amazondescripcion.dirty ||
+                                                                amazondescripcion.touched) &&
+                                                            amazondescripcion
+                                                                .errors?.pattern
+                                                        "
+                                                        >No se permite el
+                                                        caracter ' ó "</small
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <h4 class="sub-title m-t-30">
+                                            Relación de sku con proveedores
+                                            externos (dropshipping)
+                                        </h4>
+
+                                        <div class="row">
+                                            <div
+                                                class="col-md-12"
+                                                *ngFor="
+                                                    let proveedor of producto.proveedores;
+                                                    let index = index
+                                                "
+                                            >
+                                                <div class="row">
+                                                    <div class="col-md-10">
+                                                        <div
+                                                            class="form-group form-primary"
+                                                            *ngIf="
+                                                                proveedor
+                                                                    .productos
+                                                                    .length == 0
+                                                            "
+                                                        >
+                                                            <input
+                                                                type="text"
+                                                                name="proveedorproductotext{{
+                                                                    index
+                                                                }}"
+                                                                class="form-control"
+                                                                [(ngModel)]="
+                                                                    proveedor.producto_text
+                                                                "
+                                                            />
+                                                            <span
+                                                                class="form-bar"
+                                                            ></span>
+                                                            <label
+                                                                class="float-label"
+                                                                >Buscar producto
+                                                                ({{
+                                                                    proveedor.razon_social
+                                                                }})</label
+                                                            >
+                                                        </div>
+
+                                                        <div
+                                                            class="form-group form-primary"
+                                                            *ngIf="
+                                                                proveedor
+                                                                    .productos
+                                                                    .length > 0
+                                                            "
+                                                        >
+                                                            <select
+                                                                name="productoexel{{
+                                                                    proveedor.id
+                                                                }}"
+                                                                id="productoexel{{
+                                                                    proveedor.id
+                                                                }}"
+                                                                class="form-control"
+                                                                [(ngModel)]="
+                                                                    proveedor.producto
+                                                                "
+                                                            >
+                                                                <option
+                                                                    value=""
+                                                                    disabled
+                                                                ></option>
+                                                                <option
+                                                                    value="{{
+                                                                        row.id
+                                                                    }}"
+                                                                    *ngFor="
+                                                                        let row of proveedor.productos
+                                                                    "
+                                                                >
+                                                                    {{
+                                                                        row.descripcion
+                                                                    }}
+                                                                </option>
+                                                            </select>
+                                                            <span
+                                                                class="form-bar"
+                                                            ></span>
+                                                            <label
+                                                                class="float-label"
+                                                                >Seleccionar
+                                                                producto ({{
+                                                                    proveedor.razon_social
+                                                                }})</label
+                                                            >
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <button
+                                                            class="btn btn-info btn-sm btn-block"
+                                                            (click)="
+                                                                buscarProductoProveedorB2B(
+                                                                    proveedor
+                                                                )
+                                                            "
+                                                            placement="top"
+                                                            ngbTooltip="Buscar producto"
+                                                        >
+                                                            <i
+                                                                class="fa fa-2x fa-search"
+                                                            ></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+
+                        <ngb-tab>
+                            <ng-template ngbTabTitle>
+                                <h5>Imagenes</h5>
+                            </ng-template>
+                            <ng-template ngbTabContent>
+                                <div [@fadeInOutTranslate] class="m-t-50">
+                                    <form
+                                        class="md-float-material form-material"
+                                        #f="ngForm"
+                                    >
+                                        <h4 class="sub-title m-t-30">
+                                            Agregar imagenes
+                                        </h4>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <input
+                                                    type="file"
+                                                    class="form-control ngb-drop-zone text-center ripple light"
+                                                    accept="image/png, image/jpeg"
+                                                    (change)="onChangeArchivo()"
+                                                    id="archivos"
+                                                    multiple
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <h4 class="sub-title m-t-30">
+                                            Imagenes para agregar
+                                        </h4>
+
+                                        <div class="row">
+                                            <div
+                                                class="col-md-3"
+                                                *ngFor="
+                                                    let row of producto.imagenes
+                                                "
+                                            >
+                                                <img
+                                                    class="img-fluid producto-imagen"
+                                                    src="{{ row.data }}"
+                                                />
+                                                <span
+                                                    (click)="
+                                                        borrarImagenAlAgregar()
+                                                    "
+                                                    class="float-right cursor-pointer text-danger delete-image"
+                                                    >Eliminar imagen</span
+                                                >
+                                                <!-- <i
+                                                    class="fa fa-trash float-right fa-2x text-danger cursor-pointer delete-image"
+                                                    (click)="
+                                                        borrarImagenAlAgregar()
+                                                    "
+                                                    placement="top"
+                                                    ngbTooltip="Eliminar imagen"
+                                                ></i> -->
+                                            </div>
+                                        </div>
+
+                                        <h4 class="sub-title m-t-30">
+                                            Imagenes agregadas
+                                        </h4>
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table
+                                                    class="table table-striped"
+                                                >
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Preview</th>
+                                                            <th>Nombre</th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr
+                                                            *ngFor="
+                                                                let row of producto.imagenes_anteriores
+                                                            "
+                                                        >
+                                                            <td>
+                                                                <img
+                                                                    class="img-fluid producto-imagen"
+                                                                    src="{{
+                                                                        row.url
+                                                                    }}"
+                                                                />
+                                                            </td>
+                                                            <td>
+                                                                {{ row.nombre }}
+                                                            </td>
+                                                            <td>
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-outline-info btn-sm float-right"
+                                                                    placement="top"
+                                                                    ngbTooltip="Eliminar"
+                                                                    (click)="
+                                                                        eliminarImagen(
+                                                                            row.dropbox
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    <i
+                                                                        class="fa fa-trash fa-2x"
+                                                                    ></i>
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-outline-info btn-sm float-right"
+                                                                    placement="top"
+                                                                    ngbTooltip="Descargar"
+                                                                    (click)="
+                                                                        descargarImagen(
+                                                                            row.dropbox
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    <i
+                                                                        class="fa fa-file-download fa-2x"
+                                                                    ></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+
+                        <ngb-tab>
+                            <ng-template ngbTabTitle>
+                                <h5>Precios</h5>
+                            </ng-template>
+                            <ng-template ngbTabContent>
+                                <div [@fadeInOutTranslate] class="m-t-50">
+                                    <form
+                                        class="md-float-material form-material"
+                                    >
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <select
+                                                        name="empresaprecio"
+                                                        id="empresaprecio"
+                                                        #empresaprecio="ngModel"
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            producto.precio
+                                                                .empresa
+                                                        "
+                                                        (change)="
+                                                            onChangeEmpresaPrecio()
+                                                        "
+                                                        required
+                                                    >
+                                                        <option
+                                                            value=""
+                                                            disabled
+                                                        ></option>
+                                                        <option
+                                                            value="{{
+                                                                empresa.id
+                                                            }}"
+                                                            *ngFor="
+                                                                let empresa of empresas
+                                                            "
+                                                        >
+                                                            {{
+                                                                empresa.empresa
+                                                            }}
+                                                        </option>
+                                                    </select>
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Empresa</label
+                                                    >
+                                                    <small
+                                                        class="text-danger messages block"
+                                                        *ngIf="
+                                                            empresaprecio.errors
+                                                                ?.required
+                                                        "
+                                                        >Campo requerido</small
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="number"
+                                                        name="precioempresa"
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            producto.precio
+                                                                .precio
+                                                        "
+                                                        step="0.0001"
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                    <label class="float-label"
+                                                        >Precio de venta</label
+                                                    >
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <input
+                                                    type="file"
+                                                    class="form-control ngb-drop-zone text-center ripple light"
+                                                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                                                    (change)="
+                                                        onChangeArchivoPrecios()
+                                                    "
+                                                    id="archivos-precios"
+                                                />
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+                    </ngb-tabset>
+                </div>
+            </div>
+        </div>
+
+        <div class="row m-t-30">
+            <div class="col-md-12">
+                <button
+                    class="btn btn-sm btn-info btn-block http-disabled"
+                    (click)="crearProducto($event)"
+                >
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</ng-template>

@@ -1,0 +1,305 @@
+<div class="card">
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="compra_compra_pendiente">
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Proveedor</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let orden of ordenes">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="detalleVenta(modalventa, orden.id)"
+                                >
+                                    {{ orden.serie + " " + orden.folio }}
+                                </button>
+                            </td>
+                            <td>{{ orden.proveedor }}</td>
+                            <td>$ {{ commaNumber(orden.total) }}</td>
+                            <td>{{ orden.expired_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalventa let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material" autocomplete="off">
+            <div class="form-horizontal form-bordered">
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Empresa</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.empresa }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Almacén</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.almacen }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Folio</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.serie + " " + data.folio }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Proveedor</label>
+                    <div class="col-sm-10 inline-block">
+                        <h5>{{ data.proveedor }}</h5>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Productos</label>
+                    <div class="col-sm-10 inline-block table-responsive">
+                        <div class="row m-t-30">
+                            <div class="col-md-12">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Descripción</th>
+                                            <th>Costo</th>
+                                            <th>Cantidad</th>
+                                            <th>Recibidas</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let producto of final_data.productos;
+                                                let index = index
+                                            "
+                                        >
+                                            <td>{{ producto.sku }}</td>
+                                            <td>{{ producto.descripcion }}</td>
+                                            <td>{{ producto.costo }}</td>
+                                            <td>{{ producto.cantidad }}</td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    name="cantidad_aceptada_producto_{{
+                                                        index
+                                                    }}"
+                                                    [disabled]="producto.serie"
+                                                    (change)="
+                                                        producto.cantidad_aceptada =
+                                                            producto.cantidad_aceptada <
+                                                            1
+                                                                ? 0
+                                                                : producto.cantidad_aceptada >
+                                                                  producto.cantidad
+                                                                ? producto.cantidad
+                                                                : producto.cantidad_aceptada
+                                                    "
+                                                    [(ngModel)]="
+                                                        producto.cantidad_aceptada
+                                                    "
+                                                />
+                                            </td>
+                                            <td>
+                                                <button
+                                                    class="btn btn-sm btn-info"
+                                                    [disabled]="
+                                                        !producto.serie ||
+                                                        !producto.sku
+                                                    "
+                                                    [hidden]="!producto.serie"
+                                                    (click)="
+                                                        agregarSeries(
+                                                            producto.sku,
+                                                            modalserie,
+                                                            $event
+                                                        )
+                                                    "
+                                                >
+                                                    Series
+                                                </button>
+
+                                                <button
+                                                    class="btn btn-sm btn-block btn-outline-info"
+                                                    (click)="
+                                                        generarCodigos(
+                                                            producto.sku
+                                                        )
+                                                    "
+                                                    placement="top"
+                                                    ngbTooltip="Generar etiquetas"
+                                                >
+                                                    <i
+                                                        class="fa fa-barcode fa-2x"
+                                                    ></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">Seguimiento</label>
+                    <div class="col-sm-10 inline-block">
+                        <app-new-editor
+                            class="m-t-20"
+                            name="seguimiento"
+                            #seguimiento="ngModel"
+                            [(ngModel)]="final_data.seguimiento"
+                        >
+                        </app-new-editor>
+                        <!-- <editor
+                            class="m-t-20"
+                            apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                            name="seguimiento"
+                            #seguimiento="ngModel"
+                            [(ngModel)]="final_data.seguimiento"
+                            [init]="tinymce_init"
+                        >
+                        </editor> -->
+                        <div
+                            *ngFor="let seguimiento of data.seguimiento"
+                            class="m-t-20 m-b-20"
+                        >
+                            <div class="media chat-messages">
+                                <div class="media-body chat-menu-content">
+                                    <div class="">
+                                        <p class="chat-cont">
+                                            {{
+                                                seguimiento.nombre +
+                                                    " - " +
+                                                    seguimiento.created_at
+                                            }}
+                                        </p>
+                                        <p
+                                            class="chat-cont"
+                                            [innerHTML]="
+                                                seguimiento.seguimiento
+                                            "
+                                        ></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group group-div">
+                    <label class="col-form-label col-sm-2">&nbsp;</label>
+                    <div class="col-sm-10 inline-block">
+                        <button
+                            class="btn btn-sm btn-block btn-info http-disabled"
+                            style="margin: 10px"
+                            (click)="guardarPendiente($event)"
+                        >
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalserie let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Series</h4>
+        <h4 class="modal-title m-l-10" style="color: red">
+            {{ totalSeries() }}
+        </h4>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group">
+                <label class="float-label ol-form-label col-sm-2">Serie</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <input
+                                type="text"
+                                id="serie"
+                                name="serie"
+                                class="form-control"
+                                [(ngModel)]="data.serie_producto"
+                                (keyup.enter)="sanitizeInput(); agregarSerie()"
+                            />
+                        </div>
+                        <div class="col-md-2">
+                            <button
+                                class="btn btn-sm btn-info"
+                                (click)="sanitizeInput(); agregarSerie()"
+                                [disabled]="!data.serie_producto"
+                            >
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Series</label>
+                <div class="col-sm-10 inline-block">
+                    <ul class="list-group m-b-20" id="ul_series">
+                        <ng-container
+                            *ngFor="let serie of data.series.reverse()"
+                        >
+                            <li class="list-group-item" *ngIf="serie.status">
+                                {{ serie.serie }}
+                                <span
+                                    class="badge"
+                                    style="cursor: pointer; float: right"
+                                    (click)="eliminarSerie(serie.serie)"
+                                    >X</span
+                                >
+                            </li>
+                        </ng-container>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-info btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="confirmarSeries()"
+                        id="button_confirmar_series"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

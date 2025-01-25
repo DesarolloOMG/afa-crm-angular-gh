@@ -1,0 +1,38 @@
+<div class="page-body">
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- List view card start -->
+            <div class="card">
+                <div class="row card-block">
+                    <div class="col-md-4" *ngFor="let notificacion of notificaciones">
+                        <div class="card list-view-media">
+                            <div class="card-block">
+                                <div class="media">
+                                    <div class="media-body">
+                                        <h6 class="d-inline-block">
+                                            {{ notificacion.data.titulo }}
+                                            <div class="f-13 text-muted m-l-10 float-right">
+                                                {{ notificacion.date_added }}
+                                                <span class="badge badge-{{ notificacion.data.tipo }}">&nbsp;</span>
+                                            </div>
+                                        </h6>
+
+                                        <p>{{ notificacion.data.message }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn btn-info btn-block btn-sm http-disabled"
+                            (click)="cargarNotificaciones(100)">Cargar
+                            más</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

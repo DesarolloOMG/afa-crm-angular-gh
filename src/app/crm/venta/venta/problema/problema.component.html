@@ -1,0 +1,178 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Ventas en problema</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="venta_venta_problema">
+                    <thead>
+                        <tr>
+                            <th>Documento</th>
+                            <th>Venta</th>
+                            <th>Marketplace</th>
+                            <th>Cliente</th>
+                            <th>Paquetería</th>
+                            <th>Vendedor</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let venta of ventas">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="detalleVenta(modalventa, venta.id)"
+                                >
+                                    {{ venta.id }}
+                                </button>
+                            </td>
+                            <td>{{ venta.no_venta }}</td>
+
+                            <td>
+                                {{ venta.marketplace + " / " + venta.area }}
+                            </td>
+                            <td>{{ venta.cliente }}</td>
+                            <td>{{ venta.paqueteria }}</td>
+                            <td>{{ venta.usuario }}</td>
+                            <td>{{ venta.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalventa let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.documento }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Venta</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.no_venta }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Marketplace</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.marketplace + " / " + data.area }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Paquetería</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.paqueteria }}</h5>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Almacén</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let producto of data.productos">
+                                <td>{{ producto.sku }}</td>
+                                <td>{{ producto.descripcion }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                                <td>{{ producto.almacen }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        [(ngModel)]="final_data.seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        [(ngModel)]="final_data.seguimiento"
+                        [init]="tinymce_init"
+                    ></editor> -->
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento_anterior"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Problema</label>
+                <div class="col-sm-10 inline-block">
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="problema"
+                        id="problema"
+                        [(ngModel)]="final_data.problema"
+                    ></ui-switch>
+                </div>
+            </div>
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        style="margin: 10px"
+                        (click)="guardarDocumento()"
+                        [disabled]="final_data.seguimiento == ''"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

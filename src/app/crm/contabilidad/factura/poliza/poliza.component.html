@@ -1,0 +1,105 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Generación de polizas</h5>
+    </div>
+    <div class="card-body">
+        <div class="row" [hidden]="empresas_usuario.length < 2">
+            <div class="col-md-6">
+                <form class="md-float-material form-material mt-10" autocomplete="off">
+                    <div class="form-group form-primary">
+                        <select name="empresa" id="empresa" required #empresa="ngModel" class="form-control"
+                            [(ngModel)]="data.empresa" (change)="cambiarEmpresa()">
+                            <option value="" disabled></option>
+                            <option value="{{ empresa.bd }}" *ngFor="let empresa of empresas">{{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small class="text-danger messages block" *ngIf="empresa.errors?.required">Campo
+                            requerido</small>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="md-tabs">
+                    <ngb-tabset>
+                        <ngb-tab title="Por rango de fechas">
+                            <ng-template ngbTabContent>
+                                <div [@fadeInOutTranslate] class="m-t-50">
+                                    <form class="md-float-material form-material m-t-30" #formFechas="ngForm">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group form-primary">
+                                                    <input type="date" name="fecha_inicial" #fechainicial="ngModel"
+                                                        required class="form-control" [(ngModel)]="data.fechas.inicial">
+                                                    <span class="form-bar"></span>
+                                                    <label class="float-label">Fecha inicial</label>
+                                                    <small class="text-danger messages"
+                                                        *ngIf="fechainicial.errors?.required">Campo requerido</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group form-primary">
+                                                    <input type="date" name="fecha_final" #fechafinal="ngModel" required
+                                                        class="form-control" [(ngModel)]="data.fechas.final">
+                                                    <span class="form-bar"></span>
+                                                    <label class="float-label">Fecha inicial</label>
+                                                    <small class="text-danger messages"
+                                                        *ngIf="fechafinal.errors?.required">Campo
+                                                        requerido</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <button type="button"
+                                                    class="btn btn-primary btn-sm btn-block http-disabled"
+                                                    [disabled]="!formFechas.valid"
+                                                    (click)="generarPolizaPorFecha()">Generar polizas</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+                        <ngb-tab title="Poliza individual">
+                            <ng-template ngbTabContent>
+                                <div [@fadeInOutTranslate] class="m-t-50">
+                                    <form class="md-float-material form-material m-t-30" #formIndividual="ngForm">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group form-primary">
+                                                    <input type="text" name="folio_factura" #foliofactura="ngModel"
+                                                        required class="form-control"
+                                                        [(ngModel)]="data.individual.folio" pattern="[^'&quot;]+$">
+                                                    <span class="form-bar"></span>
+                                                    <label class="float-label">Folio de la factura</label>
+                                                    <small class="text-danger messages"
+                                                        *ngIf="foliofactura.errors?.required">Campo requerido</small>
+                                                    <small class="text-danger messages"
+                                                        *ngIf="(foliofactura.invalid && (foliofactura.dirty || foliofactura.touched))">No
+                                                        se permite el caracter ' ó "</small>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <button type="button"
+                                                    class="btn btn-primary btn-sm btn-block http-disabled"
+                                                    [disabled]="!formIndividual.valid"
+                                                    (click)="generarPolizaIndividual()">Generar
+                                                    poliza</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+                    </ngb-tabset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

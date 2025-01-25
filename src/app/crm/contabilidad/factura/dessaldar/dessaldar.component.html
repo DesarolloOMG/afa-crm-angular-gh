@@ -1,0 +1,131 @@
+<div class="card">
+    <div class="card-header">
+        <form
+            class="md-float-material form-material mt-10"
+            autocomplete="off"
+            #f="ngForm"
+        >
+            <div class="row" [hidden]="empresas_usuario.length < 2">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            required
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="documento.empresa"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="empresa.errors?.required"
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="folio"
+                            class="form-control"
+                            #folio="ngModel"
+                            required
+                            [(ngModel)]="documento.folio"
+                            pattern="[^'&quot;]+$"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Folio de la factura</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                folio.invalid && (folio.dirty || folio.touched)
+                            "
+                            >No se permite el caracter ' ó "</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-primary btn-sm btn-block http-disabled"
+                        id="button_buscar"
+                        (click)="dessaldar()"
+                        [disabled]="!f.valid"
+                    >
+                        Buscar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="contabilidad_factura_dessaldar"
+                >
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Monto</th>
+                            <th>TC</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let pago of documento.pagos">
+                            <td>
+                                {{
+                                    pago.pago_con_operacion == 0
+                                        ? pago.pago_con_documento
+                                        : pago.pago_con_operacion
+                                }}
+                            </td>
+                            <td>
+                                {{
+                                    pago.pago_con_operacion == 0
+                                        ? "Nota de credito"
+                                        : "Ingreso"
+                                }}
+                            </td>
+                            <td>{{ commaNumber(pago.monto) }}</td>
+                            <td>{{ commaNumber(pago.tc) }}</td>
+                            <td>{{ pago.fecha }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-primary btn-sm btn-block http-disabled"
+                                    (click)="
+                                        desaplicarDocumento(
+                                            pago.pago_con_operacion == 0
+                                                ? pago.pago_con_documento
+                                                : pago.pago_con_operacion
+                                        )
+                                    "
+                                >
+                                    Desaplicar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

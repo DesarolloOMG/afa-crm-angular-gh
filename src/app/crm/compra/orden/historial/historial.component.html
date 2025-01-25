@@ -1,0 +1,787 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10" #form="ngForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="documento"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.documento"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Documento, Recepción</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_inicial"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.fecha_inicial"
+                                    required
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha inicial</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_final"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.fecha_final"
+                                    required
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha final</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block http-disabled"
+                                (click)="cargarDocumentos()"
+                                [disabled]="!form.valid"
+                                placement="top"
+                                ngbTooltip="Cargar documentos"
+                            >
+                                <i class="fa fa-spinner fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block m-t-10 http-disabled"
+                                (click)="descargarExcel()"
+                                [disabled]="busqueda.excel == ''"
+                                placement="top"
+                                ngbTooltip="Descargar excel"
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="compra_orden_historial">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Proveedor</th>
+                            <th>Total</th>
+                            <th>Creador</th>
+                            <th>Fase</th>
+                            <th>Fecha</th>
+                            <th>Fecha de arribo</th>
+                            <th>Agrupar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of documentos; let index = index">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="detalleDocumento(row.id)"
+                                >
+                                    {{ row.id }}
+                                </button>
+                            </td>
+                            <td>{{ row.razon_social }}</td>
+                            <td>
+                                $
+                                {{
+                                    commaNumber(
+                                        total(row.productos) | number : "1.2-2"
+                                    )
+                                }}
+                            </td>
+                            <td>{{ row.nombre }}</td>
+                            <td>{{ row.fase }}</td>
+                            <td>{{ row.created_at }}</td>
+                            <td>{{ row.fecha_entrega }}</td>
+                            <td>
+                                <ui-switch
+                                    class="js-single"
+                                    color="#4680ff"
+                                    switchColor="#fff"
+                                    size="medium"
+                                    name="agrupar_{{ index }}"
+                                    [(ngModel)]="row.agrupar"
+                                ></ui-switch>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modaldetalledocumento let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>{{ data.id }}</h5>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled float-right m-b-10"
+                                (click)="descargarOC()"
+                                placement="left"
+                                ngbTooltip="Descargar PDF ODC"
+                            >
+                                <i class="fa fa-file-pdf fa-2x"></i>
+                            </button>
+                        </div>
+
+                        <div class="col-md-2" *ngIf="esComprador()">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block float-right m-b-10 http-disabled"
+                                (click)="abrirModalCopiaODC()"
+                                [disabled]="$any(data).id_fase != 607"
+                                placement="bottom"
+                                ngbTooltip="Copiar a nueva ODC"
+                            >
+                                <i class="fa fa-copy fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Proveedor</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.razon_social }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Almacén</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.almacen }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Periodo de pago</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.periodo }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Moneda & T.C</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.moneda + " | " + data.tipo_cambio }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div" *ngIf="$any(data).id_fase > 603">
+                <label class="col-form-label col-sm-2"
+                    >Requisiciones relacionadas</label
+                >
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.observacion }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div" *ngIf="$any(data).id_fase < 604">
+                <label class="col-form-label col-sm-2">ODC Relacionadas</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.odc }}</h5>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                *ngIf="data.recepciones.length > 0"
+            >
+                <label class="col-form-label col-sm-2">Recepciones</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <table class="table table-striped m-t-10">
+                        <thead>
+                            <tr>
+                                <th>Recepcion ERP</th>
+                                <th>Compra ERP</th>
+                                <th>Productos</th>
+                                <th>Creador</th>
+                                <th>Fecha de creación</th>
+                                <th>Agrupar</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr *ngFor="let row of data.recepciones">
+                                <td>{{ row.documento_erp }}</td>
+                                <td *ngIf="row.documento_erp_compra != 'N/A'">
+                                    {{ row.documento_erp_compra }}
+                                </td>
+                                <td *ngIf="row.documento_erp_compra == 'N/A'">
+                                    <button
+                                        class="btn btn-outline-info btn-sm btn-block"
+                                        placement="top"
+                                        ngbTooltip="Crear compra"
+                                        (click)="crearCompra(row.documento_erp)"
+                                    >
+                                        <i class="fa fa-2x fa-file-import"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Código</th>
+                                                <th>Descripción</th>
+                                                <th>Cantidad</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr
+                                                *ngFor="
+                                                    let producto of row.productos
+                                                "
+                                            >
+                                                <td>{{ producto.sku }}</td>
+                                                <td>
+                                                    {{ producto.descripcion }}
+                                                </td>
+                                                <td>{{ producto.cantidad }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>{{ row.nombre }}</td>
+                                <td>{{ row.created_at }}</td>
+                                <td>
+                                    <ui-switch
+                                        *ngIf="
+                                            row.documento_erp_compra == 'N/A'
+                                        "
+                                        class="js-single"
+                                        color="#4680ff"
+                                        switchColor="#fff"
+                                        size="medium"
+                                        name="agruparrecepcion"
+                                        [(ngModel)]="row.agrupar"
+                                    ></ui-switch>
+                                </td>
+                                <td>
+                                    <button
+                                        class="btn btn-outline-info btn-block"
+                                        (click)="
+                                            descargarPDFRecepcion(
+                                                row.documento_erp
+                                            )
+                                        "
+                                        placement="top"
+                                        ngbTooltip="Descargar PDF de la recepción"
+                                    >
+                                        <i class="fa fa-2x fa-file-pdf"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                [hidden]="data.factura_folio == 'N/A'"
+            >
+                <label class="col-form-label col-sm-2"
+                    >Compra relacionada</label
+                >
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.factura_serie + " " + data.factura_folio }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Recepcionada</th>
+                                <th>Costo</th>
+                                <th>Series</th>
+                                <th>Etiqueta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let producto of data.productos">
+                                <td>{{ producto.codigo }}</td>
+                                <td>{{ producto.descripcion }}</td>
+                                <td>{{ producto.cantidad }}</td>
+                                <td>
+                                    {{
+                                        producto.cantidad_recepcionada_anterior
+                                    }}
+                                </td>
+                                <td class="no-wrap">
+                                    $
+                                    {{
+                                        commaNumber(
+                                            producto.costo | number : "1.2-2"
+                                        )
+                                    }}
+                                </td>
+                                <td>
+                                    <button
+                                        class="btn btn-info btn-sm"
+                                        *ngIf="producto.serie"
+                                        placement="top"
+                                        ngbTooltip="Generar etiquetas QR"
+                                        (click)="
+                                            abrirModalSeries(producto.codigo)
+                                        "
+                                    >
+                                        <i class="fa fa-2x fa-barcode"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button
+                                        class="btn btn-info btn-sm"
+                                        *ngIf="producto.serie"
+                                        placement="top"
+                                        ngbTooltip="Generar etiquetas QR"
+                                        (click)="
+                                            abrirModalImpresora(producto.codigo)
+                                        "
+                                    >
+                                        <i class="fa fa-2x fa-qrcode"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4"></td>
+                                <td>
+                                    $
+                                    {{
+                                        commaNumber(
+                                            total(data.productos)
+                                                | number : "1.2-2"
+                                        )
+                                    }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-group group-div" [hidden]="data.comentarios == ''">
+                <label class="col-form-label col-sm-2">Comentarios</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.comentarios }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        [(ngModel)]="seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        [(ngModel)]="seguimiento"
+                        [init]="tinymce_init"
+                    ></editor> -->
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Archivos</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul
+                                class="m-t-10"
+                                *ngIf="data.archivos_anteriores.length > 0"
+                            >
+                                <li
+                                    *ngFor="
+                                        let archivo of data.archivos_anteriores
+                                    "
+                                >
+                                    <i class="fa fa-{{ archivo.icon }}"></i>
+                                    <span
+                                        class="text-muted"
+                                        (click)="verArchivo(archivo.dropbox)"
+                                        style="cursor: pointer"
+                                    >
+                                        {{ archivo.nombre }}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-block btn-info http-disabled"
+                        style="margin: 10px"
+                        (click)="guardarDocumento($event)"
+                        [disabled]="!seguimiento"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalimpresora let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Selecciona una impresora</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select
+                            name="impresora"
+                            class="form-control"
+                            [(ngModel)]="etiqueta.impresora"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ row.id }}"
+                                *ngFor="let row of impresoras"
+                            >
+                                {{ row.nombre }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Impresora</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-info btn-sm btn-block http-disabled"
+                        (click)="generarQRSerie()"
+                    >
+                        <i class="fa fa-2x fa-print"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalserie let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Series escaneadas</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="list-group">
+                    <li class="list-group-item" *ngFor="let row of series">
+                        {{ row.serie }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalcopiaodc let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Crear copia de la ODC {{ nueva_orden.id }}</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form
+            class="md-float-material form-material mt-10"
+            #f="ngForm"
+            autocomplete="off"
+        >
+            <h4 class="sub-title m-t-30">Productos</h4>
+
+            <div class="row m-t-20">
+                <div class="col-md-3" [hidden]="productos.length != 0">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="codigo"
+                            id="codigo"
+                            class="form-control"
+                            [(ngModel)]="producto.text"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Código</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3" [hidden]="productos.length == 0">
+                    <div class="form-group form-primary">
+                        <select
+                            name="pro_codigo"
+                            id="pro_codigo"
+                            class="form-control"
+                            [(ngModel)]="producto.codigo"
+                        >
+                            <option value="" selected disabled></option>
+                            <option
+                                value="{{ producto.sku }}"
+                                *ngFor="let producto of productos"
+                            >
+                                {{ producto.sku + " - " + producto.producto }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Codigo / Descripción</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button
+                        class="btn btn-info btn-block"
+                        placement="top"
+                        ngbTooltip="Buscar producto"
+                        (click)="buscarProducto()"
+                    >
+                        <i class="fa fa-search btn-2x"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="pro_cantidad"
+                            class="form-control"
+                            [(ngModel)]="producto.cantidad"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cantidad</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="pro_costo"
+                            class="form-control"
+                            [(ngModel)]="producto.costo"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Costo</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <button
+                        type="button"
+                        class="btn btn-info btn-sm btn-block m-b-20 http-disabled"
+                        (click)="agregarProducto()"
+                        placement="top"
+                        ngbTooltip="Agregar producto"
+                    >
+                        <i class="fa fa-plus fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Costo</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let producto of nueva_orden.productos;
+                                    let index = index
+                                "
+                            >
+                                <td>
+                                    <input
+                                        type="text"
+                                        class="form-control {{
+                                            !producto.existe ? 'border-red' : ''
+                                        }}"
+                                        name="codigo_{{ index }}"
+                                        class="form-control"
+                                        [(ngModel)]="producto.codigo"
+                                        (change)="
+                                            existeProducto(producto.codigo)
+                                        "
+                                    />
+                                </td>
+                                <td>{{ producto.descripcion }}</td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        name="cantidad_{{ index }}"
+                                        class="form-control"
+                                        [(ngModel)]="producto.cantidad"
+                                    />
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        name="costo_{{ index }}"
+                                        class="form-control"
+                                        [(ngModel)]="producto.costo"
+                                    />
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        (click)="
+                                            nueva_orden.productos.splice(
+                                                index,
+                                                1
+                                            )
+                                        "
+                                        placement="top"
+                                        ngbTooltip="Borrar producto"
+                                    >
+                                        <i class="fa fa-trash fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-info btn-sm btn-block http-disabled"
+                        placement="top"
+                        ngbTooltip="Crear nueva ODC"
+                        (click)="crearNuevaOrden($event)"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

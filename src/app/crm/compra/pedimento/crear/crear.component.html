@@ -1,0 +1,368 @@
+<form class="md-float-material form-material" autocomplete="off">
+    <div class="auth-box card">
+        <div class="card-block">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            id="empresa"
+                            name="empresa"
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.empresa"
+                            (change)="onChangeEmpresa()"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.id }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="
+                                empresa.errors?.required &&
+                                (empresa.dirty || empresa.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="date"
+                            name="fechaimportacion"
+                            id="fechaimportacion"
+                            class="form-control"
+                            #fechaimportacion="ngModel"
+                            [(ngModel)]="data.fecha_importacion"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Fecha de importación</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                fechaimportacion.errors?.required &&
+                                (fechaimportacion.dirty ||
+                                    fechaimportacion.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="titulo"
+                            id="titulo"
+                            class="form-control"
+                            #titulo="ngModel"
+                            [(ngModel)]="data.titulo"
+                            pattern="[^'&quot;]+$"
+                            maxlength="50"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Titulo</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.titulo.length }} / 50</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                titulo.errors?.required &&
+                                (titulo.dirty || titulo.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                titulo.errors?.pattern &&
+                                (titulo.dirty || titulo.touched)
+                            "
+                            >No se permite el caracter ' o "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="pedimento"
+                            id="pedimento"
+                            class="form-control"
+                            #pedimento="ngModel"
+                            [(ngModel)]="data.pedimento"
+                            pattern="[^'&quot;]+$"
+                            maxlength="50"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Pedimento</label>
+                        <small class="text-success messages float-right"
+                            >{{ data.pedimento.length }} / 50</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                pedimento.errors?.required &&
+                                (pedimento.dirty || pedimento.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                pedimento.errors?.pattern &&
+                                (pedimento.dirty || pedimento.touched)
+                            "
+                            >No se permite el caracter ' o "</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            id="moneda"
+                            name="moneda"
+                            #moneda="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.moneda"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ moneda.id }}"
+                                *ngFor="let moneda of monedas"
+                            >
+                                {{ moneda.moneda }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Moneda</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                moneda.errors?.required &&
+                                (moneda.dirty || moneda.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="tipocambio"
+                            id="tipocambio"
+                            class="form-control"
+                            #tipocambio="ngModel"
+                            [(ngModel)]="data.tipo_cambio"
+                            required
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo cambio</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                tipocambio.errors?.required &&
+                                (tipocambio.dirty || tipocambio.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            id="embarque"
+                            name="embarque"
+                            #embarque="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.embarque"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ embarque.id }}"
+                                *ngFor="let embarque of medios_embarque"
+                            >
+                                {{ embarque.medio }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Medio de embarque</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                embarque.errors?.required &&
+                                (embarque.dirty || embarque.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            id="aduana"
+                            name="aduana"
+                            #aduana="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.aduana"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ aduana.id }}"
+                                *ngFor="let aduana of aduanas"
+                            >
+                                {{ aduana.aduana }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Aduana</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                aduana.errors?.required &&
+                                (aduana.dirty || aduana.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            id="impuesto"
+                            name="impuesto"
+                            #impuesto="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.impuesto"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ impuesto.id }}"
+                                *ngFor="let impuesto of tipos_impuesto"
+                            >
+                                {{ impuesto.impuesto }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">IVA</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                impuesto.errors?.required &&
+                                (impuesto.dirty || impuesto.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            id="pais"
+                            name="pais"
+                            #pais="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.pais"
+                            required
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ pais.id }}"
+                                *ngFor="let pais of paises"
+                            >
+                                {{ pais.pais }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">País</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                pais.errors?.required &&
+                                (pais.dirty || pais.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <textarea
+                            class="form-control"
+                            id="comentarios"
+                            name="comentarios"
+                            #comentarios="ngModel"
+                            [(ngModel)]="data.comentarios"
+                        ></textarea>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Comentarios</label>
+                        <small
+                            class="text-danger messages"
+                            *ngIf="
+                                comentarios.errors?.required &&
+                                (comentarios.dirty || comentarios.touched)
+                            "
+                            >Campo requerido</small
+                        >
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <button
+                        class="btn btn-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="Crear pedimento"
+                        (click)="crearPedimento($event)"
+                    >
+                        <i class="fa fa-2x fa-save"> </i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

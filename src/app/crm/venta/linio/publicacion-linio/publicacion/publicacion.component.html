@@ -1,0 +1,584 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="sub-title">Área y Marketplace</h4>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-primary">
+                                        <select
+                                            name="item-area"
+                                            id="item-area"
+                                            #itemarea="ngModel"
+                                            class="form-control"
+                                            (change)="onChangeArea()"
+                                            [(ngModel)]="search.area"
+                                        >
+                                            <option
+                                                value=""
+                                                disabled
+                                                selected
+                                            ></option>
+                                            <option
+                                                value="{{ area.id }}"
+                                                *ngFor="let area of areas"
+                                            >
+                                                {{ area.area }}
+                                            </option>
+                                        </select>
+                                        <span class="form-bar"></span>
+                                        <label class="float-label">Área</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-primary">
+                                        <select
+                                            name="item-marketplace"
+                                            id="item-marketplace"
+                                            #itemmarketplace="ngModel"
+                                            class="form-control"
+                                            [(ngModel)]="search.marketplace"
+                                        >
+                                            <option
+                                                value=""
+                                                disabled
+                                                selected
+                                            ></option>
+                                            <option
+                                                value="{{ marketplace.id }}"
+                                                *ngFor="
+                                                    let marketplace of marketplaces
+                                                "
+                                            >
+                                                {{ marketplace.marketplace }}
+                                            </option>
+                                        </select>
+                                        <span class="form-bar"></span>
+                                        <label class="float-label"
+                                            >Marketplace</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h4 class="sub-title">Filtros adicionales</h4>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-primary">
+                                        <select
+                                            name="item-search-provider"
+                                            id="item-search-provider"
+                                            #itemsearchprovider="ngModel"
+                                            class="form-control"
+                                            [(ngModel)]="search.provider"
+                                        >
+                                            <option value="" selected></option>
+                                            <option
+                                                value="{{ row.id }}"
+                                                *ngFor="
+                                                    let row of btob_providers
+                                                "
+                                            >
+                                                {{ row.razon_social }}
+                                            </option>
+                                        </select>
+                                        <span class="form-bar"></span>
+                                        <label class="float-label"
+                                            >Proveedor B2B</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group form-primary">
+                                        <select
+                                            name="item-status"
+                                            id="item-status"
+                                            #itemstatus="ngModel"
+                                            class="form-control"
+                                            [(ngModel)]="search.status"
+                                        >
+                                            <option value="" selected></option>
+                                            <option value="active">
+                                                Activas
+                                            </option>
+                                            <option value="inactive">
+                                                Inactivas
+                                            </option>
+                                        </select>
+                                        <span class="form-bar"></span>
+                                        <label class="float-label"
+                                            >Estatus</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                placement="top"
+                                ngbTooltip="Buscar publicaciones"
+                                (click)="searchItems()"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                placement="top"
+                                ngbTooltip="Actualizar publicaciones"
+                                (click)="updateItems()"
+                            >
+                                <i class="fa fa-repeat fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    id="venta-linio-publicacion-publicacion"
+                    class="table table-striped"
+                >
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Publicación</th>
+                            <th>Total</th>
+                            <th>Productos</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container
+                            *ngFor="let publicacion of items; let index = index"
+                        >
+                            <tr>
+                                <td>
+                                    <a
+                                        class="text-success"
+                                        href="{{ publicacion.url }}"
+                                        target="_blank"
+                                        *ngIf="publicacion.url != 'N/A'"
+                                        >{{ publicacion.publicacion_id }}</a
+                                    >
+                                    <ng-container
+                                        *ngIf="publicacion.url == 'N/A'"
+                                    >
+                                        {{
+                                            publicacion.publicacion_id
+                                        }}</ng-container
+                                    >
+                                </td>
+                                <td>
+                                    {{ publicacion.publicacion }}
+                                </td>
+                                <td class="no-wrap">
+                                    $
+                                    {{ commaNumber(publicacion.total) }}
+                                </td>
+                                <td>
+                                    <i
+                                        class="fa fa-2x fa-{{
+                                            publicacion.productos
+                                                ? 'check'
+                                                : 'exclamation'
+                                        }} text-{{
+                                            publicacion.productos
+                                                ? 'success'
+                                                : 'danger'
+                                        }}"
+                                        placement="top"
+                                        ngbTooltip="La publicación{{
+                                            publicacion.productos ? ' ' : ' no '
+                                        }}cuenta con productos"
+                                    ></i>
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-info btn-block"
+                                        (click)="
+                                            viewItemDataCRM(publicacion.id)
+                                        "
+                                        placement="top"
+                                        ngbTooltip="Editar Información CRM"
+                                    >
+                                        <i class="fa fa-pencil fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalitemcrm let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">{{ data.title }}</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material m-t-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="sub-title">Empresa</h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="item-company"
+                                    #itemcompany="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.company"
+                                    (change)="onChangeCompany()"
+                                    required
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of companies"
+                                    >
+                                        {{ row.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        itemcompany.invalid &&
+                                        (itemcompany.dirty ||
+                                            itemcompany.touched) &&
+                                        itemcompany.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="sub-title m-t-30">
+                        Información interna para la publicación
+                    </h4>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="item-provider"
+                                    #itemprovider="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.provider"
+                                >
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of btob_providers"
+                                    >
+                                        {{ row.razon_social }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Proveedor B2B (Dropshipping)</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h4 class="sub-title">Almacenes</h4>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="item-principal-warehouse"
+                                    #itemprincipalwarehouse="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.principal_warehouse"
+                                    required
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of warehouses"
+                                    >
+                                        {{ row.almacen }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Almacén Drop off</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        itemprincipalwarehouse.invalid &&
+                                        (itemprincipalwarehouse.dirty ||
+                                            itemprincipalwarehouse.touched) &&
+                                        itemprincipalwarehouse.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="item-secondary-warehouse"
+                                    #itemsecondarywarehouse="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.secondary_warehouse"
+                                    required
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ row.id }}"
+                                        *ngFor="let row of warehouses"
+                                    >
+                                        {{ row.almacen }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Almacén Fulfillment</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        itemsecondarywarehouse.invalid &&
+                                        (itemsecondarywarehouse.dirty ||
+                                            itemsecondarywarehouse.touched) &&
+                                        itemsecondarywarehouse.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30">Productos</h4>
+
+            <div class="row m-t-50">
+                <div class="col-md-5" [hidden]="products.length">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="item-product-search"
+                            class="form-control"
+                            [(ngModel)]="product.search"
+                            (keyup.enter)="searchProduct()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Buscar producto (Código ó Descripción)</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-5" [hidden]="!products.length">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-product-sku"
+                            class="form-control"
+                            [(ngModel)]="product.sku"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ row.sku }}"
+                                *ngFor="let row of products"
+                            >
+                                {{ row.producto }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label"
+                            >Selecciona un producto</label
+                        >
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button
+                        type="button"
+                        class="btn btn-outline-info btn-sm btn-block http-disabled"
+                        (click)="searchProduct()"
+                        placement="top"
+                        ngbTooltip="Buscar producto"
+                    >
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="item-product-quantity"
+                            class="form-control"
+                            [(ngModel)]="product.quantity"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cantidad</label>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <div class="form-group form-primary">
+                        <input
+                            type="number"
+                            name="item-product-percentage"
+                            class="form-control"
+                            [(ngModel)]="product.percentage"
+                            placement="top"
+                            ngbTooltip="Al importar una venta de esta publicación, el sistema buscará el % de cada producto para calcular su precio basado en el total de la venta"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Porcentaje</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <select
+                            name="item-product-warranty"
+                            class="form-control"
+                            [(ngModel)]="product.warranty"
+                        >
+                            <option value="" disabled selected></option>
+                            <option value="0">0 Días</option>
+                            <option value="10">10 Días</option>
+                            <option value="20">20 Días</option>
+                            <option value="30">30 Días</option>
+                            <option value="40">40 Días</option>
+                            <option value="50">50 Días</option>
+                            <option value="60">60 Días</option>
+                            <option value="70">70 Días</option>
+                            <option value="80">80 Días</option>
+                            <option value="90">90 Días</option>
+                            <option value="100">100 Días</option>
+                            <option value="120">120 Días</option>
+                            <option value="150">150 Días</option>
+                            <option value="180">180 Días</option>
+                            <option value="360">360 Días</option>
+                            <option value="fabricante">Con Fabricante</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Garantía</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-outline-info btn-sm btn-block m-b-20 http-disabled"
+                        (click)="addProduct()"
+                        placement="top"
+                        ngbTooltip="Agregar producto"
+                    >
+                        <i class="fa fa-plus fa-2x"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-12 m-t-30 table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Porcentaje</th>
+                                <th>Garantía</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let row of data.products;
+                                    let index = index
+                                "
+                            >
+                                <td>{{ row.sku }}</td>
+                                <td>{{ row.description }}</td>
+                                <td>{{ row.quantity }}</td>
+                                <td>{{ row.percentage }} %</td>
+                                <td>{{ row.warranty }}</td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm"
+                                        (click)="data.products.splice(index, 1)"
+                                        placement="top"
+                                        ngbTooltip="Borrar"
+                                    >
+                                        <i class="fa fa-trash fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row m-t-20">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                        (click)="updateItemCRM($event)"
+                        placement="top"
+                        ngbTooltip="Actualizar publicación"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

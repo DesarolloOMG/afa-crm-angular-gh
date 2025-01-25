@@ -1,0 +1,22 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="form-group form-primary">
+                        <input type="number" name="documento" class="form-control" [(ngModel)]="presupuesto"
+                            step="0.01">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Presupuesto semanal</label>
+                        <small class="text-primary messages" style="font-size: 120%;">$
+                            {{ commaNumber(presupuesto) }}</small>
+                    </div>
+                </div>
+                <div class="col-md-2 mt-1">
+                    <button class="btn btn-sm btn-info btn-block http-disabled" (click)="definirPresupuesto()"
+                        [disabled]="presupuesto < 0.01">Definir presupuesto</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,548 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="proveedores"
+                                    id="proveedores"
+                                    class="form-control"
+                                    required
+                                    [(ngModel)]="data.proveedor"
+                                >
+                                    <option
+                                        value="{{ proveedor.id }}"
+                                        *ngFor="let proveedor of proveedores"
+                                    >
+                                        {{ proveedor.razon_social }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Proveedor</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="criterio"
+                                    class="form-control"
+                                    [(ngModel)]="data.criterio"
+                                    maxlength="100"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Criterio</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button
+                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10"
+                                (click)="buscarProducto()"
+                                placement="top"
+                                ngbTooltip="Buscar productos"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" *ngIf="product_count > 1000">
+                    <div class="row m-t-40">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5>
+                                        Hay un total de
+                                        {{ product_count }} productos, se
+                                        separarán en páginas de 1000
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10"
+                                (click)="previousPage()"
+                                placement="top"
+                                ngbTooltip="Página Anterior"
+                            >
+                                <i class="fa fa-arrow-left fa-2x"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10"
+                                (click)="nextPage()"
+                                placement="top"
+                                ngbTooltip="Página Siguiente"
+                            >
+                                <i class="fa fa-arrow-right fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h5>Página actual: {{ currentPage }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <h4 class="sub-title m-t-20">Productos proveedor</h4>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="proveedor_producto">
+                    <thead>
+                        <tr>
+                            <th>Código Proveedor</th>
+                            <th>Producto</th>
+                            <th>Precio Lista</th>
+                            <th>Actualizable</th>
+                            <th>Relacionado</th>
+                            <th>Nuevo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let producto of productos">
+                            <td>{{ producto.codigo_proveedor }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>$ {{ producto.precioLista }}</td>
+                            <td class="text-center">
+                                <span style="display: none">{{
+                                    producto.actualizar ? "1" : "0"
+                                }}</span>
+
+                                <i
+                                    class="fa {{
+                                        producto.actualizar
+                                            ? 'fa-check text-success'
+                                            : 'fa-times text-danger'
+                                    }} fa-2x"
+                                ></i>
+                            </td>
+                            <td class="text-center">
+                                <span style="display: none">{{
+                                    producto.relacionado ? "1" : "0"
+                                }}</span>
+
+                                <i
+                                    class="fa {{
+                                        producto.relacionado
+                                            ? 'fa-check text-success'
+                                            : 'fa-times text-danger'
+                                    }} fa-2x"
+                                ></i>
+                            </td>
+                            <td class="text-center">
+                                <span style="display: none">{{
+                                    producto.nuevo ? "1" : "0"
+                                }}</span>
+
+                                <i
+                                    class="fa {{
+                                        producto.nuevo
+                                            ? 'fa-check text-success'
+                                            : 'fa-times text-danger'
+                                    }} fa-2x"
+                                ></i>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm btn-block"
+                                    placement="top"
+                                    ngbTooltip="Editar producto"
+                                    (click)="editarProducto(producto.id)"
+                                >
+                                    <i class="fa fa-edit fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Editar Producto Proveedor</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="md-tabs">
+                    <ngb-tabset>
+                        <ngb-tab>
+                            <ng-template ngbTabTitle>
+                                <h5>Relación</h5>
+                            </ng-template>
+                            <ng-template ngbTabContent>
+                                <div [@fadeInOutTranslate] class="m-t-25">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h4 class="sub-title">
+                                                Producto Proveedor
+                                            </h4>
+                                            <h5>{{ producto.descripcion }}</h5>
+                                        </div>
+                                    </div>
+                                    <div class="m-t-20">
+                                        <div class="col-sm-12">
+                                            <table
+                                                class="table table-striped m-t-10"
+                                                *ngIf="producto.id_modelo"
+                                            >
+                                                <thead>
+                                                    <tr>
+                                                        <th>SKU</th>
+                                                        <th>Producto CRM</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>
+                                                            {{
+                                                                producto.modelo
+                                                                    .sku
+                                                            }}
+                                                        </td>
+                                                        <td>
+                                                            {{
+                                                                producto.modelo
+                                                                    .descripcion
+                                                            }}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <h5
+                                            *ngIf="!producto.id_modelo"
+                                            class="text-danger"
+                                        >
+                                            Sin modelo relacionado
+                                        </h5>
+                                    </div>
+                                    <form
+                                        class="md-float-material form-material"
+                                        #f="ngForm"
+                                    >
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <h4 class="sub-title m-t-30">
+                                                    Actualizable
+                                                </h4>
+
+                                                <div
+                                                    class="col-md-2"
+                                                    style="margin-top: -16px"
+                                                >
+                                                    <label
+                                                        style="
+                                                            display: block;
+                                                            font-size: 9pt;
+                                                        "
+                                                        >{{
+                                                            producto.actualizar
+                                                                ? "Activo"
+                                                                : "Inactivo"
+                                                        }}</label
+                                                    >
+
+                                                    <ui-switch
+                                                        class="js-single"
+                                                        color="#4680ff"
+                                                        switchColor="#fff"
+                                                        size="medium"
+                                                        name="productoactualizar"
+                                                        id="productoactualizar"
+                                                        (change)="
+                                                            onChangeActualizar()
+                                                        "
+                                                        [(ngModel)]="
+                                                            producto.actualizar
+                                                        "
+                                                    ></ui-switch>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="col-md-8"
+                                                *ngIf="producto.actualizar"
+                                            >
+                                                <h4 class="sub-title m-t-30">
+                                                    Busqueda de producto para
+                                                    relacionar en CRM
+                                                </h4>
+                                                <div class="row">
+                                                    <div
+                                                        class="col-md-10"
+                                                        [hidden]="
+                                                            productosCRM.length >
+                                                            0
+                                                        "
+                                                    >
+                                                        <div
+                                                            class="form-group form-primary"
+                                                        >
+                                                            <input
+                                                                type="text"
+                                                                name="pro_codigo_text"
+                                                                id="pro_codigo_text"
+                                                                class="form-control"
+                                                                pattern="[^'&quot;]+$"
+                                                                #procodigotext="ngModel"
+                                                                [(ngModel)]="
+                                                                    busqueda.criterio
+                                                                "
+                                                                (keyup.enter)="
+                                                                    buscarProductoCRM()
+                                                                "
+                                                            />
+
+                                                            <span
+                                                                class="form-bar"
+                                                            ></span>
+                                                            <label
+                                                                class="float-label"
+                                                                >Código /
+                                                                Descripción</label
+                                                            >
+                                                            <small
+                                                                class="text-danger messages"
+                                                                *ngIf="
+                                                                    procodigotext.invalid &&
+                                                                    (procodigotext.dirty ||
+                                                                        procodigotext.touched)
+                                                                "
+                                                                >No se permite
+                                                                el caracter ' ó
+                                                                "</small
+                                                            >
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        class="col-md-10"
+                                                        [hidden]="
+                                                            productosCRM.length ==
+                                                            0
+                                                        "
+                                                    >
+                                                        <div
+                                                            class="form-group form-primary"
+                                                        >
+                                                            <select
+                                                                name="pro_codigo"
+                                                                id="pro_codigo"
+                                                                class="form-control"
+                                                                [(ngModel)]="
+                                                                    busqueda.relacion
+                                                                "
+                                                            >
+                                                                <option
+                                                                    value=""
+                                                                    selected
+                                                                    disabled
+                                                                ></option>
+                                                                <option
+                                                                    value="{{
+                                                                        producto.id
+                                                                    }}"
+                                                                    *ngFor="
+                                                                        let producto of productosCRM
+                                                                    "
+                                                                >
+                                                                    {{
+                                                                        producto.sku +
+                                                                            " - " +
+                                                                            producto.descripcion
+                                                                    }}
+                                                                </option>
+                                                            </select>
+                                                            <span
+                                                                class="form-bar"
+                                                            ></span>
+                                                            <label
+                                                                class="float-label"
+                                                                >Codigo /
+                                                                Descripción</label
+                                                            >
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-md-2">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-primary btn-sm btn-block http-disabled"
+                                                            (click)="
+                                                                buscarProductoCRM()
+                                                            "
+                                                        >
+                                                            {{
+                                                                productosCRM.length >
+                                                                0
+                                                                    ? "Limpiar"
+                                                                    : "Buscar"
+                                                            }}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <div
+                                                    class="col-md-2"
+                                                    style="margin-top: -16px"
+                                                >
+                                                    &nbsp;
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="col-md-7"
+                                                *ngIf="producto.actualizar"
+                                            >
+                                                <button
+                                                    class="btn btn-info btn-block"
+                                                    (click)="addRelacion()"
+                                                >
+                                                    Añadir relación
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div
+                                            *ngIf="relacion?.id"
+                                            class="m-t-20"
+                                        >
+                                            <h5 class="text-info">
+                                                Se añadirá la siguiente
+                                                relacion:
+                                            </h5>
+                                            <div class="row">
+                                                <div class="m-t-20">
+                                                    <div class="col-sm-12">
+                                                        <table
+                                                            class="table table-striped m-t-10"
+                                                        >
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>SKU</th>
+                                                                    <th>
+                                                                        Producto
+                                                                        CRM
+                                                                    </th>
+                                                                    <th></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>
+                                                                        {{
+                                                                            relacion?.sku
+                                                                        }}
+                                                                    </td>
+                                                                    <td>
+                                                                        {{
+                                                                            relacion?.descripcion
+                                                                        }}
+                                                                    </td>
+                                                                    <td>
+                                                                        <button
+                                                                            class="btn btn-danger btn-sm btn-block"
+                                                                            placement="top"
+                                                                            ngbTooltip="eliminar relacion"
+                                                                            (click)="
+                                                                                eliminarRelacion()
+                                                                            "
+                                                                        >
+                                                                            <i
+                                                                                class="fa fa-times fa-2x"
+                                                                            ></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+
+                        <ngb-tab>
+                            <ng-template ngbTabTitle>
+                                <h5>Información general</h5>
+                            </ng-template>
+                            <ng-template ngbTabContent>
+                                <div [@fadeInOutTranslate] class="m-t-50">
+                                    <form
+                                        class="md-float-material form-material"
+                                        #f="ngForm"
+                                    >
+                                        <h4 class="sub-title m-t-30">
+                                            Agregar imagenes
+                                        </h4>
+                                    </form>
+                                </div>
+                            </ng-template>
+                        </ngb-tab>
+                    </ngb-tabset>
+                </div>
+            </div>
+        </div>
+
+        <div class="row m-t-30">
+            <div class="col-md-12">
+                <button
+                    class="btn btn-sm btn-info btn-block http-disabled"
+                    (click)="guardarRelacion()"
+                >
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ngx-spinner
+    bdColor="rgba(51,51,51,0.8)"
+    size="medium"
+    color="#fff"
+    type="ball-scale-multiple"
+>
+    <p style="font-size: 20px; color: white">{{ loadingTitle }}</p>
+</ngx-spinner>

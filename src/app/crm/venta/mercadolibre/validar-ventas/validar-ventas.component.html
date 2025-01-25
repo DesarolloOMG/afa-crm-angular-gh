@@ -1,0 +1,147 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <h4 class="sub-title">Marketplace</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="area_busqueda"
+                            id="area_busqueda"
+                            class="form-control"
+                            (change)="onChangeArea()"
+                            [(ngModel)]="data.area"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ area.id }}"
+                                *ngFor="let area of areas"
+                            >
+                                {{ area.area }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="marketplace_busqueda"
+                            id="marketplace_busqueda"
+                            class="form-control"
+                            [(ngModel)]="data.marketplace"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ marketplace.id }}"
+                                *ngFor="let marketplace of marketplaces"
+                            >
+                                {{ marketplace.marketplace }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marketplace</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <button
+                        class="btn btn-outline-info btn-block btn-sm http-disabled"
+                        (click)="getDataVentas($event)"
+                        placement="top"
+                        ngbTooltip="Validar ventas"
+                    >
+                        <i class="fa fa-check fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body" *ngIf="ventas.length">
+        <div class="card">
+            <div class="card-header">
+                <div class="row m-t-10">
+                    <div class="col-md-1 offset-md-11" style="margin-top: -18px">
+                        <label style="display: block; font-size: 9pt"
+                        >Fulfillment</label
+                        >
+                        <ui-switch
+                            class="js-single"
+                            color="#4680ff"
+                            switchColor="#fff"
+                            size="medium"
+                            name="fulfillmentswitch"
+                            id="fulfillmentswitch"
+                            [(ngModel)]="fulfillment"
+                            (change)="filtrarVentas()"
+                        ></ui-switch>
+                    </div>
+                </div>
+            </div>
+            <div class="card-block table-responsive">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table
+                            class="table table-striped"
+                            id="validar_venta_mercadolibre"
+                        >
+                            <thead>
+                                <tr>
+                                    <th>Pedido</th>
+                                    <th>Venta</th>
+                                    <th>Publicacion</th>
+                                    <th>Cliente</th>
+                                    <th>Fullfilment</th>
+                                    <th>Productos</th>
+                                    <th>Fecha</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let venta of ventas">
+                                    <td>
+                                        <button class="btn btn-info btn-sm" (click)="goToLink(venta.id)">
+                                            {{ venta.id }}
+                                        </button>
+                                    </td>
+                                    <td>{{ venta.no_venta }}</td>
+                                    <td>{{ venta.mkt_publicacion }}</td>
+                                    <td>
+                                        {{ venta.razon_social }} <br>
+                                        {{ venta.rfc }}
+                                    </td>
+                                    <td>{{ venta.fulfillment === 1 ? 'Sí' : 'No' }}</td>
+                                    <td>
+                                        <div *ngIf="venta.productos?.length > 0; else sinProductos">
+                                            <ul>
+                                                <li *ngFor="let producto of venta.productos">
+                                                    • {{ producto.descripcion }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <ng-template #sinProductos>
+                                            Sin productos registrados
+                                        </ng-template>
+                                    </td>
+                                    <td>{{ venta.created_at }}</td>
+                                    <td>
+                                        <button
+                                            class="btn btn-info btn-sm"
+                                            (click)="validarVenta(venta.id)"
+                                        >
+                                            Validar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

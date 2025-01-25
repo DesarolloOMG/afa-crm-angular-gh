@@ -1,0 +1,157 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="tipobusqueda"
+                                    id="tipobusqueda"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.tipo"
+                                    (change)="productos = []; rebuildTable()"
+                                >
+                                    <option value="transito">
+                                        Productos en transito
+                                    </option>
+                                    <option value="recepcionado">
+                                        Productos recepcionados
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                >Tipo de busqueda</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" *ngIf="busqueda.tipo == 'recepcionado'">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_inicial"
+                                    [(ngModel)]="busqueda.fecha_inicial"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                >Fecha de inicio</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_final"
+                                    [(ngModel)]="busqueda.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha final</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    #empresa="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.empresa"
+                                    (change)="cambiarEmpresa();productos = []; rebuildTable()" required>
+                                    <option value="" disabled></option>
+                                    <option value="{{ empresa.bd }}" *ngFor="let empresa of empresas">
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                                <small class="text-danger messages block" *ngIf="empresa.errors?.required">Campo requerido</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                placement="top"
+                                ngbTooltip="Buscar productos"
+                                (click)="getProductsInTransit()"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                placement="top"
+                                ngbTooltip="Descargar Excel"
+                                (click)="downloadFile()"
+                            >
+                                <i class="fa fa-file-excel fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="general_orden_compra_producto_transito"
+                >
+                    <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cantidad</th>
+                        <th>Costo</th>
+                        <th>Almacén</th>
+                        <th>Requisiciones</th>
+                        <th>ODC</th>
+                        <th>Fecha ODC</th>
+                        <th>ETA</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr *ngFor="let row of productos">
+                        <td>{{ row.codigo }}</td>
+                        <td>{{ row.descripcion }}</td>
+                        <td>{{ row.cantidad }}</td>
+                        <td class="no-wrap">
+                            $ {{ commaNumber(row.costo) }}
+                        </td>
+                        <td>{{ row.almacen }}</td>
+                        <td>
+                            {{ row.recepciones }}
+                        </td>
+                        <td>
+                            {{ row.odc }}
+                        </td>
+                        <td class="no-wrap">{{ row.created_at }}</td>
+                        <td>{{ row.arrived_at }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

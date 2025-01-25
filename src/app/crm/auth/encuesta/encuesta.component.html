@@ -1,0 +1,762 @@
+<section class="login-block">
+    <!-- Container-fluid starts -->
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <form class="md-float-material form-material" #f="ngForm">
+                    <div class="encuesta card">
+                        <div class="card-block">
+                            <div class="row m-b-20">
+                                <div class="col-md-12">
+                                    <h3 class="text-center txt-primary">Datos del trabajador</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Sexo</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-sexo"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.sexo" value="Masculino"
+                                                    required>
+                                                <i class="helper"></i>Masculino
+                                            </label>
+                                        </div>
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-sexo"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.sexo" value="Femenino">
+                                                <i class="helper"></i>Femenino
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Edad en años</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="15 - 19"
+                                                    required>
+                                                <i class="helper"></i>15 - 19
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="20 - 24">
+                                                <i class="helper"></i>20 - 24
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="25 - 29">
+                                                <i class="helper"></i>25 - 29
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="30 - 34">
+                                                <i class="helper"></i>30 - 34
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="35 - 39">
+                                                <i class="helper"></i>35 - 39
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="40 - 44">
+                                                <i class="helper"></i>40 - 44
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="45 - 49">
+                                                <i class="helper"></i>45 - 49
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="50 - 54">
+                                                <i class="helper"></i>50 - 54
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="55 - 59">
+                                                <i class="helper"></i>55 - 59
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="60 - 64">
+                                                <i class="helper"></i>60 - 64
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="65 - 69">
+                                                <i class="helper"></i>65 - 69
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-edad"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.edad" value="70 o más">
+                                                <i class="helper"></i>70 o más
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Estado civil</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-estado"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.estado" value="Casado"
+                                                    required>
+                                                <i class="helper"></i>Casado
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-estado"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.estado"
+                                                    value="Divorciado">
+                                                <i class="helper"></i>Divorciado
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-estado"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.estado" value="Soltero">
+                                                <i class="helper"></i>Soltero
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-estado"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.estado" value="Viudo">
+                                                <i class="helper"></i>Viudo
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-estado"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.estado"
+                                                    value="Unión libre">
+                                                <i class="helper"></i>Unión libre
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Nivel de estudios</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-nivel"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.nivel" value="Primaria"
+                                                    required>
+                                                <i class="helper"></i>Primaria
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-nivel"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.nivel" value="Secundaria"
+                                                    required>
+                                                <i class="helper"></i>Secundaria
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-nivel"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.nivel"
+                                                    value="Preparatoria o Bachillerato" required>
+                                                <i class="helper"></i>Preparatoria o Bachillerato
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-nivel"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.nivel"
+                                                    value="Técnico superior" required>
+                                                <i class="helper"></i>Técnico superior
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-nivel"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.nivel"
+                                                    value="Licenciatura" required>
+                                                <i class="helper"></i>Licenciatura
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-nivel"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.nivel" value="Maestría"
+                                                    required>
+                                                <i class="helper"></i>Maestría
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-nivel"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.nivel" value="Doctorado"
+                                                    required>
+                                                <i class="helper"></i>Doctorado
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-t-20">
+                                <label class="col-sm-2">Ocupación / Profesión / Puesto</label>
+                                <div class="col-md-9">
+                                    <div class="form-group form-primary">
+                                        <input type="text" name="trabajador-ocupacion" class="form-control"
+                                            [(ngModel)]="cuestionarios_data.trabajador.ocupacion" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-t-20">
+                                <label class="col-sm-2">Departamento</label>
+                                <div class="col-md-9">
+                                    <div class="form-group form-primary">
+                                        <input type="text" name="trabajador-departamento" class="form-control"
+                                            [(ngModel)]="cuestionarios_data.trabajador.departamento" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Tipo de puesto</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_puesto"
+                                                    value="Operativo" required>
+                                                <i class="helper"></i>Operativo
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_puesto"
+                                                    value="Supervisor">
+                                                <i class="helper"></i>Supervisor
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_puesto"
+                                                    value="Profesional o técnico">
+                                                <i class="helper"></i>Profesional o técnico
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_puesto"
+                                                    value="Gerente">
+                                                <i class="helper"></i>Gerente
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Tipo de contratación</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-contratacion"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_contratacion"
+                                                    value="Por obra o proyecto" required>
+                                                <i class="helper"></i>Por obra o proyecto
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-contratacion"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_contratacion"
+                                                    value="Tiempo indeterminado">
+                                                <i class="helper"></i>Tiempo indeterminado
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-contratacion"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_contratacion"
+                                                    value="Por tiempo determinado (temporal)">
+                                                <i class="helper"></i>Por tiempo determinado (temporal)
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-contratacion"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_contratacion"
+                                                    value="Honorarios">
+                                                <i class="helper"></i>Honorarios
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Tipo de personal</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-personal"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_personal"
+                                                    value="Sindicalizado" required>
+                                                <i class="helper"></i>Sindicalizado
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-personal"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_personal"
+                                                    value="Confianza">
+                                                <i class="helper"></i>Confianza
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tipo-personal"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tipo_personal"
+                                                    value="Ninguno">
+                                                <i class="helper"></i>Ninguno
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Realiza rotación de turnos</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-rotacion"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.rotacion" value="Sí"
+                                                    required>
+                                                <i class="helper"></i>Sí
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-rotacion"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.rotacion" value="No">
+                                                <i class="helper"></i>No
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Tiempo en el puesto actual</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="Menos de 6 meses" required>
+                                                <i class="helper"></i>Menos de 6 meses
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="Entre 6 meses y 1 año">
+                                                <i class="helper"></i>Entre 6 meses y 1 año
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="Entre 1 y 4 años">
+                                                <i class="helper"></i>Entre 1 y 4 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="Entre 5 y 9 años">
+                                                <i class="helper"></i>Entre 5 y 9 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="Entre 10 y 14 años">
+                                                <i class="helper"></i>Entre 10 y 14 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="Entre 15 y 19 años">
+                                                <i class="helper"></i>Entre 15 y 19 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="Entre 20 y 24 años">
+                                                <i class="helper"></i>Entre 20 y 24 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-puesto"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_puesto"
+                                                    value="25 años o más">
+                                                <i class="helper"></i>25 años o más
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success">
+                                <label class="col-sm-2">Tiempo experiencia laboral</label>
+                                <div class="col-sm-9">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="Menos de 6 meses" required>
+                                                <i class="helper"></i>Menos de 6 meses
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="Entre 6 meses y 1 año">
+                                                <i class="helper"></i>Entre 6 meses y 1 año
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="Entre 1 y 4 años">
+                                                <i class="helper"></i>Entre 1 y 4 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="Entre 5 y 9 años">
+                                                <i class="helper"></i>Entre 5 y 9 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="Entre 10 y 14 años">
+                                                <i class="helper"></i>Entre 10 y 14 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="Entre 15 y 19 años">
+                                                <i class="helper"></i>Entre 15 y 19 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="Entre 20 y 24 años">
+                                                <i class="helper"></i>Entre 20 y 24 años
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-tiempo-experiencia"
+                                                    [(ngModel)]="cuestionarios_data.trabajador.tiempo_experiencia"
+                                                    value="25 años o más">
+                                                <i class="helper"></i>25 años o más
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-b-40">
+                                <div class="col-md-12">
+                                    <h3 class="text-center txt-primary">Entorno organizacional</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success"
+                                *ngFor="let pregunta of cuestionarios_data.entorno; let index = index">
+                                <label class="col-sm-4">{{ pregunta.pregunta }}</label>
+                                <div class="col-sm-8">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-entorno-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.entorno[index].respuesta"
+                                                    value="Siempre" required>
+                                                <i class="helper"></i>Siempre
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-entorno-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.entorno[index].respuesta"
+                                                    value="Casi siempre">
+                                                <i class="helper"></i>Casi siempre
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-entorno-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.entorno[index].respuesta"
+                                                    value="Algunas veces">
+                                                <i class="helper"></i>Algunas veces
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-entorno-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.entorno[index].respuesta"
+                                                    value="Casi nunca">
+                                                <i class="helper"></i>Casi nunca
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-entorno-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.entorno[index].respuesta"
+                                                    value="Nunca">
+                                                <i class="helper"></i>Nunca
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-b-40">
+                                <div class="col-md-12">
+                                    <h3 class="text-center txt-primary">Percepcion de clima laboral</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success"
+                                *ngFor="let pregunta of cuestionarios_data.liderazgo.preguntas; let index = index">
+                                <label class="col-sm-4">{{ pregunta.pregunta }}</label>
+                                <div class="col-sm-8">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-liderazgo-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.liderazgo.preguntas[index].respuesta"
+                                                    value="Siempre" required>
+                                                <i class="helper"></i>Siempre
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-liderazgo-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.liderazgo.preguntas[index].respuesta"
+                                                    value="Casi siempre">
+                                                <i class="helper"></i>Casi siempre
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-liderazgo-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.liderazgo.preguntas[index].respuesta"
+                                                    value="Algunas veces">
+                                                <i class="helper"></i>Algunas veces
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-liderazgo-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.liderazgo.preguntas[index].respuesta"
+                                                    value="Casi nunca">
+                                                <i class="helper"></i>Casi nunca
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-liderazgo-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.liderazgo.preguntas[index].respuesta"
+                                                    value="Nunca">
+                                                <i class="helper"></i>Nunca
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-t-20">
+                                <label class="col-sm-4">Comentarios</label>
+                                <div class="col-md-8">
+                                    <div class="form-group form-primary">
+                                        <textarea class="form-control" name="trabajador-liderazgo-comentarios"
+                                            [(ngModel)]="cuestionarios_data.liderazgo.comentarios" style="resize: none;"
+                                            required></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row m-b-40">
+                                <div class="col-md-12">
+                                    <h3 class="text-center txt-primary">Acontecimiento traumatico severo</h3>
+                                </div>
+                            </div>
+
+                            <div class="form-group row has-success"
+                                *ngFor="let pregunta of cuestionarios_data.traumatico; let index = index"
+                                [hidden]="index > 0 && !ocultarPreguntasTraumatico()">
+                                <label class="col-sm-4">{{ pregunta.pregunta }}</label>
+                                <div class="col-sm-8">
+                                    <div class="form-radio">
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-traumatico-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.traumatico[index].respuesta"
+                                                    value="Sí">
+                                                <i class="helper"></i>Sí
+                                            </label>
+                                        </div>
+
+                                        <div class="radio radiofill radio-primary radio-inline">
+                                            <label>
+                                                <input type="radio" name="trabajador-traumatico-{{ index }}"
+                                                    [(ngModel)]="cuestionarios_data.traumatico[index].respuesta"
+                                                    value="No">
+                                                <i class="helper"></i>No
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <button class="btn btn-info btn-sm btn-block"
+                                        (click)="enviarFormulario($event)">Enviar
+                                        encuesta</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- end of col-sm-12 -->
+        </div>
+        <!-- end of row -->
+    </div>
+    <!-- end of container-fluid -->
+</section>

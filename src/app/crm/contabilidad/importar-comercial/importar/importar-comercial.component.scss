@@ -1,0 +1,53 @@
+table.dataTable {
+    tbody {
+        td.select-checkbox {
+            position: relative;
+            &:before {
+                display: block;
+                position: absolute;
+                top: 1.2em;
+                width: 16px;
+                height: 16px;
+                top: 50%;
+                box-sizing: border-box;
+                content: " ";
+                margin-top: -6px;
+                margin-left: -6px;
+                margin-bottom: 6px;
+                border: 1px solid black;
+                border-radius: 3px;
+            }
+            &:after {
+                display: block;
+                position: absolute;
+                top: 1.2em;
+                left: 50%;
+                width: 16px;
+                height: 16px;
+                top: 50%;
+                box-sizing: border-box;
+            }
+        }
+    }
+    table.dataTable tbody td {
+        vertical-align: middle;
+    }
+
+    th.dt-center,
+    td.dt-center {
+        text-align: center;
+    }
+
+    .table td,
+    .table th {
+        vertical-align: middle;
+    }
+
+    $color_1: white;
+    $color_2: red;
+
+    .cancelado {
+        color: $color_1;
+        background-color: $color_2;
+    }
+}

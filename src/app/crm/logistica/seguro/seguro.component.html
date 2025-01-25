@@ -1,0 +1,46 @@
+<div class="card">
+    <div class="card-header">
+        <button class="btn btn-info btn-sm http-disabled" (click)="descargarDocumento()" style="float: right">Descargar
+            documento</button>
+    </div>
+    <div class="card-block table-responsive">
+        <form class="md-float-material form-material" #f="ngForm">
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped" id="logistica_seguro">
+                        <thead>
+                            <tr>
+                                <th>Documento</th>
+                                <th>Guía</th>
+                                <th>Contenido</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let guia of guias; let index = index">
+                                <td>{{ guia.id_documento }}</td>
+                                <td>{{ guia.guia }}</td>
+                                <td>{{ guia.contenido }}</td>
+                                <td>
+                                    <div class="form-group form-primary">
+                                        <input type="number" name="total_guia_{{ index }}" class="form-control"
+                                            [(ngModel)]="guia.total" (change)="cambiarTotalGuia(guia.id, guia.total)">
+                                        <span class="form-bar"></span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                                <th>Total: </th>
+                                <th>$ {{ totalGuias() }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

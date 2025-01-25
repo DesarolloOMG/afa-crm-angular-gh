@@ -1,0 +1,267 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <h4 class="sub-title">Marketplace</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="area_busqueda"
+                            id="area_busqueda"
+                            class="form-control"
+                            (change)="onChangeArea()"
+                            [(ngModel)]="data.area"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ area.id }}"
+                                *ngFor="let area of areas"
+                            >
+                                {{ area.area }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="marketplace_busqueda"
+                            id="marketplace_busqueda"
+                            class="form-control"
+                            [(ngModel)]="data.marketplace"
+                        >
+                            <option value="" disabled selected></option>
+                            <option
+                                value="{{ marketplace.id }}"
+                                *ngFor="let marketplace of marketplaces"
+                            >
+                                {{ marketplace.marketplace }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Marketplace</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <button
+                        class="btn btn-outline-info btn-block btn-sm http-disabled"
+                        (click)="searchQuestions()"
+                        placement="top"
+                        ngbTooltip="Buscar preguntas"
+                    >
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20">
+                Preguntas agrupadas por publicación
+            </h4>
+
+            <div class="row">
+                <div
+                    class="col-md-3"
+                    *ngFor="
+                        let row of questionWithActiveItem();
+                        let index = index
+                    "
+                >
+                    <div class="row m-b-25">
+                        <div class="col-auto p-r-0">
+                            <img
+                                [src]="row.item_data.secure_thumbnail"
+                                class="img-fluid img-50"
+                            />
+                        </div>
+                        <div class="col">
+                            <h6 class="m-b-5">
+                                <a
+                                    href="{{ row.item_data.permalink }}"
+                                    target="_blank"
+                                    >{{ row.item_data.title }}</a
+                                >
+                            </h6>
+                        </div>
+                        <div class="col-md-12 m-t-10">
+                            <ngb-accordion
+                                #acc="ngbAccordion"
+                                *ngFor="let question of row.questions"
+                            >
+                                <ngb-panel>
+                                    <ng-template ngbPanelTitle>
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h5 class="text-primary">
+                                                    {{ question.text }}
+                                                </h5>
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <button
+                                                    class="btn btn-outline-danger btn-sm float-right"
+                                                    (click)="
+                                                        deleteQuestion(question)
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fa fa-trash fa-2x"
+                                                    ></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="col-md-2">
+                                                <button
+                                                    class="btn btn-outline-danger btn-sm float-right"
+                                                    (click)="
+                                                        blockUser(question)
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fa fa-user-slash fa-2x"
+                                                    ></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                    <ng-template ngbPanelContent>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h5 class="text-muted">
+                                                    {{
+                                                        question.user_data
+                                                            .nickname
+                                                    }}
+                                                </h5>
+                                            </div>
+
+                                            <div class="col-md-12">
+                                                <div class="right-icon-control">
+                                                    <div
+                                                        class="form-group form-primary"
+                                                    >
+                                                        <textarea
+                                                            class="form-control"
+                                                            name="respuesta_{{
+                                                                index
+                                                            }}"
+                                                            [(ngModel)]="
+                                                                question.answer
+                                                            "
+                                                        >
+                                                        </textarea>
+                                                        <span
+                                                            class="form-bar"
+                                                        ></span>
+                                                    </div>
+                                                    <div class="form-icon">
+                                                        <button
+                                                            class="btn btn-success btn-icon waves-effect waves-light"
+                                                            (click)="
+                                                                sendResponse(
+                                                                    question
+                                                                )
+                                                            "
+                                                            placement="top"
+                                                            ngbTooltip="Enviar respuesta"
+                                                        >
+                                                            <i
+                                                                class="fa fa-send"
+                                                            ></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="col-md-12"
+                                                *ngIf="
+                                                    filterPreviousQuestions(
+                                                        question
+                                                            .previous_questions
+                                                            .questions,
+                                                        question.id
+                                                    ).length > 0
+                                                "
+                                            >
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-outline-primary btn-sm"
+                                                            (click)="
+                                                                collapsePreviousQuestions(
+                                                                    question
+                                                                )
+                                                            "
+                                                            [attr.aria-expanded]="
+                                                                !collapsedUndefined(
+                                                                    question.collapsed
+                                                                )
+                                                            "
+                                                            aria-controls="collapseExample"
+                                                        >
+                                                            Ocultar/Mostrar
+                                                            preguntas anteriores
+                                                        </button>
+                                                    </div>
+
+                                                    <div
+                                                        class="col-md-12 m-t-10"
+                                                    >
+                                                        <div
+                                                            #collapse="ngbCollapse"
+                                                            [(ngbCollapse)]="
+                                                                question.collapsed
+                                                            "
+                                                        >
+                                                            <ul
+                                                                class="list-group"
+                                                            >
+                                                                <li
+                                                                    class="list-group-item"
+                                                                    *ngFor="
+                                                                        let previous_question of filterPreviousQuestions(
+                                                                            question
+                                                                                .previous_questions
+                                                                                .questions,
+                                                                            question.id
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    {{
+                                                                        previous_question.text
+                                                                    }}
+                                                                    <span
+                                                                        class="text-success"
+                                                                        *ngIf="
+                                                                            previous_question.status ==
+                                                                            'ANSWERED'
+                                                                        "
+                                                                        >{{
+                                                                            previous_question
+                                                                                .answer
+                                                                                .text
+                                                                        }}</span
+                                                                    >
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ng-template>
+                                </ngb-panel>
+                            </ngb-accordion>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

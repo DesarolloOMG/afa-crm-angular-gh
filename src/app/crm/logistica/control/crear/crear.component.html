@@ -1,0 +1,106 @@
+<form class="md-float-material form-material" #f="ngForm">
+    <div class="auth-box card">
+        <div class="card-block">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input type="text" name="cliente" class="form-control" required #cliente="ngModel"
+                            [(ngModel)]="data.cliente" pattern="[^'&quot;]+$">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Cliente</label>
+                        <small class="text-danger messages"
+                            *ngIf="(cliente.invalid && (cliente.dirty || cliente.touched))">No se permite el caracter '
+                            ó "</small>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20"></h4>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input type="text" name="guia" class="form-control" required #guia="ngModel"
+                            [(ngModel)]="data.guia" pattern="[^'&quot;]+$">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Guía</label>
+                        <small class="text-danger messages" *ngIf="(guia.invalid && (guia.dirty || guia.touched))">No se
+                            permite el caracter ' ó "</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select name="paqueteria" id="paqueteria" class="form-control" required
+                            [(ngModel)]="data.paqueteria">
+                            <option value="" disabled selected></option>
+                            <option value="{{ paqueteria.id }}" *ngFor="let paqueteria of paqueterias">
+                                {{ paqueteria.paqueteria }}</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Paquetería</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input type="text" name="contenido" class="form-control" required #contenido="ngModel"
+                            [(ngModel)]="data.contenido" pattern="[^'&quot;]+$">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Contenido</label>
+                        <small class="text-danger messages"
+                            *ngIf="(contenido.invalid && (contenido.dirty || contenido.touched))">No se permite el
+                            caracter ' ó "</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <textarea type="text" name="observaciones" class="form-control" required
+                            #observaciones="ngModel" [(ngModel)]="data.observaciones" pattern="[^'&quot;]+$"></textarea>
+                        <span class="form-bar"></span>
+                        <label class="float-label">observaciones</label>
+                        <small class="text-danger messages"
+                            *ngIf="(observaciones.invalid && (observaciones.dirty || observaciones.touched))">No se
+                            permite el caracter ' ó "</small>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <select name="usuario" id="usuario" class="form-control" [(ngModel)]="data.usuario"
+                            (change)="agregarUsuario()">
+                            <option value="" disabled></option>
+                            <option value="{{ usuario.id }}" *ngFor="let usuario of usuarios">{{ usuario.nombre }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Notificar usuario</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20"></h4>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <ul class="list-group">
+                        <li class="list-group-item" *ngFor="let notificado of data.notificados">{{ notificado.nombre }}
+                            <span class="badge bg-danger" style="cursor: pointer; float:right"
+                                (click)="borrarUsuario(notificado)">x</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-20"></h4>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary btn-md btn-block m-b-20 http-disabled"
+                        id="button_registrar" (click)="registrarLlegada()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

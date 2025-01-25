@@ -1,0 +1,420 @@
+<div class="card">
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="compra_compra_corroborar"
+                >
+                    <thead>
+                        <tr>
+                            <th>Folio</th>
+                            <th>Proveedor</th>
+                            <th>Total</th>
+                            <th>UUID</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let orden of ordenes">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm"
+                                    (click)="detalleVenta(modalventa, orden.id)"
+                                >
+                                    {{ orden.serie + " " + orden.folio }}
+                                </button>
+                            </td>
+                            <td>{{ orden.proveedor }}</td>
+                            <td>$ {{ orden.total }}</td>
+                            <td>{{ orden.uuid }}</td>
+                            <td>{{ orden.fase }}</td>
+                            <td>{{ orden.expired_at }}</td>
+                            <td>
+                                <button
+                                    class="btn btn-danger btn-sm"
+                                    (click)="cancelarDocumento(orden.id)"
+                                >
+                                    Cancelar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modalventa let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la venta</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Folio</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.folio }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Proveedor</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.rfc + " - " + data.proveedor }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Almacén</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ data.empresa + " - " + data.almacen }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Total</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>$ {{ data.total }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <form
+                        class="md-float-material form-material"
+                        autocomplete="off"
+                    >
+                        <div class="row m-t-20">
+                            <div class="col-md-5">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="pro_codigo_text"
+                                        id="pro_codigo_text"
+                                        class="form-control"
+                                        #procodigo="ngModel"
+                                        [(ngModel)]="producto.sku"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Código</label>
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            procodigo.invalid &&
+                                            (procodigo.dirty ||
+                                                procodigo.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="pro_codigo_text"
+                                        id="pro_codigo_text"
+                                        class="form-control"
+                                        #prodescripcion="ngModel"
+                                        [(ngModel)]="producto.descripcion"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Descripción</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            prodescripcion.invalid &&
+                                            (prodescripcion.dirty ||
+                                                prodescripcion.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="number"
+                                        name="pro_cantidad"
+                                        class="form-control"
+                                        #procantidad="ngModel"
+                                        [(ngModel)]="producto.cantidad"
+                                        pattern="[0-9]+$"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Cantidad</label>
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            procantidad.invalid &&
+                                            (procantidad.dirty ||
+                                                procantidad.touched)
+                                        "
+                                        >Solo se permiten valores
+                                        numericos</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm btn-block m-b-20"
+                                    (click)="agregarProducto()"
+                                    [disabled]="
+                                        producto.codigo == '' ||
+                                        producto.descripcion == '' ||
+                                        producto.cantidad < 1
+                                    "
+                                >
+                                    Agregar
+                                </button>
+                            </div>
+
+                            <div class="col-md-12">
+                                <small class="text-danger messages"
+                                    >Los precios mostrados en la tabla son SIN
+                                    IVA</small
+                                >
+                            </div>
+
+                            <div
+                                class="col-md-12 m-t-30 table-responsive border-checkbox-section"
+                            >
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Descripción</th>
+                                            <th>Cantidad</th>
+                                            <th>Cantidad Real</th>
+                                            <th></th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let row of data.productos;
+                                                let index = index;
+                                                trackBy: customTrackBy
+                                            "
+                                        >
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    name="codigo_producto_{{
+                                                        index
+                                                    }}"
+                                                    [(ngModel)]="row.sku"
+                                                />
+                                            </td>
+                                            <td>
+                                                <textarea
+                                                    class="form-control"
+                                                    name="descripcion_producto_{{
+                                                        index
+                                                    }}"
+                                                    [(ngModel)]="
+                                                        row.descripcion
+                                                    "
+                                                ></textarea>
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    name="cantidad_producto_{{
+                                                        index
+                                                    }}"
+                                                    [(ngModel)]="row.cantidad"
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    name="cantidad_real_producto_{{
+                                                        index
+                                                    }}"
+                                                    [(ngModel)]="
+                                                        row.cantidad_aceptada
+                                                    "
+                                                />
+                                            </td>
+                                            <td>
+                                                <button
+                                                    placement="top"
+                                                    ngbTooltip="Eliminar"
+                                                    type="button"
+                                                    class="btn btn-outline-danger btn-sm"
+                                                    (click)="
+                                                        data.productos.splice(
+                                                            index,
+                                                            1
+                                                        )
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fa fa-2x fa-trash"
+                                                    ></i>
+                                                </button>
+                                            </td>
+                                            <td
+                                                *ngIf="
+                                                    row.sku != 'TEMPORAL' &&
+                                                    row.existe
+                                                "
+                                            >
+                                                <button
+                                                    placement="top"
+                                                    ngbTooltip="Crear sinonimo"
+                                                    type="button"
+                                                    class="btn btn-outline-info btn-sm"
+                                                    (click)="
+                                                        modalSinonimos(row.id)
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fa fa-2x fa-equals"
+                                                    ></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        #seguimiento="ngModel"
+                        [(ngModel)]="final_data.seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        #seguimiento="ngModel"
+                        [(ngModel)]="final_data.seguimiento"
+                        [init]="tinymce_init"
+                    >
+                    </editor> -->
+                    <div
+                        *ngFor="let seguimiento of data.seguimiento"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2"></label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-info btn-sm btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="guardarDocumento()"
+                        [disabled]="data.productos.length == 0"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<ng-template #modalsinonimos let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Sinonimos</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material" autocomplete="off">
+            <div class="row m-t-20">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="sinonimo"
+                            class="form-control"
+                            [(ngModel)]="sinonimo"
+                            (keydown.enter)="agregarSinonimo()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Codigo</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <ul
+                        class="list-group"
+                        *ngIf="productoActualSinonimos().length"
+                    >
+                        <li
+                            class="list-group-item"
+                            *ngFor="
+                                let row of productoActualSinonimos();
+                                let index = index
+                            "
+                        >
+                            {{ row }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

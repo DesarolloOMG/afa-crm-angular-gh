@@ -1,0 +1,71 @@
+<div class="row">
+    <div
+        class="col-md-4"
+        *ngFor="let marketplace of marketplaces"
+        style="cursor: pointer"
+        (click)="
+            importarVentas(
+                marketplace.id,
+                marketplace.marketplace.toLowerCase(),
+                modal,
+                $event
+            )
+        "
+    >
+        <div class="card">
+            <div class="card-block">
+                <div class="row align-items-center m-l-0">
+                    <div class="col-auto">
+                        <h4>{{ marketplace.area }}</h4>
+                        <h4>{{ marketplace.marketplace }}</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="cargar_archivo"
+                            name="cargar_archivo"
+                            (change)="cargarArchivoMarketplace()"
+                            multiple
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Archivo</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button
+                        class="btn btn-info btn-sm btn-block http-disabled"
+                        (click)="makeRequest($event)"
+                        [disabled]="marketplace.ventas.length == 0"
+                    >
+                        Crear
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

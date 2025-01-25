@@ -1,0 +1,614 @@
+<div class="card">
+    <div class="card-header">
+        <h5>Solicitud de transferencias pendientes</h5>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="almacen_pretransferencia_autorizacion"
+                >
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Solicitante</th>
+                            <th>Observacion</th>
+                            <th>Almacén entrada</th>
+                            <th>Almacén salida</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let solicitud of solicitudes">
+                            <td>
+                                <button
+                                    class="btn btn-info btn-sm btn-block"
+                                    (click)="verDetalle(modal, solicitud.id)"
+                                >
+                                    {{ solicitud.id }}
+                                </button>
+                            </td>
+                            <td>{{ solicitud.nombre }}</td>
+                            <td>{{ solicitud.observacion }}</td>
+                            <td>{{ solicitud.almacen_entrada }}</td>
+                            <td>{{ solicitud.almacen_salida }}</td>
+                            <td>{{ solicitud.created_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Información de la solicitud</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Documento</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ detalle.id }}</h5>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                [hidden]="detalle.marketplace !== 'AMAZON'"
+            >
+                <label class="col-form-label col-sm-2">ID del envío</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{
+                            detalle.info_extra
+                                ? detalle.info_extra.id
+                                : "No especificado"
+                        }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Solicitante</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ detalle.nombre }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Observaciones</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ detalle.observacion }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2"
+                    >Almacén de entrada</label
+                >
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ detalle.almacen_entrada }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Almacén de salida</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ detalle.almacen_salida }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Productos</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <form
+                        class="md-float-material form-material"
+                        autocomplete="0"
+                    >
+                        <div class="row m-t-30">
+                            <div
+                                class="col-md-7"
+                                [hidden]="productos.length > 0"
+                            >
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="pro_codigo_text"
+                                        id="pro_codigo_text"
+                                        class="form-control"
+                                        #procodigotext="ngModel"
+                                        [(ngModel)]="producto.codigo_text"
+                                        pattern="[^'&quot;]+$"
+                                        (keyup.enter)="buscarProducto()"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Código / Descripción</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            procodigotext.invalid &&
+                                            (procodigotext.dirty ||
+                                                procodigotext.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="col-md-7"
+                                [hidden]="productos.length == 0"
+                            >
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="pro_codigo"
+                                        id="pro_codigo"
+                                        class="form-control"
+                                        [(ngModel)]="producto.sku"
+                                    >
+                                        <option
+                                            value=""
+                                            disabled
+                                            selected
+                                        ></option>
+                                        <option
+                                            value="{{ producto.sku }}"
+                                            *ngFor="let producto of productos"
+                                        >
+                                            {{
+                                                producto.sku +
+                                                    " - " +
+                                                    producto.producto
+                                            }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Codigo / Descripción</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm http-disabled"
+                                    (click)="buscarProducto()"
+                                    [disabled]="producto.codigo_text == ''"
+                                >
+                                    Buscar
+                                </button>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="number"
+                                        name="pro_cantidad"
+                                        class="form-control"
+                                        #procantidad="ngModel"
+                                        [(ngModel)]="producto.cantidad"
+                                        pattern="[0-9]+$"
+                                        maxlength="15"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Cantidad</label>
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            procantidad.invalid &&
+                                            (procantidad.dirty ||
+                                                procantidad.touched)
+                                        "
+                                        >Sólo caracteres númericos</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="procomentario"
+                                        class="form-control"
+                                        #procomentario="ngModel"
+                                        [(ngModel)]="producto.comentarios"
+                                        pattern="[^'&quot;]+$"
+                                        maxlength="200"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Comentario</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            procomentario.invalid &&
+                                            (procomentario.dirty ||
+                                                procomentario.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                                    (click)="agregarProducto()"
+                                    [disabled]="
+                                        producto.sku == '' ||
+                                        producto.cantidad < 1
+                                    "
+                                >
+                                    Agregar
+                                </button>
+                            </div>
+
+                            <div class="col-md-12 m-t-10">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Descripción</th>
+                                            <th>Cantidad</th>
+                                            <td>Disponible</td>
+                                            <td>Modificar</td>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let producto of detalle.productos;
+                                                let index = index
+                                            "
+                                        >
+                                            <td>{{ producto.sku }}</td>
+                                            <td>{{ producto.descripcion }}</td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    class="form-control"
+                                                    name="producto_cantidad_{{
+                                                        index
+                                                    }}"
+                                                    [(ngModel)]="
+                                                        producto.cantidad
+                                                    "
+                                                    [disabled]="
+                                                        !producto.modificar
+                                                    "
+                                                />
+                                            </td>
+                                            <td>
+                                                {{ producto.cantidad_aceptada }}
+                                            </td>
+                                            <td>
+                                                <ui-switch
+                                                    class="js-single"
+                                                    color="#4680ff"
+                                                    switchColor="#fff"
+                                                    size="medium"
+                                                    name="modificar_producto_{{
+                                                        index
+                                                    }}"
+                                                    id="modificar_producto_{{
+                                                        index
+                                                    }}"
+                                                    [(ngModel)]="
+                                                        producto.modificar
+                                                    "
+                                                ></ui-switch>
+                                            </td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-danger btn-sm"
+                                                    (click)="
+                                                        eliminarProducto(
+                                                            producto.sku
+                                                        )
+                                                    "
+                                                >
+                                                    Borrar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div
+                class="form-group group-div"
+                [hidden]="detalle.marketplace !== 'MERCADOLIBRE'"
+            >
+                <label class="col-form-label col-sm-2">Etiquetas</label>
+                <div class="col-sm-10 inline-block">
+                    <form
+                        class="md-float-material form-material"
+                        autocomplete="0"
+                    >
+                        <div class="row m-t-30">
+                            <div
+                                class="col-md-4"
+                                [hidden]="publicaciones.length > 0"
+                            >
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="pro_publicacion_text"
+                                        id="pro_publicacion_text"
+                                        class="form-control"
+                                        #propublicaciontext="ngModel"
+                                        [(ngModel)]="publicacion.text"
+                                        pattern="[^'&quot;]+$"
+                                        (keyup.enter)="buscarPublicacion()"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >ID / Titulo</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            propublicaciontext.invalid &&
+                                            (propublicaciontext.dirty ||
+                                                propublicaciontext.touched)
+                                        "
+                                        >No se permite el caracter ' ó "</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div
+                                class="col-md-4"
+                                [hidden]="publicaciones.length == 0"
+                            >
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="pro_publicacion_id"
+                                        id="pro_publicacion_id"
+                                        class="form-control"
+                                        [(ngModel)]="publicacion.id"
+                                        (change)="cambiarPublicacion()"
+                                    >
+                                        <option
+                                            value=""
+                                            selected
+                                            disabled
+                                        ></option>
+                                        <option
+                                            value="{{
+                                                publicacion.publicacion_id
+                                            }}"
+                                            *ngFor="
+                                                let publicacion of publicaciones
+                                            "
+                                        >
+                                            {{
+                                                publicacion.publicacion_id +
+                                                    " - " +
+                                                    publicacion.publicacion
+                                            }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Publicaciones</label
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-2">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm btn-block http-disabled"
+                                    (click)="buscarPublicacion()"
+                                    [disabled]="publicacion.text == ''"
+                                >
+                                    Buscar
+                                </button>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group form-primary">
+                                    <select
+                                        name="pro_publicacion_etiqueta"
+                                        id="pro_publicacion_etiqueta"
+                                        class="form-control"
+                                        [(ngModel)]="publicacion.etiqueta"
+                                    >
+                                        <option
+                                            value=""
+                                            selected
+                                            disabled
+                                        ></option>
+                                        <option
+                                            value="{{ etiqueta.id_etiqueta }}"
+                                            *ngFor="let etiqueta of etiquetas"
+                                        >
+                                            {{ etiqueta.valor }}
+                                        </option>
+                                    </select>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Etiqueta</label>
+                                </div>
+                            </div>
+
+                            <div class="col-md-3">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="number"
+                                        name="pro_publicacion_cantidad"
+                                        class="form-control"
+                                        #propublicacioncantidad="ngModel"
+                                        [(ngModel)]="publicacion.cantidad"
+                                        pattern="[0-9]+$"
+                                        maxlength="15"
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Cantidad</label>
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            propublicacioncantidad.invalid &&
+                                            (propublicacioncantidad.dirty ||
+                                                propublicacioncantidad.touched)
+                                        "
+                                        >Sólo caracteres númericos</small
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                                    (click)="agregarPublicacion()"
+                                >
+                                    Agregar
+                                </button>
+                            </div>
+
+                            <div class="col-md-12 m-t-30 table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Titulo</th>
+                                            <th>Variación</th>
+                                            <th>Cantidad</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let publicacion of detalle.publicaciones;
+                                                let index = index
+                                            "
+                                        >
+                                            <td>{{ publicacion.id }}</td>
+                                            <td>{{ publicacion.titulo }}</td>
+                                            <td>
+                                                {{ publicacion.etiqueta_text }}
+                                            </td>
+                                            <td>{{ publicacion.cantidad }}</td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-danger btn-sm"
+                                                    (click)="
+                                                        detalle.publicaciones.splice(
+                                                            index,
+                                                            1
+                                                        )
+                                                    "
+                                                >
+                                                    Borrar
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Seguimiento</label>
+                <div class="col-sm-10 inline-block">
+                    <app-new-editor
+                        class="m-t-20"
+                        name="seguimiento"
+                        [(ngModel)]="detalle.seguimiento"
+                    >
+                    </app-new-editor>
+                    <!-- <editor
+                        class="m-t-20"
+                        apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                        name="seguimiento"
+                        [(ngModel)]="detalle.seguimiento"
+                        [init]="tinymce_init"
+                    ></editor> -->
+                    <div
+                        *ngFor="let seguimiento of detalle.seguimiento_anterior"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Archivos</label>
+                <div class="col-sm-10 inline-block">
+                    <ul class="m-t-10" *ngIf="detalle.archivos.length > 0">
+                        <li *ngFor="let archivo of detalle.archivos">
+                            <i class="fa fa-{{ archivo.icon }}"></i>
+                            <span
+                                class="text-muted"
+                                (click)="verArchivo(archivo.dropbox)"
+                                style="cursor: pointer"
+                                >{{ archivo.nombre }}</span
+                            >
+                        </li>
+                    </ul>
+                    <h5 *ngIf="detalle.archivos.length == 0">Sin archivos</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Terminar</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-info btn-sm btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="guardarDocumento()"
+                        [disabled]="detalle.seguimiento == ''"
+                        id="guardar_documento"
+                    >
+                        Terminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

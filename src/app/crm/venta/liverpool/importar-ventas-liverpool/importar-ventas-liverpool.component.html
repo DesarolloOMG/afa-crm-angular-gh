@@ -1,0 +1,168 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <h4 class="sub-title">Marketplace</h4>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="empresa"
+                            id="empresa"
+                            required
+                            #empresa="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.empresa"
+                            (change)="cambiarEmpresa()"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ empresa.bd }}"
+                                *ngFor="let empresa of empresas"
+                            >
+                                {{ empresa.empresa }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Empresa</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="empresa.errors?.required"
+                        >Campo requerido</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="almacen"
+                            id="almacen"
+                            required
+                            #almacen="ngModel"
+                            class="form-control"
+                            [(ngModel)]="data.almacen"
+                        >
+                            <option value="" disabled></option>
+                            <option
+                                value="{{ almacen.id }}"
+                                *ngFor="let almacen of almacenes"
+                            >
+                                {{ almacen.almacen }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Almacén</label>
+                        <small
+                            class="text-danger messages block"
+                            *ngIf="almacen.errors?.required"
+                        >Campo requerido</small
+                        >
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group form-primary">
+                        <select
+                            name="venta-area"
+                            class="form-control"
+                            [(ngModel)]="data.area"
+                        >
+                            <option value="0" disabled selected>
+                                Seleccione Área
+                            </option>
+                            <option value="4">AROME</option>
+                            <option value="1">LTM</option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Área</label>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="form-group form-primary">
+                        <select
+                            disabled
+                            name="venta-marketplace"
+                            class="form-control"
+                            [(ngModel)]="data.marketplace"
+                        >
+                            <option value="16" selected>Liverpool</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <label style="display: block; font-size: 9pt">Excel</label>
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="importarExcel"
+                        [(ngModel)]="data.excel"
+                    ></ui-switch>
+                </div>
+            </div>
+            <br>
+
+            <div class="row" [hidden]="!data.excel">
+                <div class="col-md-9">
+                    <div class="form-group form-primary">
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="cargar_archivo"
+                            name="cargar_archivo"
+                            (change)="cargarArchivoExcel()"
+                            multiple
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Excel</label>
+                    </div>
+                </div>
+            </div>
+            <br>
+
+            <div class="row">
+                <button
+                    class="btn btn-sm btn-block btn-outline-info http-disabled"
+                    (click)="importOrders()"
+                    placement="top"
+                    ngbTooltip="Importar ventas"
+                >
+                    <i class="fa fa-file-import fa-2x"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h4 class="sub-title">Reporte de importación</h4>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="documentos_importar">
+                    <thead>
+                    <tr>
+                        <th>Numero</th>
+                        <th>Venta</th>
+                        <th>Orden del cliente</th>
+                        <th>Error</th>
+                        <th>Pedidos</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let venta of ventas; let i = index">
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ venta.no_venta }}</td>
+                        <td>{{ venta.descripcion }}</td>
+                        <td>{{ venta.ErrorMessage }}</td>
+                        <td>{{ venta.Documentos }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

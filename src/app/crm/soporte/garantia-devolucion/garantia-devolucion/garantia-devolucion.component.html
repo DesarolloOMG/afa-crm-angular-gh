@@ -1,0 +1,278 @@
+<div class="row">
+    <div class="col-sm-12">
+        <form class="md-float-material form-material" #f="ngForm">
+            <div class="auth-box card">
+                <div class="card-block">
+                    <h4 class="sub-title m-t-20">Información del documento</h4>
+
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="tipodocumento"
+                                    id="tipodocumento"
+                                    required
+                                    #tipodocumento="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.tipo"
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ tipo.id }}"
+                                        *ngFor="let tipo of tipos_documento"
+                                    >
+                                        {{ tipo.tipo }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Tipo de documento</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="tipodocumento.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-1">
+                            <div
+                                class="form-group form-primary"
+                                style="margin-top: -14px"
+                            >
+                                <label style="font-size: 11px; display: block"
+                                    >Parcial</label
+                                >
+                                <ui-switch
+                                    class="js-single"
+                                    color="#4680ff"
+                                    switchColor="#fff"
+                                    size="medium"
+                                    name="devolucion_parcial"
+                                    id="devolucion_parcial"
+                                    [disabled]="data.tipo == '1'"
+                                    [(ngModel)]="data.parcial"
+                                ></ui-switch>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="causa"
+                                    id="causa"
+                                    required
+                                    #causa="ngModel"
+                                    class="form-control"
+                                    [(ngModel)]="data.causa"
+                                >
+                                    <option value="" disabled selected></option>
+                                    <option
+                                        value="{{ causa.id }}"
+                                        *ngFor="let causa of causas_documento"
+                                    >
+                                        {{ causa.causa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Motivo</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="causa.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-5">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="venta"
+                                    class="form-control"
+                                    required
+                                    #venta="ngModel"
+                                    [(ngModel)]="data.venta"
+                                    pattern="[^'&quot;]+$"
+                                    (keyup.enter)="buscarVenta()"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Número de pedido CRM ó serie de
+                                    producto</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        venta.invalid &&
+                                        (venta.dirty || venta.touched)
+                                    "
+                                    >No se permite el caracter ' ó "</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-1">
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-sm btn-block m-t-10 http-disabled"
+                                (click)="buscarVenta()"
+                            >
+                                Buscar
+                            </button>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    name="reclamo"
+                                    class="form-control"
+                                    #reclamo="ngModel"
+                                    [(ngModel)]="data.reclamo"
+                                    pattern="[^'&quot;]+$"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Número de reclamo</label
+                                >
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="
+                                        reclamo.invalid &&
+                                        (reclamo.dirty || reclamo.touched)
+                                    "
+                                    >No se permite el caracter ' ó "</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form class="md-float-material form-material">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Descripción</th>
+                                            <th>Series</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let producto of data.productos;
+                                                let index = index
+                                            "
+                                        >
+                                            <td>{{ producto.sku }}</td>
+                                            <td>
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="descripcion_{{
+                                                            index
+                                                        }}"
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            producto.descripcion
+                                                        "
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div
+                                                    class="form-group form-primary"
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        name="series_{{
+                                                            index
+                                                        }}"
+                                                        class="form-control"
+                                                        [(ngModel)]="
+                                                            producto.series
+                                                        "
+                                                    />
+                                                    <span
+                                                        class="form-bar"
+                                                    ></span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+
+                    <h4 class="sub-title m-t-20">Seguimiento</h4>
+
+                    <div class="row m-t-20">
+                        <div class="col-md-12">
+                            <app-new-editor
+                                class="m-t-20"
+                                name="seguimiento"
+                                required
+                                #seguimiento="ngModel"
+                                [(ngModel)]="data.seguimiento"
+                            >
+                            </app-new-editor>
+                            <!-- <editor
+                                apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
+                                name="seguimiento"
+                                required
+                                #seguimiento="ngModel"
+                                [(ngModel)]="data.seguimiento"
+                                [init]="tinymce_init"
+                            >
+                            </editor> -->
+                            <small
+                                class="text-danger messages block"
+                                *ngIf="seguimiento.errors?.required"
+                                >Campo requerido</small
+                            >
+                        </div>
+                    </div>
+
+                    <h4 class="sub-title m-t-20">Archivos</h4>
+
+                    <div class="row m-t-20">
+                        <div class="col-md-12">
+                            <input
+                                type="file"
+                                class="form-control ngb-drop-zone text-center ripple light"
+                                id="archivos"
+                                (change)="agregarArchivo()"
+                                multiple
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row m-t-30">
+                        <div class="col-md-12">
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                                [disabled]="!f.valid || data.terminar == 0"
+                                (click)="crearDocumento($event)"
+                            >
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- end of col-sm-12 -->
+</div>
