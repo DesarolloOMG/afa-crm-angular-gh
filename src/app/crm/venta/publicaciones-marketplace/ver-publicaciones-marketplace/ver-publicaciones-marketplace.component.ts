@@ -6,16 +6,15 @@ import {
     ViewChild,
 } from '@angular/core';
 import { animate, style, transition, trigger } from '@angular/animations';
-import swal from 'sweetalert2';
-import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { commaNumber, swalErrorHttpResponse } from '@env/environment';
 import { VentaService } from '@services/http/venta.service';
 import { MercadolibreService } from '@services/http/mercadolibre.service';
-import { ErpService } from '@services/http/erp.service';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import swal from 'sweetalert2';
+
 @Component({
     selector: 'app-ver-publicaciones-marketplace',
     templateUrl: './ver-publicaciones-marketplace.component.html',
@@ -129,7 +128,6 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
     constructor(
         private ventaService: VentaService,
         private mercadolibreService: MercadolibreService,
-        private erpService: ErpService,
         private http: HttpClient,
         private modalService: NgbModal,
         private chRef: ChangeDetectorRef,
@@ -479,36 +477,6 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
         const company = this.companies.find(
             (company) => company.id == this.data.company
         );
-
-        this.erpService
-            .getProductBySKUorDescription(this.product.search, company.bd, true)
-            .subscribe(
-                (res: any) => {
-                    if (res.length) {
-                        this.products = [...res];
-
-                        return;
-                    }
-
-                    this.erpService
-                        .getProductBySKUorDescription(
-                            this.product.search,
-                            company.bd,
-                            false
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                this.products = [...res];
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     addProduct() {
@@ -1708,43 +1676,6 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
         const company = this.companiesML.find(
             (company) => company.id == this.dataML.company
         );
-
-        this.erpService
-            .getProductBySKUorDescription(
-                this.productML.search,
-                company.bd,
-                true
-            )
-            .subscribe(
-                (res: any) => {
-                    console.log(this.productML.search);
-                    console.log(company.bd);
-
-                    if (res.length) {
-                        this.productsML = [...res];
-
-                        return;
-                    }
-
-                    this.erpService
-                        .getProductBySKUorDescription(
-                            this.productML.search,
-                            company.bd,
-                            false
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                this.productsML = [...res];
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     addProductML() {

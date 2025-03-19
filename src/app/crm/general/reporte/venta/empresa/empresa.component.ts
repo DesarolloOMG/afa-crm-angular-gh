@@ -1,9 +1,5 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from './../../../../../../environments/environment';
-import { AuthService } from './../../../../../services/auth.service';
+import { backend_url, commaNumber } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -105,8 +101,7 @@ export class EmpresaComponent implements OnInit {
         if (this.data.empresa == '') {
             swal({
                 type: 'error',
-                html:
-                    'Favor de seleccionar una empresa para generar el reporte',
+                html: 'Favor de seleccionar una empresa para generar el reporte',
             });
 
             return;
@@ -115,8 +110,7 @@ export class EmpresaComponent implements OnInit {
         if (this.data.fecha_inicial == '' || this.data.fecha_inicial == '') {
             swal({
                 type: 'error',
-                html:
-                    'Favor de seleccionar un rango de fechas valido para generar el reporte.',
+                html: 'Favor de seleccionar un rango de fechas valido para generar el reporte.',
             });
 
             return;
@@ -137,104 +131,6 @@ export class EmpresaComponent implements OnInit {
             fecha_final_split[1] +
             '/' +
             fecha_final_split[0];
-
-        this.http
-            .get(
-                `${backend_url_erp}api/Reporte/Ventas/ResumenGeneral/${this.data.empresa}/rangofechas/De/${fecha_inicial}/Al/${fecha_final}`
-            )
-            .subscribe(
-                (res) => {
-                    this.informacion = {
-                        compras:
-                            Math.round(res['compras']['producto'] * 100) / 100,
-                        facturas: {
-                            timbradas: {
-                                producto:
-                                    Math.round(
-                                        res['facturas']['timbradas'][
-                                            'producto'
-                                        ] * 100
-                                    ) / 100,
-                                servicio:
-                                    Math.round(
-                                        res['facturas']['timbradas'][
-                                            'servicio'
-                                        ] * 100
-                                    ) / 100,
-                            },
-                            por_timbrar: {
-                                producto:
-                                    Math.round(
-                                        res['facturas']['no_timbradas'][
-                                            'producto'
-                                        ] * 100
-                                    ) / 100,
-                                servicio:
-                                    Math.round(
-                                        res['facturas']['no_timbradas'][
-                                            'servicio'
-                                        ] * 100
-                                    ) / 100,
-                            },
-                        },
-                        notas: {
-                            timbradas: {
-                                producto:
-                                    Math.round(
-                                        res['notas_credito']['timbradas'][
-                                            'producto'
-                                        ] * 100
-                                    ) / 100,
-                                servicio:
-                                    Math.round(
-                                        res['notas_credito']['timbradas'][
-                                            'servicio'
-                                        ] * 100
-                                    ) / 100,
-                            },
-                            por_timbrar: {
-                                producto:
-                                    Math.round(
-                                        res['notas_credito']['no_timbradas'][
-                                            'producto'
-                                        ] * 100
-                                    ) / 100,
-                                servicio:
-                                    Math.round(
-                                        res['notas_credito']['no_timbradas'][
-                                            'servicio'
-                                        ] * 100
-                                    ) / 100,
-                            },
-                        },
-                        titulos: res['agrupados'],
-                    };
-
-                    this.informacion.titulos.forEach((titulo) => {
-                        titulo.costo = titulo.costo * 1.16;
-
-                        titulo.utilidad = (
-                            ((titulo.timbrado +
-                                titulo.por_timbrar -
-                                titulo.costo) /
-                                titulo.costo) *
-                            100
-                        ).toFixed(2);
-                    });
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     descargarDetalle(tipo) {
@@ -248,8 +144,7 @@ export class EmpresaComponent implements OnInit {
         if (!this.data.fecha_inicial || !this.data.fecha_final) {
             return swal({
                 type: 'error',
-                html:
-                    'Selecciona una fecha de inicio y una fecha a fin para generar el reporte del detalle',
+                html: 'Selecciona una fecha de inicio y una fecha a fin para generar el reporte del detalle',
             });
         }
 

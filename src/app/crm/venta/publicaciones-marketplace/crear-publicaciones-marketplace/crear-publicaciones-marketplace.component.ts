@@ -2,7 +2,6 @@ import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { swalErrorHttpResponse } from '@env/environment';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '@services/auth.service';
-import { ErpService } from '@services/http/erp.service';
 import { MercadolibreService } from '@services/http/mercadolibre.service';
 import { VentaService } from '@services/http/venta.service';
 import {
@@ -40,7 +39,6 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
     constructor(
         private auth: AuthService,
         private ventaService: VentaService,
-        private erpService: ErpService,
         private spinner: NgxSpinnerService,
         private mercadolibreService: MercadolibreService,
         private modalService: NgbModal
@@ -372,36 +370,6 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
         const company = this.companies.find(
             (company) => company.id == this.data_productos.company
         );
-
-        this.erpService
-            .getProductBySKUorDescription(this.product.search, company.bd, true)
-            .subscribe(
-                (res: any) => {
-                    if (res.length) {
-                        this.products = [...res];
-
-                        return;
-                    }
-
-                    this.erpService
-                        .getProductBySKUorDescription(
-                            this.product.search,
-                            company.bd,
-                            false
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                this.products = [...res];
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     getVariationNameByID(variation_id) {

@@ -4,10 +4,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { animate, style, transition, trigger } from '@angular/animations';
 import swal from 'sweetalert2';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import {
-    backend_url,
-    backend_url_erp,
-} from '../../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 
 @Component({
     selector: 'app-ingresosegresos',
@@ -134,56 +131,5 @@ export class IngresosegresosComponent implements OnInit {
 
         var find = this.fechaFormato(this.busqueda.fecha_final.split('-'));
         // 27/06/2023
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/PendientesAplicar/${this.busqueda.empresa}/${this.current_tab}/rangofechas/De/${inid}/Al/${find}`
-            )
-            .subscribe(
-                (res) => {
-                    this.pendientes = [];
-
-                    //Obtener las notas
-                    Object.values(res).forEach((element) => {
-                        this.pendientes.push(element);
-                    });
-                    //Cambiar $ a 2 decimales y fecha formatear
-                    this.pendientes.forEach((element) => {
-                        element.monto = element.monto.toFixed(2);
-                        element.fecha = this.fechaFormato(
-                            element.fecha.split('-')
-                        );
-                        if (this.current_tab == 'Ingresos') {
-                            //obtenber el Numero de documento
-                            const matches = element.descripcion
-                                .toString()
-                                .match(/\d{6,10}/g);
-                            if (matches) {
-                                element.descripcion = matches[0]; // ordem1
-                            }
-                        }
-                    });
-
-                    this.rebuildTable();
-                    if (this.pendientes.length <= 0) {
-                        return swal({
-                            type: 'warning',
-                            html: 'No hay datos para mostrar.',
-                        });
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 }

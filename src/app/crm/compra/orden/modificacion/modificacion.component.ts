@@ -1,10 +1,6 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from './../../../../../environments/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
@@ -151,46 +147,6 @@ export class ModificacionComponent implements OnInit {
                 }
             }
         });
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/RFC/${this.data.proveedor.rfc}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length == 0) {
-                        swal(
-                            '',
-                            'No se encontró el proveedor de la compra en el ERP.',
-                            'error'
-                        );
-
-                        return;
-                    }
-
-                    this.proveedores = Object.values(res);
-
-                    this.proveedores.forEach((proveedor) => {
-                        if (proveedor.rfc == this.data.proveedor.rfc) {
-                            this.data.proveedor.id = proveedor.idproveedor;
-
-                            this.cambiarProveedor();
-                        }
-                    });
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
 
         this.modalReference = this.modalService.open(
             this.modaldetalledocumento,
@@ -372,35 +328,6 @@ export class ModificacionComponent implements OnInit {
 
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/Razon/${this.proveedor_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length == 0) {
-                        swal('', 'Razón social no encontrada', 'error');
-
-                        return;
-                    }
-
-                    this.proveedor_text = '';
-                    this.proveedores = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     buscarProducto() {
@@ -426,65 +353,6 @@ export class ModificacionComponent implements OnInit {
         }
 
         if (!this.producto.text) return;
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${this.producto.text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.producto.codigo = this.producto.text;
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${this.data.empresa}/${this.producto.text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    swal(
-                                        '',
-                                        'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                        'error'
-                                    );
-
-                                    return;
-                                }
-
-                                this.productos = Object.values(res);
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarProducto() {
@@ -518,46 +386,7 @@ export class ModificacionComponent implements OnInit {
     }
 
     async existeProducto(codigo) {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${codigo}`
-                )
-                .subscribe(
-                    (res: any) => {
-                        const productos = this.data.productos.filter(
-                            (producto) => producto.codigo == codigo
-                        );
-
-                        const existe =
-                            Object.values(res).length > 0 ? true : false;
-
-                        productos.map((producto) => {
-                            producto.existe = existe;
-
-                            if (Object.values(res).length > 0) {
-                                producto.descripcion = res[0].producto;
-                            }
-                        });
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        resolve(1);
-                    }
-                );
-        });
+        return new Promise((resolve, reject) => {});
     }
 
     cambiarProveedor() {

@@ -1,9 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-} from './../../../../environments/environment';
-import { AuthService } from './../../../services/auth.service';
+import { backend_url } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -129,74 +126,6 @@ export class ClienteComponent implements OnInit {
                     }
                 );
         });
-
-        await new Promise((resolve, reject) => {
-            this.http.get(`${backend_url_erp}api/adminpro/Paises`).subscribe(
-                (res) => {
-                    this.paises = Object.values(res);
-
-                    resolve(1);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-
-                    reject();
-                }
-            );
-        });
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consulta/RegimenFiscal/v4/${this.cliente.empresa}`
-            )
-            .subscribe(
-                (res) => {
-                    this.regimenes = [...Object.values(res)];
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/CondicionPago/${this.cliente.empresa}`
-            )
-            .subscribe(
-                (res) => {
-                    this.condiciones = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     buscarCliente() {

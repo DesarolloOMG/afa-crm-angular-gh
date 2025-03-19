@@ -1,6 +1,6 @@
-import { backend_url, backend_url_erp, commaNumber } from './../../../../../environments/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
@@ -8,10 +8,9 @@ import swal from 'sweetalert2';
 @Component({
     selector: 'app-ingreso',
     templateUrl: './ingreso.component.html',
-    styleUrls: ['./ingreso.component.scss']
+    styleUrls: ['./ingreso.component.scss'],
 })
 export class IngresoComponent implements OnInit {
-
     empresas_usuario: any[] = [];
     empresas: any[] = [];
 
@@ -20,69 +19,86 @@ export class IngresoComponent implements OnInit {
     commaNumber = commaNumber;
 
     data = {
-        empresa: "7",
+        empresa: '7',
         entidad: {
-            tipo: "",
-            input: "",
-            select: ""
+            tipo: '',
+            input: '',
+            select: '',
         },
-        fecha_inicio: "",
-        fecha_final: "",
+        fecha_inicio: '',
+        fecha_final: '',
         facturas: [],
-        excel: ""
-    }
+        excel: '',
+    };
 
-    constructor(private http: HttpClient, private router: Router, private chRef: ChangeDetectorRef, private auth: AuthService) {
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private chRef: ChangeDetectorRef,
+        private auth: AuthService
+    ) {
         this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
     }
 
     ngOnInit() {
         if (this.empresas_usuario.length == 0) {
-            swal("", "No tienes empresas asignadas, favor de contactar a un administrador.", "error").then(() => {
+            swal(
+                '',
+                'No tienes empresas asignadas, favor de contactar a un administrador.',
+                'error'
+            ).then(() => {
                 this.router.navigate(['/dashboard']);
             });
 
             return;
         }
 
-        this.http.get(`${backend_url}contabilidad/facturas/saldo/data`)
+        this.http
+            .get(`${backend_url}contabilidad/facturas/saldo/data`)
             .subscribe(
-                res => {
+                (res) => {
                     this.empresas = res['empresas'];
 
                     this.empresas.forEach((empresa, index) => {
-                        if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
+                        if (
+                            $.inArray(empresa.id, this.empresas_usuario) == -1
+                        ) {
                             this.empresas.splice(index, 1);
-                        }
-                        else {
+                        } else {
                             if (this.empresas_usuario.length == 1) {
                                 if (empresa.id == this.empresas_usuario[0]) {
-                                    this.data.empresa = empresa.bd
+                                    this.data.empresa = empresa.bd;
                                 }
                             }
                         }
                     });
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     buscarEntidad() {
         if (!this.data.empresa) {
-            swal("", "Selecciona una empresa.", "error");
+            swal('', 'Selecciona una empresa.', 'error');
 
             return;
         }
 
         if (this.entidades.length > 0) {
             this.entidades = [];
-            this.data.entidad.input = "";
-            this.data.entidad.select = "";
+            this.data.entidad.input = '';
+            this.data.entidad.select = '';
 
             return;
         }
@@ -90,76 +106,69 @@ export class IngresoComponent implements OnInit {
         if (!this.data.entidad.input) {
             return;
         }
-
-        this.http.get(`${backend_url_erp}api/adminpro/Consultas/Clientes/${this.data.empresa}/Razon/${encodeURIComponent(this.data.entidad.input.toUpperCase())}`)
-            .subscribe(
-                res => {
-                    if (Object.values(res).length == 0) {
-                        swal("", "No se encontró ningún cliente.", "error");
-
-                        return;
-                    }
-
-                    Object.values(res).forEach(entidad => {
-                        this.entidades.push({
-                            id: entidad.id,
-                            rfc: entidad.rfc,
-                            razon_social: entidad.nombre_oficial
-                        });
-                    });
-                },
-                response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
-                });
     }
 
     generarReporte() {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.data));
 
-        this.http.post(`${backend_url}contabilidad/estado/ingreso/reporte`, form_data)
+        this.http
+            .post(
+                `${backend_url}contabilidad/estado/ingreso/reporte`,
+                form_data
+            )
             .subscribe(
-                res => {
+                (res) => {
                     if (res['code'] != 200) {
-                        swal("", res['message'], "error");
+                        swal('', res['message'], 'error');
 
                         return;
                     }
 
                     this.data.excel = res['excel'];
 
-                    const dataURI = "data:application/vnd.ms-excel;base64, " + res['excel'];
-                    const a = window.document.createElement("a");
-                    const nombre_archivo = "ESTADO_CUENTA_" + $("#select_entidad option:selected").text() + ".xlsx";
+                    const dataURI =
+                        'data:application/vnd.ms-excel;base64, ' + res['excel'];
+                    const a = window.document.createElement('a');
+                    const nombre_archivo =
+                        'ESTADO_CUENTA_' +
+                        $('#select_entidad option:selected').text() +
+                        '.xlsx';
 
                     a.href = dataURI;
                     a.download = nombre_archivo;
-                    a.setAttribute("id", "etiqueta_descargar");
+                    a.setAttribute('id', 'etiqueta_descargar');
 
                     a.click();
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     descargarReporte() {
-        let dataURI = "data:application/vnd.ms-excel;base64, " + this.data.excel;
+        let dataURI =
+            'data:application/vnd.ms-excel;base64, ' + this.data.excel;
 
-        let a = window.document.createElement("a");
-        let nombre_archivo = "ESTADO_CUENTA_" + $("#select_entidad option:selected").text() + ".xlsx";
+        let a = window.document.createElement('a');
+        let nombre_archivo =
+            'ESTADO_CUENTA_' +
+            $('#select_entidad option:selected').text() +
+            '.xlsx';
 
         a.href = dataURI;
         a.download = nombre_archivo;
-        a.setAttribute("id", "etiqueta_descargar");
+        a.setAttribute('id', 'etiqueta_descargar');
 
         a.click();
     }

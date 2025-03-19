@@ -1,10 +1,6 @@
-import {
-    backend_url,
-    backend_url_erp,
-    tinymce_init,
-} from './../../../../../../environments/environment';
+import { backend_url, tinymce_init } from '@env/environment';
 import { Component, OnInit, Renderer2, ChangeDetectorRef } from '@angular/core';
-import { AuthService } from './../../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -230,25 +226,23 @@ export class PedidoComponent implements OnInit {
             );
 
         //nueva url
-        this.http
-            .get('http://201.7.208.53:11903/api/Bancos')
-            .subscribe(
-                (res) => {
-                    this.razones = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
+        this.http.get('http://201.7.208.53:11903/api/Bancos').subscribe(
+            (res) => {
+                this.razones = Object.values(res);
+            },
+            (response) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        response.status == 0
+                            ? response.message
+                            : typeof response.error === 'object'
+                            ? response.error.error_summary
+                            : response.error,
+                });
+            }
+        );
     }
 
     detalleVenta(modal, id_venta) {
@@ -325,48 +319,6 @@ export class PedidoComponent implements OnInit {
         };
 
         this.seguimiento_anterior = venta.seguimiento_garantia;
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Bancos/${venta.bd}`)
-            .subscribe(
-                (res) => {
-                    this.bancos = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/CobroCliente/Destino/${venta.bd}/EntidadDestino/1`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
 
         this.modalReference = this.modalService.open(modal, {
             size: 'lg',
@@ -468,142 +420,6 @@ export class PedidoComponent implements OnInit {
         const bd = this.empresas.find(
             (empresa) => empresa.id == this.data.empresa
         ).bd;
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${bd}/${this.producto.codigo_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.productos = Object.values(res);
-                    } else {
-                        this.http
-                            .get(
-                                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${bd}/${this.producto.codigo_text}`
-                            )
-                            .subscribe(
-                                (res) => {
-                                    if (Object.values(res).length == 0) {
-                                        var form_data = new FormData();
-                                        form_data.append(
-                                            'data',
-                                            this.producto.codigo_text
-                                        );
-
-                                        this.http
-                                            .post(
-                                                `${backend_url}compra/producto/sinonimo/sinonimo`,
-                                                form_data
-                                            )
-                                            .subscribe(
-                                                (res) => {
-                                                    if (
-                                                        res['sinonimo']
-                                                            .length != 0
-                                                    ) {
-                                                        this.http
-                                                            .get(
-                                                                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${bd}/${res['sinonimo']}`
-                                                            )
-                                                            .subscribe(
-                                                                (res) => {
-                                                                    if (
-                                                                        Object.values(
-                                                                            res
-                                                                        )
-                                                                            .length ==
-                                                                        0
-                                                                    ) {
-                                                                        return swal(
-                                                                            {
-                                                                                type: 'error',
-                                                                                html: 'No se encontró el producto, favor de revisar la información e intentar de nuevo',
-                                                                            }
-                                                                        );
-                                                                    }
-
-                                                                    this.productos =
-                                                                        Object.values(
-                                                                            res
-                                                                        );
-                                                                },
-                                                                (response) => {
-                                                                    swal({
-                                                                        title: '',
-                                                                        type: 'error',
-                                                                        html:
-                                                                            response.status ==
-                                                                            0
-                                                                                ? response.message
-                                                                                : typeof response.error ===
-                                                                                  'object'
-                                                                                ? response
-                                                                                      .error
-                                                                                      .error_summary
-                                                                                : response.error,
-                                                                    });
-                                                                }
-                                                            );
-
-                                                        return;
-                                                    }
-
-                                                    swal({
-                                                        type: 'error',
-                                                        html: 'No se encontró el producto, favor de revisar la información e intentar de nuevo',
-                                                    });
-                                                },
-                                                (response) => {
-                                                    swal({
-                                                        title: '',
-                                                        type: 'error',
-                                                        html:
-                                                            response.status == 0
-                                                                ? response.message
-                                                                : typeof response.error ===
-                                                                  'object'
-                                                                ? response.error
-                                                                      .error_summary
-                                                                : response.error,
-                                                    });
-                                                }
-                                            );
-
-                                        return;
-                                    }
-
-                                    this.productos = Object.values(res);
-                                },
-                                (response) => {
-                                    swal({
-                                        title: '',
-                                        type: 'error',
-                                        html:
-                                            response.status == 0
-                                                ? response.message
-                                                : typeof response.error ===
-                                                  'object'
-                                                ? response.error.error_summary
-                                                : response.error,
-                                    });
-                                }
-                            );
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarProducto() {
@@ -872,33 +688,6 @@ export class PedidoComponent implements OnInit {
         if (!codigo) {
             return;
         }
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Consultas/CP/${codigo}`)
-            .subscribe(
-                (res) => {
-                    if (res['code'] == 200) {
-                        this.data.documento.direccion_envio.estado =
-                            res['estado'][0].estado;
-                        this.data.documento.direccion_envio.ciudad =
-                            res['municipio'][0].municipio;
-
-                        this.colonias_e = res['colonia'];
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     restartObjects() {

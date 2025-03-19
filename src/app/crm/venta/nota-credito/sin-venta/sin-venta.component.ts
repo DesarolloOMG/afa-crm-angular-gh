@@ -2,7 +2,6 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import {
     backend_url,
-    backend_url_erp,
     commaNumber,
     backend_url_password,
     swalErrorHttpResponse,
@@ -12,7 +11,6 @@ import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import { AuthService } from '@services/auth.service';
 import * as moment from 'moment';
 import { VentaService } from '@services/http/venta.service';
-import { ErpService } from '@services/http/erp.service';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -76,7 +74,6 @@ export class SinVentaComponent implements OnInit {
         private http: HttpClient,
         private auth: AuthService,
         private ventaService: VentaService,
-        private erpService: ErpService,
         private datePipe: DatePipe
     ) {
         this.usuario = JSON.parse(this.auth.userData().sub);
@@ -129,51 +126,6 @@ export class SinVentaComponent implements OnInit {
             const empresa = this.empresas.find(
                 (empresa) => empresa.id == this.data.empresa
             );
-
-            this.erpService
-                .getCustomerByNameOrRFC(
-                    empresa.bd,
-                    this.data.cliente.busqueda.toUpperCase(),
-                    true
-                )
-                .subscribe(
-                    (res: any) => {
-                        if (!Object.values(res).length) {
-                            return this.erpService
-                                .getCustomerByNameOrRFC(
-                                    empresa.bd,
-                                    this.data.cliente.busqueda.toUpperCase(),
-                                    false
-                                )
-                                .subscribe(
-                                    (res: any) => {
-                                        if (!Object.values(res).length) {
-                                            resolve(1);
-
-                                            return swal({
-                                                type: 'error',
-                                                html: 'No se encontró ningun cliente',
-                                            });
-                                        }
-
-                                        this.clientes = [...Object.values(res)];
-                                        resolve(1);
-                                    },
-                                    (err: any) => {
-                                        swalErrorHttpResponse(err);
-                                        resolve(1);
-                                    }
-                                );
-                        }
-
-                        this.clientes = [...Object.values(res)];
-                        resolve(1);
-                    },
-                    (err: any) => {
-                        swalErrorHttpResponse(err);
-                        resolve(1);
-                    }
-                );
         });
     }
 
@@ -233,61 +185,6 @@ export class SinVentaComponent implements OnInit {
         const empresa = this.empresas.find(
             (empresa) => empresa.id == this.data.empresa
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${empresa.bd}/${this.producto.busqueda}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.productos = [...Object.values(res)];
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${empresa.bd}/${this.producto.busqueda}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    return swal({
-                                        type: 'error',
-                                        html: 'No se obtuvieron resultados de la búsqueda',
-                                    });
-                                }
-
-                                this.productos = [...Object.values(res)];
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarProducto() {
@@ -442,62 +339,6 @@ export class SinVentaComponent implements OnInit {
                     });
                 }
             );
-        //     // form_data.append('bd', empresa.bd);
-        //     // form_data.append('password', backend_url_password);
-        //     // form_data.append('serie', this.data.serie);
-        //     // form_data.append('fecha', moment().format('YYYY-MM-DD HH:mm:ss'));
-        //     // form_data.append('cliente', this.data.cliente.id);
-        //     // form_data.append('titulo', this.data.titulo);
-        //     // form_data.append('almacen', almacen.id_erp);
-        //     // form_data.append('divisa', this.data.moneda);
-        //     // form_data.append('tipo_cambio', String(this.data.tc));
-        //     // form_data.append('condicion_pago', this.data.periodo);
-        //     // form_data.append(
-        //     //     'metodo_pago',
-        //     //     this.data.periodo == '1' ? 'PUE' : 'PPD'
-        //     // );
-        //     // form_data.append('forma_pago', this.data.metodo_pago);
-        //     // form_data.append('uso_cfdi', this.data.uso_cfdi);
-        //     // form_data.append(
-        //     //     'comentarios',
-        //     //     `Nota de credito generada desde CRM por el usuario ${this.usuario.nombre}`
-        //     // );
-        //     // form_data.append('productos', JSON.stringify(this.data.productos));
-
-        //     // this.http
-        //     //     .post(
-        //     //         `${backend_url_erp}api/adminpro/cliente/notacredito/insertar/UTKFJKkk3mPc8LbJYmy6KO1ZPgp7Xyiyc1DTGrw`,
-        //     //         form_data
-        //     //     )
-        //     //     .subscribe(
-        //     //         (res: any) => {
-        //     //             if (res.error != '0') {
-        //     //                 return swal({
-        //     //                     type: 'error',
-        //     //                     html: res.mensaje,
-        //     //                 });
-        //     //             }
-
-        //     //             swal({
-        //     //                 type: 'success',
-        //     //                 html: `Nota de credito creada correctamente con el folio y serie ${this.data.serie} ${res.id}`,
-        //     //             });
-
-        //     //             this.clearData();
-        //     //         },
-        //     //         (response) => {
-        //     //             swal({
-        //     //                 title: '',
-        //     //                 type: 'error',
-        //     //                 html:
-        //     //                     response.status == 0
-        //     //                         ? response.message
-        //     //                         : typeof response.error === 'object'
-        //     //                         ? response.error.error_summary
-        //     //                         : response.error,
-        //     //             });
-        //     //         }
-        //     //     );
     }
 
     getInvoiceData() {
@@ -510,74 +351,6 @@ export class SinVentaComponent implements OnInit {
         const company = this.empresas.find(
             (empresa) => empresa.id == this.data.empresa
         );
-
-        this.erpService
-            .getInvoiceDataByFolio(this.invoice, company.bd)
-            .subscribe(
-                async (res: any) => {
-                    const factura_data =
-                        res.constructor === Array ? res[0] : res;
-
-                    if (!factura_data)
-                        return swal({
-                            type: 'error',
-                            html: 'No se encontró ninguna factura con el folio proporcionado',
-                        });
-
-                    const almacen = this.almacenes.find(
-                        (a) => a.id_erp == factura_data.almacenid
-                    );
-
-                    const metodo_pago = this.metodos_pago.find((m) =>
-                        m.metodo_pago.includes(factura_data.formapago)
-                    );
-
-                    const condicion_pago = this.periodos.find(
-                        (p) => p.periodo == factura_data.condicionpago
-                    );
-
-                    const moneda = this.monedas.find(
-                        (m) => m.moneda == factura_data.moneda
-                    );
-
-                    this.data = {
-                        serie: factura_data.serie,
-                        titulo: 'Nota de credito ',
-                        empresa: this.data.empresa,
-                        cliente: {
-                            id: factura_data.empresaid,
-                            busqueda: factura_data.rfc,
-                            razon_social: '',
-                            rfc: '',
-                            telefono: '',
-                            email: '',
-                        },
-                        almacen: almacen ? almacen.id : '',
-                        periodo: condicion_pago ? condicion_pago.id : '',
-                        uso_cfdi: factura_data.usocfdi,
-                        metodo_pago: metodo_pago ? metodo_pago.id : '',
-                        moneda: moneda ? moneda.id : '',
-                        tc: factura_data.tc,
-                        productos: [],
-                    };
-
-                    factura_data.documento_productos.map((p) => {
-                        this.data.productos.push({
-                            busqueda: '',
-                            codigo: p.sku,
-                            descripcion: p.producto,
-                            cantidad: p.cantidad,
-                            precio: p.precio * 1.16,
-                        });
-                    });
-
-                    await this.buscarCliente();
-                    this.cambiarCliente();
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     totalDocumento() {

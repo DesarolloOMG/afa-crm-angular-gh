@@ -1,12 +1,11 @@
 import {
     backend_url,
-    backend_url_erp,
     swalErrorHttpResponse,
     tinymce_init,
-} from './../../../../../environments/environment';
+} from '@env/environment';
 import { Component, OnInit, ViewChild, Renderer2 } from '@angular/core';
 import { VentaService } from '@services/http/venta.service';
-import { AuthService } from './../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -246,46 +245,6 @@ export class EditarComponent implements OnInit {
                 });
             }
         );
-
-        this.http.get(`${backend_url_erp}api/Bancos`).subscribe(
-            (res) => {
-                this.razones = Object.values(res);
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consulta/RegimenFiscal/v4/${this.data.empresa}`
-            )
-            .subscribe(
-                (res) => {
-                    this.regimenes = [...Object.values(res)];
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     buscarDocumento() {
@@ -419,77 +378,6 @@ export class EditarComponent implements OnInit {
                         this.data.empresa_externa != ''
                             ? this.data.empresa_externa
                             : this.data.empresa;
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/Consultas/Clientes/${empresa}/RFC/${$.trim(
-                                this.data.cliente.rfc
-                            )}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length > 0) {
-                                    this.data.cliente.credito_disponible =
-                                        res[0].credito_disponible;
-                                } else {
-                                    this.data.cliente.credito_disponible = 0;
-                                }
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-
-                    this.http
-                        .get(`${backend_url_erp}api/adminpro/Bancos/${empresa}`)
-                        .subscribe(
-                            (res) => {
-                                this.bancos = Object.values(res);
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/Consultas/CobroCliente/Destino/${empresa}/EntidadDestino/1`
-                        )
-                        .subscribe(
-                            (res) => {
-                                this.cuentas = Object.values(res);
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
                 },
                 (response) => {
                     swal({
@@ -570,64 +458,6 @@ export class EditarComponent implements OnInit {
 
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${this.producto.codigo_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${this.data.empresa}/${this.producto.codigo_text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length > 0) {
-                                    this.productos = Object.values(res);
-
-                                    return;
-                                }
-
-                                swal(
-                                    '',
-                                    'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                    'error'
-                                );
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarProducto() {
@@ -941,33 +771,6 @@ export class EditarComponent implements OnInit {
         if (!codigo || codigo == null) {
             return;
         }
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Consultas/CP/${codigo}`)
-            .subscribe(
-                (res) => {
-                    if (res['code'] == 200) {
-                        this.data.documento.direccion_envio.estado =
-                            res['estado'][0].estado;
-                        this.data.documento.direccion_envio.ciudad =
-                            res['municipio'][0].municipio;
-
-                        this.colonias_e = res['colonia'];
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarArchivo() {
@@ -1328,40 +1131,6 @@ export class EditarComponent implements OnInit {
                 this.data.empresa_externa != ''
                     ? this.data.empresa_externa
                     : this.data.empresa;
-
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/Consultas/Clientes/${empresa}/Razon/${encodeURIComponent(
-                        this.data.cliente.input.toUpperCase()
-                    )}`
-                )
-                .subscribe(
-                    (res) => {
-                        if (Object.values(res).length == 0) {
-                            swal('', 'No se encontró ningún cliente.', 'error');
-
-                            resolve(1);
-                            return;
-                        }
-
-                        this.clientes = Object.values(res);
-                        resolve(1);
-                    },
-                    (response) => {
-                        resolve(1);
-
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-                    }
-                );
         });
     }
 
@@ -1404,30 +1173,6 @@ export class EditarComponent implements OnInit {
             this.data.empresa_externa != ''
                 ? this.data.empresa_externa
                 : this.data.empresa;
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consulta/Tarjetas/${empresa}/Empresa/RFC/${$.trim(
-                    cliente.rfc
-                )}`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas_cliente = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
 
         if (this.data.cliente.rfc != 'XAXX010101000') {
             var form_data = new FormData();

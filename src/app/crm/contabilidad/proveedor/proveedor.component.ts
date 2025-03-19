@@ -1,5 +1,5 @@
-import { backend_url, backend_url_erp, commaNumber } from './../../../../environments/environment';
-import { AuthService } from './../../../services/auth.service';
+import { backend_url, commaNumber } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
@@ -8,10 +8,9 @@ import swal from 'sweetalert2';
 @Component({
     selector: 'app-proveedor',
     templateUrl: './proveedor.component.html',
-    styleUrls: ['./proveedor.component.scss']
+    styleUrls: ['./proveedor.component.scss'],
 })
 export class ProveedorComponent implements OnInit {
-
     empresas_usuario: any[] = [];
     empresas: any[] = [];
 
@@ -21,61 +20,77 @@ export class ProveedorComponent implements OnInit {
     datatable: any;
 
     data = {
-        empresa: "7",
+        empresa: '7',
         entidad: {
-            input: "",
-            rfc: "",
-            razon: "",
-            telefono: "",
-            email: ""
+            input: '',
+            rfc: '',
+            razon: '',
+            telefono: '',
+            email: '',
         },
         archivos: [],
-        archivos_anteriores: []
-    }
+        archivos_anteriores: [],
+    };
 
-    constructor(private http: HttpClient, private router: Router, private auth: AuthService) {
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private auth: AuthService
+    ) {
         this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
     }
 
     ngOnInit() {
         if (this.empresas_usuario.length == 0) {
-            swal("", "No tienes empresas asignadas, favor de contactar a un administrador.", "error").then(() => {
+            swal(
+                '',
+                'No tienes empresas asignadas, favor de contactar a un administrador.',
+                'error'
+            ).then(() => {
                 this.router.navigate(['/dashboard']);
             });
 
             return;
         }
 
-        this.http.get(`${backend_url}contabilidad/facturas/saldo/data`)
+        this.http
+            .get(`${backend_url}contabilidad/facturas/saldo/data`)
             .subscribe(
-                res => {
+                (res) => {
                     this.empresas = res['empresas'];
 
                     this.empresas.forEach((empresa, index) => {
-                        if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
+                        if (
+                            $.inArray(empresa.id, this.empresas_usuario) == -1
+                        ) {
                             this.empresas.splice(index, 1);
-                        }
-                        else {
+                        } else {
                             if (this.empresas_usuario.length == 1) {
                                 if (empresa.id == this.empresas_usuario[0]) {
-                                    this.data.empresa = empresa.bd
+                                    this.data.empresa = empresa.bd;
                                 }
                             }
                         }
                     });
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     buscarEntidad() {
-        if (this.data.empresa == "") {
-            swal("", "Selecciona una empresa.", "error");
+        if (this.data.empresa == '') {
+            swal('', 'Selecciona una empresa.', 'error');
 
             return;
         }
@@ -84,79 +99,63 @@ export class ProveedorComponent implements OnInit {
             this.entidades = [];
 
             this.data.entidad = {
-                input: "",
-                rfc: "",
-                razon: "",
-                telefono: "",
-                email: ""
+                input: '',
+                rfc: '',
+                razon: '',
+                telefono: '',
+                email: '',
             };
 
             return;
         }
 
-        if (this.data.entidad.input == "") {
+        if (this.data.entidad.input == '') {
             return;
         }
-
-        this.http.get(`${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/Razon/${encodeURIComponent(this.data.entidad.input.toUpperCase())}`)
-            .subscribe(
-                res => {
-                    if (Object.values(res).length == 0) {
-                        swal("", "No se encontró ningún cliente.", "error");
-
-                        return;
-                    }
-
-                    Object.values(res).forEach(entidad => {
-                        this.entidades.push({
-                            id: entidad.idproveedor,
-                            rfc: $.trim(entidad.rfc),
-                            razon: $.trim(entidad.razon),
-                            telefono: $.trim(entidad.telefono),
-                            email: $.trim(entidad.email)
-                        });
-                    });
-                },
-                response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
-                });
     }
 
     cambiarEntidad() {
-        const entidad = this.entidades.find(entidad => entidad.rfc == this.data.entidad.rfc);
+        const entidad = this.entidades.find(
+            (entidad) => entidad.rfc == this.data.entidad.rfc
+        );
 
         this.data.entidad = {
             input: this.data.entidad.input,
             rfc: entidad.rfc,
             razon: entidad.razon,
             telefono: entidad.telefono,
-            email: entidad.email
+            email: entidad.email,
         };
 
-        this.http.get(`${backend_url}contabilidad/proveedor/archivos/${this.data.entidad.rfc}`)
+        this.http
+            .get(
+                `${backend_url}contabilidad/proveedor/archivos/${this.data.entidad.rfc}`
+            )
             .subscribe(
-                res => {
+                (res) => {
                     this.data.archivos_anteriores = res['archivos'];
 
                     this.iconosArchivos();
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     agregarArchivo() {
         this.data.archivos = [];
 
-        var files = $("#archivos").prop("files");
+        var files = $('#archivos').prop('files');
         var archivos = [];
 
         for (var i = 0, len = files.length; i < len; i++) {
@@ -167,16 +166,16 @@ export class ProveedorComponent implements OnInit {
             reader.onload = (function (f) {
                 return function (e) {
                     archivos.push({
-                        tipo: f.type.split("/")[0],
+                        tipo: f.type.split('/')[0],
                         nombre: f.name,
-                        data: e.target.result
+                        data: e.target.result,
                     });
                 };
             })(file);
 
             reader.onerror = (function (f) {
                 return function (e) {
-                    archivos.push({ tipo: "", nombre: "", data: "" });
+                    archivos.push({ tipo: '', nombre: '', data: '' });
                 };
             })(file);
 
@@ -202,13 +201,14 @@ export class ProveedorComponent implements OnInit {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.data));
 
-        this.http.post(`${backend_url}contabilidad/proveedor/guardar`, form_data)
+        this.http
+            .post(`${backend_url}contabilidad/proveedor/guardar`, form_data)
             .subscribe(
-                res => {
+                (res) => {
                     swal({
-                        title: "",
+                        title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message']
+                        html: res['message'],
                     });
 
                     if (res['code'] == 200) {
@@ -218,13 +218,19 @@ export class ProveedorComponent implements OnInit {
                         this.iconosArchivos();
                     }
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     verArchivo(id_dropbox) {
@@ -233,42 +239,50 @@ export class ProveedorComponent implements OnInit {
         const httpOptions = {
             headers: new HttpHeaders({
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO'
-            })
-        }
+                Authorization:
+                    'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
+            }),
+        };
 
-        this.http.post("https://api.dropboxapi.com/2/files/get_temporary_link", form_data, httpOptions)
+        this.http
+            .post(
+                'https://api.dropboxapi.com/2/files/get_temporary_link',
+                form_data,
+                httpOptions
+            )
             .subscribe(
-                res => {
+                (res) => {
                     window.open(res['link']);
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     iconosArchivos() {
-        this.data.archivos_anteriores.forEach(archivo => {
+        this.data.archivos_anteriores.forEach((archivo) => {
             var re = /(?:\.([^.]+))?$/;
             var ext = re.exec(archivo.nombre)[1];
 
             if ($.inArray(ext, ['jpg', 'jpeg', 'png']) !== -1) {
-                archivo.icon = 'file-image-o'
-            }
-            else if (ext == 'xlsx') {
-                archivo.icon = 'file-excel-o'
-            }
-            else if (ext == 'xml') {
-                archivo.icon = 'file-code-o'
-            }
-            else if (ext == 'pdf') {
-                archivo.icon = 'file-pdf-o'
-            }
-            else {
+                archivo.icon = 'file-image-o';
+            } else if (ext == 'xlsx') {
+                archivo.icon = 'file-excel-o';
+            } else if (ext == 'xml') {
+                archivo.icon = 'file-code-o';
+            } else if (ext == 'pdf') {
+                archivo.icon = 'file-pdf-o';
+            } else {
                 archivo.icon = 'file';
             }
         });

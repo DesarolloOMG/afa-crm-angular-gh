@@ -1,13 +1,8 @@
-import {
-    backend_url,
-    backend_url_erp,
-} from './../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import swal from 'sweetalert2';
 
 @Component({

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { backend_url, backend_url_erp } from '@env/environment';
+import { backend_url } from '@env/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -84,14 +84,6 @@ export class GeneralService {
         return this.http.post(
             `${backend_url}general/reporte/producto/btob/reporte`,
             form_data
-        );
-    }
-
-    getBTOBProductAdminBySKUOrDescription(criteria: string, type: boolean) {
-        const search_type = type ? 'SKU' : 'Nombre';
-
-        return this.http.get(
-            `${backend_url_erp}api/WSCyberPuerta/Producto/${search_type}/${criteria}`
         );
     }
 

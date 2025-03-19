@@ -1,11 +1,7 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from '../../../../../../environments/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from '../../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -316,33 +312,6 @@ export class PretransferenciaComponent implements OnInit {
 
     cambiarCodigoPostal(codigo) {
         if (!codigo) return;
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Consultas/CP/${codigo}`)
-            .subscribe(
-                (res) => {
-                    if (res['code'] == 200) {
-                        this.data.direccion_envio.estado =
-                            res['estado'][0].estado;
-                        this.data.direccion_envio.ciudad =
-                            res['municipio'][0].municipio;
-
-                        this.colonias_e = res['colonia'];
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     cambiarEmpresa() {

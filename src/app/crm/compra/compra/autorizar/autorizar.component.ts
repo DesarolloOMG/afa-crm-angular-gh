@@ -1,11 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-    tinymce_init,
-} from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
+import { backend_url, commaNumber, tinymce_init } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
@@ -118,26 +113,6 @@ export class AutorizarComponent implements OnInit {
                 });
             }
         );
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Productos/Categorias`)
-            .subscribe(
-                (res) => {
-                    this.categorias = Object(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     async detalleVenta(modal, id_orden) {
@@ -352,60 +327,6 @@ export class AutorizarComponent implements OnInit {
 
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/ClaveProdServ/${this.data.bd}/${this.producto_nuevo.codigo_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.codigos_sat = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/${this.data.bd}/ClaveProdServ/Clave/${this.producto_nuevo.codigo_text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length > 0) {
-                                    this.codigos_sat = Object.values(res);
-
-                                    return;
-                                }
-
-                                swal('', 'Codigo no encontrado.', 'error');
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     crearProducto(codigo) {
@@ -437,39 +358,6 @@ export class AutorizarComponent implements OnInit {
             const producto = this.data.productos.find(
                 (producto) => producto.id == id_producto
             );
-
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.bd}/${producto.sku}`
-                )
-                .subscribe(
-                    (res) => {
-                        producto.existe = Object.values(res).length > 0 ? 1 : 0;
-
-                        if (Object.values(res).length > 0) {
-                            producto.cat1 = res[0]['cat1'];
-                            producto.cat2 = res[0]['cat2'];
-                            producto.cat3 = res[0]['cat3'];
-                            producto.cat4 = res[0]['cat4'];
-                        }
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        resolve(1);
-                    }
-                );
         });
     }
 

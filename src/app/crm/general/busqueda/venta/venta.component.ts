@@ -3,21 +3,22 @@
 
 import {
     backend_url,
-    backend_url_erp,
-    commaNumber, swalErrorHttpResponse
+    commaNumber,
+    swalErrorHttpResponse,
 } from '@env/environment';
-import {Component, OnInit, ChangeDetectorRef, ViewChild} from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
-import swal, {SweetAlertResult, SweetAlertType} from 'sweetalert2';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import swal, { SweetAlertResult, SweetAlertType } from 'sweetalert2';
 import * as moment from 'moment';
 import { AuthService } from '@services/auth.service';
-import { ErpService } from '@services/http/erp.service';
 import {
     createEmptyGBBArchivo,
     createEmptyGBBData,
-    createEmptyGBBFinalData, createEmptyGBBNotaData, GBBArchivo,
+    createEmptyGBBFinalData,
+    createEmptyGBBNotaData,
+    GBBArchivo,
     GBBData,
     GBBFinalData,
     GBBNotaData,
@@ -65,8 +66,7 @@ export class VentaComponent implements OnInit {
         private readonly modalService: NgbModal,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly auth: AuthService,
-        private readonly erpService: ErpService
+        private readonly auth: AuthService
     ) {
         this.moment.locale('es_MX');
 
@@ -87,12 +87,12 @@ export class VentaComponent implements OnInit {
 
     ngOnInit() {}
 
-    private swalResponse(type: SweetAlertType, title: string, html: string): Promise<SweetAlertResult> {
-        return swal(
-            title,
-            html,
-            type,
-        );
+    private swalResponse(
+        type: SweetAlertType,
+        title: string,
+        html: string
+    ): Promise<SweetAlertResult> {
+        return swal(title, html, type);
     }
 
     private mostrarResultado(res: any): void {
@@ -105,77 +105,55 @@ export class VentaComponent implements OnInit {
 
     async buscarVenta(): Promise<void | SweetAlertResult> {
         switch (this.data.campo) {
-
             case 'nota':
                 this.busqueda = 'nota';
                 this.nota_tabla = [];
                 this.nota_data = createEmptyGBBNotaData();
 
                 const empresa: string = await this.solicitarEmpresa();
-                if (!empresa) { return; }
-
-                const notaData: GBBNotaData = await this.obtenerNotaData(empresa, this.data.criterio);
-                if (notaData) {
-                    this.nota_data = notaData;
-
-                    const empresa_criterio = {
-                        empresa: notaData.empresa,
-                        criterio: this.data.criterio,
-                    };
-
-                    const form_data_nota: FormData = new FormData();
-                    form_data_nota.append('data', JSON.stringify(empresa_criterio));
-
-                    let estado = 'Activa';
-
-                    const cancelado = this.nota_data.cancelado || this.nota_data.cancelado_por;
-                    const eliminado = this.nota_data.eliminado || this.nota_data.eliminado_por;
-
-                    if (cancelado) {
-                        estado = 'Cancelado';
-                    } else if (eliminado) {
-                        estado = 'Eliminado';
-                    }
-
-                    await this.setNotaData(estado, form_data_nota);
-
-                } else {
-
-                    await this.swalResponse('error', '', 'No se encontró la información de la nota.');
+                if (!empresa) {
+                    return;
                 }
                 break;
 
-                default:
-                    this.busqueda = 'default';
-                    const data = {
-                        criterio: this.data.criterio,
-                        campo: this.data.campo,
-                    };
+            default:
+                this.busqueda = 'default';
+                const data = {
+                    criterio: this.data.criterio,
+                    campo: this.data.campo,
+                };
 
-                    const form_data: FormData = new FormData();
-                    form_data.append('data', JSON.stringify(data));
+                const form_data: FormData = new FormData();
+                form_data.append('data', JSON.stringify(data));
 
-                    const resInfo = await this.http
-                        .post(`${backend_url}general/busqueda/venta/informacion`, form_data)
-                        .toPromise();
-                    if (resInfo['code'] != 200) {
-                        return this.swalResponse('error', 'Error', resInfo['message']);
-                    }
-                    if (resInfo['redireccionar']) {
-                        await this.router.navigate([resInfo['url']]);
-                        return;
-                    }
-                    this.ventas = resInfo['ventas'];
-                    this.rebuildTable();
+                const resInfo = await this.http
+                    .post(
+                        `${backend_url}general/busqueda/venta/informacion`,
+                        form_data
+                    )
+                    .toPromise();
+                if (resInfo['code'] != 200) {
+                    return this.swalResponse(
+                        'error',
+                        'Error',
+                        resInfo['message']
+                    );
+                }
+                if (resInfo['redireccionar']) {
+                    await this.router.navigate([resInfo['url']]);
+                    return;
+                }
+                this.ventas = resInfo['ventas'];
+                this.rebuildTable();
 
-                    const resNotaInfo = await this.http
-                        .get(`${backend_url}venta/venta/crear/data`)
-                        .toPromise();
-                    this.impresoras = resNotaInfo['impresoras'];
+                const resNotaInfo = await this.http
+                    .get(`${backend_url}venta/venta/crear/data`)
+                    .toPromise();
+                this.impresoras = resNotaInfo['impresoras'];
 
-                    await this.setVentaData();
+                await this.setVentaData();
 
-                    break;
+                break;
         }
     }
 
@@ -189,7 +167,9 @@ export class VentaComponent implements OnInit {
 
         this.final_data.documento = documento;
 
-        const venta = this.ventas.find(ventaFind => ventaFind.id == documento);
+        const venta = this.ventas.find(
+            (ventaFind) => ventaFind.id == documento
+        );
 
         if (!venta) {
             return;
@@ -248,15 +228,15 @@ export class VentaComponent implements OnInit {
 
         const getFileIcon = (ext) => {
             const icons = {
-                'jpg': 'file-image-o text-success',
-                'jpeg': 'file-image-o text-success',
-                'png': 'file-image-o text-success',
-                'pdf': 'file-pdf-o text-danger',
+                jpg: 'file-image-o text-success',
+                jpeg: 'file-image-o text-success',
+                png: 'file-image-o text-success',
+                pdf: 'file-pdf-o text-danger',
             };
             return icons[ext] || 'file text-warning';
         };
 
-        venta.archivos.forEach(archivo => {
+        venta.archivos.forEach((archivo) => {
             const ext = archivo.archivo.split('.').pop();
             archivo.icon = getFileIcon(ext);
 
@@ -295,7 +275,7 @@ export class VentaComponent implements OnInit {
                 this.modalReference.close();
             }
         } catch (error) {
-           swalErrorHttpResponse(error);
+            swalErrorHttpResponse(error);
         }
     }
 
@@ -312,13 +292,21 @@ export class VentaComponent implements OnInit {
 
         try {
             const res: any = await this.http
-                .post('https://api.dropboxapi.com/2/files/get_temporary_link', form_data, httpOptions)
+                .post(
+                    'https://api.dropboxapi.com/2/files/get_temporary_link',
+                    form_data,
+                    httpOptions
+                )
                 .toPromise();
 
             if (res['link']) {
                 window.open(res.link, '_blank');
             } else {
-                await this.swalResponse('error', 'Error', 'No se pudo obtener el enlace del archivo.');
+                await this.swalResponse(
+                    'error',
+                    'Error',
+                    'No se pudo obtener el enlace del archivo.'
+                );
             }
         } catch (error) {
             swalErrorHttpResponse(error);
@@ -365,7 +353,8 @@ export class VentaComponent implements OnInit {
                                 )
                                 .subscribe(
                                     (_resBack) => {
-                                        console.log(); },
+                                        console.log();
+                                    },
                                     (response) => {
                                         swalErrorHttpResponse(response);
                                     }
@@ -381,15 +370,13 @@ export class VentaComponent implements OnInit {
 
     descargarNotaCredito(nota: string, tipo: number): void {
         if (![1, 2].includes(tipo)) {
-            this.swalResponse('error', 'Error', 'Tipo inválido. Debe ser 1 (XML) o 2 (PDF).');
+            this.swalResponse(
+                'error',
+                'Error',
+                'Tipo inválido. Debe ser 1 (XML) o 2 (PDF).'
+            );
             return;
         }
-
-        const url_tipo = tipo == 1 ? 'DescargarNotaCreaditoXML' : 'DescargarNotaCreaditoPDF';
-
-        const url = `${backend_url_erp}api/adminpro/${this.data.empresa}/${url_tipo}/ID/${nota}`;
-
-        window.open(url, '_blank');
     }
 
     agregarArchivo(): void {
@@ -399,23 +386,34 @@ export class VentaComponent implements OnInit {
             return;
         }
 
-        const archivosPromises = Array.from(files).map(file => this.leerArchivo(<File>file));
+        const archivosPromises = Array.from(files).map((file) =>
+            this.leerArchivo(<File>file)
+        );
 
         Promise.all(archivosPromises)
-            .then(archivos => {
-                this.final_data.archivos = this.final_data.archivos.concat(archivos);
+            .then((archivos) => {
+                this.final_data.archivos =
+                    this.final_data.archivos.concat(archivos);
             })
-            .catch(error => {
+            .catch((error) => {
                 this.swalResponse(
-                    'error', 'Error', 'No fue posible agregar el archivo: ' + error,
+                    'error',
+                    'Error',
+                    'No fue posible agregar el archivo: ' + error
                 );
             });
     }
 
     private validarCampos(files: FileList): boolean {
-        if (files.length == 0 || this.archivo.guia == '' || this.archivo.impresora == '') {
+        if (
+            files.length == 0 ||
+            this.archivo.guia == '' ||
+            this.archivo.impresora == ''
+        ) {
             this.swalResponse(
-                'error', 'Error', 'Favor de completar todos los campos para agregar un archivo al documento.',
+                'error',
+                'Error',
+                'Favor de completar todos los campos para agregar un archivo al documento.'
             );
             return false;
         }
@@ -445,7 +443,9 @@ export class VentaComponent implements OnInit {
     }
 
     verSeries(sku: string, modal: any): void {
-        const producto = this.data.productos.find(productoFind => productoFind.sku == sku);
+        const producto = this.data.productos.find(
+            (productoFind) => productoFind.sku == sku
+        );
 
         if (!producto) {
             this.swalResponse('error', 'Error', 'Producto no encontrado.');
@@ -467,7 +467,11 @@ export class VentaComponent implements OnInit {
         }
 
         if (this.final_data.necesita_token && !this.final_data.token) {
-            return this.swalResponse('error', 'Error', 'Necesitas escribir un token de authy para poder autorizar la refacturación');
+            return this.swalResponse(
+                'error',
+                'Error',
+                'Necesitas escribir un token de authy para poder autorizar la refacturación'
+            );
         }
 
         const form_data = new FormData();
@@ -475,10 +479,17 @@ export class VentaComponent implements OnInit {
         form_data.append('option', JSON.stringify($option));
 
         try {
-            const res: any = await this.http.post(`${backend_url}general/busqueda/venta/refacturacion`, form_data).toPromise();
+            const res: any = await this.http
+                .post(
+                    `${backend_url}general/busqueda/venta/refacturacion`,
+                    form_data
+                )
+                .toPromise();
             this.mostrarResultado(res);
             if (res.code == 200) {
-                const venta = this.ventas.find(ventaFind => ventaFind.id == this.final_data.documento);
+                const venta = this.ventas.find(
+                    (ventaFind) => ventaFind.id == this.final_data.documento
+                );
                 if (venta) {
                     venta.refacturado = 1;
                     this.data.refacturado = 1;
@@ -502,16 +513,28 @@ export class VentaComponent implements OnInit {
         return value;
     }
 
-    async crearNotaCredito(refacturado: number): Promise<void | SweetAlertResult> {
+    async crearNotaCredito(
+        refacturado: number
+    ): Promise<void | SweetAlertResult> {
         if (this.data.nota_pendiente) {
-            return this.swalResponse('error', '', 'Nota de crédito pendiente de autorización o ya existente');
+            return this.swalResponse(
+                'error',
+                '',
+                'Nota de crédito pendiente de autorización o ya existente'
+            );
         }
 
         if (refacturado) {
-            return this.swalResponse('error', '', 'No se puede crear una nota de crédito para una refacturación');
+            return this.swalResponse(
+                'error',
+                '',
+                'No se puede crear una nota de crédito para una refacturación'
+            );
         }
 
-        const confirm = await this.mostrarConfirmacion('Se enviará la nota a Autorización');
+        const confirm = await this.mostrarConfirmacion(
+            'Se enviará la nota a Autorización'
+        );
 
         if (!confirm) {
             return;
@@ -522,7 +545,12 @@ export class VentaComponent implements OnInit {
         form_data.append('modulo', JSON.stringify('Ventas'));
 
         try {
-            const res = await this.http.post(`${backend_url}general/busqueda/venta/autorizar-nota`, form_data).toPromise();
+            const res = await this.http
+                .post(
+                    `${backend_url}general/busqueda/venta/autorizar-nota`,
+                    form_data
+                )
+                .toPromise();
             this.mostrarResultado(res);
         } catch (response) {
             swalErrorHttpResponse(response);
@@ -542,22 +570,11 @@ export class VentaComponent implements OnInit {
         return value;
     }
 
-    async enviarFactura(): Promise<void> {
-        // tslint:disable-next-line:max-line-length
-        const url = `${backend_url_erp}api/adminpro/${this.data.empresa}/EnviarXMLPDF/Serie/${this.data.serie}/Folio/${this.final_data.documento}/Correo/${this.data.correo}`;
-        try {
-            const res: any = await this.http.get(url).toPromise();
-            await swal({
-                title: '',
-                type: res.error == 0 ? 'success' : 'error',
-                html: res.error == 0 ? 'Correo enviado correctamente' : res.mensaje,
-            });
-        } catch (response) {
-            swalErrorHttpResponse(response);
-        }
-    }
+    async enviarFactura(): Promise<void> {}
 
-    async informacionExtraMercadolibre(modal: any): Promise<void | SweetAlertResult> {
+    async informacionExtraMercadolibre(
+        modal: any
+    ): Promise<void | SweetAlertResult> {
         const form_data = new FormData();
 
         this.data.api.publico = 1;
@@ -566,10 +583,15 @@ export class VentaComponent implements OnInit {
 
         form_data.append('venta', this.data.no_venta);
         form_data.append('marketplace', JSON.stringify(this.data.api));
-        form_data.append('marketplace_area', String(this.data.api.id_marketplace_area));
+        form_data.append(
+            'marketplace_area',
+            String(this.data.api.id_marketplace_area)
+        );
 
         try {
-            const res: any = await this.http.post(`${backend_url}venta/venta/crear/informacion`, form_data).toPromise();
+            const res: any = await this.http
+                .post(`${backend_url}venta/venta/crear/informacion`, form_data)
+                .toPromise();
 
             if (res.code != 200) {
                 return this.swalResponse('error', 'Error', res.message);
@@ -577,49 +599,22 @@ export class VentaComponent implements OnInit {
 
             if (res.venta.length > 0) {
                 this.data.extra_info = res.venta[0];
-                this.modalService.open(modal, { size: 'lg', backdrop: 'static' });
+                this.modalService.open(modal, {
+                    size: 'lg',
+                    backdrop: 'static',
+                });
             }
         } catch (response) {
             swalErrorHttpResponse(response);
         }
     }
 
-    async descargarDocumento(tipo_documento: number, documento_extra: string): Promise<void> {
-        const tipo = tipo_documento ? 'DescargarPDF' : 'DescargarXML';
-        const folio = this.data.factura_serie == 'N/A' ? this.final_data.documento : this.data.factura_folio;
-        const serie = this.data.factura_serie == 'N/A' ? this.data.serie : this.data.factura_serie;
+    async descargarDocumento(
+        tipo_documento: number,
+        documento_extra: string
+    ): Promise<void> {}
 
-        window.open(`${backend_url_erp}api/adminpro/${this.data.empresa}/${tipo}/ID/${documento_extra}`, '_blank');
-
-        if (this.data.empresa_externa != '0' && this.data.empresa_externa != '') {
-            try {
-                const res =
-                    await this.http.get(
-                        `${backend_url_erp}api/adminpro/Consultas/FactuasClientes/${this.data.empresa_externa}/Serie/R/Folio/${folio}`
-                    ).toPromise();
-
-                if (Object.values(res).length == 0) {
-                    window.open(`${backend_url_erp}api/adminpro/${this.data.empresa_externa}/${tipo}/Serie/${serie}/Folio/${folio}`,
-                        '_blank');
-                } else {
-                    window.open(`${backend_url_erp}api/adminpro/${this.data.empresa_externa}/${tipo}/Serie/R/Folio/${folio}`, '_blank');
-                }
-            } catch (response) {
-                swalErrorHttpResponse(response);
-            }
-        }
-    }
-
-    descargarComplemento(tipo_documento: number): void {
-        const tipo = tipo_documento ? 'DescargarAddendaPDF' : 'DescargarAddendaXML';
-
-        const folio = this.data.factura_serie == 'N/A' ? this.final_data.documento : this.data.factura_folio;
-        const serie = this.data.factura_serie == 'N/A' ? this.data.serie : this.data.factura_serie;
-
-        const url = `${backend_url_erp}api/adminpro/${this.data.empresa}/${tipo}/Serie/${serie}/Folio/${folio}`;
-
-        window.open(url, '_blank');
-    }
+    descargarComplemento(tipo_documento: number): void {}
 
     clearData(): void {
         this.data = createEmptyGBBData();
@@ -672,19 +667,10 @@ export class VentaComponent implements OnInit {
         return number * 1.16;
     }
 
-    downloadXMLorPDF(type: boolean): void {
-        this.erpService.downloadNCXMLorPDFByID(
-            this.nota_data.empresa,
-            this.nota_data.folio,
-            type
-        );
-    }
+    downloadXMLorPDF(type: boolean): void {}
 
     quitarArchivo(index: number): void {
-        this.final_data.archivos.splice(
-            index,
-            1
-        );
+        this.final_data.archivos.splice(index, 1);
     }
 
     private async solicitarEmpresa(): Promise<string | null> {
@@ -708,32 +694,26 @@ export class VentaComponent implements OnInit {
 
             return value ? value : null;
         } catch (error) {
-            await this.swalResponse('error', 'Error', 'Error al solicitar empresa');
+            await this.swalResponse(
+                'error',
+                'Error',
+                'Error al solicitar empresa'
+            );
             return null;
         }
     }
 
-    private async obtenerNotaData(empresa: string, criterio: string): Promise<GBBNotaData | null> {
+    private async setNotaData(
+        estado: string,
+        form_data_nota: FormData
+    ): Promise<void | null> {
         try {
-            const res = await this.erpService.getNCInformationByID(empresa, criterio).toPromise();
-            if (Array.isArray(res) && res.length > 0) {
-                const notaData = res[0];
-                notaData.empresa = empresa;
-                return notaData;
-            } else {
-                return null;
-            }
-        } catch (error) {
-            await this.swalResponse('error', 'Error', 'Error al obtener la información de la nota');
-            return null;
-        }
-    }
-
-    private async setNotaData(estado: string, form_data_nota: FormData): Promise<void | null> {
-        try {
-            await new Promise(async resolve => {
+            await new Promise(async (resolve) => {
                 const res = await this.http
-                    .post(`${backend_url}general/busqueda/venta/nota/informacion/pendientes`, form_data_nota)
+                    .post(
+                        `${backend_url}general/busqueda/venta/nota/informacion/pendientes`,
+                        form_data_nota
+                    )
                     .toPromise();
 
                 if (res['por_aplicar'] == 1) {
@@ -754,7 +734,8 @@ export class VentaComponent implements OnInit {
                 this.nota_data.uso_desc = res['uso_desc'];
                 this.nota_data.metodo_pago = res['metodopago'];
                 this.nota_data.formapago = res['formapago'];
-                this.nota_data.formap = formapagoMapping[this.nota_data.formapago] || '';
+                this.nota_data.formap =
+                    formapagoMapping[this.nota_data.formapago] || '';
 
                 const nota_element = {
                     nota: this.nota_data.documento,
@@ -768,19 +749,25 @@ export class VentaComponent implements OnInit {
 
                 const data_venta = {
                     criterio: documento,
-                    campo: 'id'
+                    campo: 'id',
                 };
 
-                const form_data: FormData = new FormData;
+                const form_data: FormData = new FormData();
                 form_data.append('data', JSON.stringify(data_venta));
 
                 if (estado != 'Cancelado' && estado != 'Eliminado') {
-
                     const resInfo = await this.http
-                        .post(`${backend_url}general/busqueda/venta/informacion`, form_data)
+                        .post(
+                            `${backend_url}general/busqueda/venta/informacion`,
+                            form_data
+                        )
                         .toPromise();
                     if (resInfo['code'] != 200) {
-                        return this.swalResponse('error', 'Error', resInfo['message']);
+                        return this.swalResponse(
+                            'error',
+                            'Error',
+                            resInfo['message']
+                        );
                     }
                     this.ventas = resInfo['ventas'];
                     this.rebuildTable();
@@ -791,67 +778,32 @@ export class VentaComponent implements OnInit {
                     this.impresoras = resNotaInfo['impresoras'];
 
                     await this.setVentaData();
-
                 }
                 resolve(1);
-
             });
         } catch (error) {
-            await this.swalResponse('error', 'Error', 'Error al asignar los datos de la Nota');
-        }
-
-    }
-
-    private async setVentaData(): Promise<void | null> {
-        for (const venta of this.ventas) {
-            if (venta.id_fase != 5 && venta.id_fase != 6) {
-                continue;
-            }
-            try {
-                const resID = await this.http
-                    .get(`${backend_url_erp}api/adminpro/${venta.empresa}/Factura/Estado/Folio/${venta.id}`)
-                    .toPromise();
-
-                if (Object.keys(resID).length == 0 && venta.factura_folio != 'N/A') {
-                    await this.updateVentaFromFolio(venta, venta.factura_folio);
-                } else if ( $.isArray(resID) && resID.length > 0) {
-                   this.assignFacturaData(venta, resID);
-                }
-                if (resID['documentoid']) {
-                    this.checkDocumentoId(venta, resID);
-                }
-                if (venta.id == this.data.criterio &&
-                this.busqueda == 'default') {
-                    this.detalleVenta(
-                        this.modalventa,
-                        venta.id,
-                        0
-                    );
-                }
-
-            } catch (error) {
-                await this.swalResponse('error', 'Error', 'Error al asignar los datos de la Venta');
-            }
+            await this.swalResponse(
+                'error',
+                'Error',
+                'Error al asignar los datos de la Nota'
+            );
         }
     }
 
-    private async updateVentaFromFolio(venta, folio): Promise<void> {
-        const res = await this.http
-            .get(`${backend_url_erp}api/adminpro/${venta.empresa}/Factura/Estado/Folio/${folio}`)
-            .toPromise();
+    private async setVentaData(): Promise<void | null> {}
 
-        if (res['uuid'] == venta.uuid) {
-            this.assignFacturaData(venta, res);
-        }
-    }
+    private async updateVentaFromFolio(venta, folio): Promise<void> {}
 
     private assignFacturaData(venta, res): void {
         if ($.isArray(res) && res.length > 0) {
-            const factura = Object.values(res).find((facturaFind) =>
-                        facturaFind.timbrado == 1 &&
-                        (facturaFind.cancelado == 0 || facturaFind.cancelado == null) &&
-                        (facturaFind.eliminado == 0 || facturaFind.eliminado == null)
-                );
+            const factura = Object.values(res).find(
+                (facturaFind) =>
+                    facturaFind.timbrado == 1 &&
+                    (facturaFind.cancelado == 0 ||
+                        facturaFind.cancelado == null) &&
+                    (facturaFind.eliminado == 0 ||
+                        facturaFind.eliminado == null)
+            );
 
             venta.timbrado = factura.timbrado;
             venta.pagos = factura.pagos;
@@ -861,8 +813,12 @@ export class VentaComponent implements OnInit {
             venta.forma_pago = venta.condicionpago;
             venta.metodo_pago = venta.metodopago;
 
-            const pagosValidos = factura.pagos.filter((pago) => pago.operacion != 0);
-            const notasValidas = factura.pagos.filter((pago) => pago.operacion == 0);
+            const pagosValidos = factura.pagos.filter(
+                (pago) => pago.operacion != 0
+            );
+            const notasValidas = factura.pagos.filter(
+                (pago) => pago.operacion == 0
+            );
 
             this.pagos = pagosValidos;
             this.notas = notasValidas;
@@ -874,22 +830,22 @@ export class VentaComponent implements OnInit {
         }
     }
 
-    private checkDocumentoId (venta, res): void {
-            venta.timbrado = res['timbrado'];
-            venta.pagos = res['pagos'];
-            venta.cancelado = res['cancelado'];
-            venta.eliminada = res['eliminado'];
-            venta.serie = res['serie'];
-            venta.forma_pago = res['condicionpago'];
-            venta.metodo_pago = res['metodopago'];
+    private checkDocumentoId(venta, res): void {
+        venta.timbrado = res['timbrado'];
+        venta.pagos = res['pagos'];
+        venta.cancelado = res['cancelado'];
+        venta.eliminada = res['eliminado'];
+        venta.serie = res['serie'];
+        venta.forma_pago = res['condicionpago'];
+        venta.metodo_pago = res['metodopago'];
 
-            const pagosValidos = res['pagos'].filter((pago) => pago.operacion != 0);
-            const notasValidas = res['pagos'].filter((pago) => pago.operacion == 0);
+        const pagosValidos = res['pagos'].filter((pago) => pago.operacion != 0);
+        const notasValidas = res['pagos'].filter((pago) => pago.operacion == 0);
 
-            this.pagos = pagosValidos;
-            this.notas = notasValidas;
-            venta.notas = notasValidas;
-            venta.pago = pagosValidos;
+        this.pagos = pagosValidos;
+        this.notas = notasValidas;
+        venta.notas = notasValidas;
+        venta.pago = pagosValidos;
     }
 }
 

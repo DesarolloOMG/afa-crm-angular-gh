@@ -11,10 +11,6 @@ const routes: Routes = [
         loadChildren: './reporte/reporte.module#ReporteModule',
     },
     {
-        path: 'ftp',
-        loadChildren: './ftp/ftp.module#FtpModule',
-    },
-    {
         path: 'b2b',
         loadChildren: './b2b/b2b.module#B2bModule',
     },

@@ -1,11 +1,8 @@
 /* tslint:disable:triple-equals */
-import {
-    backend_url,
-    backend_url_erp,
-} from './../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -263,7 +260,9 @@ export class ProductoComponent implements OnInit {
     }
 
     buscarProducto() {
-        if (this.data.criterio == '') { return; }
+        if (this.data.criterio == '') {
+            return;
+        }
 
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.data));
@@ -366,10 +365,13 @@ export class ProductoComponent implements OnInit {
         const clavesValidas = ['H87', 'E48'];
 
         if (!clavesValidas.includes(this.producto.clave_unidad)) {
-            swal({title: '', type: 'error', html: 'No se seleccionó clave de unidad'});
+            swal({
+                title: '',
+                type: 'error',
+                html: 'No se seleccionó clave de unidad',
+            });
             return;
         }
-
 
         const form_data = new FormData();
 
@@ -426,60 +428,6 @@ export class ProductoComponent implements OnInit {
         }
 
         const empresa = this.empresas.find((e) => e.id == this.data.empresa);
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/ClaveProdServ/${empresa.bd}/${this.producto.codigo_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.codigos_sat = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/${empresa.bd}/ClaveProdServ/Clave/${this.producto.codigo_text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length > 0) {
-                                    this.codigos_sat = Object.values(res);
-
-                                    return;
-                                }
-
-                                swal('', 'Codigo no encontrado.', 'error');
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     onChangeArchivo() {
@@ -566,7 +514,9 @@ export class ProductoComponent implements OnInit {
                     rows.shift();
 
                     rows.forEach((row) => {
-                        if (!row[0] || !row[1]) { return; }
+                        if (!row[0] || !row[1]) {
+                            return;
+                        }
 
                         $this.producto.precio.productos.push({
                             codigo: row[0],

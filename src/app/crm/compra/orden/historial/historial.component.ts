@@ -1,11 +1,6 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-    tinymce_init,
-} from './../../../../../environments/environment';
+import { backend_url, commaNumber, tinymce_init } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
@@ -546,65 +541,6 @@ export class HistorialComponent implements OnInit {
         }
 
         if (!this.producto.text) return;
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${this.producto.text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.producto.codigo = this.producto.text;
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${this.data.empresa}/${this.producto.text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    swal(
-                                        '',
-                                        'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                        'error'
-                                    );
-
-                                    return;
-                                }
-
-                                this.productos = [...Object.values(res)];
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarProducto() {
@@ -638,46 +574,7 @@ export class HistorialComponent implements OnInit {
     }
 
     async existeProducto(codigo) {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${codigo}`
-                )
-                .subscribe(
-                    (res: any) => {
-                        const productos = this.nueva_orden.productos.filter(
-                            (producto) => producto.codigo == codigo
-                        );
-
-                        const existe =
-                            Object.values(res).length > 0 ? true : false;
-
-                        productos.map((producto) => {
-                            producto.existe = existe;
-
-                            if (Object.values(res).length > 0) {
-                                producto.descripcion = res[0].producto;
-                            }
-                        });
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        resolve(1);
-                    }
-                );
-        });
+        return new Promise((resolve, reject) => {});
     }
 
     crearNuevaOrden(event) {

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { VentaService } from '@services/http/venta.service';
 import { swalErrorHttpResponse } from '@env/environment';
-import { ErpService } from '@services/http/erp.service';
 import swal from 'sweetalert2';
 
 @Component({
@@ -41,10 +40,7 @@ export class BuscarNotaCreditoComponent implements OnInit {
 
     empresas: any[] = [];
 
-    constructor(
-        private ventaService: VentaService,
-        private erpService: ErpService
-    ) {}
+    constructor(private ventaService: VentaService) {}
 
     ngOnInit() {
         this.initData();
@@ -56,22 +52,6 @@ export class BuscarNotaCreditoComponent implements OnInit {
                 type: 'error',
                 html: 'Favor de seleccionar una empresa y escribir el ID de la nota para buscar la información',
             });
-
-        this.erpService
-            .getNCInformationByID(
-                this.busqueda.empresa,
-                this.busqueda.documento
-            )
-            .subscribe(
-                (res: any) => {
-                    [this.data] = res;
-
-                    console.log(this.data);
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     downloadXMLorPDF(type: boolean) {
@@ -80,12 +60,6 @@ export class BuscarNotaCreditoComponent implements OnInit {
                 type: 'error',
                 html: 'Favor de seleccionar una empresa y escribir el ID de la nota para buscar la información',
             });
-
-        this.erpService.downloadNCXMLorPDFByID(
-            this.busqueda.empresa,
-            this.busqueda.documento,
-            type
-        );
     }
 
     initData() {

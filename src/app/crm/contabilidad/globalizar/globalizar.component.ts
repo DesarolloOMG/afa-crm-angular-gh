@@ -2,11 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ContabilidadService } from '@services/http/contabilidad.service';
 import { swalErrorHttpResponse } from '@env/environment';
-import {
-    backend_url,
-    commaNumber,
-    backend_url_erp,
-} from './../../../../environments/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { animate, style, transition, trigger } from '@angular/animations';
 import swal from 'sweetalert2';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
@@ -233,101 +229,6 @@ export class GlobalizarComponent implements OnInit {
         // 01/07/2023
         this.loadingTitle = 'Cargar Facturas';
         this.spinner.show();
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/ventas/${this.empresa}/consultar/rangofechas/De/${inid}/Al/${find}`
-            )
-            .subscribe(
-                (res) => {
-                    this.entidades = [];
-                    this.cancelados = [];
-
-                    Object.values(res).forEach((entidad) => {
-                        if (entidad.titulo == this.current_tab) {
-                            //
-                            const form_data = new FormData();
-
-                            form_data.append(
-                                'data',
-                                JSON.stringify(entidad.folio)
-                            );
-                            this.http
-                                .post(
-                                    `${backend_url}contabilidad/globalizar/data`,
-                                    form_data
-                                )
-                                .subscribe(
-                                    (res) => {
-                                        entidad.no_venta = res['venta'];
-                                    },
-                                    (response) => {
-                                        swal({
-                                            title: '',
-                                            type: 'error',
-                                            html:
-                                                response.status == 0
-                                                    ? response.message
-                                                    : typeof response.error ===
-                                                      'object'
-                                                    ? response.error
-                                                          .error_summary
-                                                    : response.error,
-                                        });
-                                    }
-                                );
-
-                            switch (this.eliminado) {
-                                case true:
-                                    this.entidades.push(entidad);
-                                    break;
-                                case false:
-                                    if (
-                                        ((entidad.eliminado == 0 ||
-                                            entidad.eliminado == null) &&
-                                            (entidad.cancelado == 0 ||
-                                                entidad.cancelado == null)) ||
-                                        ((entidad.eliminado_por == 0 ||
-                                            entidad.eliminado_por == null) &&
-                                            (entidad.cance_porlado == 0 ||
-                                                entidad.cancelado_por == null))
-                                    ) {
-                                        this.entidades.push(entidad);
-                                    } else {
-                                        this.cancelados.push(entidad);
-                                    }
-                                    break;
-
-                                default:
-                                    break;
-                            }
-                        }
-                    });
-                    this.spinner.hide();
-
-                    this.reconstruirTabla();
-                    if (this.entidades.length <= 0) {
-                        return swal({
-                            type: 'warning',
-                            html: `No hay datos para mostrar. <br> Hay ${this.cancelados.length} Cancelados / Eliminados`,
-                        });
-                    }
-                },
-                (response) => {
-                    this.spinner.hide();
-
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     fechaFormato(arra: any) {
@@ -373,42 +274,6 @@ export class GlobalizarComponent implements OnInit {
         }
         this.loadingTitle = 'Globalizar Facturas';
         this.spinner.show();
-
-        this.contabilidadService
-            .globalizarFacturas(bd, this.documentos)
-            .subscribe(
-                (res) => {
-                    if (res['error'] == 1) {
-                        this.spinner.hide();
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html: res['mensaje'],
-                        });
-                        this.documentos = [];
-                    } else {
-                        this.spinner.hide();
-                        swal({
-                            type: 'success',
-                            html: 'Globalizado correcto',
-                        });
-                        this.reconstruirTabla();
-                    }
-                },
-                (response) => {
-                    this.spinner.hide();
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     cambio_eliminados() {

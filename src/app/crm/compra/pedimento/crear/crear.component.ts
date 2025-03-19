@@ -1,10 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-    backend_url_password,
-} from '../../../../../environments/environment';
+import { backend_url, backend_url_password } from '@env/environment';
 import swal from 'sweetalert2';
 
 @Component({
@@ -76,72 +72,6 @@ export class CrearComponent implements OnInit {
         const empresa = this.empresas.find(
             (empresa) => empresa.id == this.data.empresa
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultar/Aduanas/${empresa.bd}`
-            )
-            .subscribe(
-                (res: any) => {
-                    this.aduanas = [...res];
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultar/Paises/${empresa.bd}`
-            )
-            .subscribe(
-                (res: any) => {
-                    this.paises = [...res];
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Cosultar/Impuestos/${empresa.bd}`
-            )
-            .subscribe(
-                (res: any) => {
-                    this.tipos_impuesto = [...res];
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     crearPedimento(event) {
@@ -174,69 +104,5 @@ export class CrearComponent implements OnInit {
         form_data.append('aduana', this.data.aduana);
         form_data.append('pais_importacion', this.data.pais);
         form_data.append('comentarios', this.data.comentarios);
-
-        this.http
-            .post(
-                `${backend_url_erp}api/adminpro/Pedimento/Insertar/UTKFJKkk3mPc8LbJYmy6KO1ZPgp7Xyiyc1DTGrw`,
-                form_data
-            )
-            .subscribe(
-                (res: any) => {
-                    if (res.error) {
-                        swal({
-                            type: 'error',
-                            html: res.mensaje,
-                        });
-                    } else {
-                        swal({
-                            type: 'success',
-                            html: `Pedimento creado correctamente con el ID ${res.id}`,
-                            allowOutsideClick: false,
-                            allowEscapeKey: false,
-                            showCancelButton: false,
-                            showCloseButton: false,
-                            confirmButtonText: 'Actualizar página',
-                        }).then((result) => {
-                            if (result.value) {
-                                location.reload();
-                            }
-                        });
-                    }
-                    if (!res.error) {
-                        this.monedas = [];
-                        this.paises = [];
-                        this.aduanas = [];
-                        this.tipos_impuesto = [];
-
-                        this.data = {
-                            empresa: '',
-                            fecha_importacion: new Date()
-                                .toISOString()
-                                .split('T')[0],
-                            titulo: '',
-                            pedimento: '',
-                            moneda: '',
-                            tipo_cambio: 1,
-                            embarque: '',
-                            aduana: '',
-                            impuesto: '',
-                            pais: '',
-                            comentarios: '',
-                        };
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 }

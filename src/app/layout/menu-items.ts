@@ -139,24 +139,6 @@ const MENUITEMS = [
             },
             {
                 main_state: 'general',
-                state: 'ftp',
-                short_label: 'AR',
-                name: 'FTP',
-                type: 'sub',
-                icon: 'fa fa-podcast',
-                level: [6],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'arome',
-                        name: 'Arome',
-                        level: [0],
-                        sublevel: 0,
-                    },
-                ],
-            },
-            {
-                main_state: 'general',
                 state: 'reporte',
                 short_label: 'R',
                 name: 'Reportes',

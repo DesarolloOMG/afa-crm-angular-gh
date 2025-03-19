@@ -1,15 +1,8 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-    tinymce_init,
-} from './../../../../../../environments/environment';
+import { backend_url, commaNumber, tinymce_init } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpClient } from '@angular/common/http';
 import swal from 'sweetalert2';
-import { AuthService } from '../../../../../services/auth.service';
-import { log } from 'util';
+import { AuthService } from '@services/auth.service';
 
 @Component({
     selector: 'app-historial',

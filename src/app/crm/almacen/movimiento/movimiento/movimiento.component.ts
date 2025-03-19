@@ -11,7 +11,6 @@ import swal from 'sweetalert2';
 
 /* Servicios */
 import { AlmacenService } from '@services/http/almacen.service';
-import { ErpService } from '@services/http/erp.service';
 import { CompraService } from '@services/http/compra.service';
 import { AuthService } from '@services/auth.service';
 
@@ -75,7 +74,6 @@ export class MovimientoComponent implements OnInit {
         private renderer: Renderer2,
         private authService: AuthService,
         private almacenService: AlmacenService,
-        private erpService: ErpService,
         private compraService: CompraService
     ) {
         const usuario = JSON.parse(this.authService.userData().sub);
@@ -130,92 +128,6 @@ export class MovimientoComponent implements OnInit {
                 type: 'error',
                 html: 'Selecciona una empresa para buscar los productos',
             });
-
-        this.erpService
-            .getProductBySKUorDescription(
-                this.search_product,
-                String(company.bd),
-                true
-            )
-            .subscribe(
-                (res: any) => {
-                    if (Object.values(res).length) {
-                        this.producto.sku = this.search_product;
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.erpService
-                        .getProductBySKUorDescription(
-                            this.search_product,
-                            String(company.bd),
-                            false
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                if (Object.values(res).length) {
-                                    this.producto.sku = this.search_product;
-                                    this.productos = Object.values(res);
-
-                                    return;
-                                }
-
-                                this.compraService
-                                    .getProductSynonym(this.search_product)
-                                    .subscribe(
-                                        (res: any) => {
-                                            if (res.sinonimo.length) {
-                                                this.erpService
-                                                    .getProductBySKUorDescription(
-                                                        res.sinonimo,
-                                                        String(company.bd),
-                                                        true
-                                                    )
-                                                    .subscribe(
-                                                        (res: any) => {
-                                                            if (
-                                                                Object.values(
-                                                                    res
-                                                                ).length
-                                                            ) {
-                                                                this.producto.sku =
-                                                                    this.search_product;
-                                                                this.productos =
-                                                                    Object.values(
-                                                                        res
-                                                                    );
-
-                                                                return;
-                                                            }
-
-                                                            swal({
-                                                                type: 'error',
-                                                                html: 'No se encontró ningun producto con la descripción proporcionada',
-                                                            });
-                                                        },
-                                                        (err: any) => {
-                                                            swalErrorHttpResponse(
-                                                                err
-                                                            );
-                                                        }
-                                                    );
-                                            }
-                                        },
-                                        (err: any) => {
-                                            swalErrorHttpResponse(err);
-                                        }
-                                    );
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     deleteProduct(product_sku: string) {

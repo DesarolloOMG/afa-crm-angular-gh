@@ -1,11 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-    tinymce_init,
-} from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
+import { backend_url, commaNumber, tinymce_init } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
@@ -175,32 +170,6 @@ export class HistorialComponent implements OnInit {
             } else {
                 url = `/Consultas/FactuasCompras/${this.data.bd}/ID/${this.data.documento_extra}`;
             }
-
-            this.http.get(`${backend_url_erp}api/adminpro${url}`).subscribe(
-                (res) => {
-                    if (Object.values(res).length != 0) {
-                        if (Array.isArray(res)) {
-                            this.data.pagos = res[0]['pagos'];
-                            this.data.resta = res[0]['resta'];
-                        } else {
-                            this.data.pagos = res['pagos'];
-                            this.data.resta = res['resta'];
-                        }
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
         }
 
         this.modalReference = this.modalService.open(modal, {

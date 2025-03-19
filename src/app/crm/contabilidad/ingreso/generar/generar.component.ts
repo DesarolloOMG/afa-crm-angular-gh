@@ -1,9 +1,5 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
+import { backend_url, commaNumber } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { ChangeDetectorRef, Component, OnInit, Renderer2 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -212,23 +208,6 @@ export class GenerarComponent implements OnInit {
                 }
             );
 
-        this.http.get(`${backend_url_erp}api/Bancos`).subscribe(
-            (res) => {
-                this.razones = Object.values(res);
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
         this.reconstruirTabla();
     }
 
@@ -528,34 +507,6 @@ export class GenerarComponent implements OnInit {
         if (consulta == 'ClientesCuentas' || consulta == 'ProveedoresCuentas') {
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consulta/${consulta}/${this.data.empresa}`
-            )
-            .subscribe(
-                (res) => {
-                    if (tipo == 0) {
-                        this.data.origen.cuenta_bancaria = '';
-                        this.entidades_origen = Object.values(res);
-                    } else {
-                        this.data.destino.cuenta_bancaria = '';
-                        this.entidades_destino = Object.values(res);
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     splitArray(array, chunk) {
@@ -627,121 +578,6 @@ export class GenerarComponent implements OnInit {
             this.data.tipo_documento == '1'
                 ? this.data.origen.entidad_rfc
                 : this.data.destino.entidad_rfc;
-
-        if (destino != '' && destino != null) {
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/Consulta/Tarjetas/${this.data.empresa}/Empresa/RFC/${destino}`
-                )
-                .subscribe(
-                    (res) => {
-                        var aux;
-                        this.cuentas_pago = Object.values(res);
-
-                        /* Ingreso y Egreso */
-                        if (this.data.tipo_documento != '2') {
-                            const tipo_documento =
-                                this.data.tipo_documento == '1'
-                                    ? 'Facturas'
-                                    : 'Compras';
-
-                            if (
-                                (this.data.tipo_documento == '1' &&
-                                    origen == 0) ||
-                                (this.data.tipo_documento == '0' && origen == 1)
-                            )
-                                return;
-
-                            if (this.data.buscar_facturas) {
-                                this.http
-                                    .get(
-                                        `${backend_url_erp}api/adminpro/PendientesAplicar/${this.data.empresa}/${tipo_documento}/RFC/${destino}`
-                                    )
-                                    .subscribe(
-                                        (res) => {
-                                            if (
-                                                Object.values(res).length > 1000
-                                            ) {
-                                                aux = this.splitArray(
-                                                    res,
-                                                    1000
-                                                );
-                                                this.aux.documentos =
-                                                    this.splitArray(res, 1000);
-
-                                                var begining = 1;
-                                                var end = 0;
-                                                var stage = 0;
-
-                                                aux.forEach((element) => {
-                                                    begining = end + 1;
-                                                    end = end + element.length;
-                                                    var s = [
-                                                        begining,
-                                                        end,
-                                                        stage,
-                                                    ];
-                                                    this.aux.indexes.push(s);
-                                                    stage++;
-                                                });
-                                                this.facturas_con_saldo =
-                                                    Object.values(aux[0]);
-                                            }
-                                            if (
-                                                Object.values(res).length < 1000
-                                            ) {
-                                                this.facturas_con_saldo =
-                                                    Object.values(res);
-                                            }
-
-                                            this.facturas_con_saldo.map(
-                                                (factura) => {
-                                                    factura.monto_aplicar = 0;
-                                                }
-                                            );
-
-                                            this.facturas_con_saldo.sort(
-                                                (a, b) =>
-                                                    a.balancereal >
-                                                    b.balancereal
-                                                        ? 1
-                                                        : -1
-                                            );
-
-                                            this.reconstruirTabla();
-                                        },
-                                        (response) => {
-                                            swal({
-                                                title: '',
-                                                type: 'error',
-                                                html:
-                                                    response.status == 0
-                                                        ? response.message
-                                                        : typeof response.error ===
-                                                          'object'
-                                                        ? response.error
-                                                              .error_summary
-                                                        : response.error,
-                                            });
-                                        }
-                                    );
-                            }
-                        }
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-                    }
-                );
-        }
 
         if (
             (this.data.tipo_documento == '0' ||
@@ -1137,75 +973,9 @@ export class GenerarComponent implements OnInit {
         if (returned || tipo_consulta == '') {
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/${tipo_consulta}/${this.data.empresa}/Razon/${query}`
-            )
-            .subscribe(
-                (res) => {
-                    var entidades = new Array();
-
-                    Object.values(res).forEach((entidad) => {
-                        entidades.push({
-                            id:
-                                tipo_consulta == 'Clientes'
-                                    ? entidad.id
-                                    : entidad.idproveedor,
-                            rfc: entidad.rfc,
-                            cuenta:
-                                tipo_consulta == 'Clientes'
-                                    ? entidad.nombre_oficial
-                                    : entidad.razon,
-                        });
-                    });
-
-                    if (tipo == 0) {
-                        this.data.origen.cuenta_bancaria = '';
-                        this.entidades_origen = entidades;
-
-                        return;
-                    }
-
-                    this.entidades_destino = entidades;
-                    this.data.destino.cuenta_bancaria = '';
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
-    cambiarEmpresa() {
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Bancos/${this.data.empresa}`)
-            .subscribe(
-                (res) => {
-                    this.bancos = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-    }
+    cambiarEmpresa() {}
 
     currentDate() {
         var today = new Date();

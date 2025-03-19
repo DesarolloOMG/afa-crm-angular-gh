@@ -1,9 +1,5 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from './../../../../../../environments/environment';
-import { AuthService } from './../../../../../services/auth.service';
+import { backend_url, commaNumber } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -148,8 +144,7 @@ export class ClienteComponent implements OnInit {
         if (this.data.empresa == '') {
             swal({
                 type: 'error',
-                html:
-                    'Favor de seleccionar una empresa para generar el reporte.',
+                html: 'Favor de seleccionar una empresa para generar el reporte.',
             });
 
             return;
@@ -158,8 +153,7 @@ export class ClienteComponent implements OnInit {
         if (this.data.entidad.select == '') {
             swal({
                 type: 'error',
-                html:
-                    'Favor de buscar y seleccionar un cliente para generar el reporte.',
+                html: 'Favor de buscar y seleccionar un cliente para generar el reporte.',
             });
 
             return;
@@ -168,8 +162,7 @@ export class ClienteComponent implements OnInit {
         if (this.data.fecha_inicial == '' || this.data.fecha_inicial == '') {
             swal({
                 type: 'error',
-                html:
-                    'Favor de seleccionar un rango de fechas valido para generar el reporte.',
+                html: 'Favor de seleccionar un rango de fechas valido para generar el reporte.',
             });
 
             return;
@@ -198,46 +191,13 @@ export class ClienteComponent implements OnInit {
         const cliente = this.entidades.find(
             (cliente) => cliente.rfc == this.data.entidad.select
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/Reporte/Ventas/ResumenGeneral/${this.data.empresa}/Cliente/${cliente.id}/rangofechas/De/${fecha_inicial}/Al/${fecha_final}`
-            )
-            .subscribe(
-                (res) => {
-                    this.facturas = {
-                        total_facturado:
-                            Math.round(res['facturas'] * 100) / 100,
-                        total_notas_credito:
-                            Math.round(res['notascredito'] * 100) / 100,
-                        total_por_vencer:
-                            Math.round(res['por_vencer'] * 100) / 100,
-                        total_vencidas: Math.round(res['vencidas'] * 100) / 100,
-                    };
-
-                    this.data.entidad.razon = empresa.empresa;
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     generarEstadoCuenta() {
         if (this.data.entidad.select == '') {
             swal({
                 type: 'error',
-                html:
-                    'Favor de buscar y seleccionar un cliente para generar el estado de cuenta.',
+                html: 'Favor de buscar y seleccionar un cliente para generar el estado de cuenta.',
             });
 
             return;

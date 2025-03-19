@@ -1,8 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-} from '@env/environment';
+import { backend_url } from '@env/environment';
 import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -34,7 +31,7 @@ export class ProveedorComponent implements OnInit {
         email: '',
         telefono: '',
         celular: '',
-        cp: ''
+        cp: '',
     };
 
     proveedores: any[] = [];
@@ -109,50 +106,6 @@ export class ProveedorComponent implements OnInit {
                     }
                 );
         });
-
-        await new Promise((resolve, reject) => {
-            this.http.get(`${backend_url_erp}api/adminpro/Paises`).subscribe(
-                (res) => {
-                    this.paises = Object.values(res);
-
-                    resolve(1);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-
-                    reject();
-                }
-            );
-        });
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Consulta/RegimenFiscal/2`)
-            .subscribe(
-                (res) => {
-                    this.regimenes = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     buscarProveedor() {
@@ -201,7 +154,7 @@ export class ProveedorComponent implements OnInit {
                 email: proveedor.correo,
                 telefono: proveedor.telefono,
                 celular: proveedor.telefono_alt,
-                cp:proveedor.codigo_postal_fiscal
+                cp: proveedor.codigo_postal_fiscal,
             };
         }
 
@@ -248,7 +201,7 @@ export class ProveedorComponent implements OnInit {
                             email: '',
                             telefono: '',
                             celular: '',
-                            cp: ''
+                            cp: '',
                         };
 
                         this.modalReference.close();
@@ -277,6 +230,5 @@ export class ProveedorComponent implements OnInit {
     }
     tienePermisosParaEditar() {
         return !!this.subniveles[16].includes(29);
-
     }
 }

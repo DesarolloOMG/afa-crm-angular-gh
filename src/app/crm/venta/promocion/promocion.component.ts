@@ -1,10 +1,6 @@
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from './../../../../environments/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { animate, style, transition, trigger } from '@angular/animations';
 import swal from 'sweetalert2';
 import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
@@ -182,65 +178,6 @@ export class PromocionComponent implements OnInit {
         const empresa = this.empresas.find(
             (empresa) => empresa.id == this.promocion.empresa
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${empresa.bd}/${this.producto.busqueda}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.producto.codigo = this.producto.busqueda;
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${empresa.bd}/${this.producto.busqueda}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    swal(
-                                        '',
-                                        'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                        'error'
-                                    );
-
-                                    return;
-                                }
-
-                                this.productos = Object.values(res);
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarProducto(productocantidadinput, productoprecioinput) {

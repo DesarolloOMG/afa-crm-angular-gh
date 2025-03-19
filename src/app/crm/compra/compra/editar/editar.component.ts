@@ -1,9 +1,5 @@
-import {
-    backend_url,
-    backend_url_erp,
-    tinymce_init,
-} from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
+import { backend_url, tinymce_init } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -157,26 +153,6 @@ export class EditarComponent implements OnInit {
                 });
             }
         );
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Productos/Categorias`)
-            .subscribe(
-                (res) => {
-                    this.categorias = Object(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     /* Usuarios en las notificaciones */
@@ -321,50 +297,6 @@ export class EditarComponent implements OnInit {
 
                     this.seguimiento = informacion.seguimiento;
 
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/Razon/${informacion.proveedor.razon_social}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    swal(
-                                        '',
-                                        'No se encontró el proveedor de la compra en el ERP.',
-                                        'error'
-                                    );
-
-                                    return;
-                                }
-
-                                this.proveedores = Object.values(res);
-
-                                this.proveedores.forEach((proveedor) => {
-                                    if (
-                                        proveedor.rfc ==
-                                        informacion.proveedor.rfc
-                                    ) {
-                                        this.data.proveedor.id =
-                                            proveedor.idproveedor;
-
-                                        this.cambiarProveedor();
-                                    }
-                                });
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-
                     for (const producto of this.data.productos) {
                         if (producto.codigo == 'TEMPORAL') {
                             producto.descripcion = producto.descripcion_2;
@@ -401,35 +333,6 @@ export class EditarComponent implements OnInit {
 
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/Razon/${this.data.proveedor.text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length == 0) {
-                        swal('', 'Razón social no encontrada', 'error');
-
-                        return;
-                    }
-
-                    this.data.proveedor.text = '';
-                    this.proveedores = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     /* Productos */
@@ -499,105 +402,10 @@ export class EditarComponent implements OnInit {
         if (!this.producto.codigo_text) {
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${this.producto.codigo_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.productos = Object.values(res);
-                        this.productos.map((producto) => (producto.existe = 1));
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${this.data.empresa}/${this.producto.codigo_text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    swal(
-                                        '',
-                                        'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                        'error'
-                                    );
-
-                                    return;
-                                }
-
-                                this.productos = Object.values(res);
-                                this.productos.map(
-                                    (producto) => (producto.existe = 1)
-                                );
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     async existeProducto(codigo) {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${codigo}`
-                )
-                .subscribe(
-                    (res) => {
-                        const producto = this.data.productos.find(
-                            (producto) => producto.codigo == codigo
-                        );
-
-                        if (producto) {
-                            producto.existe =
-                                Object.values(res).length > 0 ? 1 : 0;
-                        }
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        resolve(1);
-                    }
-                );
-        });
+        return new Promise((resolve, reject) => {});
     }
 
     async guardarCompra(event) {

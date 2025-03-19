@@ -1,6 +1,5 @@
 import {
     backend_url,
-    backend_url_erp,
     backend_url_password,
     commaNumber,
 } from './../../../../../environments/environment';
@@ -241,68 +240,6 @@ export class HistorialComponent implements OnInit {
         const empresa = this.empresas.find(
             (empresa) => empresa.id == this.data.empresa
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Poliza/Buscar/CuentasContable/DB/${empresa.bd}/BuscarPor/1/Buscar/${this.transaccion_poliza.cuenta_criterio}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length != 0) {
-                        this.cuentas_contables = Object.values(res);
-
-                        if (this.cuentas_contables.length == 1) {
-                            const [cuenta] = this.cuentas_contables;
-
-                            this.transaccion_poliza.cuenta_alias =
-                                cuenta.cuenta;
-                        }
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/Poliza/Buscar/CuentasContable/DB/${empresa.bd}/BuscarPor/2/Buscar/${this.transaccion_poliza.cuenta_criterio}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                this.cuentas_contables = Object.values(res);
-
-                                if (this.cuentas_contables.length == 1) {
-                                    const [cuenta] = this.cuentas_contables;
-
-                                    this.transaccion_poliza.cuenta_alias =
-                                        cuenta.cuenta;
-                                }
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     generarTraspaso() {
@@ -520,41 +457,6 @@ export class HistorialComponent implements OnInit {
         form_data.append('password', backend_url_password);
         form_data.append('id', this.poliza_automatica.movimiento);
         form_data.append('asientoid', this.poliza_automatica.template);
-
-        this.http
-            .post(`${backend_url_erp}api/adminpro/PolizasAutomatico`, form_data)
-            .subscribe(
-                (res: any) => {
-                    swal({
-                        type: res.error ? 'error' : 'success',
-                        html: res.mensaje,
-                    });
-
-                    if (!res.error) {
-                        const documento = this.documentos.find(
-                            (documento) =>
-                                documento.folio ==
-                                this.poliza_automatica.movimiento
-                        );
-
-                        documento.poliza = res.id;
-
-                        this.modalReferencePoliza.close();
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarTransaccionPoliza() {
@@ -658,98 +560,12 @@ export class HistorialComponent implements OnInit {
         const empresa = this.empresas.find(
             (empresa) => empresa.id == this.data.empresa
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consulta/CuentasBancarias/${empresa.bd}`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Poliza/Tipos/${empresa.bd}`)
-            .subscribe(
-                (res) => {
-                    this.polizas_tipos = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/PolizasAsientos/Lista/DB/${empresa.bd}`
-            )
-            .subscribe(
-                (res) => {
-                    this.templates_poliza = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     cambiarTipoPoliza() {
         const empresa = this.empresas.find(
             (empresa) => empresa.id == this.data.empresa
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Poliza/Tipo/${this.poliza.tipo}/Definiciones/${empresa.bd}`
-            )
-            .subscribe(
-                (res) => {
-                    this.polizas_definiciones = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     cambiarCuenta() {

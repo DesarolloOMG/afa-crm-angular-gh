@@ -1,9 +1,5 @@
-import {
-    backend_url,
-    backend_url_erp,
-    tinymce_init,
-} from './../../../../../../environments/environment';
-import { AuthService } from './../../../../../services/auth.service';
+import { backend_url, tinymce_init } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -256,66 +252,6 @@ export class CrearComponent implements OnInit {
                 });
             }
         );
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/CobroCliente/Destino/${this.data.empresa}/EntidadDestino/1`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http.get(`${backend_url_erp}api/Bancos`).subscribe(
-            (res) => {
-                this.razones = Object.values(res);
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Bancos/${this.data.empresa}`)
-            .subscribe(
-                (res) => {
-                    this.bancos = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     cambiarEmpresa() {
@@ -470,40 +406,6 @@ export class CrearComponent implements OnInit {
                 this.data.empresa_externa != ''
                     ? this.data.empresa_externa
                     : this.data.empresa;
-
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/Consultas/Clientes/${empresa}/Razon/${encodeURIComponent(
-                        this.data.cliente.input.toUpperCase()
-                    )}`
-                )
-                .subscribe(
-                    (res) => {
-                        if (Object.values(res).length == 0) {
-                            swal('', 'No se encontró ningún cliente.', 'error');
-
-                            resolve(1);
-                            return;
-                        }
-
-                        this.clientes = Object.values(res);
-                        resolve(1);
-                    },
-                    (response) => {
-                        resolve(1);
-
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-                    }
-                );
         });
     }
 
@@ -525,30 +427,6 @@ export class CrearComponent implements OnInit {
         if (cliente.condicionpago_id != null && cliente.condicionpago_id != 0) {
             this.data.documento.periodo = cliente.condicionpago_id;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consulta/Tarjetas/${
-                    this.data.empresa
-                }/Empresa/RFC/${$.trim(cliente.rfc)}`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas_cliente = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
 
         if (this.data.cliente.rfc != 'XAXX010101000') {
             var form_data = new FormData();
@@ -1850,64 +1728,6 @@ export class CrearComponent implements OnInit {
         if (!this.producto.codigo_text) {
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${this.producto.codigo_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${this.data.empresa}/${this.producto.codigo_text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    swal(
-                                        '',
-                                        'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                        'error'
-                                    );
-
-                                    return;
-                                }
-
-                                this.productos = Object.values(res);
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     async agregarProducto() {
@@ -2333,11 +2153,9 @@ export class CrearComponent implements OnInit {
             return;
         }
 
-
         this.http
             .get(
-                'http://201.7.208.53:11903/api/adminpro/Consultas/CP/' +
-                    codigo
+                'http://201.7.208.53:11903/api/adminpro/Consultas/CP/' + codigo
             )
             .subscribe(
                 (res) => {
@@ -2713,28 +2531,6 @@ export class CrearComponent implements OnInit {
 
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/CobroCliente/Destino/${this.data.empresa}/EntidadDestino/${this.data.documento.cobro.entidad_destino}`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     async verificarExistencia() {

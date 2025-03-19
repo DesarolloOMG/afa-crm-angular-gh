@@ -1,9 +1,5 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from './../../../../../../environments/environment';
-import { AuthService } from './../../../../../services/auth.service';
+import { backend_url, commaNumber } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -53,8 +49,7 @@ export class MarketplaceComponent implements OnInit {
         if (this.data.fecha_inicial == '' || this.data.fecha_final == '') {
             swal({
                 type: 'error',
-                html:
-                    'Favor de seleccionar un rango de fechas valido para generar el reporte.',
+                html: 'Favor de seleccionar un rango de fechas valido para generar el reporte.',
             });
 
             return;

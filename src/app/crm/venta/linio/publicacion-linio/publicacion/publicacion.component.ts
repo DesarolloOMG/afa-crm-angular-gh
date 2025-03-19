@@ -11,9 +11,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { VentaService } from '@services/http/venta.service';
 import { MercadolibreService } from '@services/http/mercadolibre.service';
-import { ErpService } from '@services/http/erp.service';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 import swal from 'sweetalert2';
 
 @Component({
@@ -96,7 +93,6 @@ export class PublicacionComponent implements OnInit {
     constructor(
         private ventaService: VentaService,
         private mercadolibreService: MercadolibreService,
-        private erpService: ErpService,
         private http: HttpClient,
         private modalService: NgbModal,
         private chRef: ChangeDetectorRef,
@@ -217,36 +213,6 @@ export class PublicacionComponent implements OnInit {
         const company = this.companies.find(
             (company) => company.id == this.data.company
         );
-
-        this.erpService
-            .getProductBySKUorDescription(this.product.search, company.bd, true)
-            .subscribe(
-                (res: any) => {
-                    if (res.length) {
-                        this.products = [...res];
-
-                        return;
-                    }
-
-                    this.erpService
-                        .getProductBySKUorDescription(
-                            this.product.search,
-                            company.bd,
-                            false
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                this.products = [...res];
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     addProduct() {

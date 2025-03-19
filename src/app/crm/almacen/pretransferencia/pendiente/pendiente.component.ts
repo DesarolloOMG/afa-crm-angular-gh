@@ -8,7 +8,6 @@ import {
 } from '@env/environment';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlmacenService } from '@services/http/almacen.service';
-import { ErpService } from '@services/http/erp.service';
 import { GeneralService } from '@services/http/general.service';
 import * as moment from 'moment';
 import swal from 'sweetalert2';
@@ -84,7 +83,6 @@ export class PendienteComponent implements OnInit {
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private http: HttpClient,
-        private erpService: ErpService,
         private generalService: GeneralService
     ) {
         this.moment.locale('es_MX');
@@ -272,47 +270,6 @@ export class PendienteComponent implements OnInit {
 
             return;
         }
-
-        this.erpService
-            .getProductBySKUorDescription(
-                this.product.busqueda,
-                this.document_detail.empresa,
-                true
-            )
-            .subscribe(
-                (res: any) => {
-                    if (Object.values(res).length > 0) {
-                        this.product.sku = this.product.busqueda;
-                        this.products = Object.values(res);
-
-                        return;
-                    }
-
-                    this.erpService
-                        .getProductBySKUorDescription(
-                            this.product.busqueda,
-                            this.document_detail.empresa,
-                            false
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                if (Object.values(res).length == 0)
-                                    return swal({
-                                        type: 'error',
-                                        html: 'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                    });
-
-                                this.products = Object.values(res);
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     addProduct() {

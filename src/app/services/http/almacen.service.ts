@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { backend_url, backend_url_erp } from '@env/environment';
+import { backend_url } from '@env/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -152,12 +152,6 @@ export class AlmacenService {
         return this.http.post(
             `${backend_url}almacen/movimiento/historial/data`,
             form_data
-        );
-    }
-
-    getDocumentDataFromERP(company_id: string, documento_id: string) {
-        return this.http.get(
-            `${backend_url_erp}api/adminpro/MovimientosEntreAlmacenes/${company_id}/id/${documento_id}`
         );
     }
 

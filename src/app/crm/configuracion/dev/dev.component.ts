@@ -1,14 +1,10 @@
 import { Component, OnInit, TemplateRef, OnDestroy } from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-    swalErrorHttpResponse,
-} from '../../../../environments/environment';
+import { backend_url, swalErrorHttpResponse } from '@env/environment';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import swal from 'sweetalert2';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfiguracionService } from '@services/http/configuracion.service';
-import { AuthService } from './../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import * as XLSX from 'xlsx';
 import { NgxSpinnerService } from 'ngx-spinner';
 
@@ -1985,19 +1981,11 @@ export class DevComponent implements OnInit {
     }
 
     async fetchCodigoSat(empresa, codigo_text) {
-        return this.http
-            .get(
-                `${backend_url_erp}api/adminpro/ClaveProdServ/${empresa.bd}/${codigo_text}`
-            )
-            .toPromise();
+        return [];
     }
 
     async fetchCodigoSatByClave(empresa, codigo_text) {
-        return this.http
-            .get(
-                `${backend_url_erp}api/adminpro/${empresa.bd}/ClaveProdServ/Clave/${codigo_text}`
-            )
-            .toPromise();
+        return [];
     }
 
     handleApiError(response) {

@@ -1,8 +1,4 @@
-import {
-    backend_url,
-    backend_url_erp,
-    tinymce_init,
-} from './../../../../environments/environment';
+import { backend_url, tinymce_init } from '@env/environment';
 import {
     Component,
     OnInit,
@@ -98,43 +94,6 @@ export class PagoComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/PendientesAplicar/7/NotasCredito/rangofechas/De/01/01/2023/Al/31/12/2023`
-            )
-            .subscribe(
-                (res) => {
-                    //Obtener las notas
-                    Object.values(res).forEach((element) => {
-                        this.notas.push(element);
-                    });
-                    //Cambiar $ a 2 decimales y fecha formatear
-                    this.notas.forEach((element) => {
-                        element.total = element.total.toFixed(2);
-
-                        //obtenber el Numero de documento
-                        const matches = element.titulo
-                            .toString()
-                            .match(/\d{6,10}/g);
-                        if (matches) {
-                            element.titulo = matches[0]; // ordem1
-                        }
-                    });
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
         this.http.get(`${backend_url}contabilidad/pagos/data`).subscribe(
             (res) => {
                 this.ventas = res['ventas'];
@@ -156,35 +115,9 @@ export class PagoComponent implements OnInit {
                 });
             }
         );
-
-        this.http.get(`${backend_url_erp}api/Bancos`).subscribe(
-            (res) => {
-                this.razones = Object.values(res);
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
     }
 
-    descargarNotaCredito(nota, tipo) {
-        const url_tipo =
-            tipo == 1 ? 'DescargarNotaCreaditoXML' : 'DescargarNotaCreaditoPDF';
-
-        window.open(
-            `${backend_url_erp}api/adminpro/${this.data.empresa}/${url_tipo}/ID/${nota}`,
-            '_blank'
-        );
-    }
+    descargarNotaCredito(nota, tipo) {}
 
     detalleVenta(modal, documento) {
         this.clearData();
@@ -231,48 +164,6 @@ export class PagoComponent implements OnInit {
             this.data.empresa_externa != ''
                 ? this.data.empresa_externa
                 : this.data.empresa;
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consulta/Tarjetas/${empresa}/Empresa/RFC/${this.data.rfc}`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas_cliente = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http
-            .get(`${backend_url_erp}api/adminpro/Bancos/${empresa}`)
-            .subscribe(
-                (res) => {
-                    this.bancos = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
 
         Object.values(this.data.seguimiento_anterior).forEach((element) => {
             Object.values(element).forEach((element2) => {
@@ -446,30 +337,6 @@ export class PagoComponent implements OnInit {
             this.data.empresa_externa != ''
                 ? this.data.empresa_externa
                 : this.data.empresa;
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/CobroCliente/Destino/${empresa}/EntidadDestino/${this.final_data.entidad_destino}`
-            )
-            .subscribe(
-                (res) => {
-                    this.cuentas = Object.values(res);
-
-                    this.final_data.destino = '';
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     currentDate() {

@@ -1,17 +1,15 @@
 import {
     backend_url,
-    backend_url_erp,
     tinymce_init,
     swalErrorHttpResponse,
-} from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
+} from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import swal from 'sweetalert2';
 import { AlmacenService } from '@services/http/almacen.service';
-import { ErpService } from '@services/http/erp.service';
 import { GeneralService } from '@services/http/general.service';
+import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -110,10 +108,8 @@ export class SolicitudComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private router: Router,
         private auth: AuthService,
         private almacenService: AlmacenService,
-        private erpService: ErpService,
         private generalService: GeneralService
     ) {
         this.niveles_usuario = JSON.parse(this.auth.userData().sub).niveles;
@@ -212,47 +208,6 @@ export class SolicitudComponent implements OnInit {
 
             return;
         }
-
-        this.erpService
-            .getProductBySKUorDescription(
-                this.producto.codigo_text,
-                this.data.empresa,
-                true
-            )
-            .subscribe(
-                (res: any) => {
-                    if (Object.values(res).length > 0) {
-                        this.producto.sku = this.producto.codigo_text;
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.erpService
-                        .getProductBySKUorDescription(
-                            this.producto.codigo_text,
-                            this.data.empresa,
-                            false
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                if (Object.values(res).length == 0)
-                                    return swal({
-                                        type: 'error',
-                                        html: 'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                    });
-
-                                this.productos = Object.values(res);
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     eliminarProducto(codigo) {
@@ -372,23 +327,32 @@ export class SolicitudComponent implements OnInit {
             form_data.append('etiqueta', publicacion.etiqueta);
             form_data.append('publicacion', publicacion.id);
             this.http
-                .post(`${backend_url}almacen/pretransferencia/solicitud/publicacion/productos`, form_data)
+                .post(
+                    `${backend_url}almacen/pretransferencia/solicitud/publicacion/productos`,
+                    form_data
+                )
                 .subscribe(
                     (res) => {
                         console.log(res);
-                        res["productos"].forEach((producto) => {
-                            let productoExistente = this.data.productos.find(p => p.sku === producto.sku);
+                        res['productos'].forEach((producto) => {
+                            let productoExistente = this.data.productos.find(
+                                (p) => p.sku === producto.sku
+                            );
 
                             // Si el producto ya existe, aumenta solamente su cantidad.
                             if (productoExistente) {
-                                productoExistente.cantidad += Number(producto.cantidad) * Number(publicacion.cantidad);
+                                productoExistente.cantidad +=
+                                    Number(producto.cantidad) *
+                                    Number(publicacion.cantidad);
                             } else {
                                 // Si el producto no existe, crea un nuevo producto y añádelo a data.productos.
                                 let nuevoProducto = {
                                     sku: producto.sku,
                                     codigo_text: producto.sku,
                                     descripcion: producto.descripcion,
-                                    cantidad: Number(producto.cantidad) * Number(publicacion.cantidad),
+                                    cantidad:
+                                        Number(producto.cantidad) *
+                                        Number(publicacion.cantidad),
                                     costo: producto.costo ? producto.costo : 0,
                                     serie: producto.serie,
                                     alto: producto.alto ? producto.alto : 0,
@@ -410,7 +374,6 @@ export class SolicitudComponent implements OnInit {
                     }
                 );
         });
-
     }
 
     buscarCliente() {
@@ -431,27 +394,6 @@ export class SolicitudComponent implements OnInit {
 
             return;
         }
-
-        this.erpService
-            .getCustomerByNameOrRFC(
-                this.data.empresa,
-                this.data.cliente.input,
-                false
-            )
-            .subscribe(
-                (res: any) => {
-                    if (!Object.values(res).length)
-                        return swal({
-                            type: 'error',
-                            html: 'No se encontró ningún cliente.',
-                        });
-
-                    this.clientes = [...Object.values(res)];
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     cambiarCliente() {
@@ -492,64 +434,54 @@ export class SolicitudComponent implements OnInit {
         }
 
         if (!this.data.pendiente) {
-
             const stockPromises = [];
 
             this.data.productos.forEach((producto) => {
                 const stockPromise = new Promise((resolve, reject) => {
-                    this.generalService.getProductStock(
-                        producto.sku,
-                        this.data.almacen_salida,
-                        producto.cantidad
-                    ).subscribe(
-                        (res) => resolve(res),
-                        (err) => {
-                            swalErrorHttpResponse(err);
-                            reject(err);
-                        }
-                    );
+                    this.generalService
+                        .getProductStock(
+                            producto.sku,
+                            this.data.almacen_salida,
+                            producto.cantidad
+                        )
+                        .subscribe(
+                            (res) => resolve(res),
+                            (err) => {
+                                swalErrorHttpResponse(err);
+                                reject(err);
+                            }
+                        );
                 });
 
                 stockPromises.push(stockPromise);
             });
 
-            Promise.all(stockPromises).then(() => {
-                this.almacenService.savePretransferenciaSolicitud(this.data).subscribe(
-                    (res: any) => {
-                        swal({
-                            type: 'success',
-                            html: res.message,
-                        });
+            Promise.all(stockPromises)
+                .then(() => {
+                    this.almacenService
+                        .savePretransferenciaSolicitud(this.data)
+                        .subscribe(
+                            (res: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: res.message,
+                                });
 
-                        this.initObjects();
-                    },
-                    (err: any) => {
-                        swalErrorHttpResponse(err);
-                    }
-                );
-            }).catch((err) => {
-                console.error("An error occurred:", err);
-            });
-
+                                this.initObjects();
+                            },
+                            (err: any) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                })
+                .catch((err) => {
+                    console.error('An error occurred:', err);
+                });
         }
-
-
     }
 
     cambiarCodigoPostal(codigo) {
         if (!codigo) return;
-
-        this.erpService.getAddressFromPostalCode(codigo).subscribe(
-            (res: any) => {
-                this.data.direccion_envio.estado = res.estado[0].estado;
-                this.data.direccion_envio.ciudad = res.municipio[0].municipio;
-
-                this.colonias_e = res.colonia;
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
     }
 
     agregarArchivo() {

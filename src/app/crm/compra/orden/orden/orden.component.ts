@@ -1,10 +1,6 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-} from './../../../../../environments/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -185,35 +181,6 @@ export class OrdenComponent implements OnInit {
 
             return;
         }
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/Razon/${this.proveedor_text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length == 0) {
-                        swal('', 'Razón social no encontrada', 'error');
-
-                        return;
-                    }
-
-                    this.proveedor_text = '';
-                    this.proveedores = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     cambiarProveedor() {
@@ -255,65 +222,6 @@ export class OrdenComponent implements OnInit {
         }
 
         if (!this.producto.text) return;
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${this.producto.text}`
-            )
-            .subscribe(
-                (res) => {
-                    if (Object.values(res).length > 0) {
-                        this.producto.codigo = this.producto.text;
-                        this.productos = Object.values(res);
-
-                        return;
-                    }
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/producto/Consulta/Productos/Descripcion/${this.data.empresa}/${this.producto.text}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                if (Object.values(res).length == 0) {
-                                    swal(
-                                        '',
-                                        'No se encontró el producto, favor de revisar la información e intentar de nuevo.',
-                                        'error'
-                                    );
-
-                                    return;
-                                }
-
-                                this.productos = Object.values(res);
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     agregarProducto() {
@@ -347,46 +255,7 @@ export class OrdenComponent implements OnInit {
     }
 
     async existeProducto(codigo) {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.empresa}/${codigo}`
-                )
-                .subscribe(
-                    (res: any) => {
-                        const productos = this.data.productos.filter(
-                            (producto) => producto.codigo == codigo
-                        );
-
-                        const existe =
-                            Object.values(res).length > 0 ? true : false;
-
-                        productos.map((producto) => {
-                            producto.existe = existe;
-
-                            if (Object.values(res).length > 0) {
-                                producto.descripcion = res[0].producto;
-                            }
-                        });
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        resolve(1);
-                    }
-                );
-        });
+        return new Promise((resolve, reject) => {});
     }
 
     crearDocumento(event) {
@@ -698,51 +567,6 @@ export class OrdenComponent implements OnInit {
         }
 
         this.almacenes = [...empresa.almacenes];
-
-        this.http
-            .get(
-                `${backend_url_erp}api/dminpro/Empresas/Informacion/BD/${empresa.bd}/RFC/${empresa.rfc}`
-            )
-            .subscribe(
-                (res: any) => {
-                    if (res != null) {
-                        if (res.direccion) {
-                            const direccion_fiscal = res.direccion.find(
-                                (direccion) =>
-                                    direccion.nombre == 'Dirección fiscal'
-                            );
-
-                            const direccion_envio = res.direccion.find(
-                                (direccion) =>
-                                    direccion.nombre == 'Dirección de entrega'
-                            );
-
-                            if (direccion_fiscal) {
-                                this.data.billto = `${res.nombre_oficial}\n${res.rfc}\n${direccion_fiscal.calle} #${direccion_fiscal.ext} ${direccion_fiscal.int}\n${direccion_fiscal.colonia}\n${direccion_fiscal.ciudad} ${direccion_fiscal.estado}\n${direccion_fiscal.cp}`;
-                                this.data.shipto = `${res.nombre_oficial}\n${direccion_fiscal.calle} #${direccion_fiscal.ext} ${direccion_fiscal.int}\n${direccion_fiscal.colonia}\n${direccion_fiscal.ciudad} ${direccion_fiscal.estado}\n${direccion_fiscal.cp}`;
-                            }
-                        }
-                    }
-
-                    //Si se selecciona Tesla, se borra el campo de bill y ship to
-                    if (empresa.bd == 8 || empresa.bd == 2) {
-                        this.data.billto = '';
-                        this.data.shipto = '';
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     prorratearMontoExtra() {

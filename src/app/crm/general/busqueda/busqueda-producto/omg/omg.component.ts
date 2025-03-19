@@ -1,18 +1,16 @@
 import {
     backend_url,
-    backend_url_erp,
     commaNumber,
     swalErrorHttpResponse,
     downloadExcelReport,
-} from './../../../../../../environments/environment';
+} from '@env/environment';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from './../../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { GeneralService } from './../../../../../services/http/general.service';
+import { GeneralService } from '@services/http/general.service';
 import swal from 'sweetalert2';
-import { trim } from 'jquery';
 
 @Component({
     selector: 'app-omg',
@@ -330,107 +328,11 @@ export class OmgComponent implements OnInit {
     }
 
     async verKardexERP(producto) {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/Kardex/${this.data.empresa}/Producto/sku/${producto}`
-                )
-                .subscribe(
-                    (res) => {
-                        this.datatable_kardex_erp.destroy();
-
-                        this.kardex = Object.values(res);
-
-                        this.kardex.forEach((almacen) => {
-                            almacen.kardex.forEach((documento) => {
-                                if (almacen.tipo_documento == undefined) {
-                                    almacen.tipo_documento = [];
-
-                                    almacen.tipo_documento.push({
-                                        tipo: documento.modulo,
-                                        cantidad: Number(documento.cantidad),
-                                    });
-                                } else {
-                                    var existe = 0;
-
-                                    almacen.tipo_documento.forEach((tipo) => {
-                                        if (tipo.tipo == documento.modulo) {
-                                            tipo.cantidad += Number(
-                                                documento.cantidad
-                                            );
-
-                                            existe = 1;
-                                        }
-                                    });
-
-                                    if (!existe) {
-                                        almacen.tipo_documento.push({
-                                            tipo: documento.modulo,
-                                            cantidad: Number(
-                                                documento.cantidad
-                                            ),
-                                        });
-                                    }
-                                }
-                            });
-                        });
-
-                        setTimeout(() => {
-                            this.chRef.detectChanges();
-                            const table: any = $(
-                                '.general-busqueda-producto-kardex-erp'
-                            );
-                            this.datatable_kardex_erp = table.DataTable();
-                        }, 500);
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        reject();
-                    }
-                );
-        });
+        return new Promise((resolve, reject) => {});
     }
 
     async verAlmacenesYMovimientos(producto) {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/DiasTranscurridos/${this.data.empresa}/SKU/${producto}`
-                )
-                .subscribe(
-                    (res: any) => {
-                        this.movimientos = [...Object.values(res)];
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        reject();
-                    }
-                );
-        });
+        return new Promise((resolve, reject) => {});
     }
 
     async verSinonimos(producto) {
@@ -601,43 +503,7 @@ export class OmgComponent implements OnInit {
         });
     }
 
-    recostearProducto(codigo) {
-        this.http
-            .get(
-                `${backend_url_erp}api/ReCosteo/BD/${this.data.empresa}/Promedio/SKU/${codigo}`
-            )
-            .subscribe(
-                (res: any) => {
-                    swal({
-                        type: res.error == 1 ? 'error' : 'success',
-                        html:
-                            res.error == 1
-                                ? res.mensaje
-                                : 'Producto recosteado correctamente',
-                    });
-
-                    if (res.error == 0) {
-                        const producto = this.productos.find(
-                            (producto) => producto.sku == codigo
-                        );
-
-                        producto.ultimo_costo = res.ultimocosto;
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-    }
+    recostearProducto(codigo) {}
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(

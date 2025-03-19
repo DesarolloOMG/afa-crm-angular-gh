@@ -159,33 +159,6 @@ export class ProductoComponent implements OnInit {
 
             return;
         }
-
-        this.generalService
-            .getBTOBProductAdminBySKUOrDescription(this.producto.criterio, true)
-            .subscribe(
-                (res: any) => {
-                    if (!res.sku) {
-                        this.generalService
-                            .getBTOBProductAdminBySKUOrDescription(
-                                this.producto.criterio,
-                                false
-                            )
-                            .subscribe(
-                                (res: any) => {
-                                    this.productos_b2b = Object.values(res);
-                                },
-                                (err: any) => {
-                                    swalErrorHttpResponse(err);
-                                }
-                            );
-                    } else {
-                        this.productos_b2b = Array(res);
-                    }
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
     }
 
     cambiarProductoClientePrecio() {

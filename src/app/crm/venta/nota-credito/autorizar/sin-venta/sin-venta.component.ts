@@ -12,8 +12,7 @@ import {
     backend_url,
     swalErrorHttpResponse,
     commaNumber,
-    backend_url_erp,
-} from '../../../../../../environments/environment';
+} from '@env/environment';
 
 @Component({
     selector: 'app-sin-venta',
@@ -236,73 +235,6 @@ export class SinVentaComponent implements OnInit {
                         'productos',
                         JSON.stringify(data.productos)
                     );
-
-                    this.http
-                        .post(
-                            `${backend_url_erp}api/adminpro/cliente/notacredito/insertar/UTKFJKkk3mPc8LbJYmy6KO1ZPgp7Xyiyc1DTGrw`,
-                            form_data
-                        )
-                        .subscribe(
-                            (res: any) => {
-                                if (res.error != '0') {
-                                    return swal({
-                                        type: 'error',
-                                        html: res.mensaje,
-                                    });
-                                }
-                                swal({
-                                    type: 'success',
-                                    html: `Nota de credito creada correctamente con el folio y serie ${this.data.serie} ${res.id}`,
-                                });
-                                this.http
-                                    .post(
-                                        `${backend_url}venta/nota-credito/autorizar/sin-venta/autorizado`,
-                                        form_data
-                                    )
-                                    .subscribe(
-                                        (res) => {
-                                            if (modulo != 'Sin Venta') {
-                                                swal({
-                                                    title: '',
-                                                    type:
-                                                        res['code'] == 200
-                                                            ? 'success'
-                                                            : 'error',
-                                                    html: res['message'],
-                                                });
-                                            }
-                                        },
-                                        (response) => {
-                                            swal({
-                                                title: '',
-                                                type: 'error',
-                                                html:
-                                                    response.status == 0
-                                                        ? response.message
-                                                        : typeof response.error ===
-                                                          'object'
-                                                        ? response.error
-                                                              .error_summary
-                                                        : response.error,
-                                            });
-                                        }
-                                    );
-                                this.modalReference.close();
-                                this.getAutorizaciones();
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
                 }
             }
         });

@@ -130,28 +130,6 @@ export class HistorialComponent implements OnInit {
                     this.documents = [...res.documentos];
 
                     this.rebuildTable();
-
-                    this.documents.map((d) => {
-                        this.almacenService
-                            .getDocumentDataFromERP(d.empresa, d.factura_folio)
-                            .subscribe(
-                                (res: any) => {
-                                    d.entregado = res.entregado;
-                                    d.cancelado = res.cancelado;
-                                    d.eliminado = res.eliminado;
-                                    d.autorizado_by = res.entregado
-                                        ? d.autorizado_by == 0
-                                            ? 1
-                                            : d.autorizado_by
-                                        : d.autorizado_by;
-                                },
-                                (err: any) => {
-                                    d.entregado = '';
-                                    d.cancelado = 0;
-                                    d.eliminado = 0;
-                                }
-                            );
-                    });
                 },
                 (err: any) => {
                     swalErrorHttpResponse(err);

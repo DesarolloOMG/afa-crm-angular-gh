@@ -1,7 +1,4 @@
-import {
-    backend_url,
-    backend_url_erp,
-} from '../../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import swal from 'sweetalert2';
@@ -111,53 +108,6 @@ export class NotasDeCreditoComponent implements OnInit {
 
         var find = this.fechaFormato(this.busqueda.fecha_final.split('-'));
         // 27/06/2023
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/PendientesAplicar/${this.busqueda.empresa}/NotasCredito/rangofechas/De/${inid}/Al/${find}`
-            )
-            .subscribe(
-                (res) => {
-                    //Obtener las notas
-                    Object.values(res).forEach((element) => {
-                        this.notas.push(element);
-                    });
-                    //Cambiar $ a 2 decimales y fecha formatear
-                    this.notas.forEach((element) => {
-                        element.total = element.total.toFixed(2);
-                        element.fecha = this.fechaFormato(
-                            element.fecha.split('-')
-                        );
-                        //obtenber el Numero de documento
-                        const matches = element.titulo
-                            .toString()
-                            .match(/\d{6,10}/g);
-                        if (matches) {
-                            element.titulo = matches[0]; // ordem1
-                        }
-                    });
-
-                    this.rebuildTable();
-                    if (this.notas.length <= 0) {
-                        return swal({
-                            type: 'warning',
-                            html: 'No hay datos para mostrar.',
-                        });
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     filterDocuments(documents, searchString: string) {
@@ -187,57 +137,6 @@ export class NotasDeCreditoComponent implements OnInit {
 
         var find = this.fechaFormato(this.busqueda.fecha_final.split('-'));
         // 27/06/2023
-
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/proveedor/notacredito/${this.busqueda.empresa}/consultar/rangofechas/De/${inid}/Al/${find}`
-            )
-            .subscribe(
-                (res) => {
-                    this.notas = [];
-                    //Obtener las notas
-                    Object.values(res).forEach((element) => {
-                        if (this.proveedor.text != '') {
-                            if (
-                                element.proveedor
-                                    .toLowerCase()
-                                    .includes(this.proveedor.text.toLowerCase())
-                            ) {
-                                this.notas.push(element);
-                            }
-                        } else {
-                            this.notas.push(element);
-                        }
-                    });
-                    //Cambiar $ a 2 decimales y fecha formatear
-                    this.notas.forEach((element) => {
-                        element.total = element.total.toFixed(2);
-                        element.fecha = this.fechaFormato(
-                            element.fecha.split('-')
-                        );
-                    });
-
-                    this.rebuildTable();
-                    if (this.notas.length <= 0) {
-                        return swal({
-                            type: 'warning',
-                            html: 'No hay datos para mostrar.',
-                        });
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     onProveedorChange() {

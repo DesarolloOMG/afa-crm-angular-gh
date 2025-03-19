@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-} from './../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from './../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
 
@@ -88,56 +85,6 @@ export class CrearGastoComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Cosultar/Impuestos/${this.data.empresa}`
-            )
-            .subscribe(
-                (res) => {
-                    this.impuestos = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-
-        this.http.get(`${backend_url_erp}api/adminpro/Gastos/Tipos`).subscribe(
-            (res) => {
-                this.tipos_gasto = Object.values(res);
-
-                this.tipos_gasto.sort(function (a, b) {
-                    if (a.gasto < b.gasto) {
-                        return -1;
-                    }
-                    if (a.gasto > b.gasto) {
-                        return 1;
-                    }
-                    return 0;
-                });
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
-
         this.http.get(`${backend_url}compra/compra/crear/data`).subscribe(
             (res) => {
                 this.periodos = res['periodos'];
@@ -172,28 +119,6 @@ export class CrearGastoComponent implements OnInit {
                     });
 
                     this.data.empresa = empresa.bd;
-
-                    this.http
-                        .get(
-                            `${backend_url_erp}api/adminpro/Cosultar/Impuestos/${this.data.empresa}`
-                        )
-                        .subscribe(
-                            (res) => {
-                                this.impuestos = Object.values(res);
-                            },
-                            (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
-                            }
-                        );
                 }
             },
             (response) => {
@@ -229,85 +154,6 @@ export class CrearGastoComponent implements OnInit {
 
                 return;
             }
-
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/Razon/${this.data.proveedor.busqueda}`
-                )
-                .subscribe(
-                    (res) => {
-                        if (Object.values(res).length == 0) {
-                            if (this.data.proveedor.rfc != '') {
-                                this.http
-                                    .get(
-                                        `${backend_url_erp}api/adminpro/Consultas/Proveedores/${this.data.empresa}/RFC/${this.data.proveedor.rfc}`
-                                    )
-                                    .subscribe(
-                                        (res) => {
-                                            this.data.proveedor.busqueda = '';
-                                            this.proveedores =
-                                                Object.values(res);
-
-                                            if (this.proveedores.length == 1) {
-                                                this.data.proveedor.id =
-                                                    this.proveedores[0].idproveedor;
-
-                                                this.cambiarProveedor();
-                                            }
-
-                                            resolve(1);
-                                        },
-                                        (response) => {
-                                            swal({
-                                                title: '',
-                                                type: 'error',
-                                                html:
-                                                    response.status == 0
-                                                        ? response.message
-                                                        : typeof response.error ===
-                                                          'object'
-                                                        ? response.error
-                                                              .error_summary
-                                                        : response.error,
-                                            });
-
-                                            resolve(1);
-                                        }
-                                    );
-
-                                return;
-                            }
-
-                            resolve(1);
-                        }
-
-                        this.data.proveedor.busqueda = '';
-                        this.proveedores = Object.values(res);
-
-                        if (this.proveedores.length == 1) {
-                            this.data.proveedor.id =
-                                this.proveedores[0].idproveedor;
-
-                            this.cambiarProveedor();
-                        }
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        resolve(1);
-                    }
-                );
         });
     }
 
@@ -327,29 +173,7 @@ export class CrearGastoComponent implements OnInit {
         };
     }
 
-    cambiarEmpresa() {
-        this.http
-            .get(
-                `${backend_url_erp}api/adminpro/Cosultar/Impuestos/${this.data.empresa}`
-            )
-            .subscribe(
-                (res) => {
-                    this.impuestos = Object.values(res);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-    }
+    cambiarEmpresa() {}
 
     async cargarXML() {
         var files = $('#xml_gasto').prop('files');

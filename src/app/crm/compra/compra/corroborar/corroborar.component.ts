@@ -1,16 +1,6 @@
-import {
-    Component,
-    OnInit,
-    ChangeDetectorRef,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import {
-    backend_url,
-    backend_url_erp,
-    tinymce_init,
-} from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { backend_url, tinymce_init } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
@@ -286,32 +276,6 @@ export class CorroborarComponent implements OnInit {
             const producto = this.data.productos.find(
                 (producto) => producto.id == id_producto
             );
-
-            this.http
-                .get(
-                    `${backend_url_erp}api/adminpro/producto/Consulta/Productos/SKU/${this.data.bd}/${producto.sku}`
-                )
-                .subscribe(
-                    (res) => {
-                        producto.existe = Object.values(res).length > 0 ? 1 : 0;
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        reject();
-                    }
-                );
         });
     }
 

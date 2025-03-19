@@ -1,10 +1,5 @@
-import {
-    backend_url,
-    backend_url_erp,
-    commaNumber,
-    tinymce_init,
-} from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
+import { backend_url, commaNumber, tinymce_init } from '@env/environment';
+import { AuthService } from '@services/auth.service';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -119,59 +114,6 @@ export class HistorialComponent implements OnInit {
                 archivo.icon = 'file';
             }
         });
-
-        if (this.detalle.factura_folio) {
-            if (this.detalle.factura_folio != 'N/A') {
-                this.http
-                    .get(
-                        `${backend_url_erp}api/adminpro/${this.detalle.empresa}/Factura/Estado/Folio/${this.detalle.factura_folio}`
-                    )
-                    .subscribe(
-                        (res) => {
-                            if ($.isArray(res) && res.length > 0) {
-                                const factura = Object.values(res).find(
-                                    (factura) =>
-                                        factura.timbrado == 1 &&
-                                        (factura.cancelado == null ||
-                                            factura.cancelado == 0) &&
-                                        (factura.eliminado == null ||
-                                            factura.eliminado == 0)
-                                );
-
-                                this.factura.timbrada = factura.timbrado;
-                                this.factura.cancelada = factura.cancelado
-                                    ? factura.cancelado
-                                    : 0;
-                                this.factura.eliminada = factura.eliminado
-                                    ? factura.eliminado
-                                    : 0;
-                            }
-
-                            if (res['documentoid']) {
-                                this.factura.timbrada = res['timbrado'];
-                                this.factura.cancelada = res['cancelado']
-                                    ? res['cancelado']
-                                    : 0;
-                                this.factura.eliminada = res['eliminado']
-                                    ? res['eliminado']
-                                    : 0;
-                            }
-                        },
-                        (response) => {
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                            });
-                        }
-                    );
-            }
-        }
 
         this.modalReference = this.modalService.open(modal, {
             size: 'lg',
@@ -458,14 +400,5 @@ export class HistorialComponent implements OnInit {
         if (niveles.indexOf('9') < 0) return false;
 
         return true;
-    }
-
-    descargarDocumento(tipo_documento) {
-        const tipo = tipo_documento ? 'DescargarPDF' : 'DescargarXML';
-
-        window.open(
-            `${backend_url_erp}api/adminpro/${this.detalle.empresa}/${tipo}/Serie/${this.detalle.factura_serie}/Folio/${this.detalle.factura_folio}`,
-            '_blank'
-        );
     }
 }
