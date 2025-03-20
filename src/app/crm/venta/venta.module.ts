@@ -8,7 +8,6 @@ import { TextMaskModule } from 'angular2-text-mask';
 
 import { VentaRoutingModule } from './venta-routing.module';
 import { ClienteComponent } from './cliente/cliente.component';
-import { PromocionComponent } from './promocion/promocion.component';
 
 @NgModule({
     imports: [
@@ -20,6 +19,6 @@ import { PromocionComponent } from './promocion/promocion.component';
         VentaRoutingModule,
         TextMaskModule,
     ],
-    declarations: [ClienteComponent, PromocionComponent],
+    declarations: [ClienteComponent],
 })
 export class VentaModule {}

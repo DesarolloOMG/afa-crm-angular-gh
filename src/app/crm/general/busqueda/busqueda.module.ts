@@ -13,6 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SerieComponent } from './serie/serie.component';
 import { VentaComponent } from './venta/venta.component';
 import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-seguimientos.module';
+import { ProductoComponent } from './producto/producto.component';
 
 @NgModule({
     imports: [
@@ -27,6 +28,6 @@ import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-s
         NgbModule,
         EditorSeguimientosModule,
     ],
-    declarations: [SerieComponent, VentaComponent],
+    declarations: [SerieComponent, VentaComponent, ProductoComponent],
 })
 export class BusquedaModule {}

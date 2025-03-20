@@ -31,25 +31,6 @@
 
     <div
         class="col-md-6"
-        (click)="modal(modalgenerarmarbete)"
-        style="cursor: pointer"
-    >
-        <div class="card">
-            <div class="card-block">
-                <div class="row align-items-center m-l-0">
-                    <div class="col-auto">
-                        <i class="fa fa-flag fa-2x fa-lg"></i>
-                    </div>
-                    <div class="col-auto">
-                        <h4>Generar marbete</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="col-md-6"
         (click)="modal(modalgeneraretiquetaserie)"
         style="cursor: pointer"
     >
@@ -61,25 +42,6 @@
                     </div>
                     <div class="col-auto">
                         <h4>Generar etiqueta (Serie)</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div
-        class="col-md-6"
-        (click)="modal(modaletiquetaqrserie)"
-        style="cursor: pointer"
-    >
-        <div class="card">
-            <div class="card-block">
-                <div class="row align-items-center m-l-0">
-                    <div class="col-auto">
-                        <i class="fa fa-qrcode fa-2x fa-lg"></i>
-                    </div>
-                    <div class="col-auto">
-                        <h4>QR para series</h4>
                     </div>
                 </div>
             </div>
@@ -334,94 +296,6 @@
     </div>
 </ng-template>
 
-<ng-template #modalgenerarmarbete let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body table-responsive">
-        <form class="md-float-material form-material mt-10" #f="ngForm">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            name="codigo"
-                            id="codigo"
-                            required
-                            class="form-control"
-                            [(ngModel)]="etiqueta_generar.codigo"
-                            (keydown.enter)="buscarProducto()"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Codigo</label>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            name="descripcion"
-                            id="descripcion"
-                            required
-                            class="form-control"
-                            [(ngModel)]="etiqueta_generar.descripcion"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Descripcion</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row m-t-20">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select
-                            name="impresoramarbete"
-                            id="impresoramarbete"
-                            class="form-control"
-                            required
-                            [(ngModel)]="etiqueta_generar.impresora"
-                        >
-                            <option
-                                value="{{ impresora.id }}"
-                                *ngFor="let impresora of impresoras"
-                            >
-                                {{
-                                    impresora.tamanio + " | " + impresora.nombre
-                                }}
-                            </option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Impresora</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row m-t-20">
-                <div class="col-md-12">
-                    <button
-                        type="button"
-                        class="btn btn-info btn-sm btn-block http-disabled"
-                        [disabled]="!f.valid || etiqueta_generar.cantidad == 0"
-                        (click)="imprimirEtiqueta(2)"
-                    >
-                        Generar
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</ng-template>
-
 <ng-template #modalgeneraretiquetaserie let-c="close" let-d="dismiss">
     <div class="modal-header">
         <button
@@ -519,98 +393,6 @@
                         type="button"
                         class="btn btn-info btn-sm btn-block http-disabled"
                         (click)="generarEtiquetaSerie()"
-                    >
-                        Generar
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</ng-template>
-
-<ng-template #modaletiquetaqrserie let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body table-responsive">
-        <form class="md-float-material form-material">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select
-                            name="impresoraarchivo"
-                            id="impresoraarchivo"
-                            class="form-control"
-                            required
-                            [(ngModel)]="etiqueta_qr.impresora"
-                        >
-                            <option
-                                value="{{ impresora.id }}"
-                                *ngFor="let impresora of impresoras"
-                            >
-                                {{
-                                    impresora.tamanio + " | " + impresora.nombre
-                                }}
-                            </option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Impresora</label>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            name="etiquetaqrserie"
-                            id="etiquetaqrserie"
-                            class="form-control"
-                            [(ngModel)]="etiqueta_qr.serie"
-                            (keydown.enter)="agregarSerieQR()"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Serie</label>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <ul class="list-group">
-                        <li
-                            class="list-group-item"
-                            *ngFor="
-                                let row of etiqueta_qr.series;
-                                let index = index
-                            "
-                        >
-                            {{ row }}
-                            <span
-                                (click)="etiqueta_qr.series.splice(index, 1)"
-                                class="float-right cursor-pointer text-danger"
-                                >Quitar</span
-                            >
-                            <!-- <i
-                                class="fa fa-trash fa-2x text-danger float-right cursor-pointer"
-                                (click)="etiqueta_qr.series.splice(index, 1)"
-                            ></i> -->
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="row m-t-20">
-                <div class="col-md-12">
-                    <button
-                        type="button"
-                        class="btn btn-info btn-sm btn-block http-disabled"
-                        (click)="generarQRSerie()"
                     >
                         Generar
                     </button>

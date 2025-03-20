@@ -8,7 +8,6 @@ import { UiSwitchModule } from 'ng2-ui-switch';
 
 import { DashboardRoutingModule } from './dashboard-routing.module';
 import { GeneralComponent } from './general/general.component';
-import { ClienteProveedorComponent } from './cliente-proveedor/cliente-proveedor.component';
 import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-seguimientos.module';
 
 @NgModule({
@@ -22,6 +21,6 @@ import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-s
         UiSwitchModule,
         EditorSeguimientosModule,
     ],
-    declarations: [GeneralComponent, ClienteProveedorComponent],
+    declarations: [GeneralComponent],
 })
 export class DashboardModule {}

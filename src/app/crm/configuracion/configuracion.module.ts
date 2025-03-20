@@ -9,7 +9,6 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 
 import { ConfiguracionRoutingModule } from './configuracion-routing.module';
 import { LogoutComponent } from './logout/logout.component';
-import { DevComponent } from './dev/dev.component';
 import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-seguimientos.module';
 
 @NgModule({
@@ -24,6 +23,6 @@ import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-s
         NgxSpinnerModule,
         EditorSeguimientosModule,
     ],
-    declarations: [LogoutComponent, DevComponent],
+    declarations: [LogoutComponent],
 })
 export class ConfiguracionModule {}

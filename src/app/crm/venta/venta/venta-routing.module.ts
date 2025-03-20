@@ -1,96 +1,87 @@
-import { NgModule } from "@angular/core";
-import { Routes, RouterModule } from "@angular/router";
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
 
-import { CrearComponent } from "./crear/crear.component";
-import { EliminarComponent } from "./eliminar/eliminar.component";
-import { NotaComponent } from "./nota/nota.component";
-import { ProblemaComponent } from "./problema/problema.component";
-import { EditarComponent } from "./editar/editar.component";
-import { AutorizarComponent } from "./autorizar/autorizar.component";
-import { ImportacionComponent } from "./importacion/importacion.component";
+import { CrearComponent } from './crear/crear.component';
+import { EliminarComponent } from './eliminar/eliminar.component';
+import { NotaComponent } from './nota/nota.component';
+import { ProblemaComponent } from './problema/problema.component';
+import { EditarComponent } from './editar/editar.component';
+import { AutorizarComponent } from './autorizar/autorizar.component';
+import { ImportacionComponent } from './importacion/importacion.component';
 
 const routes: Routes = [
     {
-        path: "",
+        path: '',
         children: [
             {
-                path: "crear",
+                path: 'crear',
                 component: CrearComponent,
                 data: {
-                    title: "Crear venta",
+                    title: 'Crear venta',
                 },
             },
             {
-                path: "autorizar",
+                path: 'autorizar',
                 component: AutorizarComponent,
                 data: {
-                    title: "Autorizar venta",
+                    title: 'Autorizar venta',
                 },
             },
             {
-                path: "autorizar/:documento",
+                path: 'autorizar/:documento',
                 component: AutorizarComponent,
                 data: {
-                    title: "Autorizar venta",
+                    title: 'Autorizar venta',
                 },
             },
             {
-                path: "editar",
+                path: 'editar',
                 component: EditarComponent,
                 data: {
-                    title: "Editar venta",
+                    title: 'Editar venta',
                 },
             },
             {
-                path: "editar/:documento",
+                path: 'editar/:documento',
                 component: EditarComponent,
                 data: {
-                    title: "Editar venta",
+                    title: 'Editar venta',
                 },
             },
             {
-                path: "eliminar",
+                path: 'eliminar',
                 component: EliminarComponent,
                 data: {
-                    title: "Eliminar venta",
+                    title: 'Eliminar venta',
                 },
             },
             {
-                path: "nota",
+                path: 'nota',
                 component: NotaComponent,
                 data: {
-                    title: "Crear nota de venta",
+                    title: 'Crear nota de venta',
                 },
             },
             {
-                path: "problema",
+                path: 'problema',
                 component: ProblemaComponent,
                 data: {
-                    title: "Ventas en problema",
+                    title: 'Ventas en problema',
                 },
             },
             {
-                path: "problema/:documento",
+                path: 'problema/:documento',
                 component: ProblemaComponent,
                 data: {
-                    title: "Ventas en problema",
+                    title: 'Ventas en problema',
                 },
             },
             {
-                path: "pedido",
-                loadChildren: "./pedido/pedido.module#PedidoModule",
-            },
-            {
-                path: "importacion",
+                path: 'importacion',
                 component: ImportacionComponent,
                 data: {
-                    title: "Importación de venta masiva de un marketplace",
+                    title: 'Importación de venta masiva de un marketplace',
                 },
-            },
-            {
-                path: "mercadolibre",
-                loadChildren:
-                    "./mercadolibre/mercadolibre-venta.module#MercadolibreVentaModule",
             },
         ],
     },

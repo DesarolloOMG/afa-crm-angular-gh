@@ -38,10 +38,6 @@ const routes: Routes = [
                 loadChildren: './crm/almacen/almacen.module#AlmacenModule',
             },
             {
-                path: 'pda',
-                loadChildren: './crm/pda/pda.module#PDAModule',
-            },
-            {
                 path: 'logistica',
                 loadChildren:
                     './crm/logistica/logistica.module#LogisticaModule',
@@ -63,11 +59,6 @@ const routes: Routes = [
             {
                 path: 'usuario',
                 loadChildren: './crm/usuario/usuario.module#UsuarioModule',
-            },
-            {
-                path: 'inventario',
-                loadChildren:
-                    './crm/inventario/inventario.module#InventarioModule',
             },
         ],
         canActivate: [AuthGuard],

@@ -28,15 +28,7 @@ export class ImportacionComponent implements OnInit {
         marketplace: '',
         ventas: [],
     };
-    //!! RELEASE T1 reempalzar
 
-    // noNeed = [
-    //     'claroshop',
-    //     'sears',
-    //     'testsears',
-    //     'testsanborns',
-    //     'testclaroshop',
-    // ];
     noNeed = ['sears', 'sanborns', 'claroshop'];
 
     marketplaces: any[] = [];

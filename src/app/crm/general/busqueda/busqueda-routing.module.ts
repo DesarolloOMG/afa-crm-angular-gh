@@ -3,6 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { SerieComponent } from './serie/serie.component';
 import { VentaComponent } from './venta/venta.component';
+import { ProductoComponent } from './producto/producto.component';
 
 const routes: Routes = [
     {
@@ -10,8 +11,10 @@ const routes: Routes = [
         children: [
             {
                 path: 'producto',
-                loadChildren:
-                    './busqueda-producto/busqueda-producto.module#BusquedaProductoModule',
+                component: ProductoComponent,
+                data: {
+                    title: 'Búsqueda de productos',
+                },
             },
             {
                 path: 'serie',

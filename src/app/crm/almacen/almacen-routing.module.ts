@@ -35,10 +35,6 @@ const routes: Routes = [
                 path: 'etiqueta',
                 loadChildren: './etiqueta/etiqueta.module#EtiquetaModule',
             },
-            {
-                path: 'prestamo',
-                loadChildren: './prestamo/prestamo.module#PrestamoModule',
-            },
         ],
     },
 ];
