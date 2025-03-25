@@ -8,14 +8,10 @@ import {
     Renderer2,
     ViewChild,
 } from '@angular/core';
-import {
-    backend_url,
-    commaNumber,
-    tinymce_init,
-} from './../../../../../environments/environment';
+import { backend_url, commaNumber, tinymce_init } from '@env/environment';
 import swal from 'sweetalert2';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from '../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 
 @Component({
     selector: 'app-recepcion',
@@ -173,7 +169,7 @@ export class RecepcionComponent implements OnInit {
             id: documento,
             proveedor: data.razon_social,
             almacen: data.almacen,
-            empresa: empresa.empresa,
+            empresa: data.empresa_nombre,
             comentarios: data.seguimiento,
         };
 

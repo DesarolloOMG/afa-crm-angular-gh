@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-crear',
@@ -138,10 +139,10 @@ export class CrearComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private router: Router,
         private auth: AuthService,
         private route: ActivatedRoute,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private compraService: CompraService
     ) {
         this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
         this.niveles = JSON.parse(this.auth.userData().sub).niveles;
@@ -163,18 +164,6 @@ export class CrearComponent implements OnInit {
             }
         }
 
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
         this.http.get(`${backend_url}compra/compra/crear/data`).subscribe(
             (res: any) => {
                 this.periodos = [...res.periodos];
@@ -185,32 +174,9 @@ export class CrearComponent implements OnInit {
                 this.usos = [...res.usos];
                 this.usuarios_authy = [...res.usuarios_authy];
 
-                if (this.empresas_usuario.length == 1) {
-                    const empresa = this.empresas.find(
-                        (empresa) => empresa.id === this.empresas_usuario[0]
-                    );
+                const [empresa] = this.empresas;
 
-                    if (!empresa) {
-                        swal({
-                            type: 'error',
-                            html: 'Tus empresas asignada no coinciden con las empresas activas, favor de contactar con un administrador',
-                        });
-
-                        this.router.navigate(['/dashboard']);
-
-                        return;
-                    }
-
-                    this.empresas.forEach((empresa, index) => {
-                        if (
-                            $.inArray(empresa.id, this.empresas_usuario) == -1
-                        ) {
-                            this.empresas.splice(index, 1);
-                        }
-                    });
-
-                    this.data.empresa = empresa.bd;
-                }
+                this.data.empresa = empresa.id;
 
                 this.cambiarEmpresa();
 
@@ -251,6 +217,32 @@ export class CrearComponent implements OnInit {
 
                 return;
             }
+
+            this.compraService
+                .searchProvider(this.data.proveedor.text)
+                .subscribe({
+                    next: (res: any) => {
+                        this.proveedores = [...res.data];
+
+                        if (this.proveedores.length) {
+                            const [proveedor] = this.proveedores;
+
+                            this.data.proveedor.id = proveedor.id;
+                        }
+                    },
+                    error: (err: any) => {
+                        swal({
+                            title: '',
+                            type: 'error',
+                            html:
+                                err.status == 0
+                                    ? err.message
+                                    : typeof err.error === 'object'
+                                    ? err.error.error_summary
+                                    : err.error,
+                        });
+                    },
+                });
         });
     }
 
@@ -666,10 +658,6 @@ export class CrearComponent implements OnInit {
                         });
                     }
 
-                    this.data.empresa = res.data.bd;
-
-                    this.cambiarEmpresa();
-
                     this.data.almacen = res.data.id_almacen_principal_empresa;
 
                     this.data.proveedor.text = res.data.razon_social;
@@ -689,6 +677,7 @@ export class CrearComponent implements OnInit {
 
                     res.data.productos.map((producto) => {
                         this.data.productos.push({
+                            id: producto.id,
                             codigo: producto.codigo,
                             codigo_text: producto.codigo,
                             codigo_sat: '',
@@ -731,15 +720,9 @@ export class CrearComponent implements OnInit {
         });
 
         if ($('.ng-invalid').length > 0) {
+            console.log($('.ng-invalid'));
+
             return;
-        }
-
-        const productos = this.data.productos.filter(
-            (producto) => producto.codigo != ''
-        );
-
-        for (const producto of productos) {
-            await this.existeProducto(producto.codigo);
         }
 
         this.data.productos.map((producto) => {
@@ -927,7 +910,7 @@ export class CrearComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
         this.almacenes = empresa.almacenes;
     }

@@ -8,6 +8,18 @@ import { backend_url } from '@env/environment';
 export class GeneralService {
     constructor(private http: HttpClient) {}
 
+    /* General > Busqueda > serie */
+    searchSerie(serie: string) {
+        return this.http.get(`${backend_url}general/busqueda/serie/${serie}`);
+    }
+
+    printSerieLabel(data: any) {
+        return this.http.post(
+            `${backend_url}general/busqueda/serie/imprimir`,
+            data
+        );
+    }
+
     /* General > Busqueda > Productos */
     getGeneralSearchProductData() {
         return this.http.get(`${backend_url}general/busqueda/producto/data`);

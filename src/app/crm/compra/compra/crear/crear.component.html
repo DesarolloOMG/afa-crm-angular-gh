@@ -1,7 +1,7 @@
 <form class="md-float-material form-material" #f="ngForm" autocomplete="off">
     <div class="auth-box card">
         <div class="card-block">
-            <div class="row" [hidden]="empresas_usuario.length < 2">
+            <div class="row" hidden>
                 <div class="col-md-6">
                     <div class="form-group form-primary">
                         <select
@@ -15,10 +15,10 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ empresa.bd }}"
+                                value="{{ empresa.id }}"
                                 *ngFor="let empresa of empresas"
                             >
-                                {{ empresa.empresa }}
+                                {{ empresa.r }}
                             </option>
                         </select>
                         <span class="form-bar"></span>
@@ -89,10 +89,10 @@
                         >
                             <option value=""></option>
                             <option
-                                value="{{ proveedor.idproveedor }}"
+                                value="{{ proveedor.id }}"
                                 *ngFor="let proveedor of proveedores"
                             >
-                                {{ proveedor.razon }}
+                                {{ proveedor.razon_social }}
                             </option>
                         </select>
                         <span class="form-bar"></span>
@@ -152,7 +152,7 @@
                 </div>
             </div>
 
-            <h4 class="sub-title m-t-20">Dato de de la compra</h4>
+            <h4 class="sub-title m-t-20">Datos de de la compra</h4>
 
             <div class="row">
                 <div class="col-md-3">

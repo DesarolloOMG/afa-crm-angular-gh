@@ -150,10 +150,11 @@
                         >
                             <option value=""></option>
                             <option
-                                value="{{ proveedor.idproveedor }}"
+                                value="{{ proveedor.id }}"
                                 *ngFor="let proveedor of proveedores"
                             >
-                                {{ proveedor.razon }} - {{ proveedor.rfc }}
+                                {{ proveedor.razon_social }} -
+                                {{ proveedor.rfc }}
                             </option>
                         </select>
                         <span class="form-bar"></span>
@@ -569,7 +570,9 @@
                                 value="{{ producto.sku }}"
                                 *ngFor="let producto of productos"
                             >
-                                {{ producto.sku + " - " + producto.producto }}
+                                {{
+                                    producto.sku + " - " + producto.descripcion
+                                }}
                             </option>
                         </select>
                         <span class="form-bar"></span>

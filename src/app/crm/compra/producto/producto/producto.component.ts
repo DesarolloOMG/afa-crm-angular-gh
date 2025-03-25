@@ -164,7 +164,7 @@ export class ProductoComponent implements OnInit {
                             descripcion: producto_data.amazon.descripcion,
                         },
                         precio: {
-                            empresa: '',
+                            empresa: this.data.empresa,
                             precio: 0,
                             productos: [],
                         },
@@ -189,7 +189,7 @@ export class ProductoComponent implements OnInit {
             );
 
             this.producto.precio = {
-                empresa: '',
+                empresa: this.data.empresa,
                 precio: 0,
                 productos: [],
             };
@@ -703,7 +703,7 @@ export class ProductoComponent implements OnInit {
                 descripcion: '',
             },
             precio: {
-                empresa: '',
+                empresa: this.data.empresa,
                 precio: 0,
                 productos: [],
             },

@@ -9,6 +9,15 @@ import { Modelo } from '@models/Modelo.model';
 export class CompraService {
     constructor(private http: HttpClient) {}
 
+    /* Compra > Orden > Orden */
+    searchProvider(search: string) {
+        return this.http.get(`${backend_url}compra/proveedor/data/${search}`);
+    }
+
+    searchProduct(search: string) {
+        return this.http.get(`${backend_url}compra/producto/buscar/${search}`);
+    }
+
     /* Compras > Productos */
     getProductManagementData() {
         return this.http.get(`${backend_url}compra/producto/gestion/data`);

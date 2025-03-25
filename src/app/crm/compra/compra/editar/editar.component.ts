@@ -5,6 +5,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-editar',
@@ -97,9 +98,9 @@ export class EditarComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private modalService: NgbModal,
         private router: Router,
-        private auth: AuthService
+        private auth: AuthService,
+        private compraService: CompraService
     ) {
         this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
     }
@@ -126,17 +127,11 @@ export class EditarComponent implements OnInit {
                 this.tipos = res['tipos'];
                 this.usos = res['usos'];
 
-                this.empresas.forEach((empresa, index) => {
-                    if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
-                        this.empresas.splice(index, 1);
-                    } else {
-                        if (this.empresas_usuario.length == 1) {
-                            if (empresa.id == this.empresas_usuario[0]) {
-                                this.data.empresa = empresa.bd;
-                            }
-                        }
-                    }
-                });
+                if (this.empresas.length) {
+                    const [empresa] = this.empresas;
+
+                    this.data.empresa = empresa.id;
+                }
 
                 this.cambiarEmpresa();
             },
@@ -257,8 +252,6 @@ export class EditarComponent implements OnInit {
                     }
 
                     const informacion = res['informacion'];
-                    this.data.empresa = informacion.bd;
-                    this.cambiarEmpresa();
 
                     this.data = {
                         empresa: this.data.empresa,
@@ -279,7 +272,7 @@ export class EditarComponent implements OnInit {
                         uuid: informacion.uuid,
                         proveedor: {
                             id: '',
-                            text: '',
+                            text: informacion.proveedor.rfc,
                             rfc: '',
                             razon: '',
                             email: '',
@@ -295,14 +288,14 @@ export class EditarComponent implements OnInit {
                         seguimiento: '',
                     };
 
+                    this.buscarProveedor();
+
                     this.seguimiento = informacion.seguimiento;
 
                     for (const producto of this.data.productos) {
                         if (producto.codigo == 'TEMPORAL') {
                             producto.descripcion = producto.descripcion_2;
                         }
-
-                        await this.existeProducto(producto.codigo);
                     }
                 },
                 (response) => {
@@ -321,18 +314,36 @@ export class EditarComponent implements OnInit {
     }
 
     buscarProveedor() {
-        if (this.data.empresa == '') {
-            swal('', 'Selecciona una empresa.', 'error');
-
-            return;
-        }
-
         if (this.proveedores.length > 0) {
             this.proveedores = [];
             this.data.proveedor.text = '';
 
             return;
         }
+
+        this.compraService.searchProvider(this.data.proveedor.text).subscribe({
+            next: (res: any) => {
+                this.proveedores = [...res.data];
+
+                if (this.proveedores.length) {
+                    const [proveedor] = this.proveedores;
+
+                    this.data.proveedor.id = proveedor.id;
+                }
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     /* Productos */
@@ -421,28 +432,6 @@ export class EditarComponent implements OnInit {
             return;
         }
 
-        const productos = this.data.productos.filter(
-            (producto) => producto.codigo != ''
-        );
-
-        for (const producto of productos) {
-            await this.existeProducto(producto.codigo);
-        }
-
-        const producto = this.data.productos.find(
-            (producto) => producto.codigo == '' || producto.existe == 0
-        );
-
-        if (producto) {
-            swal(
-                '',
-                'Favor de verificar los codigos que estén marcados en rojo.',
-                'error'
-            );
-
-            return;
-        }
-
         var form_data = new FormData();
         form_data.append('data', JSON.stringify(this.data));
 
@@ -517,6 +506,7 @@ export class EditarComponent implements OnInit {
         this.producto.descripcion = $(event.currentTarget)
             .find('option:selected')
             .text();
+
         this.existeProducto(codigo);
     }
 
@@ -546,8 +536,9 @@ export class EditarComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
+
         this.almacenes = empresa.almacenes;
     }
 }

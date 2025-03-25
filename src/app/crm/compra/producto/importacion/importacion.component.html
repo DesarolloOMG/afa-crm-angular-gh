@@ -2,11 +2,8 @@
     <div class="card-header">
         <form class="md-float-material form-material mt-3">
             <div class="row">
-                <div class="col-md-6">
-                    <div
-                        class="form-group form-primary"
-                        [hidden]="empresas_usuario.length < 2"
-                    >
+                <div class="col-md-6" hidden>
+                    <div class="form-group form-primary">
                         <select
                             name="empresa"
                             id="empresa"
@@ -16,14 +13,30 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ empresa.bd }}"
+                                value="{{ empresa.id }}"
                                 *ngFor="let empresa of empresas"
                             >
-                                {{ empresa.empresa }}
+                                {{ empresa.razon_social }}
                             </option>
                         </select>
                         <span class="form-bar"></span>
                         <label class="float-label">Empresa</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="file"
+                            multiple
+                            class="form-control"
+                            id="productos_excel"
+                            (change)="visualizarProductosExcel()"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Excel</label>
                     </div>
                 </div>
 
@@ -37,22 +50,6 @@
                     >
                         <i class="fa fa-file-download fa-2x"></i>
                     </a>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group form-primary m-t-30">
-                        <input
-                            type="file"
-                            multiple
-                            class="form-control"
-                            id="productos_excel"
-                            (change)="visualizarProductosExcel()"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Excel</label>
-                    </div>
                 </div>
             </div>
         </form>

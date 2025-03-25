@@ -507,8 +507,9 @@ export class ProductoComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
+
         this.almacenes = empresa.almacenes;
     }
 
@@ -636,6 +637,12 @@ export class ProductoComponent implements OnInit {
             (res: any) => {
                 this.empresas = [...res.empresas];
                 this.tipos_documento = [...res.tipos_documento];
+
+                if (this.empresas.length == 1) {
+                    const [empresa] = this.empresas;
+
+                    this.data.empresa = empresa.id;
+                }
 
                 this.cambiarEmpresa();
             },

@@ -3,6 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import swal from 'sweetalert2';
+import { GeneralService } from '@services/http/general.service';
 
 @Component({
     selector: 'app-serie',
@@ -18,8 +19,7 @@ export class SerieComponent {
     empresas: any[] = [];
 
     constructor(
-        private http: HttpClient,
-        private sanitizer: DomSanitizer,
+        private generalService: GeneralService,
         private chRef: ChangeDetectorRef
     ) {
         const table: any = $(this.datatable);
@@ -27,41 +27,39 @@ export class SerieComponent {
     }
 
     buscarSerie() {
-        this.http
-            .get(`${backend_url}general/busqueda/serie/${this.serie}`)
-            .subscribe(
-                (res) => {
-                    if (res['code'] != 200) {
-                        swal('', res['message'], 'error');
+        this.generalService.searchSerie(this.serie).subscribe({
+            next: (res: any) => {
+                if (res.code != 200) {
+                    swal('', res.message, 'error');
 
-                        return;
-                    }
-
-                    this.empresas = res['empresas'];
-
-                    this.serie_buscada = this.serie;
-
-                    this.serie = '';
-
-                    $('#serie').focus();
-
-                    setTimeout(() => {
-                        this.rebuildTable();
-                    }, 1000);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    return;
                 }
-            );
+
+                this.empresas = [...res.empresas];
+
+                this.serie_buscada = this.serie;
+
+                this.serie = '';
+
+                $('#serie').focus();
+
+                setTimeout(() => {
+                    this.rebuildTable();
+                }, 1000);
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     generarEtiqueta() {
@@ -89,23 +87,21 @@ export class SerieComponent {
         var form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
 
-        this.http
-            .post(`${backend_url}general/busqueda/serie/imprimir`, form_data)
-            .subscribe(
-                (res) => {},
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
+        this.generalService.printSerieLabel(form_data).subscribe({
+            next: () => {},
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     fechaActual() {

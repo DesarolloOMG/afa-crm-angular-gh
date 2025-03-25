@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-orden',
@@ -78,7 +79,8 @@ export class OrdenComponent implements OnInit {
         private router: Router,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private auth: AuthService
+        private auth: AuthService,
+        private compraService: CompraService
     ) {
         const table: any = $('#compra_orden_orden');
 
@@ -181,6 +183,24 @@ export class OrdenComponent implements OnInit {
 
             return;
         }
+
+        this.compraService.searchProvider(this.proveedor_text).subscribe({
+            next: (res: any) => {
+                this.proveedores = [...res.data];
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     cambiarProveedor() {
@@ -222,6 +242,23 @@ export class OrdenComponent implements OnInit {
         }
 
         if (!this.producto.text) return;
+
+        this.compraService.searchProduct(this.producto.text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+            },
+            error: (err: any) => {
+                swal({
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     agregarProducto() {
@@ -242,12 +279,6 @@ export class OrdenComponent implements OnInit {
                 type: 'error',
                 html: 'El costo del producto tiene que ser mayor a 0',
             });
-
-        const producto = this.productos.find(
-            (producto) => producto.sku == this.producto.codigo
-        );
-
-        this.producto.descripcion = producto.producto;
 
         this.data.productos.push(this.producto);
 
@@ -562,9 +593,6 @@ export class OrdenComponent implements OnInit {
                 ? empresa.id == this.data.empresa
                 : empresa.bd == this.data.empresa
         );
-        if (this.empresas_usuario.length == 1 && empresa) {
-            this.data.empresa = empresa.bd;
-        }
 
         this.almacenes = [...empresa.almacenes];
     }

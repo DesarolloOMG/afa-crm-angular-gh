@@ -228,7 +228,4 @@ export class ProveedorComponent implements OnInit {
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
     }
-    tienePermisosParaEditar() {
-        return !!this.subniveles[16].includes(29);
-    }
 }

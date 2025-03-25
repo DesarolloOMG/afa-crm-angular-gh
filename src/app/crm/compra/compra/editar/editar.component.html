@@ -70,10 +70,11 @@
                         >
                             <option value="" disabled selected></option>
                             <option
-                                value="{{ proveedor.idproveedor }}"
+                                value="{{ proveedor.id }}"
                                 *ngFor="let proveedor of proveedores"
                             >
-                                {{ proveedor.razon }} - {{ proveedor.rfc }}
+                                {{ proveedor.razon_social }} -
+                                {{ proveedor.rfc }}
                             </option>
                         </select>
                         <span class="form-bar"></span>
@@ -490,19 +491,7 @@
                                 "
                             >
                                 <td>
-                                    <input
-                                        type="text"
-                                        class="form-control {{
-                                            producto.existe == 0
-                                                ? 'border-red'
-                                                : ''
-                                        }}"
-                                        name="codigoproducto{{ index }}"
-                                        [(ngModel)]="producto.codigo"
-                                        (change)="
-                                            existeProducto(producto.codigo)
-                                        "
-                                    />
+                                    {{ producto.codigo }}
                                 </td>
                                 <td>{{ producto.descripcion }}</td>
                                 <td>

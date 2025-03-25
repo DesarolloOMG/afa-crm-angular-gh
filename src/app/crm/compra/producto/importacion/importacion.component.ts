@@ -55,15 +55,11 @@ export class ImportacionComponent implements OnInit {
             (res) => {
                 this.empresas = res['empresas'];
 
-                this.empresas.forEach((empresa, index) => {
-                    if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
-                        this.empresas.splice(index, 1);
-                    } else {
-                        if (this.empresas_usuario.length == 1) {
-                            this.data.empresa = empresa.bd;
-                        }
-                    }
-                });
+                if (this.empresas.length) {
+                    const [empresa] = this.empresas;
+
+                    this.data.empresa = empresa.id;
+                }
             },
             (response) => {
                 swal({
