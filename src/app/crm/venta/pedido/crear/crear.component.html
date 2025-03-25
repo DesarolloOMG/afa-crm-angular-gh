@@ -3,7 +3,7 @@
         <form class="md-float-material form-material" #f="ngForm">
             <div class="auth-box card">
                 <div class="card-block">
-                    <div class="row" [hidden]="empresas_usuario.length < 2">
+                    <div class="row" hidden>
                         <div class="col-md-6">
                             <div class="form-group form-primary">
                                 <select
@@ -17,10 +17,10 @@
                                 >
                                     <option value="" disabled></option>
                                     <option
-                                        value="{{ empresa.bd }}"
+                                        value="{{ empresa.id }}"
                                         *ngFor="let empresa of empresas"
                                     >
-                                        {{ empresa.empresa }}
+                                        {{ empresa.razon_social }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
@@ -270,7 +270,7 @@
                                         value="{{ cliente.id }}"
                                         *ngFor="let cliente of clientes"
                                     >
-                                        {{ cliente.nombre_oficial }}
+                                        {{ cliente.razon_social }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
@@ -1076,17 +1076,17 @@
                                     name="pro_codigo"
                                     id="pro_codigo"
                                     class="form-control"
-                                    [(ngModel)]="producto.codigo"
+                                    [(ngModel)]="producto.id"
                                 >
                                     <option value="" selected disabled></option>
                                     <option
-                                        value="{{ producto.sku }}"
+                                        value="{{ producto.id }}"
                                         *ngFor="let producto of productos"
                                     >
                                         {{
                                             producto.sku +
                                                 " - " +
-                                                producto.producto
+                                                producto.descripcion
                                         }}
                                     </option>
                                 </select>
@@ -1208,30 +1208,6 @@
                             <div class="form-group form-primary">
                                 <input
                                     type="text"
-                                    name="pro_modificacion"
-                                    class="form-control"
-                                    #promodificacion="ngModel"
-                                    [(ngModel)]="producto.modificacion"
-                                    pattern="[^'&quot;]+$"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Modificacion</label>
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        promodificacion.invalid &&
-                                        (promodificacion.dirty ||
-                                            promodificacion.touched)
-                                    "
-                                    >No se permite el caracter ' ó "</small
-                                >
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
                                     name="procomentario"
                                     class="form-control"
                                     #procomentario="ngModel"
@@ -1287,7 +1263,6 @@
                                 (click)="agregarProducto()"
                                 id="button_agregar_producto"
                                 [disabled]="
-                                    producto.codigo == '' ||
                                     producto.cantidad < 1 ||
                                     producto.precio < 0.1 ||
                                     producto.garantia == '' ||
@@ -1387,17 +1362,11 @@
                         </div>
                     </div>
 
-                    <h4
-                        class="sub-title m-t-20"
-                        [hidden]="marketplace_info.publico == 1"
-                    >
+                    <h4 class="sub-title m-t-20" hidden>
                         Información del pago
                     </h4>
 
-                    <div
-                        class="row m-t-20"
-                        [hidden]="marketplace_info.publico == 1"
-                    >
+                    <div class="row m-t-20" hidden>
                         <div class="col-md-6">
                             <div class="form-group form-primary">
                                 <select
@@ -1453,10 +1422,6 @@
                                     type="date"
                                     name="pago_fecha"
                                     class="form-control"
-                                    [required]="
-                                        data.documento.cobro.generar_ingreso ==
-                                        1
-                                    "
                                     #pagofecha="ngModel"
                                     [(ngModel)]="
                                         data.documento.cobro.fecha_cobro
@@ -1482,10 +1447,6 @@
                                     type="number"
                                     name="pago_importe"
                                     class="form-control"
-                                    [required]="
-                                        data.documento.cobro.generar_ingreso ==
-                                        1
-                                    "
                                     #pagoimporte="ngModel"
                                     [(ngModel)]="data.documento.cobro.importe"
                                     pattern="^[.0-9]+$"
@@ -1510,10 +1471,6 @@
                                 <select
                                     name="metodo_pago"
                                     id="metodo_pago"
-                                    [required]="
-                                        data.documento.cobro.generar_ingreso ==
-                                        1
-                                    "
                                     class="form-control"
                                     [(ngModel)]="
                                         data.documento.cobro.metodo_pago

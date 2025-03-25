@@ -5,6 +5,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
+import { VentaService } from '@services/http/venta.service';
+import { CompraService } from '@services/http/compra.service';
 
 declare var tinymce: any;
 declare var require: any;
@@ -46,6 +48,7 @@ export class CrearComponent implements OnInit {
     tinymce_init = tinymce_init;
 
     producto = {
+        id: 0,
         tipo: 0,
         codigo: '',
         codigo_text: '',
@@ -178,24 +181,12 @@ export class CrearComponent implements OnInit {
         private router: Router,
         private modalService: NgbModal,
         private renderer: Renderer2,
-        private auth: AuthService
-    ) {
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
-    }
+        private auth: AuthService,
+        private ventaService: VentaService,
+        private compraService: CompraService
+    ) {}
 
     ngOnInit() {
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
         this.data.documento.fecha_inicio = this.YmdHis();
 
         this.http.get(`${backend_url}venta/venta/crear/data`).subscribe(
@@ -208,30 +199,11 @@ export class CrearComponent implements OnInit {
                 this.monedas = res['monedas'];
                 this.empresas = res['empresas'];
 
-                if (this.empresas_usuario.length == 1) {
-                    const empresa = this.empresas.find(
-                        (empresa) => empresa.id === this.empresas_usuario[0]
-                    );
+                if (this.empresas.length) {
+                    const [empresa] = this.empresas;
 
-                    if (!empresa) {
-                        swal({
-                            type: 'error',
-                            html: 'Tus empresas asignada no coinciden con las empresas activas, favor de contactar con un administrador',
-                        });
-
-                        this.router.navigate(['/dashboard']);
-
-                        return;
-                    }
-
-                    this.data.empresa = empresa.bd;
+                    this.data.empresa = empresa.id;
                 }
-
-                this.empresas.forEach((empresa, index) => {
-                    if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
-                        this.empresas.splice(index, 1);
-                    }
-                });
 
                 res['marketplaces'].forEach((marketplace) => {
                     this.marketplace_publico.push(marketplace.marketplace);
@@ -256,7 +228,7 @@ export class CrearComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
         this.almacenes = empresa.almacenes;
 
@@ -381,13 +353,6 @@ export class CrearComponent implements OnInit {
 
     buscarCliente() {
         return new Promise((resolve, reject) => {
-            if (!this.data.empresa) {
-                swal('', 'Selecciona una empresa.', 'error');
-
-                resolve(1);
-                return;
-            }
-
             if (!this.data.cliente.input) {
                 resolve(1);
                 return;
@@ -402,10 +367,23 @@ export class CrearComponent implements OnInit {
                 return;
             }
 
-            const empresa =
-                this.data.empresa_externa != ''
-                    ? this.data.empresa_externa
-                    : this.data.empresa;
+            this.ventaService.searchClients(this.data.cliente.input).subscribe({
+                next: (res: any) => {
+                    this.clientes = [...res.data];
+                },
+                error: (err: any) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            err.status == 0
+                                ? err.message
+                                : typeof err.error === 'object'
+                                ? err.error.error_summary
+                                : err.error,
+                    });
+                },
+            });
         });
     }
 
@@ -415,7 +393,7 @@ export class CrearComponent implements OnInit {
         );
 
         this.data.cliente.codigo = $.trim(cliente.id);
-        this.data.cliente.razon_social = $.trim(cliente.nombre_oficial);
+        this.data.cliente.razon_social = $.trim(cliente.razon_social);
         this.data.cliente.rfc = $.trim(cliente.rfc);
         this.data.cliente.telefono =
             cliente.telefono == null ? '' : $.trim(cliente.telefono);
@@ -423,10 +401,6 @@ export class CrearComponent implements OnInit {
             $.trim(cliente.email) == null ? '' : $.trim(cliente.email);
         this.data.cliente.credito_disponible = cliente.credito_disponible;
         this.data.documento.periodo = '1';
-
-        if (cliente.condicionpago_id != null && cliente.condicionpago_id != 0) {
-            this.data.documento.periodo = cliente.condicionpago_id;
-        }
 
         if (this.data.cliente.rfc != 'XAXX010101000') {
             var form_data = new FormData();
@@ -488,11 +462,6 @@ export class CrearComponent implements OnInit {
                         });
                     }
                 );
-        }
-        //! VERIFICAR 2024 '7'
-
-        if (this.data.area == '7') {
-            this.data.cliente.correo = 'ricardo@omg.com.mx';
         }
     }
 
@@ -1621,6 +1590,7 @@ export class CrearComponent implements OnInit {
 
                 for (let producto of publicacion.productos) {
                     this.producto = {
+                        id: producto.id,
                         tipo: 1,
                         codigo: producto.sku,
                         codigo_text: producto.sku,
@@ -1693,16 +1663,11 @@ export class CrearComponent implements OnInit {
     }
 
     buscarProducto() {
-        if (!this.data.empresa) {
-            swal('', 'Selecciona una empresa.', 'error');
-
-            return;
-        }
-
         if (this.productos.length > 0) {
             this.productos = [];
 
             this.producto = {
+                id: 0,
                 tipo: 0,
                 codigo: '',
                 codigo_text: '',
@@ -1728,24 +1693,34 @@ export class CrearComponent implements OnInit {
         if (!this.producto.codigo_text) {
             return;
         }
+
+        this.compraService.searchProduct(this.producto.codigo_text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     async agregarProducto() {
         return new Promise((resolve, reject) => {
-            if (this.producto.codigo == '') {
-                swal('', 'Producto incorrecto', 'error');
-
-                reject();
-
-                return;
-            }
-
             if (this.productos.length > 0) {
                 const producto = this.productos.find(
-                    (producto) => producto.sku == this.producto.codigo
+                    (producto) => producto.id == this.producto.id
                 );
 
-                this.producto.codigo = $.trim(this.producto.codigo);
+                this.producto.codigo = $.trim(producto.sku);
                 this.producto.alto = producto.alto == null ? 0 : producto.alto;
                 this.producto.ancho =
                     producto.ancho == null ? 0 : producto.ancho;
@@ -1755,14 +1730,14 @@ export class CrearComponent implements OnInit {
                 this.producto.costo =
                     producto.ultimo_costo == null ? 0 : producto.ultimo_costo;
                 this.producto.tipo = producto.tipo;
+
+                this.producto.descripcion = producto.descripcion;
             }
 
-            this.producto.codigo = $.trim(this.producto.codigo);
             this.producto.precio =
                 this.data.area == '2'
                     ? this.producto.precio
                     : this.producto.precio / 1.16;
-            this.producto.descripcion = $('#pro_codigo option:selected').text();
 
             this.data.documento.productos.push(this.producto);
             this.buscarProducto();
@@ -2218,6 +2193,7 @@ export class CrearComponent implements OnInit {
 
     restartObjects() {
         this.producto = {
+            id: 0,
             tipo: 0,
             codigo: '',
             codigo_text: '',

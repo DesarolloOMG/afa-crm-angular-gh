@@ -22,8 +22,20 @@ export class VentaService {
     }
 
     /* Venta > Venta */
+    getProductStock(sku: string, warehouse: string, quantity: number) {
+        return this.http.get(
+            `${backend_url}venta/venta/crear/producto/existencia/${sku}/${warehouse}/${quantity}`
+        );
+    }
+
     getVentaCrearData() {
         return this.http.get(`${backend_url}venta/venta/crear/data`);
+    }
+
+    searchClients(search: string) {
+        return this.http.get(
+            `${backend_url}venta/venta/crear/buscar-cliente/${search}`
+        );
     }
 
     /* Venta > Mercadolibre # Pregunta - Respuesta */

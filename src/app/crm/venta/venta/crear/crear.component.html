@@ -375,8 +375,8 @@
                                         value="{{ cliente.id }}"
                                         *ngFor="let cliente of clientes"
                                     >
-                                        {{ cliente.nombre_oficial }} - -
-                                        {{ cliente.rfc }}
+                                        {{ cliente.rfc }} |
+                                        {{ cliente.razon_social }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
@@ -1341,17 +1341,17 @@
                                     name="pro_codigo"
                                     id="pro_codigo"
                                     class="form-control"
-                                    [(ngModel)]="producto.codigo"
+                                    [(ngModel)]="producto.id"
                                 >
                                     <option value="" selected disabled></option>
                                     <option
-                                        value="{{ producto.sku }}"
+                                        value="{{ producto.id }}"
                                         *ngFor="let producto of productos"
                                     >
                                         {{
                                             producto.sku +
                                                 " - " +
-                                                producto.producto
+                                                producto.descripcion
                                         }}
                                     </option>
                                 </select>
@@ -1467,47 +1467,6 @@
                                 id="pro_regalo"
                                 [(ngModel)]="producto.regalo"
                             ></ui-switch>
-                        </div>
-                        <!--
-                        <div class="col-md-1" style="margin-top: -18px">
-                            <label style="display: block; font-size: 9pt"
-                                >Ret. 6%</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="ret6"
-                                id="ret6"
-                                [(ngModel)]="producto.ret"
-                                (change)="aplicarRetencion(modaltoken)"
-                            ></ui-switch>
-                        </div>
-                        -->
-
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="pro_modificacion"
-                                    class="form-control"
-                                    #promodificacion="ngModel"
-                                    [(ngModel)]="producto.modificacion"
-                                    pattern="[^'&quot;]+$"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Modificacion</label>
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        promodificacion.invalid &&
-                                        (promodificacion.dirty ||
-                                            promodificacion.touched)
-                                    "
-                                    >No se permite el caracter ' ó "</small
-                                >
-                            </div>
                         </div>
 
                         <div class="col-md-12">
@@ -1698,23 +1657,11 @@
                         </div>
                     </div>
 
-                    <h4
-                        class="sub-title m-t-20"
-                        [hidden]="
-                            marketplace_info.publico == 1 ||
-                            data.documento.periodo != '1'
-                        "
-                    >
+                    <h4 class="sub-title m-t-20" hidden>
                         Información del pago
                     </h4>
 
-                    <div
-                        class="row m-t-20"
-                        [hidden]="
-                            marketplace_info.publico == 1 &&
-                            data.documento.marketplace != '11'
-                        "
-                    >
+                    <div class="row m-t-20" hidden>
                         <div class="col-md-6">
                             <div class="form-group form-primary">
                                 <select
@@ -1770,10 +1717,6 @@
                                     type="date"
                                     name="pago_fecha"
                                     class="form-control"
-                                    [required]="
-                                        data.documento.cobro.generar_ingreso ==
-                                        1
-                                    "
                                     #pagofecha="ngModel"
                                     [(ngModel)]="
                                         data.documento.cobro.fecha_cobro
@@ -1799,10 +1742,6 @@
                                     type="number"
                                     name="pago_importe"
                                     class="form-control"
-                                    [required]="
-                                        data.documento.cobro.generar_ingreso ==
-                                        1
-                                    "
                                     #pagoimporte="ngModel"
                                     [(ngModel)]="data.documento.cobro.importe"
                                     pattern="^[.0-9]+$"
@@ -1828,9 +1767,6 @@
                                     name="metodo_pago"
                                     id="metodo_pago"
                                     class="form-control"
-                                    [(ngModel)]="
-                                        data.documento.cobro.metodo_pago
-                                    "
                                     [disabled]="
                                         data.desactivar_periodo_metodo &&
                                         data.documento.marketplace != '11'

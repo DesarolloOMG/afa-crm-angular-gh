@@ -194,23 +194,9 @@ export class EditarComponent implements OnInit {
                 this.data.documento.pedido = 1;
             }
         });
-
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
     }
 
     ngOnInit() {
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
         this.data.documento.fecha_inicio = this.YmdHis();
 
         this.http.get(`${backend_url}venta/venta/crear/data`).subscribe(
@@ -224,11 +210,11 @@ export class EditarComponent implements OnInit {
                 this.monedas = res['monedas'];
                 this.impresoras = res['impresoras'];
 
-                this.empresas.forEach((empresa, index) => {
-                    if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
-                        this.empresas.splice(index, 1);
-                    }
-                });
+                if (this.empresas.length) {
+                    const [empresa] = this.empresas;
+
+                    this.data.empresa = empresa.id;
+                }
 
                 if (this.data.documento.documento) this.buscarDocumento();
             },
@@ -762,8 +748,9 @@ export class EditarComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
+
         this.almacenes = empresa.almacenes;
     }
 

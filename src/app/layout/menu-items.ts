@@ -384,7 +384,7 @@ const MENUITEMS = [
             {
                 main_state: 'venta',
                 state: 'publicaciones-marketplace',
-                short_label: 'PUM',
+                short_label: 'PCRM',
                 name: 'Publicaciones CRM',
                 type: 'sub',
                 icon: 'fa fa-shopping-bag',
@@ -411,63 +411,63 @@ const MENUITEMS = [
                     },
                 ],
             },
-            {
-                main_state: 'venta',
-                state: 'nota-credito',
-                short_label: 'NC',
-                name: 'Notas de credito',
-                type: 'sub',
-                icon: 'fa fa-file-invoice',
-                level: [11],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'buscar-nota-credito',
-                        name: 'Buscar NC',
-                        level: [8],
-                        sublevel: 0,
-                    },
-                    {
-                        state: 'sin-venta',
-                        name: 'NC sin venta',
-                        level: [11],
-                        sublevel: 0,
-                    },
-                    {
-                        state: 'autorizar',
-                        type: 'sub',
-                        name: 'Autorizar NC',
-                        level: [6],
-                        sublevel: [1],
-                        children: [
-                            {
-                                state: 'autorizar',
-                                name: 'Ventas',
-                                level: [6],
-                                sublevel: [1],
-                            },
-                            {
-                                state: 'soporte',
-                                name: 'Soporte',
-                                level: [6],
-                                sublevel: [1],
-                            },
-                            {
-                                state: 'sin-venta',
-                                name: 'Sin Venta',
-                                level: [6],
-                                sublevel: [1],
-                            },
-                            {
-                                state: 'reportes',
-                                name: 'Reportes',
-                                level: [6],
-                                sublevel: [1],
-                            },
-                        ],
-                    },
-                ],
-            },
+            // {
+            //     main_state: 'venta',
+            //     state: 'nota-credito',
+            //     short_label: 'NDC',
+            //     name: 'Notas de credito',
+            //     type: 'sub',
+            //     icon: 'fa fa-file-invoice',
+            //     level: [11],
+            //     sublevel: 0,
+            //     children: [
+            //         {
+            //             state: 'buscar-nota-credito',
+            //             name: 'Buscar NC',
+            //             level: [8],
+            //             sublevel: 0,
+            //         },
+            //         {
+            //             state: 'sin-venta',
+            //             name: 'NC sin venta',
+            //             level: [11],
+            //             sublevel: 0,
+            //         },
+            //         {
+            //             state: 'autorizar',
+            //             type: 'sub',
+            //             name: 'Autorizar NC',
+            //             level: [6],
+            //             sublevel: [1],
+            //             children: [
+            //                 {
+            //                     state: 'autorizar',
+            //                     name: 'Ventas',
+            //                     level: [6],
+            //                     sublevel: [1],
+            //                 },
+            //                 {
+            //                     state: 'soporte',
+            //                     name: 'Soporte',
+            //                     level: [6],
+            //                     sublevel: [1],
+            //                 },
+            //                 {
+            //                     state: 'sin-venta',
+            //                     name: 'Sin Venta',
+            //                     level: [6],
+            //                     sublevel: [1],
+            //                 },
+            //                 {
+            //                     state: 'reportes',
+            //                     name: 'Reportes',
+            //                     level: [6],
+            //                     sublevel: [1],
+            //                 },
+            //             ],
+            //         },
+            //     ],
+            // },
             {
                 main_state: 'venta',
                 state: 'mercadolibre',
@@ -534,7 +534,7 @@ const MENUITEMS = [
                     },
                 ],
             },
-            {
+            /* {
                 main_state: 'venta',
                 state: 'walmart',
                 name: 'Walmart',
@@ -593,7 +593,7 @@ const MENUITEMS = [
                         sublevel: 0,
                     },
                 ],
-            },
+            }, */
         ],
     },
     {

@@ -55,23 +55,10 @@ export class ClienteComponent implements OnInit {
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
 
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
         this.subniveles = JSON.parse(this.auth.userData().sub).subniveles;
     }
 
     async ngOnInit() {
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
         await new Promise((resolve, reject) => {
             this.http
                 .get(`${backend_url}compra/producto/gestion/data`)
@@ -79,34 +66,11 @@ export class ClienteComponent implements OnInit {
                     (res) => {
                         this.empresas = res['empresas'];
 
-                        if (this.empresas_usuario.length == 1) {
-                            const empresa = this.empresas.find(
-                                (empresa) =>
-                                    empresa.id === this.empresas_usuario[0]
-                            );
+                        if (this.empresas.length) {
+                            const [empresa] = this.empresas;
 
-                            if (!empresa) {
-                                swal({
-                                    type: 'error',
-                                    html: 'Tus empresas asignada no coinciden con las empresas activas, favor de contactar con un administrador',
-                                });
-
-                                this.router.navigate(['/dashboard']);
-
-                                return;
-                            }
-
-                            this.cliente.empresa = empresa.bd;
+                            this.cliente.empresa = empresa.id;
                         }
-
-                        this.empresas.forEach((empresa, index) => {
-                            if (
-                                $.inArray(empresa.id, this.empresas_usuario) ==
-                                -1
-                            ) {
-                                this.empresas.splice(index, 1);
-                            }
-                        });
 
                         resolve(1);
                     },
@@ -130,15 +94,6 @@ export class ClienteComponent implements OnInit {
 
     buscarCliente() {
         if (!this.cliente_busqueda) {
-            return;
-        }
-
-        if (!this.cliente.empresa) {
-            swal({
-                type: 'error',
-                html: 'Favor de seleccionar una empresa',
-            });
-
             return;
         }
 
@@ -282,11 +237,6 @@ export class ClienteComponent implements OnInit {
 
     cambiarRegimentRFC() {
         this.cliente.regimen = '';
-    }
-
-    tienePermisosParaEditar() {
-        if (this.subniveles[16].includes(28)) return true;
-        return false;
     }
 
     reconstruirTabla() {

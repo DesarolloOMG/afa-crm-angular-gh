@@ -13,6 +13,8 @@ import swal from 'sweetalert2';
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
 import { ConfiguracionService } from '@services/http/configuracion.service';
+import { VentaService } from '@services/http/venta.service';
+import { CompraService } from '@services/http/compra.service';
 
 declare var tinymce: any;
 declare var require: any;
@@ -69,6 +71,7 @@ export class CrearComponent implements OnInit {
     tinymce_init = tinymce_init;
 
     producto = {
+        id: 0,
         tipo: 0,
         codigo: '',
         codigo_text: '',
@@ -227,9 +230,10 @@ export class CrearComponent implements OnInit {
         private modalService: NgbModal,
         private renderer: Renderer2,
         private auth: AuthService,
-        private configuracionService: ConfiguracionService
+        private configuracionService: ConfiguracionService,
+        private ventaService: VentaService,
+        private compraService: CompraService
     ) {
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
         const usuario = JSON.parse(this.auth.userData().sub);
 
         this.authy.id = usuario.id;
@@ -237,22 +241,10 @@ export class CrearComponent implements OnInit {
     }
 
     ngOnInit() {
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
         this.data.documento.fecha_inicio = this.YmdHis();
 
         this.http.get(`${backend_url}venta/venta/crear/data`).subscribe(
-            (res) => {
+            (res: any) => {
                 this.paqueterias = res['paqueterias'];
                 this.usos_venta = res['usos_venta'];
                 this.periodos = res['periodos'];
@@ -264,31 +256,15 @@ export class CrearComponent implements OnInit {
                 this.impresoras = res['impresoras'];
                 this.proveedores = res['proveedores'];
                 this.usuarios_agro = res['usuarios_agro'];
+                this.regimenes = [...res.regimenes];
 
-                if (this.empresas_usuario.length == 1) {
-                    const empresa = this.empresas.find(
-                        (empresa) => empresa.id === this.empresas_usuario[0]
-                    );
+                console.log(this.regimenes);
 
-                    if (!empresa) {
-                        swal({
-                            type: 'error',
-                            html: 'Tus empresas asignada no coinciden con las empresas activas, favor de contactar con un administrador',
-                        });
+                if (this.empresas.length) {
+                    const [empresa] = this.empresas;
 
-                        this.router.navigate(['/dashboard']);
-
-                        return;
-                    }
-
-                    this.data.empresa = empresa.bd;
+                    this.data.empresa = empresa.id;
                 }
-
-                this.empresas.forEach((empresa, index) => {
-                    if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
-                        this.empresas.splice(index, 1);
-                    }
-                });
 
                 res['marketplaces'].forEach((marketplace) => {
                     this.marketplace_publico.push(marketplace.marketplace);
@@ -313,7 +289,7 @@ export class CrearComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
 
         this.almacenes = empresa.almacenes;
@@ -368,122 +344,6 @@ export class CrearComponent implements OnInit {
 
             this.marketplace_info = marketplace;
 
-            if (
-                $.inArray(marketplace.marketplace, this.marketplace_publico) !=
-                -1
-            ) {
-                if (this.data.documento.marketplace == '39') {
-                    this.data.cliente.select = '3302';
-                    this.data.cliente.codigo = '3302';
-                    this.data.cliente.razon_social = 'LF FLORA MEXICO';
-                    this.data.cliente.rfc = 'LFM200817DGA';
-                    this.data.cliente.input = 'LF FLORA MEXICO';
-                    this.data.cliente.regimen = '601';
-                    this.data.documento.cobro.metodo_pago = '03';
-                    this.data.documento.cobro.destino = '1';
-                    this.data.documento.cobro.generar_ingreso = 0;
-                    this.data.documento.periodo = '3';
-                    this.data.documento.uso_venta = '1';
-                    this.marketplace_info.publico = 0;
-                    this.data.documento.almacen = '31';
-                    this.data.desactivar_periodo_metodo = 1;
-                    this.data.cliente.regimen = '601';
-
-                    this.buscarCliente();
-
-                    setTimeout(() => {
-                        this.cambiarCliente();
-                    }, 1000);
-                } else {
-                    this.data.cliente.select = '853';
-                    this.data.cliente.codigo = '853';
-                    this.data.cliente.razon_social = 'PUBLICO GENERAL';
-                    this.data.cliente.input = 'PUBLICO GENERAL';
-                    this.data.cliente.rfc = 'XAXX010101000';
-                    this.data.cliente.regimen = '616';
-                    this.data.documento.cobro.metodo_pago = '31';
-                    this.data.documento.cobro.destino = '1';
-                    this.data.documento.cobro.generar_ingreso = 0;
-                    this.data.documento.periodo = '1';
-                    this.data.documento.uso_venta = '3';
-                    this.data.desactivar_periodo_metodo = 1;
-                    this.marketplace_info.publico = 1;
-                }
-
-                const existe = this.clientes.find(
-                    (cliente) => cliente.id == this.data.cliente.select
-                );
-
-                if (!existe) {
-                    this.clientes = [];
-
-                    await this.buscarCliente();
-
-                    this.cambiarCliente();
-                }
-            } else {
-                if (this.data.documento.marketplace == '20') {
-                    this.data.cliente.select = '18';
-                    this.data.cliente.codigo = '18';
-                    this.data.cliente.razon_social =
-                        'GLÜKY GROUP, S.A. DE C.V.';
-                    this.data.cliente.rfc = 'GGR1504081C4';
-                    this.data.cliente.input = 'GLÜKY GROUP, S.A. DE C.V.';
-                    this.data.cliente.regimen = '601';
-                    this.data.documento.cobro.metodo_pago = '99';
-                    this.data.documento.cobro.destino = '1';
-                    this.data.documento.cobro.generar_ingreso = 0;
-                    this.data.documento.periodo = '3';
-                    this.data.documento.uso_venta = '1';
-                    this.marketplace_info.publico = 0;
-                    this.data.documento.almacen = '31';
-                    this.data.desactivar_periodo_metodo = 1;
-
-                    this.buscarCliente();
-
-                    setTimeout(() => {
-                        this.cambiarCliente();
-                    }, 1000);
-                } else if (this.data.documento.marketplace == '39') {
-                    this.data.cliente.select = '3302';
-                    this.data.cliente.codigo = '3302';
-                    this.data.cliente.razon_social = 'LF FLORA MEXICO';
-                    this.data.cliente.rfc = 'LFM200817DGA';
-                    this.data.cliente.input = 'LF FLORA MEXICO';
-                    this.data.cliente.regimen = '601';
-                    this.data.documento.cobro.metodo_pago = '03';
-                    this.data.documento.cobro.destino = '1';
-                    this.data.documento.cobro.generar_ingreso = 0;
-                    this.data.documento.periodo = '3';
-                    this.data.documento.uso_venta = '1';
-                    this.marketplace_info.publico = 0;
-                    this.data.documento.almacen = '31';
-                    this.data.desactivar_periodo_metodo = 1;
-
-                    this.buscarCliente();
-
-                    setTimeout(() => {
-                        this.cambiarCliente();
-                    }, 1000);
-                } else {
-                    this.data.cliente.codigo = '';
-                    this.data.cliente.razon_social = '';
-                    this.data.cliente.rfc = '';
-                    this.data.cliente.input = '';
-                    this.data.cliente.regimen = '';
-                    this.data.documento.cobro.metodo_pago = '';
-                    this.data.documento.cobro.destino = '';
-                    this.data.documento.periodo = '';
-                    this.data.documento.cobro.generar_ingreso = 1;
-                    this.marketplace_info.publico = 0;
-                    this.data.documento.uso_venta = '';
-                    this.data.desactivar_periodo_metodo = 0;
-                    this.data.cliente.select = '';
-
-                    this.clientes = [];
-                }
-            }
-
             this.cambiarEntidadDestino();
             if (
                 this.fullfillment_allowed.includes(
@@ -519,13 +379,6 @@ export class CrearComponent implements OnInit {
 
     buscarCliente() {
         return new Promise((resolve, reject) => {
-            if (!this.data.empresa) {
-                swal('', 'Selecciona una empresa.', 'error');
-
-                resolve(1);
-                return;
-            }
-
             if (!this.data.cliente.input) {
                 resolve(1);
                 return;
@@ -540,10 +393,23 @@ export class CrearComponent implements OnInit {
                 return;
             }
 
-            const empresa =
-                this.data.empresa_externa != ''
-                    ? this.data.empresa_externa
-                    : this.data.empresa;
+            this.ventaService.searchClients(this.data.cliente.input).subscribe({
+                next: (res: any) => {
+                    this.clientes = [...res.data];
+                },
+                error: (err: any) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            err.status == 0
+                                ? err.message
+                                : typeof err.error === 'object'
+                                ? err.error.error_summary
+                                : err.error,
+                    });
+                },
+            });
         });
     }
 
@@ -552,38 +418,9 @@ export class CrearComponent implements OnInit {
             (cliente) => cliente.id == this.data.cliente.select
         );
 
-        if (cliente.rfc != 'LFM200817DGA') {
-            this.data.cliente.codigo = $.trim(cliente.id);
-            this.data.cliente.razon_social = $.trim(cliente.nombre_oficial);
-            this.data.cliente.rfc = $.trim(cliente.rfc);
-            this.data.cliente.telefono =
-                cliente.telefono == null ? '' : $.trim(cliente.telefono);
-            this.data.cliente.correo =
-                $.trim(cliente.email) == null ? '' : $.trim(cliente.email);
-            this.data.documento.periodo = '1';
-
-            const regimen = this.regimenes.find((regimen) =>
-                cliente.regimen.includes(regimen.id)
-            );
-
-            if (regimen) this.data.cliente.regimen = regimen.id;
-
-            if (cliente.cp) this.data.cliente.cp_fiscal = cliente.cp;
-
-            if (
-                cliente.condicionpago_id != null &&
-                cliente.condicionpago_id != 0
-            ) {
-                this.data.documento.periodo = cliente.condicionpago_id;
-            }
-        }
-
+        this.data.cliente.rfc = cliente.rfc;
+        this.data.cliente.razon_social = cliente.razon_social;
         this.data.cliente.credito_disponible = cliente.credito_disponible;
-
-        const empresa =
-            this.data.empresa_externa != ''
-                ? this.data.empresa_externa
-                : this.data.empresa;
 
         if (this.data.cliente.rfc != 'XAXX010101000') {
             var form_data = new FormData();
@@ -2396,6 +2233,7 @@ export class CrearComponent implements OnInit {
             this.productos = [];
 
             this.producto = {
+                id: 0,
                 tipo: 0,
                 codigo: '',
                 codigo_text: '',
@@ -2422,24 +2260,34 @@ export class CrearComponent implements OnInit {
         if (!this.producto.codigo_text) {
             return;
         }
+
+        this.compraService.searchProduct(this.producto.codigo_text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     async agregarProducto() {
         return new Promise((resolve, reject) => {
-            if (this.producto.codigo == '') {
-                swal('', 'Producto incorrecto', 'error');
-
-                reject();
-
-                return;
-            }
-
             if (this.productos.length > 0) {
                 const producto = this.productos.find(
-                    (producto) => producto.sku == this.producto.codigo
+                    (producto) => producto.id == this.producto.id
                 );
 
-                this.producto.codigo = $.trim(this.producto.codigo);
+                this.producto.codigo = $.trim(producto.sku);
                 this.producto.alto = producto.alto == null ? 0 : producto.alto;
                 this.producto.ancho =
                     producto.ancho == null ? 0 : producto.ancho;
@@ -3200,6 +3048,7 @@ export class CrearComponent implements OnInit {
 
     restartObjects() {
         this.producto = {
+            id: 0,
             tipo: 0,
             codigo: '',
             codigo_text: '',
@@ -3755,6 +3604,8 @@ export class CrearComponent implements OnInit {
 
     regimenPorTamanioRFC() {
         const condicion = this.data.cliente.rfc.length < 13 ? 'M' : 'F';
+
+        console.log();
 
         return this.regimenes.filter((regimen) =>
             regimen.condicion.includes(condicion)
