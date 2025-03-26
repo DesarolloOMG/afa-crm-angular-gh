@@ -2,7 +2,7 @@ import {
     backend_url,
     swalErrorHttpResponse,
     tinymce_init,
-} from './../../../../../../environments/environment';
+} from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';

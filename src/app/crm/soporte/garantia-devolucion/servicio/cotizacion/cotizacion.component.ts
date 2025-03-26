@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from './../../../../../../environments/environment';
+import { backend_url, tinymce_init } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -7,10 +7,9 @@ import swal from 'sweetalert2';
 @Component({
     selector: 'app-cotizacion',
     templateUrl: './cotizacion.component.html',
-    styleUrls: ['./cotizacion.component.scss']
+    styleUrls: ['./cotizacion.component.scss'],
 })
 export class CotizacionComponent implements OnInit {
-
     modalReference: any;
     tinymce_init = tinymce_init;
 
@@ -19,39 +18,48 @@ export class CotizacionComponent implements OnInit {
     garantias: any[] = [];
 
     data = {
-        documento: "",
-        creador: "",
+        documento: '',
+        creador: '',
         contacto: {},
         productos: [],
-        seguimiento: []
-    }
+        seguimiento: [],
+    };
 
     producto = {
-        producto: "",
+        producto: '',
         cantidad: 0,
-        precio: 0
-    }
+        precio: 0,
+    };
 
     productos_cotizacion: any[] = [];
 
     final_data = {
-        documento: "",
-        seguimiento: "",
+        documento: '',
+        seguimiento: '',
         cotizacion_aceptada: 0,
         costo_total: 0,
-        terminar: 1
+        terminar: 1,
     };
 
-    constructor(private http: HttpClient, private chRef: ChangeDetectorRef, private modalService: NgbModal) {
-        const table_producto: any = $("#soporte_garantia_devolucion_servicio_cotizacion");
+    constructor(
+        private http: HttpClient,
+        private chRef: ChangeDetectorRef,
+        private modalService: NgbModal
+    ) {
+        const table_producto: any = $(
+            '#soporte_garantia_devolucion_servicio_cotizacion'
+        );
 
         this.datatable = table_producto.DataTable();
     }
 
     ngOnInit() {
-        this.http.get(`${backend_url}soporte/garantia-devolucion/servicio/cotizacion/data`)
+        this.http
+            .get(
+                `${backend_url}soporte/garantia-devolucion/servicio/cotizacion/data`
+            )
             .subscribe(
-                res => {
+                (res) => {
                     if (res['code'] == 200) {
                         this.datatable.destroy();
 
@@ -60,27 +68,36 @@ export class CotizacionComponent implements OnInit {
                         this.chRef.detectChanges();
 
                         // Now you can use jQuery DataTables :
-                        const table: any = $("#soporte_garantia_devolucion_servicio_cotizacion");
+                        const table: any = $(
+                            '#soporte_garantia_devolucion_servicio_cotizacion'
+                        );
                         this.datatable = table.DataTable();
-                    }
-                    else {
-                        swal("", res['message'], "error");
+                    } else {
+                        swal('', res['message'], 'error');
                     }
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     detalleVenta(modal, documento) {
         this.final_data.documento = documento;
         this.data.documento = documento;
 
-        const garantia = this.garantias.find(garantia => garantia.id == documento);
+        const garantia = this.garantias.find(
+            (garantia) => garantia.id == documento
+        );
 
         this.data.productos = garantia.productos;
         this.data.contacto = garantia.contacto;
@@ -88,9 +105,9 @@ export class CotizacionComponent implements OnInit {
         this.data.seguimiento = garantia.seguimiento;
 
         this.modalReference = this.modalService.open(modal, {
-            size: "lg",
-            windowClass: "bigger-modal",
-            backdrop: "static"
+            size: 'lg',
+            windowClass: 'bigger-modal',
+            backdrop: 'static',
         });
     }
 
@@ -98,73 +115,99 @@ export class CotizacionComponent implements OnInit {
         var form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
 
-        this.http.post(`${backend_url}soporte/garantia-devolucion/servicio/cotizacion/guardar`, form_data)
+        this.http
+            .post(
+                `${backend_url}soporte/garantia-devolucion/servicio/cotizacion/guardar`,
+                form_data
+            )
             .subscribe(
-                res => {
+                (res) => {
                     swal({
-                        title: "",
+                        title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message']
+                        html: res['message'],
                     });
 
                     if (res['code'] == 200) {
                         if (this.final_data.terminar) {
-                            const index = this.garantias.findIndex(garantia => garantia.id == this.final_data.documento);
+                            const index = this.garantias.findIndex(
+                                (garantia) =>
+                                    garantia.id == this.final_data.documento
+                            );
                             this.garantias.splice(index, 1);
                         }
 
                         this.modalReference.close();
                     }
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 
     agregarProducto() {
         this.productos_cotizacion.push(this.producto);
 
         this.producto = {
-            producto: "",
+            producto: '',
             cantidad: 0,
-            precio: 0
-        }
+            precio: 0,
+        };
     }
 
     crearCotizacion() {
         var form_data = new FormData();
-        form_data.append('productos', JSON.stringify(this.productos_cotizacion));
+        form_data.append(
+            'productos',
+            JSON.stringify(this.productos_cotizacion)
+        );
         form_data.append('documento', this.final_data.documento);
 
-        this.http.post(`${backend_url}soporte/garantia-devolucion/servicio/cotizacion/crear`, form_data)
+        this.http
+            .post(
+                `${backend_url}soporte/garantia-devolucion/servicio/cotizacion/crear`,
+                form_data
+            )
             .subscribe(
-                res => {
+                (res) => {
                     if (res['code'] == 200) {
-                        let dataURI = "data:application/pdf;base64, " + res['file'];
+                        let dataURI =
+                            'data:application/pdf;base64, ' + res['file'];
 
-                        let a = window.document.createElement("a");
+                        let a = window.document.createElement('a');
                         a.href = dataURI;
                         a.download = res['name'];
-                        a.setAttribute("id", "etiqueta_descargar");
+                        a.setAttribute('id', 'etiqueta_descargar');
 
                         a.click();
 
-                        $("#etiqueta_descargar").remove();
-                    }
-                    else {
-                        swal("", res['message'], "error");
+                        $('#etiqueta_descargar').remove();
+                    } else {
+                        swal('', res['message'], 'error');
                     }
                 },
-                response => {
+                (response) => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error,
                     });
-                });
+                }
+            );
     }
 }

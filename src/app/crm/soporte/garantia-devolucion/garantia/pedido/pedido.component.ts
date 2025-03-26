@@ -156,27 +156,9 @@ export class PedidoComponent implements OnInit {
         );
 
         this.datatable = table_producto.DataTable();
-
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
     }
 
     ngOnInit() {
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
-        if (this.empresas_usuario.length == 1) {
-            this.data.empresa = this.empresas_usuario[0];
-        }
-
         this.http
             .get(
                 `${backend_url}soporte/garantia-devolucion/garantia/pedido/data`
@@ -193,13 +175,11 @@ export class PedidoComponent implements OnInit {
                     this.monedas = res['monedas'];
                     this.metodos = res['metodos'];
 
-                    this.empresas.forEach((empresa, index) => {
-                        if (
-                            $.inArray(empresa.id, this.empresas_usuario) == -1
-                        ) {
-                            this.empresas.splice(index, 1);
-                        }
-                    });
+                    if (this.empresas.length) {
+                        const [empresa] = this.empresas;
+
+                        this.data.empresa = empresa.id;
+                    }
 
                     this.cambiarEmpresa();
 
@@ -224,25 +204,6 @@ export class PedidoComponent implements OnInit {
                     });
                 }
             );
-
-        //nueva url
-        this.http.get('http://201.7.208.53:11903/api/Bancos').subscribe(
-            (res) => {
-                this.razones = Object.values(res);
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
     }
 
     detalleVenta(modal, id_venta) {
@@ -252,10 +213,8 @@ export class PedidoComponent implements OnInit {
 
         this.cambiarCodigoPostal(venta.codigo_postal);
 
-        const empresa = this.empresas.find((empresa) => empresa.bd == venta.bd);
-
         this.data = {
-            empresa: empresa.id,
+            empresa: this.data.empresa,
             documento: {
                 pedido: 0,
                 almacen: venta.id_almacen_principal_empresa,

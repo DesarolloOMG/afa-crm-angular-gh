@@ -1,12 +1,9 @@
-import {
-    backend_url,
-    tinymce_init,
-} from './../../../../../../environments/environment';
+import { backend_url, tinymce_init } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import swal from 'sweetalert2';
-import { AuthService } from '../../../../../services/auth.service';
+import { AuthService } from '@services/auth.service';
 
 @Component({
     selector: 'app-cambio',
