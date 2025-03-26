@@ -5,6 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-proveedor',
@@ -46,65 +47,32 @@ export class ProveedorComponent implements OnInit {
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private auth: AuthService,
-        private router: Router
+        private compraService: CompraService
     ) {
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
 
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
         this.subniveles = JSON.parse(this.auth.userData().sub).subniveles;
     }
 
-    async ngOnInit() {
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
-        await new Promise((resolve, reject) => {
-            this.http
-                .get(`${backend_url}compra/producto/gestion/data`)
-                .subscribe(
-                    (res) => {
-                        this.empresas = res['empresas'];
-
-                        this.empresas.forEach((empresa, index) => {
-                            if (
-                                $.inArray(empresa.id, this.empresas_usuario) ==
-                                -1
-                            ) {
-                                this.empresas.splice(index, 1);
-                            } else {
-                                if (this.empresas_usuario.length == 1) {
-                                    this.proveedor.empresa = empresa.bd;
-                                }
-                            }
-                        });
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        reject();
-                    }
-                );
+    ngOnInit() {
+        this.compraService.getProveedoresViewData().subscribe({
+            next: (res: any) => {
+                this.regimenes = res.regimenes;
+                this.paises = res.paises;
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
         });
     }
 
@@ -220,6 +188,14 @@ export class ProveedorComponent implements OnInit {
                     });
                 }
             );
+    }
+
+    regimenPorTamanioRFC() {
+        const condicion = this.proveedor.rfc.length < 13 ? 'M' : 'F';
+
+        return this.regimenes.filter((regimen) =>
+            regimen.condicion.includes(condicion)
+        );
     }
 
     reconstruirTabla() {

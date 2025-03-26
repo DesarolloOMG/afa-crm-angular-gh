@@ -663,12 +663,11 @@
 <ng-template #modalitemcrm>
     <div class="modal-body table-responsive">
         <form class="md-float-material form-material m-t-10">
-            <h4 class="sub-title">Productos</h4>
             <div class="row">
                 <div class="col-md-6">
-                    <h4 class="sub-title">Empresa</h4>
+                    <h4 class="sub-title" hidden>Empresa</h4>
 
-                    <div class="row">
+                    <div class="row" hidden>
                         <div class="col-md-12">
                             <div class="form-group form-primary">
                                 <select
@@ -703,7 +702,7 @@
                         </div>
                     </div>
 
-                    <h4 class="sub-title m-t-30">
+                    <h4 class="sub-title">
                         Información interna para la publicación
                     </h4>
 
@@ -836,14 +835,14 @@
                         <select
                             name="item-product-sku"
                             class="form-control"
-                            [(ngModel)]="product.sku"
+                            [(ngModel)]="product.id"
                         >
                             <option value="" disabled selected></option>
                             <option
-                                value="{{ row.sku }}"
+                                value="{{ row.id }}"
                                 *ngFor="let row of products"
                             >
-                                {{ row.producto }}
+                                {{ row.sku + " | " + row.descripcion }}
                             </option>
                         </select>
                         <span class="form-bar"></span>

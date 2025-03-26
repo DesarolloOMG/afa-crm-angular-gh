@@ -5,6 +5,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-cliente',
@@ -38,9 +39,6 @@ export class ClienteComponent implements OnInit {
     };
 
     clientes: any[] = [];
-    subniveles: any[] = [];
-    empresas_usuario: any[] = [];
-    empresas: any[] = [];
     paises: any[] = [];
     regimenes: any[] = [];
     condiciones: any[] = [];
@@ -50,45 +48,30 @@ export class ClienteComponent implements OnInit {
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private auth: AuthService,
-        private router: Router
+        private compraService: CompraService
     ) {
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
-
-        this.subniveles = JSON.parse(this.auth.userData().sub).subniveles;
     }
 
     async ngOnInit() {
-        await new Promise((resolve, reject) => {
-            this.http
-                .get(`${backend_url}compra/producto/gestion/data`)
-                .subscribe(
-                    (res) => {
-                        this.empresas = res['empresas'];
-
-                        if (this.empresas.length) {
-                            const [empresa] = this.empresas;
-
-                            this.cliente.empresa = empresa.id;
-                        }
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        reject();
-                    }
-                );
+        this.compraService.getProveedoresViewData().subscribe({
+            next: (res: any) => {
+                this.regimenes = res.regimenes;
+                this.paises = res.paises;
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
         });
     }
 
@@ -161,15 +144,6 @@ export class ClienteComponent implements OnInit {
         });
 
         if ($('.ng-invalid').length > 0) {
-            return;
-        }
-
-        if (!this.cliente.empresa) {
-            swal({
-                type: 'error',
-                html: 'Favor de seleccionar una empresa',
-            });
-
             return;
         }
 

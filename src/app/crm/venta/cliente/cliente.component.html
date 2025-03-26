@@ -1,39 +1,6 @@
 <div class="card">
     <div class="card-header">
         <form class="md-float-material form-material m-t-10">
-            <div class="row" [hidden]="empresas_usuario.length < 2">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select
-                            id="clienteempresa"
-                            name="clienteempresa"
-                            #clienteempresa="ngModel"
-                            class="form-control"
-                            [(ngModel)]="cliente.empresa"
-                            required
-                        >
-                            <option value="" disabled></option>
-                            <option
-                                value="{{ empresa.bd }}"
-                                *ngFor="let empresa of empresas"
-                            >
-                                {{ empresa.empresa }}
-                            </option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Empresa</label>
-                        <small
-                            class="text-danger messages block"
-                            *ngIf="
-                                clienteempresa.errors?.required &&
-                                (clienteempresa.dirty || clienteempresa.touched)
-                            "
-                            >Este campo es requerido.</small
-                        >
-                    </div>
-                </div>
-            </div>
-
             <div class="row">
                 <div class="col-md-2 offset-md-10">
                     <button
@@ -148,38 +115,6 @@
     </div>
     <div class="modal-body">
         <form class="md-float-material form-material" #f="ngForm">
-            <div class="row" [hidden]="empresas_usuario.length < 2">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select
-                            id="clienteempresa"
-                            name="clienteempresa"
-                            #clienteempresa="ngModel"
-                            class="form-control"
-                            [(ngModel)]="cliente.empresa"
-                            required
-                        >
-                            <option value="" disabled></option>
-                            <option
-                                value="{{ empresa.bd }}"
-                                *ngFor="let empresa of empresas"
-                            >
-                                {{ empresa.empresa }}
-                            </option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Empresa</label>
-                        <small
-                            class="text-danger messages block"
-                            *ngIf="
-                                clienteempresa.errors?.required &&
-                                (clienteempresa.dirty || clienteempresa.touched)
-                            "
-                            >Este campo es requerido.</small
-                        >
-                    </div>
-                </div>
-            </div>
             <div class="row m-t-30">
                 <div class="col-md-12">
                     <div class="form-group form-primary">
@@ -193,7 +128,7 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ row.id }}"
+                                value="{{ row.pais }}"
                                 *ngFor="let row of paises"
                             >
                                 {{ row.pais }}

@@ -76,4 +76,9 @@ export class CompraService {
             form_data
         );
     }
+
+    /* Compra > Proveedores */
+    getProveedoresViewData() {
+        return this.http.get(`${backend_url}compra/proveedor/data`);
+    }
 }

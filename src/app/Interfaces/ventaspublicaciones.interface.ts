@@ -109,6 +109,7 @@ export interface UltimaCompra {
 }
 
 export interface ProductObj {
+    id: number;
     sku: string;
     search: string;
     description: string;

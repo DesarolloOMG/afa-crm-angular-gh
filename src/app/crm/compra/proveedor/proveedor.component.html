@@ -117,40 +117,6 @@
     </div>
     <div class="modal-body">
         <form class="md-float-material form-material" #f="ngForm">
-            <div class="row" [hidden]="empresas_usuario.length < 2">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select
-                            id="proveedorempresa"
-                            name="proveedorempresa"
-                            #proveedorempresa="ngModel"
-                            class="form-control"
-                            [(ngModel)]="proveedor.empresa"
-                            required
-                        >
-                            <option value="" disabled></option>
-                            <option
-                                value="{{ empresa.bd }}"
-                                *ngFor="let empresa of empresas"
-                            >
-                                {{ empresa.empresa }}
-                            </option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Empresa</label>
-                        <small
-                            class="text-danger messages block"
-                            *ngIf="
-                                proveedorempresa.errors?.required &&
-                                (proveedorempresa.dirty ||
-                                    proveedorempresa.touched)
-                            "
-                            >Este campo es requerido.</small
-                        >
-                    </div>
-                </div>
-            </div>
-
             <div class="row m-t-30">
                 <div class="col-md-12">
                     <div class="form-group form-primary">
@@ -164,7 +130,7 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ row.id }}"
+                                value="{{ row.pais }}"
                                 *ngFor="let row of paises"
                             >
                                 {{ row.pais }}
@@ -277,10 +243,10 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ row }}"
-                                *ngFor="let row of regimenes"
+                                value="{{ row.regimen }}"
+                                *ngFor="let row of regimenPorTamanioRFC()"
                             >
-                                {{ row }}
+                                {{ row.regimen }}
                             </option>
                         </select>
                         <span class="form-bar"></span>

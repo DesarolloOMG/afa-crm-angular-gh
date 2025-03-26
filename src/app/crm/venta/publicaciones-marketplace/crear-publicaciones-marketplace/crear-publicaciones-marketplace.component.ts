@@ -23,6 +23,7 @@ import swal from 'sweetalert2';
 import { Observable } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { isArray } from 'util';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-crear-publicaciones-marketplace',
@@ -41,7 +42,8 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
         private ventaService: VentaService,
         private spinner: NgxSpinnerService,
         private mercadolibreService: MercadolibreService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private compraService: CompraService
     ) {
         const usuario = JSON.parse(this.auth.userData().sub);
         this.usuario = usuario;
@@ -104,6 +106,7 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
     };
 
     product: ProductObj = {
+        id: 0,
         sku: '',
         search: '',
         description: '',
@@ -356,7 +359,7 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
         if (!this.product.search)
             return swal({
                 type: 'error',
-                html: `Escribe algo para inicia la bÃºsqueda`,
+                html: `Escribe algo para inicia la busqueda`,
             });
 
         if (this.products.length) {
@@ -367,9 +370,14 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
             return;
         }
 
-        const company = this.companies.find(
-            (company) => company.id == this.data_productos.company
-        );
+        this.compraService.searchProduct(this.product.search).subscribe({
+            next: (res: any) => {
+                this.products = [...res.data];
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
+        });
     }
 
     getVariationNameByID(variation_id) {
@@ -386,8 +394,7 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
     addProduct() {
         const exists = this.data_productos.products.find(
             (p) =>
-                p.sku == this.product.sku &&
-                p.variation == this.product.variation
+                p.id == this.product.id && p.variation == this.product.variation
         );
 
         if (exists)
@@ -397,7 +404,6 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
             });
 
         if (
-            this.product.sku == '' ||
             this.product.quantity < 1 ||
             this.product.warranty == '' ||
             (this.marketplace.variations != undefined &&
@@ -409,9 +415,10 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
                 html: 'Favor de seleccionar todos los campos para agregar un producto.',
             });
 
-        const product = this.products.find((p) => p.sku == this.product.sku);
+        const product = this.products.find((p) => p.id == this.product.id);
 
-        this.product.description = product.producto;
+        this.product.sku = product.sku;
+        this.product.description = product.descripcion;
 
         this.data_productos.products.push(this.product);
         this.searchProduct();
@@ -419,6 +426,7 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
 
     initProductObject() {
         this.product = {
+            id: 0,
             sku: '',
             search: '',
             description: '',
@@ -446,6 +454,14 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
             (res: any) => {
                 this.btob_providers = [...res.proveedores];
                 this.companies = [...res.empresas];
+
+                if (this.companies.length) {
+                    const [company] = this.companies;
+
+                    this.data_productos.company = company.id;
+
+                    this.onChangeCompany();
+                }
 
                 this.spinner.hide();
             },

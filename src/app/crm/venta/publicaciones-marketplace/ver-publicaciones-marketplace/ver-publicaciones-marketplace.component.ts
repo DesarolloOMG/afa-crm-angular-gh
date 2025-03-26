@@ -2013,6 +2013,12 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                 this.btob_providersML = [...res.proveedores];
                 this.logistic_typesML = [...res.logistica];
                 this.companiesML = [...res.empresas];
+
+                if (this.companiesML.length) {
+                    const [company] = this.companiesML;
+
+                    this.data.company = company.id;
+                }
             },
             (err: any) => {
                 swalErrorHttpResponse(err);
