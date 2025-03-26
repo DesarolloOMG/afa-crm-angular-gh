@@ -45,7 +45,7 @@
                                 >
                                     <option value="0">TODOS</option>
                                     <option
-                                        value="{{ almacen.id_erp }}"
+                                        value="{{ almacen.id }}"
                                         *ngFor="let almacen of almacenes"
                                     >
                                         {{ almacen.almacen }}
@@ -126,289 +126,119 @@
     <div class="card-block table-responsive">
         <div class="row">
             <div class="col-md-12">
-                <table
-                    class="table table-striped"
-                    id="general_busqueda_producto"
-                >
+                <table class="table table-striped text-center" id="general_busqueda_producto">
                     <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Producto</th>
-                            <th>Último costo</th>
-                            <th *ngIf="esAdmin()">Precio</th>
-                            <th>Inventario</th>
-                            <th>Pendientes</th>
-                            <th>Transito</th>
-                            <th>Pre trans.</th>
-                            <th>Disponible</th>
-                            <th>Reportes del sistema</th>
-                        </tr>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Último costo</th>
+                        <th *ngIf="esAdmin()">Precio</th>
+                        <th>Inventario</th>
+                        <th>Pendientes</th>
+                        <th>Transito</th>
+                        <th>Pre trans.</th>
+                        <th>Disponible</th>
+                        <th>Reportes del sistema</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let producto of productos">
-                            <td
-                                class="{{
-                                    producto.costo_extra > 0
-                                        ? 'costo-hecho'
-                                        : ''
-                                }}"
-                            >
-                                {{ producto.sku }} <br />
-                                {{
-                                    producto.numero_parte == "N/A"
-                                        ? ""
-                                        : producto.numero_parte
-                                }}
-                            </td>
-                            <td>{{ producto.producto }}</td>
-                            <td>
-                                $
-                                {{
-                                    commaNumber(
-                                        producto.ultimo_costo +
-                                            producto.costo_extra
-                                    )
-                                }}
-                            </td>
-                            <td *ngIf="esAdmin()">
-                                $
-                                {{
-                                    commaNumber(
-                                        producto.precio
-                                            ? producto.precio.precio
-                                            : 0
-                                    )
-                                }}
-                            </td>
-                            <td class="no-wrap">
-                                <ul
-                                    style="list-style-type: none"
-                                    *ngIf="
-                                        producto.existencias.almacenes.length >
-                                        0
-                                    "
-                                    style="text-align: right"
-                                >
-                                    <li
-                                        *ngFor="
-                                            let existencia of producto
-                                                .existencias.almacenes
-                                        "
-                                    >
-                                        {{
-                                            existencia.almacen +
-                                                ": " +
-                                                existencia.fisico
-                                        }}
-                                    </li>
-                                </ul>
-                                <p
-                                    *ngIf="
-                                        producto.existencias.almacenes.length ==
-                                        0
-                                    "
-                                >
-                                    Sin existencia
-                                </p>
-                            </td>
-                            <!--
-                            <td>
-                                <ul style="list-style-type: none" *ngIf="producto.existencias.almacenes.length > 0">
-                                    <li *ngFor="let existencia of producto.existencias.almacenes">-
-                                        {{ existencia.pendientes_bo }}</li>
-                                </ul>
-                            </td>
-                            -->
-                            <td>
-                                <ul
-                                    style="list-style-type: none"
-                                    *ngIf="
-                                        producto.existencias.almacenes.length >
-                                        0
-                                    "
-                                >
-                                    <li
-                                        *ngFor="
-                                            let existencia of producto
-                                                .existencias.almacenes
-                                        "
-                                    >
-                                        - {{ existencia.pendientes_surtir }}
-                                    </li>
-                                </ul>
-                            </td>
-                            <td>
-                                <ul
-                                    style="list-style-type: none"
-                                    *ngIf="
-                                        producto.existencias.almacenes.length >
-                                        0
-                                    "
-                                >
-                                    <li
-                                        *ngFor="
-                                            let existencia of producto
-                                                .existencias.almacenes
-                                        "
-                                    >
-                                        - {{ existencia.pendientes_recibir }}
-                                    </li>
-                                </ul>
-                            </td>
-                            <td>
-                                <ul
-                                    style="list-style-type: none"
-                                    *ngIf="
-                                        producto.existencias.almacenes.length >
-                                        0
-                                    "
-                                >
-                                    <li
-                                        *ngFor="
-                                            let existencia of producto
-                                                .existencias.almacenes
-                                        "
-                                    >
-                                        -
-                                        {{
-                                            existencia.pendientes_pretransferencia
-                                        }}
-                                    </li>
-                                </ul>
-                            </td>
-                            <td>
-                                <ul
-                                    style="list-style-type: none"
-                                    *ngIf="
-                                        producto.existencias.almacenes.length >
-                                        0
-                                    "
-                                >
-                                    <li
-                                        *ngFor="
-                                            let existencia of producto
-                                                .existencias.almacenes
-                                        "
-                                    >
-                                        =
-                                        {{
-                                            existencia.fisico -
-                                                existencia.pendientes_surtir -
-                                                existencia.pendientes_recibir -
-                                                existencia.pendientes_pretransferencia
-                                        }}
-                                    </li>
-                                </ul>
-                            </td>
-                            <td>
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="
-                                        abrirModal(
-                                            modalkardexcrm,
-                                            producto.sku,
-                                            1
-                                        )
-                                    "
-                                    placement="top"
-                                    ngbTooltip="Kardex CRM"
-                                >
-                                    <i class="fa fa-2x fa-clipboard-list"></i>
-                                </button>
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="
-                                        abrirModal(
-                                            modalkardexerp,
-                                            producto.sku,
-                                            2
-                                        )
-                                    "
-                                    placement="top"
-                                    ngbTooltip="Kardex ERP"
-                                >
-                                    <i class="fa fa-2x fa-clipboard-list"></i>
-                                </button>
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="
-                                        abrirModal(
-                                            modalcostopromedio,
-                                            producto.sku,
-                                            3
-                                        )
-                                    "
-                                    placement="top"
-                                    ngbTooltip="Costos (grafica)"
-                                >
-                                    <i class="fa fa-2x fa-chart-line"></i>
-                                </button>
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="
-                                        abrirModal(
-                                            modalpreciopromedio,
-                                            producto.sku,
-                                            4
-                                        )
-                                    "
-                                    placement="top"
-                                    ngbTooltip="Precios (grafica)"
-                                >
-                                    <i class="fa fa-2x fa-chart-line"></i>
-                                </button>
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="recostearProducto(producto.sku)"
-                                    placement="top"
-                                    ngbTooltip="Recostear"
-                                >
-                                    <i class="fa fa-2x fa-dollar-sign"></i>
-                                </button>
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="
-                                        obtenerURLImagenes(
-                                            producto.imagenes,
-                                            modalimagenes
-                                        )
-                                    "
-                                    placement="top"
-                                    ngbTooltip="Ver imagenes"
-                                >
-                                    <i class="fa fa-2x fa-images"></i>
-                                </button>
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="
-                                        abrirModal(
-                                            modalmovimientos,
-                                            producto.sku,
-                                            5
-                                        )
-                                    "
-                                    placement="top"
-                                    ngbTooltip="Ultimos movimientos"
-                                >
-                                    <i class="fa fa-2x fa-exchange"></i>
-                                </button>
+                    <!-- Ahora 'producto' ya contiene un array 'almacenes' -->
+                    <tr *ngFor="let producto of productos">
+                        <td>
+                            {{ producto.codigo }}<br />
+                            <!-- Ejemplo de np -->
+                            {{ producto.np === 'N/A' ? '' : producto.np }}
+                        </td>
+                        <td>{{ producto.descripcion }}</td>
+                        <td>
+                            ${{ commaNumber(producto.ultimo_costo) }}
+                        </td>
+                        <td *ngIf="esAdmin()">
+                            <!-- Precio si existiera a nivel producto; si no, 0 -->
+                            ${{ commaNumber(producto.precio || 0) }}
+                        </td>
 
-                                <button
-                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                    (click)="
-                                        abrirModal(
-                                            modalsinonimos,
-                                            producto.sku,
-                                            6
-                                        )
-                                    "
-                                    placement="top"
-                                    ngbTooltip="Sinonimos"
-                                >
-                                    <i class="fa fa-2x fa-barcode"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- INVENTARIO -->
+                        <td>
+                            <ul style="list-style-type: none; padding-left: 0;">
+                                <li *ngFor="let alm of producto.almacenes">
+                                    {{ alm.almacen }}: {{ alm.inventario }}
+                                </li>
+                            </ul>
+                        </td>
+
+                        <!-- PENDIENTES -->
+                        <td>
+                            <ul style="list-style-type: none; padding-left: 0;">
+                                <li *ngFor="let alm of producto.almacenes">
+                                    {{ alm.pendientes }}
+                                </li>
+                            </ul>
+                        </td>
+
+                        <!-- TRANSITO -->
+                        <td>
+                            <ul style="list-style-type: none; padding-left: 0;">
+                                <li *ngFor="let alm of producto.almacenes">
+                                    {{ alm.en_transito }}
+                                </li>
+                            </ul>
+                        </td>
+
+                        <!-- PRE TRANS. -->
+                        <td>
+                            <ul style="list-style-type: none; padding-left: 0;">
+                                <li *ngFor="let alm of producto.almacenes">
+                                    {{ alm.pretransferencia }}
+                                </li>
+                            </ul>
+                        </td>
+
+                        <!-- DISPONIBLE -->
+                        <td>
+                            <ul style="list-style-type: none; padding-left: 0;">
+                                <li *ngFor="let alm of producto.almacenes">
+                                    {{ alm.disponible }}
+                                </li>
+                            </ul>
+                        </td>
+
+                        <!-- REPORTES DEL SISTEMA -->
+                        <td>
+                            <button
+                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                (click)="abrirModal(modalkardexcrm, producto.codigo, 1)"
+                                placement="top"
+                                ngbTooltip="Kardex CRM"
+                            >
+                                <i class="fa fa-2x fa-clipboard-list"></i>
+                            </button>
+                            <button
+                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                (click)="obtenerURLImagenes(producto.imagenes, modalimagenes)"
+                                placement="top"
+                                ngbTooltip="Ver imagenes"
+                            >
+                                <i class="fa fa-2x fa-images"></i>
+                            </button>
+                            <button
+                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                (click)="abrirModal(modalmovimientos, producto.codigo, 5)"
+                                placement="top"
+                                ngbTooltip="Ultimos movimientos"
+                            >
+                                <i class="fa fa-2x fa-exchange"></i>
+                            </button>
+                            <button
+                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                (click)="abrirModal(modalsinonimos, producto.codigo, 6)"
+                                placement="top"
+                                ngbTooltip="Sinonimos"
+                            >
+                                <i class="fa fa-2x fa-barcode"></i>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>

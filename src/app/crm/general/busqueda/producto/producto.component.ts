@@ -165,63 +165,59 @@ export class ProductoComponent implements OnInit {
     }
 
     buscarProducto() {
-        if (this.data.criterio == '' && this.data.almacen == 0) {
+        if (this.data.criterio === '' && (this.data.almacen === 0 || !this.data.almacen)) {
             swal({
                 type: 'error',
                 html: 'Favor de escribir un criterio o seleccionar un almacén para realizar la búsqueda',
             });
-
             return;
         }
 
+        // Armar etiquetas a partir de data.criterio
         this.etiquetas = this.data.criterio
             .split(',')
-            .map(function (item) {
-                return item.trim();
-            })
-            .filter(function (element) {
-                return element !== undefined;
-            })
-            .filter((str) => str !== '');
+            .map((item) => item.trim())
+            .filter((element) => element !== undefined && element !== '');
 
         this.data.etiquetas = this.etiquetas;
 
-        var form_data = new FormData();
-
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.data));
 
         this.http
-            .post(
-                `${backend_url}general/busqueda/producto/existencia`,
-                form_data
-            )
+            .post(`${backend_url}general/busqueda/producto/existencia`, form_data)
             .subscribe(
-                (res) => {
-                    if (res['code'] != 200) {
-                        swal('', res['message'], 'error');
-
+                (res: any) => {
+                    if (res.code !== 200) {
+                        swal('', res.message, 'error');
                         return;
                     }
 
-                    this.data.excel = res['excel'];
+                    // Guardamos el excel si viene en la respuesta
+                    this.data.excel = res.excel || '';
 
+                    // Reiniciamos el DataTable antes de asignar los nuevos datos
                     this.datatable_producto.destroy();
-                    this.productos = res['productos'];
+
+                    // Ahora "productos" ya viene agrupado por 'codigo' y tiene un subarreglo 'almacenes'
+                    this.productos = res.productos || [];
+
+                    // Forzamos la detección de cambios antes de reinicializar el DataTable
                     this.chRef.detectChanges();
 
                     const table: any = $('#general_busqueda_producto');
                     this.datatable_producto = table.DataTable();
                 },
-                (response) => {
+                (err) => {
                     swal({
                         title: '',
                         type: 'error',
                         html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                            err.status === 0
+                                ? err.message
+                                : typeof err.error === 'object'
+                                    ? err.error.error_summary
+                                    : err.error,
                     });
                 }
             );
