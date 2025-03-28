@@ -17,10 +17,10 @@
                                 >
                                     <option value="" disabled></option>
                                     <option
-                                        value="{{ empresa.bd }}"
+                                        value="{{ empresa.id }}"
                                         *ngFor="let empresa of empresas"
                                     >
-                                        {{ empresa.empresa }}
+                                        {{ empresa.razon_social }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
@@ -119,46 +119,6 @@
                             ></ui-switch>
                         </div>
                     </div>
-                    <div class="row m-t-20">
-                        <div class="col-md-5">&nbsp;</div>
-
-                        <div class="col-md-1">&nbsp;</div>
-
-                        <div class="col-md-2" style="margin-top: -18px">
-                            <label style="display: block; font-size: 9pt"
-                                >Guía con Zoom</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="zoom_guia"
-                                id="zoom_guia"
-                                [(ngModel)]="data.documento.zoom_guia"
-                            ></ui-switch>
-                        </div>
-
-                        <div class="col-md-2" style="margin-top: -18px">
-                            <label
-                                style="
-                                    display: block;
-                                    font-size: 9pt;
-                                    color: red;
-                                "
-                                >Shipping Null</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="shippingnull"
-                                id="shippingnull"
-                                [(ngModel)]="data.documento.shipping_null"
-                            ></ui-switch>
-                        </div>
-                    </div>
 
                     <h4 class="sub-title m-t-20">Información del cliente</h4>
 
@@ -206,8 +166,8 @@
                                         value="{{ cliente.id }}"
                                         *ngFor="let cliente of clientes"
                                     >
-                                        {{ cliente.nombre_oficial }} - -
-                                        {{ cliente.rfc }}
+                                        {{ cliente.rfc }} |
+                                        {{ cliente.razon_social }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
@@ -1165,17 +1125,17 @@
                                     name="pro_codigo"
                                     id="pro_codigo"
                                     class="form-control"
-                                    [(ngModel)]="producto.codigo"
+                                    [(ngModel)]="producto.id"
                                 >
                                     <option value="" disabled selected></option>
                                     <option
-                                        value="{{ producto.sku }}"
+                                        value="{{ producto.id }}"
                                         *ngFor="let producto of productos"
                                     >
                                         {{
                                             producto.sku +
                                                 " - " +
-                                                producto.producto
+                                                producto.descripcion
                                         }}
                                     </option>
                                 </select>

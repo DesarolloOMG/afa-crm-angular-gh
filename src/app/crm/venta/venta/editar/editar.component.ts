@@ -11,6 +11,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
 import { NgForm } from '@angular/forms';
 import swal from 'sweetalert2';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-editar',
@@ -186,7 +187,8 @@ export class EditarComponent implements OnInit {
         private renderer: Renderer2,
         private route: ActivatedRoute,
         private auth: AuthService,
-        private ventaService: VentaService
+        private ventaService: VentaService,
+        private compraService: CompraService
     ) {
         this.route.params.subscribe((params) => {
             if (params.documento != undefined) {
@@ -214,6 +216,8 @@ export class EditarComponent implements OnInit {
                     const [empresa] = this.empresas;
 
                     this.data.empresa = empresa.id;
+
+                    this.cambiarEmpresa();
                 }
 
                 if (this.data.documento.documento) this.buscarDocumento();
@@ -240,8 +244,6 @@ export class EditarComponent implements OnInit {
             )
             .subscribe(
                 (res) => {
-                    console.log(res);
-
                     if (
                         this.fullfillment_allowed.includes(
                             res['informacion'].id_marketplace_area
@@ -261,19 +263,9 @@ export class EditarComponent implements OnInit {
                             res['informacion'].codigo_postal
                         );
 
-                    this.data.empresa = res['informacion'].bd;
-                    //! VERIFICAR 2024 '7'
-
-                    if (this.data.empresa == '0') this.data.empresa = '7';
-
-                    this.cambiarEmpresa();
-
                     this.data = {
                         empresa: this.data.empresa,
-                        empresa_externa:
-                            res['informacion'].empresa.length != 0
-                                ? res['informacion'].empresa[0].bd
-                                : '',
+                        empresa_externa: '',
                         area: this.data.area,
                         documento: {
                             marketplace: res['informacion'].id_marketplace_area,
@@ -338,7 +330,7 @@ export class EditarComponent implements OnInit {
                             zoom_guia: res['informacion'].zoom_guia,
                         },
                         cliente: {
-                            input: '',
+                            input: res['informacion'].rfc,
                             select: '',
                             id: res['informacion'].id_entidad,
                             codigo: res['informacion'].codigo,
@@ -360,10 +352,7 @@ export class EditarComponent implements OnInit {
                         this.$esImportado = true;
                     }
 
-                    const empresa =
-                        this.data.empresa_externa != ''
-                            ? this.data.empresa_externa
-                            : this.data.empresa;
+                    this.buscarCliente();
                 },
                 (response) => {
                     swal({
@@ -419,11 +408,18 @@ export class EditarComponent implements OnInit {
     }
 
     buscarProducto() {
+        if (!this.data.empresa) {
+            swal('', 'Selecciona una empresa.', 'error');
+
+            return;
+        }
+
         if (this.productos.length > 0) {
             this.productos = [];
 
             this.producto = {
                 id: 0,
+                tipo: 0,
                 codigo: '',
                 codigo_text: '',
                 descripcion: '',
@@ -431,19 +427,40 @@ export class EditarComponent implements OnInit {
                 precio: 0,
                 costo: 0,
                 garantia: '',
-                regalo: 0,
                 modificacion: '',
+                regalo: 0,
                 ancho: 0,
                 alto: 0,
                 largo: 0,
                 peso: 0,
                 bajo_costo: 0,
                 ret: 0,
-                tipo: 0,
             };
 
             return;
         }
+
+        if (!this.producto.codigo_text) {
+            return;
+        }
+
+        this.compraService.searchProduct(this.producto.codigo_text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     agregarProducto() {
@@ -458,9 +475,10 @@ export class EditarComponent implements OnInit {
         }
 
         const producto = this.productos.find(
-            (producto) => producto.sku == this.producto.codigo
+            (producto) => producto.id == this.producto.id
         );
 
+        this.producto.codigo = producto.sku;
         this.producto.alto = producto.alto == null ? 0 : producto.alto;
         this.producto.ancho = producto.ancho == null ? 0 : producto.ancho;
         this.producto.largo = producto.largo == null ? 0 : producto.largo;
@@ -495,6 +513,8 @@ export class EditarComponent implements OnInit {
                         this.buscarProducto();
                     },
                     (response) => {
+                        console.log(response);
+
                         swal({
                             title: '',
                             type: 'error',
@@ -1093,13 +1113,6 @@ export class EditarComponent implements OnInit {
     }
     buscarCliente() {
         return new Promise((resolve, reject) => {
-            if (!this.data.empresa) {
-                swal('', 'Selecciona una empresa.', 'error');
-
-                resolve(1);
-                return;
-            }
-
             if (!this.data.cliente.input) {
                 resolve(1);
                 return;
@@ -1114,10 +1127,29 @@ export class EditarComponent implements OnInit {
                 return;
             }
 
-            const empresa =
-                this.data.empresa_externa != ''
-                    ? this.data.empresa_externa
-                    : this.data.empresa;
+            this.ventaService.searchClients(this.data.cliente.input).subscribe({
+                next: (res: any) => {
+                    this.clientes = [...res.data];
+
+                    if (this.clientes.length) {
+                        const [cliente] = this.clientes;
+
+                        this.data.cliente.select = cliente.id;
+                    }
+                },
+                error: (err: any) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            err.status == 0
+                                ? err.message
+                                : typeof err.error === 'object'
+                                ? err.error.error_summary
+                                : err.error,
+                    });
+                },
+            });
         });
     }
 
