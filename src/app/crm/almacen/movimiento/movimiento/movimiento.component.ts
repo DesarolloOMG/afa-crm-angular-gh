@@ -128,6 +128,17 @@ export class MovimientoComponent implements OnInit {
                 type: 'error',
                 html: 'Selecciona una empresa para buscar los productos',
             });
+
+        this.almacenService
+            .getAlmacenMovimientoProductoData(this.search_product)
+            .subscribe(
+                (res: any) => {
+                    this.productos = res['productos'];
+                },
+                (err: any) => {
+                    swalErrorHttpResponse(err);
+                }
+            );
     }
 
     deleteProduct(product_sku: string) {
@@ -624,11 +635,11 @@ export class MovimientoComponent implements OnInit {
                     this.tipos.splice(index, 1);
                 }
 
-                if (!this.is_su) {
-                    this.tipos = this.tipos.filter(
-                        (item) => item.id !== 4 && item.id !== 3
-                    );
-                }
+                // if (!this.is_su) {
+                //     this.tipos = this.tipos.filter(
+                //         (item) => item.id !== 4 && item.id !== 3
+                //     );
+                // }
             },
             (err: any) => {
                 swalErrorHttpResponse(err);

@@ -36,6 +36,12 @@ export class AlmacenService {
         return this.http.get(`${backend_url}almacen/movimiento/crear/data`);
     }
 
+    getAlmacenMovimientoProductoData(producto: string) {
+        return this.http.get(
+            `${backend_url}almacen/movimiento/data/producto/${producto}`
+        );
+    }
+
     getAlmacenMovimientoProductSerialInformation(producto_sku: string) {
         return this.http.get(
             `${backend_url}almacen/movimiento/crear/producto/${producto_sku}`
