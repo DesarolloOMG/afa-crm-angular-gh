@@ -1,5 +1,5 @@
 /* tslint:disable:triple-equals */
-import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {backend_url, printserver_url, swalErrorHttpResponse} from '@env/environment';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
@@ -73,7 +73,7 @@ export class EtiquetaComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http.get(`${backend_url}almacen/etiqueta/data`).subscribe(
+        this.http.get(`${printserver_url}api/etiquetas/data`).subscribe(
             (res: any) => {
                 this.impresoras = [...res.impresoras];
                 this.empresas = [...res.empresas];
@@ -286,7 +286,8 @@ export class EtiquetaComponent implements OnInit {
                 : JSON.stringify(this.etiqueta_archivo)
         );
 
-        this.http.post(`${backend_url}almacen/etiqueta`, form_data).subscribe(
+        this.http.post(`${printserver_url}api/etiquetas`, form_data)
+            .subscribe(
             (res) => {
                 console.log(res);
             },
