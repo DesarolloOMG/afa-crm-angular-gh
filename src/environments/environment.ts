@@ -9,7 +9,8 @@ export const environment = {
     production: false,
 };
 
-export const backend_url = 'http://localhost:8000/';
+export const backend_url = 'http://afa.spaxium.com:16227/';
+export const printserver_url = 'http://psafa-test.ddns.net:2221/';
 export const backend_url_password =
     '$2y$10$zUFltp9AVApnk7BN22Nu9ueCvBihctYkDFJLvN0HlVaBr4KYtRnfy';
 export const pusher_key = 'd2163e9e88304df4c43e';
