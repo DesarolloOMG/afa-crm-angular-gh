@@ -1,0 +1,191 @@
+<div class="card">
+    <div class="card-header">
+        <h4 class="card-title title-float">Impresoras</h4>
+        <button
+            class="btn btn-sm btn-outline-primary btn-float-r"
+            (click)="openModalImpresoras()"
+            placement="top"
+            ngbTooltip="Registrar nueva impresora"
+        >
+            <i class="fa fa-plus fa-2x"></i>
+        </button>
+    </div>
+    <div class="card-block table-responsive">
+        <table
+            class="table table-striped"
+            id="configuracion_sistema_impresoras"
+        >
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tamaño</th>
+                <th>Tipo</th>
+                <th>IP</th>
+                <th>Servidor</th>
+                <th>Status</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let row of impresoras">
+                <td>{{ row.id }}</td>
+                <td>{{ row.nombre }}</td>
+                <td>{{ row.tamanio }}</td>
+                <td>{{ row.tipo }}</td>
+                <td>{{ row.ip }}</td>
+                <td>{{ row.servidor }}</td>
+                <td>
+                    <i
+                        class="fa fa-2x fa-{{
+                                row.status
+                                    ? 'check text-success'
+                                    : 'times text-danger'
+                            }}"
+                    ></i>
+                </td>
+
+                <td>
+                    <button
+                        (click)="openModalImpresoras(row!)"
+                        class="btn btn-sm btn-outline-primary"
+                        placement="top"
+                        ngbTooltip="Editar Impresora"
+                    >
+                        <i class="fa fa-eye fa-2x"></i>
+                    </button>
+                </td>
+                <td>
+                    <button
+                        (click)="deleteImpresora(row.id, row.nombre)"
+                        class="btn btn-sm btn-outline-danger"
+                        placement="top"
+                        ngbTooltip="Eliminar Impresora"
+                    >
+                        <i class="fa fa-trash fa-2x"></i>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material mt-10" #f="ngForm">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="impresora-api-extra-1"
+                            class="form-control"
+                            [(ngModel)]="data.nombre"
+
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Nombre</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="impresora-tamaño"
+                            class="form-control"
+                            [(ngModel)]="data.tamanio"
+                        >
+                            <option value="">Selecciona un tamaño</option>
+                            <option value="2x1"> 2x1
+                            <option value="4x8"> 4x8
+                            <option value="continua"> Continua
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tamaño</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="impresora-tipo"
+                            class="form-control"
+                            [(ngModel)]="data.tipo"
+                        >
+                            <option value="0">Selecciona un tipo</option>
+                            <option value="1"> 1
+                            <option value="2"> 2
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Tipo</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="impresora-ip"
+                            class="form-control"
+                            #ip="ngModel"
+                            [(ngModel)]="data.ip"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">IP</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group form-primary">
+                        <select
+                            name="impresora-servidor"
+                            class="form-control"
+                            [(ngModel)]="data.servidor"
+                        >
+                            <option value="">Selecciona un servidor</option>
+                            <!--suppress HttpUrlsUsage -->
+                            <option value="http://psafa-test.ddns.net:2221/"> Printserver AFA
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Servidor</label>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="sub-title m-t-30"></h4>
+
+            <div class="row m-t-30">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-sm btn-block m-b-20 http-disabled"
+                        placement="top"
+                        ngbTooltip="Guardar Impresora"
+                        (click)="guardarImpresora()"
+                    >
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
