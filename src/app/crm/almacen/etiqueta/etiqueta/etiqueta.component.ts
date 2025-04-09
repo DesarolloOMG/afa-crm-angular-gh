@@ -332,9 +332,10 @@ export class EtiquetaComponent implements OnInit {
         form_data.append('data', JSON.stringify(this.etiqueta_serie));
 
         this.http
-            .post(`${backend_url}almacen/etiqueta/serie`, form_data)
+            .post(`${printserver_url}api/etiquetas/serie`, form_data)
             .subscribe(
-                () => {
+                (res) => {
+                    console.log(res);
                 },
                 (response) => {
                     swal({
