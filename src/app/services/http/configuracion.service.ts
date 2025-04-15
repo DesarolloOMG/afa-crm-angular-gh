@@ -101,7 +101,7 @@ export class ConfiguracionService {
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            `${backend_url}configuracion/sistema/impresora` , form_data
+            `${backend_url}configuracion/sistema/impresora/create` , form_data
         );
     }
 
@@ -116,7 +116,7 @@ export class ConfiguracionService {
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            `${backend_url}configuracion/sistema/impresora`, form_data
+            `${backend_url}configuracion/sistema/impresora/update`, form_data
         );
     }
 

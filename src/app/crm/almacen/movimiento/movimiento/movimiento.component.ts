@@ -593,13 +593,13 @@ export class MovimientoComponent implements OnInit {
                     this.onChangeCompany();
                 }
 
-                if (!this.isUserAdmin()) {
-                    const index = this.tipos.findIndex(
-                        (t) => t.id == EnumDocumentoTipo.ENTRADA
-                    );
-
-                    this.tipos.splice(index, 1);
-                }
+                // if (!this.isUserAdmin()) {
+                //     const index = this.tipos.findIndex(
+                //         (t) => t.id == EnumDocumentoTipo.ENTRADA
+                //     );
+                //
+                //     this.tipos.splice(index, 1);
+                // }
 
                 // if (!this.is_su) {
                 //     this.tipos = this.tipos.filter(
