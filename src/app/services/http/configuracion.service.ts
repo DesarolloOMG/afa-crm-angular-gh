@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { backend_url } from '@env/environment';
 import { MarketplaceArea } from '@models/MarketplaceArea.model';
 import { Usuario } from '@models/Usuario.model';
+import {Impresora} from '@models/Impresora';
 
 @Injectable({
     providedIn: 'root',
@@ -91,6 +92,37 @@ export class ConfiguracionService {
         return this.http.post(
             `${backend_url}configuracion/sistema/marketplace/guardar`,
             form_data
+        );
+    }
+    /* Configuracion > Sistema > Impresoras */
+
+    configuracionSistemaImpresorasCreate(data: Impresora) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(
+            `${backend_url}configuracion/sistema/impresora` , form_data
+        );
+    }
+
+    configuracionSistemaImpresorasRetrive() {
+        return this.http.get(
+            `${backend_url}configuracion/sistema/impresora`
+        );
+    }
+
+    configuracionSistemaImpresorasUpdate(data: Impresora) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(
+            `${backend_url}configuracion/sistema/impresora`, form_data
+        );
+    }
+
+    configuracionSistemaImpresorasDelete(impersora_id: number) {
+        return this.http.delete(
+            `${backend_url}configuracion/sistema/impresora/${impersora_id}`,
         );
     }
 }

@@ -49,6 +49,7 @@
     </div>
 </div>
 
+<!--suppress JSUnusedGlobalSymbols -->
 <ng-template #modalarchivo let-c="close" let-d="dismiss">
     <div class="modal-header">
         <button
@@ -56,7 +57,7 @@
             class="close"
             aria-label="Close"
             (click)="d('Cross click')"
-            id="cerrar_modal"
+            id="cerrar_modalarchivo"
         >
             <span aria-hidden="true">&times;</span>
         </button>
@@ -119,6 +120,7 @@
     </div>
 </ng-template>
 
+<!--suppress JSUnusedGlobalSymbols -->
 <ng-template #modalgenerar let-c="close" let-d="dismiss">
     <div class="modal-header">
         <button
@@ -126,12 +128,13 @@
             class="close"
             aria-label="Close"
             (click)="d('Cross click')"
-            id="cerrar_modal"
+            id="cerrar_modalgenerar"
         >
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     <div class="modal-body table-responsive">
+        <!--suppress JSUnusedGlobalSymbols -->
         <form class="md-float-material form-material mt-10" #f="ngForm">
             <h4 class="sub-title m-t-20" *ngIf="!is_su">
                 Generar etiquetas masivas
@@ -160,7 +163,7 @@
                     <div class="form-group form-primary">
                         <select
                             name="etiquetaserieempresa"
-                            id="etiquetaserieempresa"
+                            id="etiquetaserieempresamanual"
                             class="form-control"
                             [(ngModel)]="empresa"
                         >
@@ -275,7 +278,7 @@
                         [bc-width]="2"
                         [bc-height]="100"
                         [bc-background]="'#ffffff'"
-                        [bc-text-align]="center"
+                        [bc-text-align]="center //noinspection UnresolvedReference"
                         style="width: 100%"
                     ></ngx-barcode>
                 </div>
@@ -296,6 +299,7 @@
     </div>
 </ng-template>
 
+<!--suppress JSUnusedGlobalSymbols -->
 <ng-template #modalgeneraretiquetaserie let-c="close" let-d="dismiss">
     <div class="modal-header">
         <button
