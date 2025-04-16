@@ -940,7 +940,7 @@ export class AdminComponent implements OnInit {
                     html:
                         'Su sesión ha expirado<br/>' +
                         `recargue la página o haga click en el siguiente enlace:<br/>` +
-                        `<h1> <a href='http://www.crmomg.mx/#/auth/login'>http://www.crmomg.mx/#/auth/login</a></h1>`,
+                        `<h1> <a href='http://afa.spaxium.com:11227/#/auth/login'>http://afa.spaxium.com:11227/#/auth/login</a></h1>`,
                 });
                 localStorage.removeItem('crm_user');
                 localStorage.removeItem('crm_date');

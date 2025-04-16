@@ -25,7 +25,7 @@ export class TitleComponent {
           });
         } while (currentRoute);
         if (title !== undefined) {
-          this.titleService.setTitle(title + ' | OMG International');
+          this.titleService.setTitle(title + ' | AFA INNOVATIONS');
         }
       });
   }
