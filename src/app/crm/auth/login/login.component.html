@@ -78,31 +78,31 @@
                                 >
                             </div>
 
-<!--                            <div class="form-group form-primary">-->
-<!--                                <input-->
-<!--                                    #authy="ngModel"-->
-<!--                                    type="text"-->
-<!--                                    name="authy"-->
-<!--                                    class="form-control form-control-center"-->
-<!--                                    [(ngModel)]="user.authy"-->
-<!--                                    (keyup.enter)="login()"-->
-<!--                                    maxlength="7"-->
-<!--                                    required-->
-<!--                                />-->
-<!--                                <span class="form-bar"></span>-->
-<!--                                <label class="float-label"-->
-<!--                                    >Código de confirmación (Authy)</label-->
-<!--                                >-->
-<!--                                <small-->
-<!--                                    class="text-danger messages"-->
-<!--                                    *ngIf="-->
-<!--                                        authy.invalid &&-->
-<!--                                        (authy.dirty || authy.touched) &&-->
-<!--                                        authy.errors?.required-->
-<!--                                    "-->
-<!--                                    >Campo requerido</small-->
-<!--                                >-->
-<!--                            </div>-->
+                            <div class="form-group form-primary">
+                                <input
+                                    #authy="ngModel"
+                                    type="text"
+                                    name="authy"
+                                    class="form-control form-control-center"
+                                    [(ngModel)]="user.authy"
+                                    (keyup.enter)="login()"
+                                    maxlength="7"
+                                    required
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Código de confirmación (Authy)</label
+                                >
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="
+                                        authy.invalid &&
+                                        (authy.dirty || authy.touched) &&
+                                        authy.errors?.required
+                                    "
+                                    >Campo requerido</small
+                                >
+                            </div>
 
                             <div class="row m-t-25 text-left">
                                 <div class="col-12">
