@@ -414,12 +414,6 @@ export class ProductoComponent implements OnInit {
     }
 
     buscarCodigoSat() {
-        if (!this.data.empresa) {
-            swal('', 'Selecciona una empresa.', 'error');
-
-            return;
-        }
-
         if (this.codigos_sat.length > 0) {
             this.codigos_sat = [];
             this.producto.codigo_text = '';
@@ -427,7 +421,26 @@ export class ProductoComponent implements OnInit {
             return;
         }
 
-        const empresa = this.empresas.find((e) => e.id == this.data.empresa);
+        const form_data = new FormData();
+        form_data.append('criterio', this.producto.codigo_text);
+
+        this.http
+            .post(
+                `${backend_url}compra/producto/gestion/codigo/sat`,
+                form_data
+            )
+            .subscribe(
+                (res: any) => {
+                    this.codigos_sat = Array.isArray(res.data) ? res.data : [ res.data ];
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html: response.message
+                    });
+                }
+            );
     }
 
     onChangeArchivo() {

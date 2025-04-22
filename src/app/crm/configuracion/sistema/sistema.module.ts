@@ -10,6 +10,7 @@ import { MarketplaceComponent } from './marketplace/marketplace.component';
 import { AlmacenComponent } from './almacen/almacen.component';
 import { PaqueteriaComponent } from './paqueteria/paqueteria.component';
 import { EnConstruccionModule } from 'app/utils/en-construccion/en-construccion.module';
+import { ImpresoraComponent } from './impresora/impresora.component';
 
 @NgModule({
     imports: [
@@ -21,6 +22,6 @@ import { EnConstruccionModule } from 'app/utils/en-construccion/en-construccion.
         NgbModule,
         EnConstruccionModule,
     ],
-    declarations: [MarketplaceComponent, AlmacenComponent, PaqueteriaComponent],
+    declarations: [MarketplaceComponent, AlmacenComponent, PaqueteriaComponent, ImpresoraComponent],
 })
 export class SistemaModule {}

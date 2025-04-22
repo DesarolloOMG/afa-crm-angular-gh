@@ -132,7 +132,7 @@
                         <th>Código</th>
                         <th>Producto</th>
                         <th>Último costo</th>
-                        <th *ngIf="esAdmin()">Precio</th>
+<!--                        <th *ngIf="esAdmin()">Precio</th>-->
                         <th>Inventario</th>
                         <th>Pendientes</th>
                         <th>Transito</th>
@@ -151,12 +151,12 @@
                         </td>
                         <td>{{ producto.descripcion }}</td>
                         <td>
-                            ${{ commaNumber(producto.ultimo_costo) }}
+                            ${{ commaNumber(producto.precio) }}
                         </td>
-                        <td *ngIf="esAdmin()">
-                            <!-- Precio si existiera a nivel producto; si no, 0 -->
-                            ${{ commaNumber(producto.precio || 0) }}
-                        </td>
+<!--                        <td *ngIf="esAdmin()">-->
+<!--                            &lt;!&ndash; Precio si existiera a nivel producto; si no, 0 &ndash;&gt;-->
+<!--                            ${{ commaNumber(producto.precio || 0) }}-->
+<!--                        </td>-->
 
                         <!-- INVENTARIO -->
                         <td>

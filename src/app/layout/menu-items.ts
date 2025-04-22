@@ -1254,6 +1254,12 @@ const MENUITEMS = [
                         level: [6],
                         sublevel: 1,
                     },
+                    {
+                        state: 'impresora',
+                        name: 'Impresoras',
+                        level: [6],
+                        sublevel: 1,
+                    },
                 ],
             },
             {

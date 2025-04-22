@@ -18,7 +18,7 @@ export class LoginComponent {
     constructor(private router: Router, private authService: AuthService) {}
 
     login() {
-        if (!this.user.email || !this.user.password || !this.user.authy)
+        if (!this.user.email || !this.user.password)
             return swal({
                 type: 'error',
                 html: `Favor de escribir todos los campos obligatorios`,

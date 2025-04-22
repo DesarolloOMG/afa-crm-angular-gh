@@ -4,6 +4,7 @@ import { Routes, RouterModule } from '@angular/router';
 import { AlmacenComponent } from './almacen/almacen.component';
 import { MarketplaceComponent } from './marketplace/marketplace.component';
 import { PaqueteriaComponent } from './paqueteria/paqueteria.component';
+import {ImpresoraComponent} from './impresora/impresora.component';
 
 const routes: Routes = [
     {
@@ -28,6 +29,13 @@ const routes: Routes = [
                 component: PaqueteriaComponent,
                 data: {
                     title: 'Configuración de paqueterias'
+                }
+            },
+            {
+                path: 'impresora',
+                component: ImpresoraComponent,
+                data: {
+                    title: 'Configuración de impresoras'
                 }
             }
         ]

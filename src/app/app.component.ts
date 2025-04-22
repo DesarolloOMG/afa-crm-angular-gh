@@ -8,7 +8,7 @@ import swal from 'sweetalert2';
     styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-    title = 'OMG INTERNATIONAL SA DE CV';
+    title = 'AFA INNOVATIONS';
 
     constructor(private router: Router) {}
     ngOnInit() {
@@ -23,23 +23,23 @@ export class AppComponent implements OnInit {
         // // Uso
         // const pilaDeLlamadas = obtenerPilaDeLlamadas();
         // console.log(pilaDeLlamadas);
-        if (window.location.protocol === 'https:') {
-            swal({
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                allowEnterKey: false,
-                showCancelButton: false,
-                showCloseButton: false,
-
-                title: 'Version Incompatible',
-                type: 'error',
-                html:
-                    'Actualmente estás navegando en una version no compatible con el sistema<br/>' +
-                    `La siguiente liga te redirigirá:<br/>` +
-                    `<h1> <a href='http://www.crmomg.mx/#/dashboard/general'>http://www.crmomg.mx/#/dashboard/general</a></h1>`,
-            });
-        }
+        // if (window.location.protocol === 'https:') {
+        //     swal({
+        //         showConfirmButton: false,
+        //         allowOutsideClick: false,
+        //         allowEscapeKey: false,
+        //         allowEnterKey: false,
+        //         showCancelButton: false,
+        //         showCloseButton: false,
+        //
+        //         title: 'Version Incompatible',
+        //         type: 'error',
+        //         html:
+        //             'Actualmente estás navegando en una version no compatible con el sistema<br/>' +
+        //             `La siguiente liga te redirigirá:<br/>` +
+        //             `<h1> <a href='http://www.crmomg.mx/#/dashboard/general'>http://www.crmomg.mx/#/dashboard/general</a></h1>`,
+        //     });
+        // }
 
         this.router.events.subscribe((evt) => {
             if (!(evt instanceof NavigationEnd)) {

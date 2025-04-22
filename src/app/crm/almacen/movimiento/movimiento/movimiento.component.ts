@@ -186,7 +186,7 @@ export class MovimientoComponent implements OnInit {
                     ? 0
                     : producto.ultimo_costo
                 : this.producto.costo;
-        this.producto.descripcion = producto.producto;
+        this.producto.descripcion = producto.descripcion;
 
         this.almacenService
             .getAlmacenMovimientoProductSerialInformation(this.producto.sku)
@@ -292,28 +292,7 @@ export class MovimientoComponent implements OnInit {
                                 type: 'error',
                                 html: 'Las series marcadas en rojo no fueron encontradas, por favor ingrese en la aplicación de Authy y escribe el codigo en el recuadro de abajo.',
                                 input: 'text',
-                            }).then(async (confirm) => {
-                                if (!confirm.value) return;
-
-                                await new Promise((response) => {
-                                    this.almacenService
-                                        .confirmAlmacenMovimentoAuthy(
-                                            confirm.value
-                                        )
-                                        .subscribe(
-                                            () => {
-                                                can_proceed = true;
-
-                                                response(1);
-                                            },
-                                            (err: any) => {
-                                                response(1);
-
-                                                swalErrorHttpResponse(err);
-                                            }
-                                        );
-                                });
-                            });
+                            }).then();
                         }
 
                         if (can_proceed) {
@@ -423,19 +402,6 @@ export class MovimientoComponent implements OnInit {
             serie = serie.replace(/['\\]/g, '');
             const form_data = new FormData();
             form_data.append('serie', serie);
-
-            const res = await this.http
-                .post(`${backend_url}developer/busquedaSerieVsSku`, form_data)
-                .toPromise();
-
-            if (!res['valido']) {
-                this.data.serie = '';
-                swal({
-                    type: 'error',
-                    html: `La serie es un SKU`,
-                });
-                return;
-            }
 
             const repetida = this.data.productos.find((producto) =>
                 producto.series.find((serie_ip) => serie_ip == serie)
@@ -637,13 +603,13 @@ export class MovimientoComponent implements OnInit {
                     this.onChangeCompany();
                 }
 
-                if (!this.isUserAdmin()) {
-                    const index = this.tipos.findIndex(
-                        (t) => t.id == EnumDocumentoTipo.ENTRADA
-                    );
-
-                    this.tipos.splice(index, 1);
-                }
+                // if (!this.isUserAdmin()) {
+                //     const index = this.tipos.findIndex(
+                //         (t) => t.id == EnumDocumentoTipo.ENTRADA
+                //     );
+                //
+                //     this.tipos.splice(index, 1);
+                // }
 
                 // if (!this.is_su) {
                 //     this.tipos = this.tipos.filter(
