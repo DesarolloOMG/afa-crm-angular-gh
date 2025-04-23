@@ -447,11 +447,11 @@ export class HistorialComponent implements OnInit {
             (res: any) => {
                 this.types = [...res.tipos_documento];
 
-                if (!this.is_su) {
-                    this.types = this.types.filter(
-                        (item) => item.id !== 3 && item.id !== 4
-                    );
-                }
+                // if (!this.is_su) {
+                //     this.types = this.types.filter(
+                //         (item) => item.id !== 3 && item.id !== 4
+                //     );
+                // }
             },
             (err: any) => {
                 swalErrorHttpResponse(err);
