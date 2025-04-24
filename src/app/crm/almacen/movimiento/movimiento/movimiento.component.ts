@@ -362,7 +362,6 @@ export class MovimientoComponent implements OnInit {
                 .saveAlmacenMovimientoDocumento(this.data)
                 .toPromise();
 
-            // Disparamos el alert combinando el mensaje general y la lista de errores
             swal({
                 type: res.errores && res.errores.length ? 'error' : 'success',
                 html: res.errores && res.errores.length ? res.errores : res.message
@@ -376,11 +375,17 @@ export class MovimientoComponent implements OnInit {
                     downloadPDF(pdfRes.name, pdfRes.file);
                     this.initObjects();
                 } catch (err) {
-                    swalErrorHttpResponse(err);
+                    swal({
+                        type: err.errores && err.errores.length ? 'error' : 'success',
+                        html: err.errores && err.errores.length ? err.errores : err.message
+                    });
                 }
             }
         } catch (err) {
-            swalErrorHttpResponse(err);
+            swal({
+                type: err.errores && err.errores.length ? 'error' : 'success',
+                html: err.errores && err.errores.length ? err.errores : err.message
+            });
         }
     }
 
