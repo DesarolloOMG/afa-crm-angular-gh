@@ -9,7 +9,7 @@ export const environment = {
     production: false,
 };
 
-export const backend_url = 'http://afa.spaxium.com:16227/';
+export const backend_url = 'http://localhost:8000/';
 export const printserver_url = 'http://psafa-test.ddns.net:2221/';
 export const backend_url_password =
     '$2y$10$zUFltp9AVApnk7BN22Nu9ueCvBihctYkDFJLvN0HlVaBr4KYtRnfy';
@@ -29,20 +29,64 @@ export function commaNumber(number) {
     return parts.join('.');
 }
 
+// export function swalErrorHttpResponse(err) {
+//     console.log(err);
+//     swal({
+//         title: '',
+//         type: 'error',
+//         html:
+//             err.status == 0
+//                 ? err.message
+//                 : typeof err.error === 'object'
+//                 ? err.error.error_summary
+//                     ? err.error.error_summary
+//                     : err.error.message
+//                 : err.error,
+//     });
+// }
+
 export function swalErrorHttpResponse(err) {
+    console.log(err);
+
+    let errorHtml: string;
+
+    if (err.status === 0) {
+        // Error de red u offline
+        errorHtml = err.message;
+    } else if (typeof err.error === 'object') {
+        // Si tu backend te envía un campo 'errores'
+        if (err.error.errores) {
+            try {
+                // err.error.errores viene como JSON-string de un array:
+                const lista = JSON.parse(err.error.errores);
+                // Une cada mensaje con un salto de línea HTML
+                errorHtml = Array.isArray(lista)
+                    ? lista.join('<br/>')
+                    : String(lista);
+            } catch (e) {
+                // Si no es JSON válido, lo muestras tal cual
+                errorHtml = String(err.error.errores);
+            }
+        }
+        // Si no hay 'errores', caes al error_summary o al message
+        else if (err.error.error_summary) {
+            errorHtml = err.error.error_summary;
+        } else {
+            errorHtml = err.error.message || JSON.stringify(err.error);
+        }
+    } else {
+        // Cuando err.error no es objeto (p.ej. es string)
+        errorHtml = err.error;
+    }
+
     swal({
         title: '',
         type: 'error',
-        html:
-            err.status == 0
-                ? err.message
-                : typeof err.error === 'object'
-                ? err.error.error_summary
-                    ? err.error.error_summary
-                    : err.error.message
-                : err.error,
+        html: errorHtml,
     });
 }
+
+
 
 export function swalSuccessHttpResponse(res) {
     swal({
