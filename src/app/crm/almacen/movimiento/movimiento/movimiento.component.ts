@@ -361,19 +361,11 @@ export class MovimientoComponent implements OnInit {
             const res: any = await this.almacenService
                 .saveAlmacenMovimientoDocumento(this.data)
                 .toPromise();
-            let errorListHtml = '';
-            if (res.errores && res.errores.length) {
-                errorListHtml = '<ul style="text-align:left;margin:0;padding-left:1em">';
-                res.errores.forEach((err: string) => {
-                    errorListHtml += `<li>${err}</li>`;
-                });
-                errorListHtml += '</ul>';
-            }
 
             // Disparamos el alert combinando el mensaje general y la lista de errores
             swal({
                 type: res.errores && res.errores.length ? 'error' : 'success',
-                html: `<p>${res.message}</p>${errorListHtml}`
+                html: res.errores && res.errores.length ? res.errores : res.message
             });
 
             if (res.documento) {
