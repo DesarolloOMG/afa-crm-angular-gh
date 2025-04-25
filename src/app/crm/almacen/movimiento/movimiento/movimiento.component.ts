@@ -373,7 +373,7 @@ export class MovimientoComponent implements OnInit {
             // Disparamos el alert combinando el mensaje general y la lista de errores
             swal({
                 type: res.errores && res.errores.length ? 'error' : 'success',
-                html: `<p>${res.message}</p>${errorListHtml}`
+                html: res.errores && res.errores.length ? errorListHtml : res.message,
             });
 
             if (res.documento) {
