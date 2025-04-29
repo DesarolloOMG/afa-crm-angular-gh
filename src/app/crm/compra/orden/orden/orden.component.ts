@@ -260,6 +260,10 @@ export class OrdenComponent implements OnInit {
                 html: 'El costo del producto tiene que ser mayor a 0',
             });
 
+        const producto = this.productos.find(p => p.sku == this.producto.codigo);
+
+        this.producto.descripcion = producto.descripcion;
+
         this.data.productos.push(this.producto);
 
         this.clearProducto();
