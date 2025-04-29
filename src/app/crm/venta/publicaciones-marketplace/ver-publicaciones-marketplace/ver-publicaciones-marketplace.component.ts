@@ -1727,7 +1727,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
             (p) => p.sku == this.productML.sku
         );
 
-        this.productML.description = product.producto;
+        this.productML.description = product.descripcion;
 
         this.dataML.products.push(this.productML);
         this.searchProductML();
