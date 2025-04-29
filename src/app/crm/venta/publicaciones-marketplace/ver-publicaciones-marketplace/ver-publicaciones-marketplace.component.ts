@@ -1203,6 +1203,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                     ? itemML.id_almacen_empresa
                     : itemML.id_almacen_empresa_fulfillment;
 
+                /*
                 if (warehouse_savedML) {
                     const company = this.companiesML.find((company) =>
                         company.almacenes.find((a) => a.id == warehouse_savedML)
@@ -1212,6 +1213,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
 
                     if (this.dataML.company) this.onChangeCompanyML();
                 }
+                */
 
                 this.dataML = {
                     id: itemML.id,
