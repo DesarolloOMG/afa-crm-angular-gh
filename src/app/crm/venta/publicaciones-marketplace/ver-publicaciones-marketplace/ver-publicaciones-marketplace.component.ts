@@ -1345,6 +1345,15 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
             (marketplace) => marketplace.id == this.search.marketplace
         );
 
+        if (!marketplace) {
+            console.log(marketplace, this.marketplaces, this.search);
+
+            return swal({
+                type: 'error',
+                html: `Selecciona un marketplace`,
+            });
+        }
+
         this.mercadolibreService.getItemData(item.publicacion_id, marketplace.marketplace_token).subscribe(
             (res: any) => {
                 this.getSaleTermsForCategoryML(res.category_id);
