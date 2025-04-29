@@ -14,6 +14,7 @@ import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import swal from 'sweetalert2';
+import { CompraService } from '@services/http/compra.service';
 
 @Component({
     selector: 'app-ver-publicaciones-marketplace',
@@ -131,7 +132,8 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
         private http: HttpClient,
         private modalService: NgbModal,
         private chRef: ChangeDetectorRef,
-        private iterableDiffers: IterableDiffers
+        private iterableDiffers: IterableDiffers,
+        private compraService: CompraService
     ) {
         this.iterableDiffer = this.iterableDiffers.find([]).create(null);
         this.iterableDifferML = this.iterableDiffers.find([]).create(null);
@@ -386,6 +388,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
 
         this.ventaService.getItemData(item.id).subscribe(
             (res: any) => {
+                /*
                 const warehouse_saved = item.id_almacen_empresa
                     ? item.id_almacen_empresa
                     : item.id_almacen_empresa_fulfillment;
@@ -399,6 +402,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
 
                     if (this.data.company) this.onChangeCompany();
                 }
+                */
 
                 this.data = {
                     id: item.id,
@@ -473,10 +477,6 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
 
             return;
         }
-
-        const company = this.companies.find(
-            (company) => company.id == this.data.company
-        );
     }
 
     addProduct() {
@@ -1676,9 +1676,23 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
             return;
         }
 
-        const company = this.companiesML.find(
-            (company) => company.id == this.dataML.company
-        );
+        this.compraService.searchProduct(this.productML.search).subscribe({
+            next: (res: any) => {
+                this.productsML = [...res.data];
+            },
+            error: (err: any) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html:
+                        err.status == 0
+                            ? err.message
+                            : typeof err.error === 'object'
+                            ? err.error.error_summary
+                            : err.error,
+                });
+            },
+        });
     }
 
     addProductML() {
@@ -1717,7 +1731,6 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
 
         this.dataML.products.push(this.productML);
         this.searchProductML();
-        console.log(this.dataML.products);
     }
 
     addVariationML() {
