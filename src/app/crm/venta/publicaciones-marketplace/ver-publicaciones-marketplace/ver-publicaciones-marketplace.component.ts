@@ -911,7 +911,11 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
     viewItemDataMarketplace(item_id) {
         const item = this.items.find((item) => item.id == item_id);
 
-        this.mercadolibreService.getItemData(item.publicacion_id).subscribe(
+        const marketplace = this.marketplaces.find(
+            (marketplace) => marketplace.id == this.search.marketplace
+        );
+
+        this.mercadolibreService.getItemData(item.publicacion_id, marketplace.marketplace_token).subscribe(
             (res: any) => {
                 this.getSaleTermsForCategory(res.category_id);
 
@@ -996,7 +1000,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                 }
 
                 this.mercadolibreService
-                    .getItemDescription(item.publicacion_id)
+                    .getItemDescription(item.publicacion_id, marketplace.marketplace_token)
                     .subscribe(
                         (res: any) => {
                             this.marketplace.description = res.plain_text;
@@ -1009,7 +1013,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                 const item_data = res;
 
                 this.mercadolibreService
-                    .getItemCategoryVariants(res.category_id)
+                    .getItemCategoryVariants(res.category_id, marketplace.marketplace_token)
                     .subscribe(
                         (res: any) => {
                             this.variations = [
@@ -1335,7 +1339,11 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
     viewItemDataMarketplaceML(item_id) {
         const item = this.itemsML.find((item) => item.id == item_id);
 
-        this.mercadolibreService.getItemData(item.publicacion_id).subscribe(
+        const marketplace = this.marketplaces.find(
+            (marketplace) => marketplace.id == this.search.marketplace
+        );
+
+        this.mercadolibreService.getItemData(item.publicacion_id, marketplace.marketplace_token).subscribe(
             (res: any) => {
                 this.getSaleTermsForCategoryML(res.category_id);
 
@@ -1420,7 +1428,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                 }
 
                 this.mercadolibreService
-                    .getItemDescription(item.publicacion_id)
+                    .getItemDescription(item.publicacion_id, marketplace.marketplace_token)
                     .subscribe(
                         (res: any) => {
                             this.marketplaceML.description = res.plain_text;
@@ -1433,7 +1441,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                 const item_data = res;
 
                 this.mercadolibreService
-                    .getItemCategoryVariants(res.category_id)
+                    .getItemCategoryVariants(res.category_id, marketplace.marketplace_token)
                     .subscribe(
                         (res: any) => {
                             this.variationsML = [

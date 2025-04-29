@@ -34,6 +34,10 @@ export class PreguntaRespuestaComponent implements OnInit {
                 html: `Selecciona un area y marketplace para buscar las preguntas`,
             });
 
+        const marketplace = this.marketplaces.find(
+            (marketplace) => marketplace.id == this.data.marketplace
+        );
+
         this.ventaService
             .getMarketplaceQuestions(this.data.marketplace)
             .subscribe(
@@ -81,7 +85,7 @@ export class PreguntaRespuestaComponent implements OnInit {
 
                     this.preguntas.map((pregunta) => {
                         this.mercadolibreService
-                            .getItemData(pregunta.item)
+                            .getItemData(pregunta.item, marketplace.marketplace_token)
                             .subscribe(
                                 (res: any) => {
                                     pregunta.item_data = res;
