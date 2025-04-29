@@ -1502,6 +1502,36 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
         );
 
         if (marketplace && marketplace.pseudonimo) {
+            this.mercadolibreService.getCurrentUserData(marketplace.marketplace_token).subscribe({
+                next: (res: any) => {
+                    this.user_dataML = { ...res };
+
+                    if (
+                        this.user_dataML.user_type === 'brand'
+                    ) {
+                        this.mercadolibreService
+                            .getBrandsByUser(
+                                this.user_dataML.id
+                            )
+                            .subscribe(
+                                (res: any) => {
+                                    this.brandsML = [
+                                        ...res.brands,
+                                    ];
+                                },
+                                (err: any) => {
+                                    swalErrorHttpResponse(err);
+                                }
+                            );
+                    }
+                },
+                error: (err: any) => {
+                    swalErrorHttpResponse(err);
+                }
+            });
+
+            return;
+
             this.mercadolibreService
                 .getUserDataByNickName(marketplace.pseudonimo)
                 .subscribe(

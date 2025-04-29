@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { mercadolibre_url } from './../../../environments/environment';
 
@@ -50,6 +50,14 @@ export class MercadolibreService {
 
     getUserDataByID(user_id: string) {
         return this.http.get(`${mercadolibre_url}users/${user_id}`);
+    }
+
+    getCurrentUserData(token: string) {
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+
+        return this.http.get(`${mercadolibre_url}users/me`, { headers });
     }
 
     getBrandsByUser(user_id: number) {
