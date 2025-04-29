@@ -26,18 +26,19 @@ import { BreadcrumbsComponent } from './layout/admin/breadcrumbs/breadcrumbs.com
 import { UserService } from './GoogleApisService';
 import { SheetResource } from './SheetResource';
 
-import { LoaderInterceptorService } from './services/loader-interceptor.service';
-import { AuthGuardService } from './services/auth-guard.service';
-import { AuthService } from './services/auth.service';
+import { LoaderInterceptorService } from '@services/loader-interceptor.service';
+import { AuthGuardService } from '@services/auth-guard.service';
+import { AuthService } from '@services/auth.service';
 import { LoaderComponent } from './loader/loader.component';
 import { SpinnerComponent } from './spinner/spinner.component';
 import { TitleComponent } from './layout/admin/title/title.component';
-import { AccordionAnchorDirective } from './shared/accordion/accordionanchor.directive';
-import { AccordionLinkDirective } from './shared/accordion/accordionlink.directive';
-import { AccordionDirective } from './shared/accordion/accordion.directive';
+import { AccordionAnchorDirective } from './shared/accordion';
+import { AccordionLinkDirective } from './shared/accordion';
+import { AccordionDirective } from './shared/accordion';
 import { SnowComponent } from './layout/snow/snow.component';
 import { EditorSeguimientosModule } from './utils/editor-seguimientos/editor-seguimientos.module';
 import { EnConstruccionModule } from './utils/en-construccion/en-construccion.module';
+import {AvisoModule} from './utils/aviso/aviso.module';
 
 export function tokenGetter() {
     return localStorage.getItem('crm_access_token');
@@ -83,6 +84,7 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         TextMaskModule,
         EditorSeguimientosModule,
         EnConstruccionModule,
+        AvisoModule
     ],
     providers: [
         MenuItems,
