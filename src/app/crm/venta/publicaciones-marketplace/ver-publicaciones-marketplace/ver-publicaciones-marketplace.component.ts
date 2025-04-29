@@ -1189,6 +1189,10 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
     viewItemDataCRMML(item_id) {
         const itemML = this.itemsML.find((item) => item.id == item_id);
 
+        const marketplace = this.marketplacesML.find(
+            (marketplace) => marketplace.id == this.searchML.marketplace
+        );
+
         this.ventaService.getItemData(itemML.id).subscribe(
             (res: any) => {
                 const warehouse_savedML = itemML.id_almacen_empresa
@@ -1215,7 +1219,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                 };
 
                 this.mercadolibreService
-                    .getItemData(itemML.publicacion_id)
+                    .getItemData(itemML.publicacion_id, marketplace.marketplace_token)
                     .subscribe(
                         (res: any) => {
                             this.getSaleTermsForCategoryML(res.category_id);
@@ -1260,7 +1264,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                             });
 
                             this.mercadolibreService
-                                .getItemDescription(itemML.publicacion_id)
+                                .getItemDescription(itemML.publicacion_id, marketplace.marketplace_token)
                                 .subscribe(
                                     (res: any) => {
                                         this.marketplaceML.description =
@@ -1274,7 +1278,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                             const item_dataML = res;
 
                             this.mercadolibreService
-                                .getItemCategoryVariants(res.category_id)
+                                .getItemCategoryVariants(res.category_id, marketplace.marketplace_token)
                                 .subscribe(
                                     (res: any) => {
                                         this.variationsML = [
@@ -1529,47 +1533,6 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                     swalErrorHttpResponse(err);
                 }
             });
-
-            return;
-
-            this.mercadolibreService
-                .getUserDataByNickName(marketplace.pseudonimo)
-                .subscribe(
-                    (res: any) => {
-                        this.mercadolibreService
-                            .getUserDataByID(res.seller.id)
-                            .subscribe(
-                                (res: any) => {
-                                    this.user_dataML = { ...res };
-
-                                    if (
-                                        this.user_dataML.user_type === 'brand'
-                                    ) {
-                                        this.mercadolibreService
-                                            .getBrandsByUser(
-                                                this.user_dataML.id
-                                            )
-                                            .subscribe(
-                                                (res: any) => {
-                                                    this.brandsML = [
-                                                        ...res.brands,
-                                                    ];
-                                                },
-                                                (err: any) => {
-                                                    swalErrorHttpResponse(err);
-                                                }
-                                            );
-                                    }
-                                },
-                                (err: any) => {
-                                    swalErrorHttpResponse(err);
-                                }
-                            );
-                    },
-                    (err: any) => {
-                        swalErrorHttpResponse(err);
-                    }
-                );
         }
     }
 

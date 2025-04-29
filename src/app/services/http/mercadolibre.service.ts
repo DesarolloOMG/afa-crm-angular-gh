@@ -8,12 +8,20 @@ import { mercadolibre_url } from './../../../environments/environment';
 export class MercadolibreService {
     constructor(private http: HttpClient) {}
 
-    getItemData(item_id: string) {
-        return this.http.get(`${mercadolibre_url}items/${item_id}`);
+    getItemData(item_id: string, token: string) {
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+
+        return this.http.get(`${mercadolibre_url}items/${item_id}`, { headers });
     }
 
-    getItemDescription(item_id: string) {
-        return this.http.get(`${mercadolibre_url}items/${item_id}/description`);
+    getItemDescription(item_id: string, token: string) {
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+
+        return this.http.get(`${mercadolibre_url}items/${item_id}/description`, { headers });
     }
 
     getUserPublicData(user_id: string) {
@@ -26,9 +34,13 @@ export class MercadolibreService {
         );
     }
 
-    getItemCategoryVariants(category_id: string) {
+    getItemCategoryVariants(category_id: string, token: string) {
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+
         return this.http.get(
-            `${mercadolibre_url}categories/${category_id}/attributes`
+            `${mercadolibre_url}categories/${category_id}/attributes`, { headers }
         );
     }
 
@@ -56,7 +68,7 @@ export class MercadolibreService {
         const headers = new HttpHeaders({
             'Authorization': `Bearer ${token}`
         });
-
+        
         return this.http.get(`${mercadolibre_url}users/me`, { headers });
     }
 
