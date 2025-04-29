@@ -88,20 +88,6 @@ export class OrdenComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
-
-        if (this.empresas_usuario.length == 0) {
-            swal(
-                '',
-                'No tienes empresas asignadas, favor de contactar a un administrador.',
-                'error'
-            ).then(() => {
-                this.router.navigate(['/dashboard']);
-            });
-
-            return;
-        }
-
         this.http.get(`${backend_url}compra/orden/orden/data`).subscribe(
             (res: any) => {
                 this.reconstruirTabla(res['documentos']);
@@ -112,19 +98,13 @@ export class OrdenComponent implements OnInit {
                 this.usos_cfdi = [...res.usos_cfdi];
                 this.metodos_pago = [...res.metodos_pago];
 
-                this.empresas.forEach((empresa, index) => {
-                    if ($.inArray(empresa.id, this.empresas_usuario) == -1) {
-                        this.empresas.splice(index, 1);
-                    } else {
-                        if (this.empresas_usuario.length == 1) {
-                            if (empresa.id == this.empresas_usuario[0]) {
-                                this.data.empresa = empresa.bd;
-                            }
-                        }
-                    }
-                });
+                if (this.empresas.length) {
+                    const [empresa] = this.empresas;
 
-                this.cambiarEmpresa();
+                    this.data.empresa = empresa.bd;
+
+                    this.cambiarEmpresa();
+                }
             },
             (response) => {
                 swal({
