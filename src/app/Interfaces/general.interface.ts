@@ -20,3 +20,10 @@ export interface Usuario {
     subniveles: { [key: string]: number | number[] };
     niveles: number[];
 }
+
+export interface ILogin {
+    authy: string;
+    email: string;
+    password: string;
+    code_sent: boolean;
+}

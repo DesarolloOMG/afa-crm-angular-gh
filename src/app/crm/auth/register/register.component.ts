@@ -1,3 +1,6 @@
+/* tslint:disable:triple-equals */
+// noinspection DuplicatedCode
+
 import {
     swalErrorHttpResponse,
     swalSuccessHttpResponse,
@@ -6,7 +9,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Usuario } from '@models/Usuario.model';
 import { ConfiguracionService } from '@services/http/configuracion.service';
-import { AuthService } from '@services/http/auth.service';
 
 @Component({
     selector: 'app-register',
@@ -24,12 +26,11 @@ export class RegisterComponent implements OnInit {
     empresa_almacen: any[] = [];
     usuario_empresa_almacen: any[] = [];
 
-    selected_area: string = '';
+    selected_area = '';
 
     constructor(
         private router: Router,
         private configuracionService: ConfiguracionService,
-        private authService: AuthService
     ) {
         this.usuario.id = 0;
     }
@@ -62,7 +63,7 @@ export class RegisterComponent implements OnInit {
                 (res: any) => {
                     swalSuccessHttpResponse(res);
 
-                    this.router.navigate(['configuracion/usuario/gestion']);
+                    this.router.navigate(['configuracion/usuario/gestion']).then();
                 },
                 (err: any) => {
                     swalErrorHttpResponse(err);

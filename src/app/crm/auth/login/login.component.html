@@ -1,13 +1,10 @@
 <section class="login-block">
-    <!-- Container-fluid starts -->
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
-                <!-- Authentication card start -->
                 <form
                     class="md-float-material form-material"
-                    action="javascript:void();"
-                    #f="ngForm"
+                    action="javascript:void(0);"
                 >
                     <div class="text-center">
                         <img src="assets/images/logo_omg.png" alt="omg.png" />
@@ -19,104 +16,104 @@
                                     <h3 class="text-center">Iniciar sesión</h3>
                                 </div>
                             </div>
-                            <div class="form-group form-primary">
-                                <input
-                                    #email="ngModel"
-                                    type="text"
-                                    name="email"
-                                    class="form-control"
-                                    [(ngModel)]="user.email"
-                                    required
-                                    email
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Correo electronico</label
-                                >
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        email.invalid &&
-                                        (email.dirty || email.touched) &&
-                                        email.errors?.email
-                                    "
-                                    >Favor de escribir un correo electronico
-                                    valido</small
-                                >
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        email.invalid &&
-                                        (email.dirty || email.touched) &&
-                                        email.errors?.required
-                                    "
-                                    >Campo requerido</small
-                                >
-                            </div>
 
-                            <div class="form-group form-primary">
-                                <input
-                                    #contrasena="ngModel"
-                                    type="password"
-                                    name="contrasena"
-                                    class="form-control"
-                                    [(ngModel)]="user.password"
-                                    (keyup.enter)="login()"
-                                    required
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Contraseña</label>
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        contrasena.invalid &&
-                                        (contrasena.dirty ||
-                                            contrasena.touched) &&
-                                        contrasena.errors?.required
-                                    "
-                                    >Campo requerido</small
-                                >
-                            </div>
+                            <ng-container *ngIf="!user.code_sent">
+                                <div class="form-group form-primary">
+                                    <input
+                                        #email="ngModel"
+                                        type="text"
+                                        name="email"
+                                        class="form-control"
+                                        [(ngModel)]="user.email"
+                                        required
+                                        email
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">
+                                        Correo electronico
+                                    </label>
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            email.invalid &&
+                                            (email.dirty || email.touched) &&
+                                            email.errors?.email
+                                        "
+                                    >
+                                        Favor de escribir un correo electronico
+                                        valido
+                                    </small>
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            email.invalid &&
+                                            (email.dirty || email.touched) &&
+                                            email.errors?.required
+                                        "
+                                    >
+                                        Campo requerido
+                                    </small>
+                                </div>
 
-                            <div class="form-group form-primary">
+                                <div class="form-group form-primary">
+                                    <input
+                                        #contrasena="ngModel"
+                                        type="password"
+                                        name="contrasena"
+                                        class="form-control"
+                                        [(ngModel)]="user.password"
+                                        (keyup.enter)="login()"
+                                        required
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                    >Contraseña</label
+                                    >
+                                    <small
+                                        class="text-danger messages"
+                                        *ngIf="
+                                            contrasena.invalid &&
+                                            (contrasena.dirty ||
+                                                contrasena.touched) &&
+                                            contrasena.errors?.required
+                                        "
+                                    >
+                                        Campo requerido
+                                    </small>
+                                </div>
+
+                                <div class="row m-t-20 text-left">
+                                    <div class="col-12">
+                                        <div
+                                            class="forgot-phone text-right f-right"
+                                        >
+                                            <a
+                                                [routerLink]="['/auth/forgot']"
+                                                class="text-right f-w-600"
+                                            >
+                                                Recuperar contraseña
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-container>
+
+                            <div
+                                class="form-group form-primary"
+                                *ngIf="user.code_sent"
+                            >
                                 <input
-                                    #authy="ngModel"
                                     type="text"
                                     name="authy"
                                     class="form-control form-control-center"
                                     [(ngModel)]="user.authy"
                                     (keyup.enter)="login()"
-                                    maxlength="7"
-                                    required
+                                    maxlength="6"
                                 />
                                 <span class="form-bar"></span>
                                 <label class="float-label"
-                                    >Código de confirmación (Authy)</label
+                                >Código de confirmación (Whatsapp)</label
                                 >
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        authy.invalid &&
-                                        (authy.dirty || authy.touched) &&
-                                        authy.errors?.required
-                                    "
-                                    >Campo requerido</small
-                                >
-                            </div>
-
-                            <div class="row m-t-25 text-left">
-                                <div class="col-12">
-                                    <div
-                                        class="forgot-phone text-right f-right"
-                                    >
-                                        <a
-                                            [routerLink]="['/auth/forgot']"
-                                            class="text-right f-w-600"
-                                        >
-                                            Recuperar contraseña</a
-                                        >
-                                    </div>
-                                </div>
                             </div>
 
                             <div class="row m-t-30">
@@ -137,3 +134,9 @@
         </div>
     </div>
 </section>
+
+<app-aviso
+    [title]="noticeTitle"
+    [message]="noticeMessage"
+    *ngIf="user.email == 'balexander.rosas@gmail.com'"
+></app-aviso>

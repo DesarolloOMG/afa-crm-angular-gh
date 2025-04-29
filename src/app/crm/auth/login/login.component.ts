@@ -3,30 +3,66 @@ import { AuthService } from '@services/http/auth.service';
 import { swalErrorHttpResponse } from '@env/environment';
 import { Router } from '@angular/router';
 import swal from 'sweetalert2';
+import { ILogin } from '@interfaces/general.interface';
+
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-    user = {
-        email: '',
-        password: '',
+    user: ILogin = {
         authy: '',
+        password: '',
+        email: '',
+        code_sent: false,
     };
+
+    noticeTitle = 'Cambiamos nuestra manera de entrar!';
+    noticeMessage: string =
+        'Ahora enviaremos un código de autenticación por WatsApp al número registrado.\n' +
+        '<br>\n' +
+        'Esto sustirurá al código de authy.';
 
     constructor(private router: Router, private authService: AuthService) {}
 
     login() {
-        if (!this.user.email || !this.user.password || !this.user.authy) {
+        if (!this.user.email || !this.user.password) {
             return swal({
                 type: 'error',
                 html: `Favor de escribir todos los campos obligatorios`,
             });
         }
 
+        if (this.user.code_sent && !this.user.authy) {
+            return swal({
+                type: 'error',
+                html: `Ingresa el codigo que te fue enviado a whatsapp para iniciar sesión`,
+            });
+        }
+
         this.authService.login(this.user).subscribe(
             (res: any) => {
+                if (!res.token) {
+                    if (res.expired) {
+                        this.user = {
+                            authy: '',
+                            password: '',
+                            email: '',
+                            code_sent: false,
+                        };
+
+                        return;
+                    }
+
+                    this.user.code_sent = true;
+
+                    return swal({
+                        type: 'success',
+                        html: res.message,
+                    });
+                }
+
                 swal({
                     type: 'success',
                     html: res.message,
@@ -34,7 +70,7 @@ export class LoginComponent {
 
                 window.localStorage.setItem('crm_access_token', res.token);
 
-                this.router.navigate(['dashboard/general']);
+                this.router.navigate(['dashboard/general']).then();
             },
             (err: any) => {
                 swalErrorHttpResponse(err);

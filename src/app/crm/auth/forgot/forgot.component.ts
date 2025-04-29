@@ -13,15 +13,23 @@ export class ForgotComponent {
     data = {
         email: '',
         authy: '',
+        code_sent: false
     };
 
     constructor(private authService: AuthService, private router: Router) {}
 
     reset() {
-        if (!this.data.email || !this.data.authy)
+        if (!this.data.code_sent && !this.data.email) {
             return swal({
                 type: 'error',
-                html: 'Favor de escribir los datos obligatorios para reestablecer tu contraseña',
+                html: 'Escribe tu correo electronico para reestablecer tu contraseña',
+            });
+        }
+
+        if (this.data.code_sent && !this.data.authy)
+            return swal({
+                type: 'error',
+                html: 'Escribe el codigo que recibiste en whatsapp',
             });
 
         this.authService.reset(this.data).subscribe(
@@ -31,7 +39,22 @@ export class ForgotComponent {
                     html: res.message,
                 });
 
-                this.router.navigate(['/auth/login']);
+                if (res.expired) {
+                    this.data = {
+                        authy: '',
+                        email: '',
+                        code_sent: false,
+                    };
+
+                    return;
+                }
+
+                if (res.email_sent) {
+                    this.router.navigate(['/auth/login']);
+                }
+                else {
+                    this.data.code_sent = true;
+                }
             },
             (err: any) => {
                 swalErrorHttpResponse(err);
