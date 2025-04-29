@@ -63,7 +63,7 @@
                                                     >
                                                         <input
                                                             type="text"
-                                                            name="nombre"
+                                                            name="usuario-nombre"
                                                             id="nombre"
                                                             required
                                                             class="form-control"
@@ -104,7 +104,7 @@
                                                     >
                                                         <input
                                                             type="email"
-                                                            name="email"
+                                                            name="user-email"
                                                             id="email"
                                                             required
                                                             class="form-control"
@@ -144,17 +144,17 @@
                                                     >
                                                         <input
                                                             type="text"
-                                                            name="celular"
+                                                            name="usuario-celular"
                                                             id="celular"
-                                                            required
                                                             class="form-control"
                                                             #email="ngModel"
                                                             [(ngModel)]="
-                                                                usuario.celular
+                                                            usuario.celular
                                                             "
                                                             pattern="^[.0-9]+$"
-                                                            maxlength="10"
+                                                            maxlength="13"
                                                             minlength="10"
+                                                            required
                                                         />
                                                         <span
                                                             class="form-bar"
