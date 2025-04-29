@@ -2034,6 +2034,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
                     const [company] = this.companiesML;
 
                     this.data.company = company.id;
+                    this.dataML.company = company.id;
 
                     this.onChangeCompanyML();
                 }
