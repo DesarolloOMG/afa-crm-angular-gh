@@ -111,8 +111,12 @@ export class CrearPublicacionComponent implements OnInit {
     }
 
     viewItemAttributedAndVariations() {
+        const marketplace = this.marketplaces.find(
+            (marketplace) => marketplace.id == this.data.marketplace
+        );
+
         this.mercadolibreService
-            .getItemCategoryVariants(this.data.item.category.category_id)
+            .getItemCategoryVariants(this.data.item.category.category_id, marketplace.marketplace_token)
             .subscribe(
                 (res: any) => {
                     if (this.attributes.length == 0) {
