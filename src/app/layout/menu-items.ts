@@ -755,16 +755,6 @@ const MENUITEMS = [
         main: [
             {
                 main_state: 'almacen',
-                state: 'packing',
-                short_label: 'PA',
-                name: 'Packing',
-                type: 'link',
-                icon: 'fa fa-shopping-basket',
-                level: [7],
-                sublevel: 18,
-            },
-            {
-                main_state: 'almacen',
                 state: 'packing-v2',
                 short_label: 'PA',
                 name: 'Packing V2',

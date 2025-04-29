@@ -8,7 +8,6 @@ import { EditorModule } from '@tinymce/tinymce-angular';
 import { UiSwitchModule } from 'ng2-ui-switch';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
-import { PackingComponent } from './packing/packing.component';
 import { PackingV2Component } from './packing-v2/packing-v2.component';
 import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-seguimientos.module';
 
@@ -23,6 +22,6 @@ import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-s
         NgbModule,
         EditorSeguimientosModule,
     ],
-    declarations: [PackingComponent, PackingV2Component],
+    declarations: [PackingV2Component],
 })
 export class AlmacenModule {}
