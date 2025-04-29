@@ -1341,18 +1341,9 @@ export class VerPublicacionesMarketplaceComponent implements OnInit {
     viewItemDataMarketplaceML(item_id) {
         const item = this.itemsML.find((item) => item.id == item_id);
 
-        const marketplace = this.marketplaces.find(
+        const marketplace = this.marketplacesML.find(
             (marketplace) => marketplace.id == this.search.marketplace
         );
-
-        if (!marketplace) {
-            console.log(marketplace, this.marketplaces, this.search);
-
-            return swal({
-                type: 'error',
-                html: `Selecciona un marketplace`,
-            });
-        }
 
         this.mercadolibreService.getItemData(item.publicacion_id, marketplace.marketplace_token).subscribe(
             (res: any) => {
