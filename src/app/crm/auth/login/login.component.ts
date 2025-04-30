@@ -66,7 +66,7 @@ export class LoginComponent {
                 swal({
                     type: 'success',
                     html: res.message,
-                });
+                }).then();
 
                 window.localStorage.setItem('crm_access_token', res.token);
 

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import swal from 'sweetalert2';
 
 @Component({
-    selector: 'appforgot',
+    selector: 'app-forgot',
     templateUrl: './forgot.component.html',
     styleUrls: ['./forgot.component.scss'],
 })
@@ -26,18 +26,19 @@ export class ForgotComponent {
             });
         }
 
-        if (this.data.code_sent && !this.data.authy)
+        if (this.data.code_sent && !this.data.authy) {
             return swal({
                 type: 'error',
                 html: 'Escribe el codigo que recibiste en whatsapp',
             });
+        }
 
         this.authService.reset(this.data).subscribe(
             (res: any) => {
                 swal({
                     type: 'success',
                     html: res.message,
-                });
+                }).then();
 
                 if (res.expired) {
                     this.data = {
@@ -50,9 +51,8 @@ export class ForgotComponent {
                 }
 
                 if (res.email_sent) {
-                    this.router.navigate(['/auth/login']);
-                }
-                else {
+                    this.router.navigate(['/auth/login']).then();
+                } else {
                     this.data.code_sent = true;
                 }
             },

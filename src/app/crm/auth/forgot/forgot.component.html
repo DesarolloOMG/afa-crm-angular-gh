@@ -2,6 +2,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
+                <!--suppress JSUnusedGlobalSymbols -->
                 <form
                     class="md-float-material form-material"
                     action="javascript:"
@@ -52,6 +53,7 @@
                                     type="text"
                                     name="authy"
                                     class="form-control"
+                                    (keyup.enter)="reset()"
                                     [(ngModel)]="data.authy"
                                     required
                                 />
