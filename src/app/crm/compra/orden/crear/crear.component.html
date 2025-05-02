@@ -1,9 +1,10 @@
 <div class="row">
     <div class="col-sm-12">
+        <!--suppress JSUnusedGlobalSymbols -->
         <form
-            class="md-float-material form-material"
             #f="ngForm"
             autocomplete="off"
+            class="md-float-material form-material"
         >
             <div class="auth-box card">
                 <div class="card-block">
@@ -11,10 +12,10 @@
                         <div class="col-md-5">
                             <div class="form-group form-primary">
                                 <input
-                                    type="text"
-                                    name="descripcion"
-                                    class="form-control"
                                     [(ngModel)]="producto.descripcion"
+                                    class="form-control"
+                                    name="descripcion"
+                                    type="text"
                                 />
                                 <span class="form-bar"></span>
                                 <label class="float-label">Producto</label>
@@ -24,20 +25,21 @@
                         <div class="col-md-2">
                             <div class="form-group form-primary">
                                 <input
-                                    type="number"
-                                    name="pro_cantidad"
-                                    class="form-control"
                                     [(ngModel)]="producto.precio"
+                                    class="form-control"
+                                    min="0"
+                                    name="pro_cantidad"
                                     step="0.01"
+                                    type="number"
                                 />
                                 <span class="form-bar"></span>
                                 <label class="float-label"
-                                    >Precio de salida (MXN)</label
+                                >Precio de salida (MXN)</label
                                 >
                                 <small
                                     class="text-primary messages"
                                     style="font-size: 120%"
-                                    >$ {{ commaNumber(producto.precio) }}</small
+                                >$ {{ commaNumber(producto.precio) }}</small
                                 >
                             </div>
                         </div>
@@ -45,10 +47,11 @@
                         <div class="col-md-1">
                             <div class="form-group form-primary">
                                 <input
-                                    type="number"
-                                    name="pro_precio"
-                                    class="form-control"
                                     [(ngModel)]="producto.cantidad"
+                                    class="form-control"
+                                    min="0"
+                                    name="pro_precio"
+                                    type="number"
                                 />
                                 <span class="form-bar"></span>
                                 <label class="float-label">Cantidad</label>
@@ -58,11 +61,11 @@
                         <div class="col-md-2">
                             <div class="form-group form-primary">
                                 <select
-                                    name="pro_condicion"
-                                    class="form-control"
                                     [(ngModel)]="producto.condicion"
+                                    class="form-control"
+                                    name="pro_condicion"
                                 >
-                                    <option value="" disabled></option>
+                                    <option disabled value=""></option>
                                     <option value="NUEVO">NUEVO</option>
                                     <option value="REACONDICIONADO">
                                         REACONDICIONADO
@@ -76,14 +79,14 @@
                         <div class="col-md-2">
                             <div class="form-group form-primary">
                                 <select
-                                    name="pro_marketplace"
-                                    class="form-control"
                                     [(ngModel)]="producto.marketplace"
+                                    class="form-control"
+                                    name="pro_marketplace"
                                 >
-                                    <option value="" disabled></option>
+                                    <option disabled value=""></option>
                                     <option
-                                        value="{{ marketplace.marketplace }}"
                                         *ngFor="let marketplace of marketplaces"
+                                        value="{{ marketplace.marketplace }}"
                                     >
                                         {{ marketplace.marketplace }}
                                     </option>
@@ -95,10 +98,10 @@
 
                         <div class="col-md-12">
                             <button
-                                class="btn btn-outline-info btn-sm btn-block"
-                                placement="top"
-                                ngbTooltip="Agregar producto"
                                 (click)="agregarProducto()"
+                                class="btn btn-outline-info btn-sm btn-block"
+                                ngbTooltip="Agregar producto"
+                                placement="top"
                             >
                                 <i class="fa fa-plus fa-2x"></i>
                             </button>
@@ -109,49 +112,49 @@
                         <div class="col-md-12 table-responsive">
                             <table class="table table-striped">
                                 <thead>
-                                    <tr>
-                                        <th>Producto</th>
-                                        <th>Precio (MXN)</th>
-                                        <th>Cantidad</th>
-                                        <th>Condición</th>
-                                        <th>Marketplace</th>
-                                        <th></th>
-                                    </tr>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio (MXN)</th>
+                                    <th>Cantidad</th>
+                                    <th>Condición</th>
+                                    <th>Marketplace</th>
+                                    <th></th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    <tr
-                                        *ngFor="
+                                <tr
+                                    *ngFor="
                                             let row of data.productos;
                                             let index = index
                                         "
-                                    >
-                                        <td>{{ row.descripcion }}</td>
-                                        <td>{{ row.precio }}</td>
-                                        <td>{{ row.cantidad }}</td>
-                                        <td>
-                                            {{ row.condicion }}
-                                        </td>
-                                        <td>
-                                            {{ row.marketplace }}
-                                        </td>
-                                        <td>
-                                            <button
-                                                class="btn btn-outline-danger btn-sm btn-block"
-                                                placement="top"
-                                                ngbTooltip="Eliminar producto"
-                                                (click)="
+                                >
+                                    <td>{{ row.descripcion }}</td>
+                                    <td>{{ row.precio }}</td>
+                                    <td>{{ row.cantidad }}</td>
+                                    <td>
+                                        {{ row.condicion }}
+                                    </td>
+                                    <td>
+                                        {{ row.marketplace }}
+                                    </td>
+                                    <td>
+                                        <button
+                                            (click)="
                                                     data.productos.splice(
                                                         index,
                                                         1
                                                     )
                                                 "
-                                            >
-                                                <i
-                                                    class="fa fa-trash fa-2x"
-                                                ></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                            class="btn btn-outline-danger btn-sm btn-block"
+                                            ngbTooltip="Eliminar producto"
+                                            placement="top"
+                                        >
+                                            <i
+                                                class="fa fa-trash fa-2x"
+                                            ></i>
+                                        </button>
+                                    </td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -160,9 +163,9 @@
                     <div class="row m-t-20">
                         <div class="col-md-12">
                             <app-new-editor
+                                [(ngModel)]="data.seguimiento"
                                 class="m-t-20"
                                 name="seguimiento"
-                                [(ngModel)]="data.seguimiento"
                             >
                             </app-new-editor>
                             <!-- <editor
@@ -177,9 +180,9 @@
                     <div class="row m-t-20">
                         <div class="col-md-12">
                             <button
-                                type="button"
+                                (click)="crearDocumento()"
                                 class="btn btn-info btn-sm btn-block http-disabled"
-                                (click)="crearDocumento($event)"
+                                type="button"
                             >
                                 Crear
                             </button>
