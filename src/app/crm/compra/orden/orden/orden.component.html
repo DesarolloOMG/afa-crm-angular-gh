@@ -1,9 +1,11 @@
+<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
 <div class="card">
     <div class="card-header">
         <h5 class="float-left">Requisiciones</h5>
         <button
             class="btn btn-info btn-sm float-right"
             (click)="agruparRequisicion()"
+            [disabled]="!isDataLoaded"
         >
             Generar orden
         </button>
@@ -685,7 +687,6 @@
                                             !producto.existe ? 'border-red' : ''
                                         }}"
                                         name="codigo_{{ index }}"
-                                        class="form-control"
                                         [(ngModel)]="producto.codigo"
                                         (change)="
                                             existeProducto(producto.codigo)
@@ -742,7 +743,7 @@
             <div class="row m-t-20">
                 <div
                     class="offset-md-9 col-md-3"
-                    placemento="top"
+                    placement="top"
                     ngbTooltip="Para prorratear, ingresa el monto y presiona la tecla 'Enter'"
                 >
                     <div class="form-group form-primary">

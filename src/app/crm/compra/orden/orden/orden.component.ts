@@ -1,12 +1,13 @@
-import { backend_url, commaNumber } from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+/* tslint:disable:triple-equals */
+// noinspection JSUnusedLocalSymbols
+
+import {backend_url, commaNumber} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
-import { CompraService } from '@services/http/compra.service';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-orden',
@@ -33,7 +34,7 @@ export class OrdenComponent implements OnInit {
     metodos_pago: any[] = [];
 
     proveedor_text: any = '';
-    total_prorrateo: number = 0;
+    total_prorrateo = 0;
 
     producto = {
         text: '',
@@ -47,7 +48,7 @@ export class OrdenComponent implements OnInit {
     };
 
     data = {
-        empresa: '7',
+        empresa: '1',
         proveedor: {
             id: 0,
             rfc: '',
@@ -74,12 +75,12 @@ export class OrdenComponent implements OnInit {
         fecha_entrega: '',
     };
 
+    isDataLoaded = false;
+
     constructor(
         private http: HttpClient,
-        private router: Router,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private auth: AuthService,
         private compraService: CompraService
     ) {
         const table: any = $('#compra_orden_orden');
@@ -101,9 +102,9 @@ export class OrdenComponent implements OnInit {
                 if (this.empresas.length) {
                     const [empresa] = this.empresas;
 
-                    this.data.empresa = empresa.bd;
+                    this.data.empresa = empresa.id;
 
-                    this.cambiarEmpresa();
+                    this.cambiarEmpresa().then(() => this.isDataLoaded = true);
                 }
             },
             (response) => {
@@ -114,9 +115,9 @@ export class OrdenComponent implements OnInit {
                         response.status == 0
                             ? response.message
                             : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
+                                ? response.error.error_summary
+                                : response.error,
+                }).then();
             }
         );
     }
@@ -141,7 +142,7 @@ export class OrdenComponent implements OnInit {
             });
         });
 
-        this.cambiarEmpresa();
+        this.cambiarEmpresa().then();
 
         this.modalReference = this.modalService.open(this.modalordencompra, {
             size: 'lg',
@@ -152,7 +153,7 @@ export class OrdenComponent implements OnInit {
 
     buscarProveedor() {
         if (this.data.empresa == '') {
-            swal('', 'Selecciona una empresa.', 'error');
+            swal('', 'Selecciona una empresa.', 'error').then();
 
             return;
         }
@@ -176,33 +177,35 @@ export class OrdenComponent implements OnInit {
                         err.status == 0
                             ? err.message
                             : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
+                                ? err.error.error_summary
+                                : err.error,
+                }).then();
             },
         });
     }
 
     cambiarProveedor() {
         const proveedor = this.proveedores.find(
-            (proveedor) => proveedor.idproveedor == this.data.proveedor.id
+            (p) => p.id == this.data.proveedor.id
         );
-
-        this.data.proveedor = {
-            id: proveedor.idproveedor,
-            rfc: proveedor.rfc,
-            razon: proveedor.razon,
-            email: proveedor.email,
-            telefono: proveedor.telefono,
-        };
+        if (proveedor) {
+            this.data.proveedor = {
+                id: proveedor.id,
+                rfc: proveedor.rfc,
+                razon: proveedor.razon,
+                email: proveedor.email,
+                telefono: proveedor.telefono,
+            };
+        }
     }
 
     buscarProducto() {
-        if (!this.data.empresa)
+        if (!this.data.empresa) {
             return swal({
                 type: 'error',
                 html: 'Selecciona una empresa para poder crear la requisición',
             });
+        }
 
         if (this.productos.length > 0) {
             this.productos = [];
@@ -221,7 +224,9 @@ export class OrdenComponent implements OnInit {
             return;
         }
 
-        if (!this.producto.text) return;
+        if (!this.producto.text) {
+            return;
+        }
 
         this.compraService.searchProduct(this.producto.text).subscribe({
             next: (res: any) => {
@@ -234,31 +239,34 @@ export class OrdenComponent implements OnInit {
                         err.status == 0
                             ? err.message
                             : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
+                                ? err.error.error_summary
+                                : err.error,
+                }).then();
             },
         });
     }
 
     agregarProducto() {
-        if (!this.producto.codigo)
+        if (!this.producto.codigo) {
             return swal({
                 type: 'error',
                 html: 'Favor de buscar y seleccionar un producto.',
             });
+        }
 
-        if (this.producto.cantidad <= 0)
+        if (this.producto.cantidad <= 0) {
             return swal({
                 type: 'error',
                 html: 'La cantidad del producto debe ser mayor a 0',
             });
+        }
 
-        if (this.producto.costo <= 0)
+        if (this.producto.costo <= 0) {
             return swal({
                 type: 'error',
                 html: 'El costo del producto tiene que ser mayor a 0',
             });
+        }
 
         const producto = this.productos.find(p => p.sku == this.producto.codigo);
 
@@ -269,34 +277,39 @@ export class OrdenComponent implements OnInit {
         this.clearProducto();
     }
 
-    async existeProducto(codigo) {
-        return new Promise((resolve, reject) => {});
+    async existeProducto(_codigo) {
+        return new Promise((_resolve, _reject) => {
+        });
     }
 
     crearDocumento(event) {
         this.clearProducto();
 
-        if (!event.detail || event.detail > 1) return;
-
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
-            $(value).focus();
-        });
-
-        if ($('.ng-invalid').length > 0) {
+        if (!event.detail || event.detail > 1) {
             return;
         }
 
-        if (this.data.productos.length < 1)
+        const invalidElements = $('.ng-invalid');
+
+        if (invalidElements.length > 0) {
+            $(invalidElements.get().reverse()).each((_, el) => {
+                $(el).focus();
+            });
+            return;
+        }
+
+        if (this.data.productos.length < 1) {
             return swal({
                 type: 'error',
                 html: 'Debes agregar al menos un producto para generar la orden de compra',
             });
+        }
 
         const producto = this.data.productos.find(
-            (producto) => producto.costo < 0.01 || producto.cantidad <= 0
+            (p) => p.costo < 0.01 || p.cantidad <= 0
         );
 
-        if (producto)
+        if (producto) {
             return swal({
                 title: '',
                 type: 'error',
@@ -304,23 +317,15 @@ export class OrdenComponent implements OnInit {
                     'No puede haber productos en costo 0 ni cantidad 0.<br><br>' +
                     producto.descripcion,
             });
+        }
 
-        const producto_sin_existir = this.data.productos.find(
-            (producto) => !producto.existe
-        );
+        const productoSinExistir = this.data.productos.find((p) => !p.existe);
 
-        if (producto_sin_existir)
+        if (productoSinExistir) {
             return swal({
                 type: 'error',
-                html: `El producto con el código ${producto_sin_existir.codigo} no está registrado en la empresa seleccionada`,
+                html: `El producto con el código ${productoSinExistir.codigo} no está registrado en la empresa seleccionada`,
             });
-
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
-            $(value).focus();
-        });
-
-        if ($('.ng-invalid').length > 0) {
-            return;
         }
 
         const form_data = new FormData();
@@ -334,14 +339,14 @@ export class OrdenComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         if (res['file'] != undefined) {
-                            let dataURI =
+                            const dataURI =
                                 'data:application/pdf;base64, ' + res['file'];
 
-                            let a = window.document.createElement('a');
+                            const a = window.document.createElement('a');
                             a.href = dataURI;
                             a.download = res['name'];
                             a.setAttribute('id', 'etiqueta_descargar');
@@ -372,9 +377,9 @@ export class OrdenComponent implements OnInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                                    ? response.error.error_summary
+                                    : response.error,
+                    }).then();
                 }
             );
     }
@@ -382,13 +387,13 @@ export class OrdenComponent implements OnInit {
     agregarArchivo() {
         this.data.archivos = [];
 
-        var files = $('#archivos').prop('files');
-        var archivos = [];
+        const files = $('#archivos').prop('files');
+        const archivos = [];
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e) {
@@ -399,10 +404,9 @@ export class OrdenComponent implements OnInit {
                     });
                 };
             })(file);
-
-            reader.onerror = (function (f) {
-                return function (e) {
-                    archivos.push({ tipo: '', nombre: '', data: '' });
+            reader.onerror = (function (_f) {
+                return function (_e) {
+                    archivos.push({tipo: '', nombre: '', data: ''});
                 };
             })(file);
 
@@ -416,10 +420,10 @@ export class OrdenComponent implements OnInit {
         const files = $('#archivo-productos').prop('files');
         const $this = this;
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e: any) {
@@ -434,7 +438,7 @@ export class OrdenComponent implements OnInit {
                     }
 
                     if (extension == 'xlsx') {
-                        let bstr = '';
+                        let bstr: string;
 
                         try {
                             bstr = atob(e.target.result.split(',')[1]);
@@ -446,11 +450,11 @@ export class OrdenComponent implements OnInit {
                             type: 'binary',
                         });
 
-                        /* grab first sheet */
+                        /* grab the first sheet */
                         const wsname: string = wb.SheetNames[0];
                         const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-                        var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                        const rows = XLSX.utils.sheet_to_json(ws, {header: 1});
 
                         rows.shift();
 
@@ -476,11 +480,11 @@ export class OrdenComponent implements OnInit {
 
                                 $this.data.productos.push($this.producto);
 
-                                $this.existeProducto(row[0].trim());
+                                $this.existeProducto(row[0].trim()).then();
                             }
                         });
                     } else {
-                        let xml_data = '';
+                        let xml_data: string;
 
                         try {
                             xml_data = atob(e.target.result.split(',')[1]);
@@ -495,13 +499,13 @@ export class OrdenComponent implements OnInit {
                                 case 'CFDI:CONCEPTOS':
                                     $(this)
                                         .children()
-                                        .each(function (index, e) {
+                                        .each(function (_index, _elemento) {
                                             const descuento = $(this).attr(
                                                 'descuento'
                                             )
                                                 ? Number(
-                                                      $(this).attr('descuento')
-                                                  )
+                                                    $(this).attr('descuento')
+                                                )
                                                 : 0;
                                             const descripcion =
                                                 $(this).attr('descripcion');
@@ -511,12 +515,12 @@ export class OrdenComponent implements OnInit {
                                                 ) == ''
                                                     ? 'TEMPORAL'
                                                     : $(this).attr(
-                                                          'noidentificacion'
-                                                      );
+                                                        'noidentificacion'
+                                                    );
                                             const costo =
                                                 (Number(
-                                                    $(this).attr('importe')
-                                                ) -
+                                                        $(this).attr('importe')
+                                                    ) -
                                                     descuento) /
                                                 Number(
                                                     $(this).attr('cantidad')
@@ -542,7 +546,7 @@ export class OrdenComponent implements OnInit {
 
                                             $this.existeProducto(
                                                 codigo_temp.trim()
-                                            );
+                                            ).then();
                                         });
 
                                     break;
@@ -555,8 +559,9 @@ export class OrdenComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {};
+            reader.onerror = (function (_f) {
+                return function (_elemento) {
+                };
             })(file);
 
             reader.readAsDataURL(file);
@@ -565,19 +570,13 @@ export class OrdenComponent implements OnInit {
 
     async cambiarEmpresa() {
         for (const producto of this.data.productos) {
-            if (producto.codigo) await this.existeProducto(producto.codigo);
+            if (producto.codigo) {
+                await this.existeProducto(producto.codigo);
+            }
         }
-
-        if (this.empresas_usuario.length == 1) {
-            this.data.empresa = this.empresas_usuario[0];
-        }
-
-        const empresa = this.empresas.find((empresa) =>
-            this.empresas_usuario.length == 1
-                ? empresa.id == this.data.empresa
-                : empresa.bd == this.data.empresa
+        const empresa = this.empresas.find((item) =>
+            item.id == this.data.empresa
         );
-
         this.almacenes = [...empresa.almacenes];
     }
 
@@ -620,17 +619,18 @@ export class OrdenComponent implements OnInit {
 
         swal({
             type: 'success',
-            html: `Prorrateo aplicado correctamente, a cada producto se le sumó la cantidad de <b>$ ${total_a_sumar}</b> a su costo original`,
+            html: `Prorrateo aplicado correctamente, a cada producto se le sumó la cantidad de <b>
+$ ${total_a_sumar}</b> a su costo original`,
             showConfirmButton: false,
             showCancelButton: false,
             timer: 5000,
-        });
+        }).then();
 
         this.total_prorrateo = 0;
     }
 
     totalDocumento() {
-        let total_odc = 0;
+        let total_odc: number;
 
         total_odc = this.data.productos.reduce(
             (total, producto) =>
@@ -646,7 +646,7 @@ export class OrdenComponent implements OnInit {
     }
 
     totalDescuento() {
-        let total_descuento = 0;
+        let total_descuento: number;
 
         total_descuento = this.data.productos.reduce(
             (total, producto) =>
@@ -654,7 +654,7 @@ export class OrdenComponent implements OnInit {
                 (Number(producto.costo) *
                     Number(producto.cantidad) *
                     producto.descuento) /
-                    100,
+                100,
             0
         );
 
@@ -691,7 +691,7 @@ export class OrdenComponent implements OnInit {
 
     clearData() {
         this.data = {
-            empresa: '7',
+            empresa: '1',
             proveedor: {
                 id: 0,
                 rfc: '',
