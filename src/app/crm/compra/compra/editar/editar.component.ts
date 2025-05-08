@@ -411,6 +411,34 @@ export class EditarComponent implements OnInit {
         if (!this.producto.codigo_text) {
             return;
         }
+
+        const form_data = new FormData();
+        form_data.append('criterio', this.producto.codigo_text);
+
+        this.http
+            .post(`${backend_url}catalogo/busqueda/producto`, form_data)
+            .subscribe(
+                (res: any) => {
+                    console.log(res);
+                    if (res.code !== 200) {
+                        swal('', res.message, 'error');
+                        return;
+                    }
+                    this.productos = res.data;
+                },
+                (err) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            err.status === 0
+                                ? err.message
+                                : typeof err.error === 'object'
+                                    ? err.error.error_summary
+                                    : err.error,
+                    });
+                }
+            );
     }
 
     async existeProducto(codigo) {
