@@ -1,7 +1,8 @@
+/* tslint:disable:triple-equals */
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { VentaService } from './../../../../../services/http/venta.service';
-import { MercadolibreService } from './../../../../../services/http/mercadolibre.service';
-import { swalErrorHttpResponse } from './../../../../../../environments/environment';
+import { VentaService } from '@services/http/venta.service';
+import { MercadolibreService } from '@services/http/mercadolibre.service';
+import { swalErrorHttpResponse } from '@env/environment';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
 import { isArray } from 'util';
@@ -84,11 +85,11 @@ export class CrearPublicacionComponent implements OnInit {
                     if (isArray(res)) {
                         swal({
                             type: 'success',
-                            html: `Se encontró esta categoría con el titulo descrito<br>
+                            html: `Se encontró esta categoría con el título descrito<br>
                                 <br>
                                 ID de la categoría: <b>${this.data.item.category.category_id}</b><br>
                                 Nombre de la categoría: <b>${this.data.item.category.category_name}</b><br>`,
-                        }).then((confirm) => {
+                        }).then((_confirm) => {
                             this.attributes = [];
                             this.variations = [];
 
@@ -104,7 +105,7 @@ export class CrearPublicacionComponent implements OnInit {
     }
 
     onChangeArea() {
-        const area = this.areas.find((area) => area.id == this.data.area);
+        const area = this.areas.find((a) => a.id == this.data.area);
 
         this.data.marketplace = '';
         this.marketplaces = area.marketplaces;
@@ -112,7 +113,7 @@ export class CrearPublicacionComponent implements OnInit {
 
     viewItemAttributedAndVariations() {
         const marketplace = this.marketplaces.find(
-            (marketplace) => marketplace.id == this.data.marketplace
+            (m) => m.id == this.data.marketplace
         );
 
         this.mercadolibreService
@@ -168,11 +169,12 @@ export class CrearPublicacionComponent implements OnInit {
                 JSON.stringify(attribute_combinations)
         );
 
-        if (variation_already_exists)
+        if (variation_already_exists) {
             return swal({
                 type: 'error',
                 html: 'La variación ya existe!',
             });
+        }
 
         this.data.item.variations.push({
             attribute_combinations: attribute_combinations,
@@ -225,7 +227,7 @@ export class CrearPublicacionComponent implements OnInit {
     }
 
     getOptionsForAttributesSelect(options) {
-        return options ? options.map((op, i) => op.name) : [];
+        return options ? options.map((op, _i) => op.name) : [];
     }
 
     createItem(evt) {
@@ -233,11 +235,13 @@ export class CrearPublicacionComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const invalidFields = $('.ng-invalid');
+
+        $(invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
 
-        if ($('.ng-invalid').length > 0) {
+        if (invalidFields.length > 0) {
             return;
         }
 
@@ -276,7 +280,7 @@ export class CrearPublicacionComponent implements OnInit {
                 swal({
                     type: 'error',
                     html: `Escriba la cantidad de inventario que tienes para publicar`,
-                });
+                }).then();
 
                 cntinue = false;
             }
@@ -285,19 +289,20 @@ export class CrearPublicacionComponent implements OnInit {
                 swal({
                     type: 'error',
                     html: `El precio de la publicación debe ser mayor a 0`,
-                });
+                }).then();
             }
         }
 
-        if (!cntinue) return;
+        if (!cntinue) { return; }
 
         swal({
             type: 'warning',
-            html: `Para crear la publicación, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
+            html: `Para crear la publicación, abre tu aplicación de <b>authy</b>
+ y escribe el código de autorización en el recuadro de abajo.<br><br>
             Si todavía no cuentas con tu aplicación configurada, contacta un administrador.`,
             input: 'text',
         }).then((confirm) => {
-            if (!confirm.value) return;
+            if (!confirm.value) { return; }
 
             this.data.authy_code = confirm.value;
 
@@ -306,7 +311,7 @@ export class CrearPublicacionComponent implements OnInit {
                     swal({
                         type: 'success',
                         html: res.message,
-                    });
+                    }).then();
 
                     this.initObjects();
                 },
@@ -318,8 +323,8 @@ export class CrearPublicacionComponent implements OnInit {
     }
 
     onChangeImageAdd() {
-        const files = $('#files').prop('files');
-
+        const $input = $('#files');
+        const files = $input.prop('files');
         const archivos = [];
         const $this = this;
 
@@ -342,26 +347,26 @@ export class CrearPublicacionComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
             reader.readAsDataURL(file);
         }
 
-        $('#files').val('');
+        $input.val('');
     }
 
     onChangeImageAddVariation(inputname, variation) {
-        const files = $('#' + inputname).prop('files');
+        const $input = $('#' + inputname);
+        const files = $input.prop('files');
 
         const archivos = [];
-        const $this = this;
 
         for (let i = 0, len = files.length; i < len; i++) {
             const file = files[i];
@@ -380,19 +385,19 @@ export class CrearPublicacionComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
             reader.readAsDataURL(file);
         }
 
-        $('#' + inputname).val('');
+        $input.val('');
     }
 
     deletePictureFromItem(nombre) {
@@ -405,7 +410,7 @@ export class CrearPublicacionComponent implements OnInit {
 
     onChangeMarketplace() {
         const marketplace = this.marketplaces.find(
-            (marketplace) => marketplace.id == this.data.marketplace
+            (m) => m.id == this.data.marketplace
         );
 
         if (marketplace && marketplace.pseudonimo) {
@@ -416,19 +421,19 @@ export class CrearPublicacionComponent implements OnInit {
                         this.mercadolibreService
                             .getUserDataByID(res.seller.id)
                             .subscribe(
-                                (res: any) => {
-                                    this.user_data = { ...res };
+                                (resGudbi: any) => {
+                                    this.user_data = { ...resGudbi };
 
                                     if (this.user_data.user_type === 'brand') {
                                         this.mercadolibreService
                                             .getBrandsByUser(this.user_data.id)
                                             .subscribe(
-                                                (res: any) => {
+                                                (resGbbu: any) => {
                                                     this.data.item.official_store_id =
                                                         '';
 
                                                     this.brands = [
-                                                        ...res.brands,
+                                                        ...resGbbu.brands,
                                                     ];
                                                 },
                                                 (err: any) => {

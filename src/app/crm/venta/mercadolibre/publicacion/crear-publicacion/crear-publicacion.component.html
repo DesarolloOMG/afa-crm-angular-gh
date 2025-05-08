@@ -48,7 +48,7 @@
                             (change)="onChangeMarketplace()"
                             required
                         >
-                            <option value="" disabled selected></option>
+                            <option value=""  selected></option>
                             <option
                                 value="{{ marketplace.id }}"
                                 *ngFor="let marketplace of marketplaces"
@@ -290,18 +290,12 @@
                         <img
                             class="img-fluid producto-imagen"
                             src="{{ row.data }}"
-                        />
+                         alt="producto-imagen"/>
                         <span
                             (click)="deletePictureFromItem()"
                             class="float-right cursor-pointer text-danger delete-image"
                             >Eliminar imagen</span
                         >
-                        <!-- <i
-                            class="fa fa-trash float-right fa-2x text-danger cursor-pointer delete-image"
-                            (click)="deletePictureFromItem()"
-                            placement="top"
-                            ngbTooltip="Eliminar imagen"
-                        ></i> -->
                     </div>
                 </div>
             </ng-container>
@@ -343,6 +337,7 @@
 
                 <div class="col-md-1">
                     <div class="form-group form-primary">
+                        <!--suppress JSUnusedGlobalSymbols -->
                         <input
                             type="text"
                             name="item-sale-term-warranty-time-value"
@@ -415,6 +410,7 @@
     </div>
 </div>
 
+<!--suppress JSUnusedLocalSymbols -->
 <ng-template #modalattributesvariations let-c="close" let-d="dismiss">
     <div class="modal-header">
         <h4 class="modal-title">Atributos y variaciones</h4>
@@ -598,7 +594,7 @@
                                     <img
                                         class="img-fluid producto-imagen"
                                         src="{{ row.data }}"
-                                    />
+                                     alt="producto-imagen"/>
                                     <span
                                         (click)="
                                             variation.pictures_data.splice(
