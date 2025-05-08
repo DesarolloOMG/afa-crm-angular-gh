@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols -->
 <div class="card">
     <div class="card-header">
         <form class="md-float-material form-material mt-10" #form="ngForm">
@@ -242,8 +243,8 @@
                     <table class="table table-striped m-t-10">
                         <thead>
                             <tr>
-                                <th>Recepcion ERP</th>
-                                <th>Compra ERP</th>
+                                <th>Recepcion</th>
+                                <th>Compra</th>
                                 <th>Productos</th>
                                 <th>Creador</th>
                                 <th>Fecha de creación</th>
@@ -723,7 +724,6 @@
                                             !producto.existe ? 'border-red' : ''
                                         }}"
                                         name="codigo_{{ index }}"
-                                        class="form-control"
                                         [(ngModel)]="producto.codigo"
                                         (change)="
                                             existeProducto(producto.codigo)
