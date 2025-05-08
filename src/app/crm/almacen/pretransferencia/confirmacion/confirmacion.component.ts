@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from './../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -14,7 +14,6 @@ export class ConfirmacionComponent implements OnInit {
     modalReference: any;
     datatable: any;
 
-    tinymce_init = tinymce_init;
 
     solicitudes: any[] = [];
 

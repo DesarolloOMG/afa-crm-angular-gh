@@ -1,7 +1,6 @@
 import {
     backend_url,
-    swalErrorHttpResponse,
-    tinymce_init,
+    swalErrorHttpResponse
 } from '@env/environment';
 import { Component, OnInit, ViewChild, Renderer2 } from '@angular/core';
 import { VentaService } from '@services/http/venta.service';
@@ -46,9 +45,7 @@ export class EditarComponent implements OnInit {
     estados: any[] = [];
     fullfillment_allowed: string[] = ['35', '60'];
 
-    publico_general: string = '853';
-
-    tinymce_init = tinymce_init;
+    publico_general = '853';
 
     cliente_buscado = false;
 

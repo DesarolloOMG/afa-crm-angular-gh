@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import {
     backend_url,
-    commaNumber,
-    tinymce_init,
-} from './../../../../../environments/environment';
+    commaNumber
+} from '@env/environment';
 import { AuthService } from './../../../../services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -26,7 +25,6 @@ export class PendienteComponent implements OnInit {
     @ViewChild('f') registerForm: NgForm;
 
     commaNumber = commaNumber;
-    tinymce_init = tinymce_init;
 
     modalReferenceSerie: any;
     modalReference: any;

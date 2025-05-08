@@ -1,12 +1,11 @@
+/* tslint:disable:triple-equals */
 import {
     backend_url,
-    tinymce_init,
     swalErrorHttpResponse,
 } from '@env/environment';
 import { AuthService } from '@services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
 import { AlmacenService } from '@services/http/almacen.service';
 import { GeneralService } from '@services/http/general.service';
 import swal from 'sweetalert2';
@@ -18,7 +17,6 @@ import * as XLSX from 'xlsx';
     styleUrls: ['./solicitud.component.scss'],
 })
 export class SolicitudComponent implements OnInit {
-    tinymce_init = tinymce_init;
 
     empresas: any[] = [];
     almacenes: any[] = [];
@@ -133,17 +131,17 @@ export class SolicitudComponent implements OnInit {
         }
 
         const existe = this.data.productos.find(
-            (producto) => producto.sku == this.producto.sku
+            (p) => p.sku == this.producto.sku
         );
 
         if (existe) {
-            swal('', 'Producto repetido.', 'error');
+            swal('', 'Producto repetido.', 'error').then();
 
             return;
         }
 
         const producto = this.productos.find(
-            (producto) => producto.sku == this.producto.sku
+            (p) => p.sku == this.producto.sku
         );
 
         this.producto = {
@@ -168,7 +166,7 @@ export class SolicitudComponent implements OnInit {
                     this.producto.cantidad
                 )
                 .subscribe(
-                    (res: any) => {
+                    () => {
                         this.data.productos.push(this.producto);
 
                         this.buscarProducto();
@@ -224,7 +222,9 @@ export class SolicitudComponent implements OnInit {
     }
 
     buscarPublicacion() {
-        if (!this.publicacion.text) return;
+        if (!this.publicacion.text) {
+            return;
+        }
 
         if (this.publicaciones.length) {
             this.publicacion = {
@@ -267,7 +267,7 @@ export class SolicitudComponent implements OnInit {
 
     cambiarPublicacion() {
         const publicacion = this.publicaciones.find(
-            (publicacion) => this.publicacion.id == publicacion.publicacion_id
+            (p) => this.publicacion.id == p.publicacion_id
         );
 
         this.publicacion.etiqueta = '';
@@ -287,9 +287,9 @@ export class SolicitudComponent implements OnInit {
         }
 
         const existe = this.data.publicaciones.find(
-            (publicacion) =>
-                publicacion.id == this.publicacion.id &&
-                publicacion.etiqueta == this.publicacion.etiqueta
+            (p) =>
+                p.id == this.publicacion.id &&
+                p.etiqueta == this.publicacion.etiqueta
         );
 
         if (existe) {
@@ -300,14 +300,14 @@ export class SolicitudComponent implements OnInit {
         }
 
         const publicacion = this.publicaciones.find(
-            (publicacion) => publicacion.publicacion_id == this.publicacion.id
+            (p) => p.publicacion_id == this.publicacion.id
         );
 
         this.publicacion.titulo = publicacion.publicacion;
 
         if (this.etiquetas.length) {
             const etiqueta = this.etiquetas.find(
-                (etiqueta) => etiqueta.id_etiqueta == this.publicacion.etiqueta
+                (e) => e.id_etiqueta == this.publicacion.etiqueta
             );
 
             this.publicacion.etiqueta_text = etiqueta.valor;
@@ -323,7 +323,7 @@ export class SolicitudComponent implements OnInit {
         console.log(this.data.publicaciones);
         this.data.publicaciones.forEach((publicacion) => {
             console.log(publicacion);
-            var form_data = new FormData();
+            const form_data = new FormData();
             form_data.append('etiqueta', publicacion.etiqueta);
             form_data.append('publicacion', publicacion.id);
             this.http
@@ -335,7 +335,7 @@ export class SolicitudComponent implements OnInit {
                     (res) => {
                         console.log(res);
                         res['productos'].forEach((producto) => {
-                            let productoExistente = this.data.productos.find(
+                            const productoExistente = this.data.productos.find(
                                 (p) => p.sku === producto.sku
                             );
 
@@ -345,8 +345,8 @@ export class SolicitudComponent implements OnInit {
                                     Number(producto.cantidad) *
                                     Number(publicacion.cantidad);
                             } else {
-                                // Si el producto no existe, crea un nuevo producto y añádelo a data.productos.
-                                let nuevoProducto = {
+                                // Si el producto no existe, crea un nuevo producto y añádelo a data. Productos.
+                                const nuevoProducto = {
                                     sku: producto.sku,
                                     codigo_text: producto.sku,
                                     descripcion: producto.descripcion,
@@ -364,13 +364,10 @@ export class SolicitudComponent implements OnInit {
                                 this.data.productos.push(nuevoProducto);
                             }
                         });
-                        this.buscarPublicacion();
+                        this.buscarPublicacion().then();
                     },
                     (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                        });
+                        swalErrorHttpResponse(response);
                     }
                 );
         });
@@ -378,7 +375,7 @@ export class SolicitudComponent implements OnInit {
 
     buscarCliente() {
         if (!this.data.empresa) {
-            swal('', 'Selecciona una empresa.', 'error');
+            swal('', 'Selecciona una empresa.', 'error').then();
 
             return;
         }
@@ -398,7 +395,7 @@ export class SolicitudComponent implements OnInit {
 
     cambiarCliente() {
         const cliente = this.clientes.find(
-            (cliente) => cliente.id == this.data.cliente.select
+            (c) => c.id == this.data.cliente.select
         );
 
         this.data.cliente.codigo = $.trim(cliente.id);
@@ -415,13 +412,14 @@ export class SolicitudComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
 
-        if ($('.ng-invalid').length > 0) {
-            console.log($('.ng-invalid'));
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
         console.log(this.data);
@@ -465,7 +463,7 @@ export class SolicitudComponent implements OnInit {
                                 swal({
                                     type: 'success',
                                     html: res.message,
-                                });
+                                }).then();
 
                                 this.initObjects();
                             },
@@ -481,19 +479,19 @@ export class SolicitudComponent implements OnInit {
     }
 
     cambiarCodigoPostal(codigo) {
-        if (!codigo) return;
+        if (!codigo) { return; }
     }
 
     agregarArchivo() {
         this.data.archivos = [];
 
-        var files = $('#archivos').prop('files');
-        var archivos = [];
+        const files = $('#archivos').prop('files');
+        const archivos = [];
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e) {
@@ -505,8 +503,8 @@ export class SolicitudComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     archivos.push({ tipo: '', nombre: '', data: '' });
                 };
             })(file);
@@ -519,20 +517,20 @@ export class SolicitudComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (e) => e.bd == this.data.empresa
         );
 
-        if (empresa) this.almacenes = [...empresa.almacenes];
+        if (empresa) { this.almacenes = [...empresa.almacenes]; }
     }
 
     cambiarArea() {
-        const area = this.areas.find((area) => area.id == this.data.area);
+        const area = this.areas.find((a) => a.id == this.data.area);
         this.marketplaces = area.marketplaces;
     }
 
     marketplaceNombre() {
         const marketplace = this.marketplaces.find(
-            (marketplace) => marketplace.id == this.data.marketplace
+            (m) => m.id == this.data.marketplace
         );
 
         return marketplace ? marketplace.marketplace : 'NINGUNO';
@@ -557,8 +555,10 @@ export class SolicitudComponent implements OnInit {
     }
 
     async loadExcelWithProducts() {
+        const $excelInput = $('#movimiento-archivo-excel');
+
         if (!this.data.almacen_salida) {
-            $('#movimiento-archivo-excel').val('');
+            $excelInput.val('');
 
             return swal({
                 type: 'error',
@@ -566,19 +566,19 @@ export class SolicitudComponent implements OnInit {
             });
         }
 
-        const files = $('#movimiento-archivo-excel').prop('files');
+        const files = $excelInput.prop('files');
         const $this = this;
 
         $this.data.productos = [];
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f: any) {
                 return async function (e: any) {
-                    var extension =
+                    const extension =
                         f.name.split('.')[f.name.split('.').length - 1];
 
                     if (extension != 'xlsx') {
@@ -594,14 +594,14 @@ export class SolicitudComponent implements OnInit {
                         type: 'binary',
                     });
 
-                    /* grab first sheet */
+                    /* grab the first sheet */
                     const wsname: string = wb.SheetNames[0];
                     const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-                    var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                    const rows = XLSX.utils.sheet_to_json(ws, {header: 1});
                     rows.shift();
 
-                    for (let row of rows) {
+                    for (const row of rows) {
                         $this.producto = {
                             sku: row[0],
                             codigo_text: row[0],
@@ -627,7 +627,7 @@ export class SolicitudComponent implements OnInit {
                             );
 
                             if (!existe) {
-                                await new Promise((resolve, reject) => {
+                                await new Promise((resolve, _reject) => {
                                     if (!$this.data.pendiente) {
                                         $this.generalService
                                             .getProductStock(
@@ -636,7 +636,7 @@ export class SolicitudComponent implements OnInit {
                                                 $this.producto.cantidad
                                             )
                                             .subscribe(
-                                                (res: any) => {
+                                                () => {
                                                     $this.data.productos.push(
                                                         $this.producto
                                                     );
@@ -667,8 +667,8 @@ export class SolicitudComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'Ocurrió un error al leer el archivo de excel',
@@ -740,8 +740,9 @@ export class SolicitudComponent implements OnInit {
                 this.areas = [...res.areas];
                 this.paqueterias = [...res.paqueterias];
 
-                if (this.empresas.length == 1)
+                if (this.empresas.length == 1) {
                     [this.data.empresa] = this.empresas;
+                }
 
                 this.cambiarEmpresa();
             },

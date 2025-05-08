@@ -1,4 +1,4 @@
-import { backend_url, commaNumber, tinymce_init } from '@env/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { AuthService } from '@services/auth.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -17,7 +17,6 @@ export class HistorialComponent implements OnInit {
     @ViewChild('modalserie') modalserie: NgbModal;
     @ViewChild('modalcopiaodc') modalcopiaodc: NgbModal;
 
-    tinymce_init = tinymce_init;
     commaNumber = commaNumber;
 
     modalReference: any;

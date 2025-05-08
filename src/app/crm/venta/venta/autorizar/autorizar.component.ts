@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from './../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -15,7 +15,6 @@ export class AutorizarComponent implements OnInit {
     @ViewChild('modalventa') modalventa: NgbModal;
 
     modalReference: any;
-    tinymce_init = tinymce_init;
 
     datatable_busqueda: any;
 

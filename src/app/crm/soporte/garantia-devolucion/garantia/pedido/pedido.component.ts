@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url} from '@env/environment';
 import { Component, OnInit, Renderer2, ChangeDetectorRef } from '@angular/core';
 import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -36,7 +36,7 @@ export class PedidoComponent implements OnInit {
 
     publico_general: string = '46';
 
-    tinymce_init = tinymce_init;
+
 
     producto = {
         id: 0,

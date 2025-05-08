@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from './../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { SignaturePad } from 'angular2-signaturepad/signature-pad';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';

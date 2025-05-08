@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url } from '@env/environment';
 import { Component, OnInit } from '@angular/core';
 import swal from 'sweetalert2';
 import { HttpClient } from '@angular/common/http';
@@ -18,7 +18,7 @@ export class SeguimientoComponent implements OnInit {
         seguimiento_anterior: [],
     };
 
-    tinymce_init = tinymce_init;
+
 
     constructor(private http: HttpClient) {}
 

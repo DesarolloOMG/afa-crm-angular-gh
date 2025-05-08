@@ -1,7 +1,5 @@
 import {
-    backend_url,
-    tinymce_init,
-} from './../../../../../environments/environment';
+    backend_url} from '@env/environment';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -15,9 +13,6 @@ import swal from 'sweetalert2';
 })
 export class EliminarComponent implements OnInit {
     @ViewChild('tokenmodel') token_view: NgModel;
-
-    tinymce_init = tinymce_init;
-
     modalReference: any;
 
     venta: any = '';

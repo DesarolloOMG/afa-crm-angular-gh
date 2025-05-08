@@ -1,6 +1,5 @@
 import {
     backend_url,
-    tinymce_init,
     commaNumber,
     swalErrorHttpResponse,
 } from '@env/environment';
@@ -68,7 +67,6 @@ export class CrearComponent implements OnInit {
 
     promocion_activa: boolean = false;
 
-    tinymce_init = tinymce_init;
 
     producto = {
         id: 0,

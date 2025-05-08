@@ -2,7 +2,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import {
     commaNumber,
-    tinymce_init,
     swalErrorHttpResponse,
     dropbox_token,
 } from '@env/environment';
@@ -23,7 +22,6 @@ export class PendienteComponent implements OnInit {
 
     moment = moment;
     commaNumber = commaNumber;
-    tinymce_init = tinymce_init;
 
     modalReference: any;
 

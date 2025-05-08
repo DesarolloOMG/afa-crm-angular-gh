@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -12,8 +12,6 @@ import swal from 'sweetalert2';
 export class AutorizacionComponent implements OnInit {
     datatable: any;
     modalReference: any;
-
-    tinymce_init = tinymce_init;
 
     productos: any[] = [];
     solicitudes: any[] = [];

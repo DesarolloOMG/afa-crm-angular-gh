@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { backend_url, commaNumber, tinymce_init } from '@env/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { AuthService } from '@services/auth.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -17,7 +17,6 @@ export class HistorialComponent implements OnInit {
     @ViewChild('modalventa') modalventa: NgbModal;
 
     commaNumber = commaNumber;
-    tinymce_init = tinymce_init;
 
     modalReference: any;
     datatable_pago: any;

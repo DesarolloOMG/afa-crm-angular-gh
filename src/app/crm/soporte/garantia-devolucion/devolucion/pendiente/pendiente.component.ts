@@ -1,8 +1,8 @@
 import {
     backend_url,
-    tinymce_init,
+
     swalErrorHttpResponse,
-} from './../../../../../../environments/environment';
+} from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, Renderer2 } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -16,7 +16,7 @@ import { AuthService } from '@services/auth.service';
     styleUrls: ['./pendiente.component.scss'],
 })
 export class PendienteComponent implements OnInit {
-    tinymce_init = tinymce_init;
+
     modalReference: any;
     datatable: any;
     datatable_name: string =

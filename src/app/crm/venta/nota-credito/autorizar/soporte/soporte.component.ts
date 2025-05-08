@@ -8,8 +8,8 @@ import { AuthService } from '@services/auth.service';
 
 import {
     backend_url,
-    tinymce_init,
-} from '../../../../../../environments/environment';
+
+} from '@env/environment';
 @Component({
     selector: 'app-soporte',
     templateUrl: './soporte.component.html',
@@ -29,7 +29,7 @@ import {
 })
 export class SoporteComponent implements OnInit {
     @ViewChild('tabs') public tabs: NgbTabset;
-    tinymce_init = tinymce_init;
+
     modalReference: any;
 
     //cambiar para asignar Ingenieros

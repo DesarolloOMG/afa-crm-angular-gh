@@ -8,7 +8,7 @@ import {
     Renderer2,
     ViewChild,
 } from '@angular/core';
-import { backend_url, commaNumber, tinymce_init } from '@env/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import swal from 'sweetalert2';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '@services/auth.service';
@@ -33,7 +33,6 @@ export class RecepcionComponent implements OnInit {
     modalReferenceCaducidad: any;
 
     commaNumber = commaNumber;
-    tinymce_init = tinymce_init;
 
     datatable: any;
     datatable_name: string = '#compra_orden_recepcion';

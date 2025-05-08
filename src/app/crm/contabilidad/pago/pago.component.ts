@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url } from '@env/environment';
 import {
     Component,
     OnInit,
@@ -31,7 +31,7 @@ export class PagoComponent implements OnInit {
     razones: any[] = [];
     monedas: any[] = [];
 
-    tinymce_init = tinymce_init;
+
 
     data = {
         documento: '',

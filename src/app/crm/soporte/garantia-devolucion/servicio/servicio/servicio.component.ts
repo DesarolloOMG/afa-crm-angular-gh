@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url} from '@env/environment';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import swal from 'sweetalert2';
@@ -9,7 +9,7 @@ import swal from 'sweetalert2';
     styleUrls: ['./servicio.component.scss'],
 })
 export class ServicioComponent implements OnInit {
-    tinymce_init = tinymce_init;
+
 
     tecnicos: any[] = [];
 

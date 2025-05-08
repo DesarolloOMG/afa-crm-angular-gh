@@ -1,7 +1,7 @@
 import {
     backend_url,
-    tinymce_init,
-} from './../../../../../environments/environment';
+
+} from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -17,7 +17,7 @@ export class PendienteComponent implements OnInit {
     modalReference: any;
     datatable: any;
 
-    tinymce_init = tinymce_init;
+
 
     ventas: any[] = [];
     paqueterias: any[] = [];

@@ -22,7 +22,7 @@
                                         >
                                             <option value="" disabled></option>
                                             <option
-                                                value="{{ empresa.bd }}"
+                                                value="{{ empresa.id }}"
                                                 *ngFor="let empresa of empresas"
                                             >
                                                 {{ empresa.empresa }}
@@ -138,8 +138,8 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2" style="margin-top: -18px">
-                            <label style="display: block; font-size: 9pt"
+                        <div class="col-md-2" style="margin-top: -18px;">
+                            <label style="display: block; font-size: 9pt;"
                                 >CDMX - GDL</label
                             >
                             <ui-switch
@@ -156,11 +156,11 @@
 
                         <div
                             class="col-md-2"
-                            style="margin-top: -18px"
+                            style="margin-top: -18px;"
                             placement="top"
                             ngbTooltip="Al seleccionar esta opción, la pretransferencia quedará en status 'pendiente' hasta que sea confirmada para su procesamiento"
                         >
-                            <label style="display: block; font-size: 9pt"
+                            <label style="display: block; font-size: 9pt;"
                                 >Pendiente</label
                             >
                             <ui-switch
@@ -1126,15 +1126,6 @@
                                 [(ngModel)]="data.seguimiento"
                             >
                             </app-new-editor>
-                            <!-- <editor
-                                class="m-t-20"
-                                apiKey="00wo1cmzq03pblsrojuv3g3zt1a72qdp3x7b5cnoflew1n14"
-                                name="seguimiento"
-                                [(ngModel)]="data.seguimiento"
-                                [init]="tinymce_init"
-                                required
-                            >
-                            </editor> -->
                         </div>
                     </div>
 

@@ -1,7 +1,7 @@
 import {
     backend_url,
     swalErrorHttpResponse,
-    tinymce_init,
+
 } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -16,7 +16,7 @@ import { SoporteService } from '@services/http/soporte.service';
 })
 export class RecibirComponent implements OnInit {
     modalReference: any;
-    tinymce_init = tinymce_init;
+
 
     datatable: any;
     datatable_name: string = '#soporte_garantia_devolucion_garantia_recibir';

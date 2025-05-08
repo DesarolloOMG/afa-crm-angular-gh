@@ -1,5 +1,5 @@
 /* tslint:disable:triple-equals */
-import {backend_url, commaNumber, swalErrorHttpResponse, tinymce_init} from '@env/environment';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
@@ -11,7 +11,6 @@ import {Marketplace, Producto, RequisicionData} from './Interfaces';
     styleUrls: ['./crear.component.scss'],
 })
 export class CrearComponent implements OnInit {
-    tinymce_init = tinymce_init;
     commaNumber = commaNumber;
 
     marketplaces: Marketplace[] = [];

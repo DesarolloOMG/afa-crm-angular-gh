@@ -1,4 +1,4 @@
-import { backend_url, commaNumber, tinymce_init } from '@env/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { AuthService } from '@services/auth.service';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpHeaders, HttpClient } from '@angular/common/http';
@@ -15,7 +15,6 @@ export class HistorialComponent implements OnInit {
     modalReference: any;
     datatable: any;
 
-    tinymce_init = tinymce_init;
     moment = moment;
     commaNumber = commaNumber;
 

@@ -1,6 +1,5 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url } from '@env/environment';
 import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -15,7 +14,6 @@ import { CompraService } from '@services/http/compra.service';
 export class EditarComponent implements OnInit {
     modalReference: any;
 
-    tinymce_init = tinymce_init;
 
     empresas_usuario: any[] = [];
     empresas: any[] = [];

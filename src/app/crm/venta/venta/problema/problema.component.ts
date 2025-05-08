@@ -1,7 +1,6 @@
 import {
-    backend_url,
-    tinymce_init,
-} from './../../../../../environments/environment';
+    backend_url
+} from '@env/environment';
 import {
     Component,
     OnInit,
@@ -30,8 +29,6 @@ export class ProblemaComponent implements OnInit {
     productos: any[] = [];
 
     vales: any[] = [];
-
-    tinymce_init = tinymce_init;
 
     data = {
         documento: '',

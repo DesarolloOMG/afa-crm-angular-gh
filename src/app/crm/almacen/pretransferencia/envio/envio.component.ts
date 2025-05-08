@@ -1,7 +1,6 @@
 import {
-    backend_url,
-    tinymce_init,
-} from './../../../../../environments/environment';
+    backend_url
+} from '@env/environment';
 import {
     Component,
     OnInit,
@@ -26,8 +25,6 @@ export class EnvioComponent implements OnInit {
     modalReferenceProducto: any;
     modalReference: any;
     datatable: any;
-
-    tinymce_init = tinymce_init;
 
     solicitudes: any[] = [];
     usuarios: any[] = [];

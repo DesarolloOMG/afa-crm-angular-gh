@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url} from '@env/environment';
 import { AuthService } from '@services/auth.service';
 import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -45,7 +45,7 @@ export class CrearComponent implements OnInit {
     razones: any[] = [];
     monedas: any[] = [];
 
-    tinymce_init = tinymce_init;
+
 
     producto = {
         id: 0,

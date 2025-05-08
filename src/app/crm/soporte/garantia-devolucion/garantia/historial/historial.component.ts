@@ -1,6 +1,6 @@
 import {
     backend_url,
-    tinymce_init,
+
     swalErrorHttpResponse,
 } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
@@ -19,7 +19,7 @@ export class HistorialComponent implements OnInit {
     @ViewChild('modalventa') modalventa: NgbModal;
 
     modalReference: any;
-    tinymce_init = tinymce_init;
+
 
     datatable: any;
     datatable_name: string = '#soporte_garantia_devolucion_garantia_historial';

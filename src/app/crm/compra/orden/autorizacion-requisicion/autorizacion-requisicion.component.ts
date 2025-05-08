@@ -1,8 +1,7 @@
 import {
     backend_url,
     commaNumber,
-    tinymce_init,
-} from './../../../../../environments/environment';
+} from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -17,7 +16,6 @@ import swal from 'sweetalert2';
 export class AutorizacionRequisicionComponent implements OnInit {
     @ViewChild('modalordencompra') modalordencompra: NgbModal;
 
-    tinymce_init = tinymce_init;
     commaNumber = commaNumber;
 
     modalReference: any;

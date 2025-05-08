@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init, commaNumber } from '@env/environment';
+import { backend_url, commaNumber } from '@env/environment';
 import { AuthService } from '@services/auth.service';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -18,7 +18,6 @@ export class CrearComponent implements OnInit {
     modalReference: any;
     modalReferenceToken: any;
 
-    tinymce_init = tinymce_init;
     commaNumber = commaNumber;
 
     data = {

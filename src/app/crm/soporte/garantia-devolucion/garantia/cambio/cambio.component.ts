@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from '@env/environment';
+import { backend_url } from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient } from '@angular/common/http';
@@ -13,7 +13,7 @@ import { AuthService } from '@services/auth.service';
 export class CambioComponent implements OnInit {
     modalReferenceSerie: any;
     modalReference: any;
-    tinymce_init = tinymce_init;
+
 
     datatable: any;
 

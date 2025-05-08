@@ -7,9 +7,8 @@ import {
 } from '@angular/core';
 import {
     commaNumber,
-    tinymce_init,
     dropbox_token,
-} from './../../../../../environments/environment';
+} from '@env/environment';
 import { AlmacenService } from './../../../../services/http/almacen.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -26,7 +25,6 @@ export class FinalizarComponent implements OnInit {
 
     moment = moment;
     commaNumber = commaNumber;
-    tinymce_init = tinymce_init;
 
     modalReference: any;
 

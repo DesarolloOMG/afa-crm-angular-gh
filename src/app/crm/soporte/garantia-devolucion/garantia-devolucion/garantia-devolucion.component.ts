@@ -1,4 +1,4 @@
-import { backend_url, tinymce_init } from './../../../../../environments/environment';
+import { backend_url } from '@env/environment';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import swal from 'sweetalert2';
@@ -10,7 +10,7 @@ import swal from 'sweetalert2';
 })
 export class GarantiaDevolucionComponent implements OnInit {
 
-    tinymce_init = tinymce_init;
+
 
     tipos_documento: any[] = [];
     causas_documento: any[] = [];
