@@ -117,7 +117,7 @@ export class CrearPublicacionComponent implements OnInit {
         );
 
         this.mercadolibreService
-            .getItemCategoryVariants(this.data.item.category.category_id, marketplace.marketplace_token)
+            .getItemCategoryVariants(this.data.item.category.category_id, marketplace.id)
             .subscribe(
                 (res: any) => {
                     if (this.attributes.length == 0) {
@@ -335,7 +335,6 @@ export class CrearPublicacionComponent implements OnInit {
 
             reader.onload = (function (f) {
                 return function (e) {
-                    console.log(f, e);
 
                     archivos.push({
                         tipo: f.type.split('/')[0],
@@ -415,11 +414,11 @@ export class CrearPublicacionComponent implements OnInit {
 
         if (marketplace && marketplace.pseudonimo) {
             this.mercadolibreService
-                .getUserDataByNickName(marketplace.pseudonimo)
+                .getUserDataByNickName(marketplace.pseudonimo, marketplace.id)
                 .subscribe(
                     (res: any) => {
                         this.mercadolibreService
-                            .getUserDataByID(res.seller.id)
+                            .getUserDataByID(res.seller.id, marketplace.id)
                             .subscribe(
                                 (resGudbi: any) => {
                                     this.user_data = { ...resGudbi };

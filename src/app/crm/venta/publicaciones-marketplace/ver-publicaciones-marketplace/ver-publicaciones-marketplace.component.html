@@ -1,3 +1,4 @@
+<!--suppress JSUnusedGlobalSymbols, JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
 <ngx-spinner
     bdColor="rgba(51,51,51,0.8)"
     size="medium"
@@ -1142,18 +1143,12 @@
                                         <img
                                             class="img-fluid producto-imagen"
                                             src="{{ row_image.data }}"
-                                        />
+                                         alt="producto-imagen"/>
                                         <span
                                             (click)="row.deleted = true"
                                             class="float-right cursor-pointer text-danger delete-image"
                                             >Eliminar imagen</span
                                         >
-                                        <!-- <i
-                                    class="fa fa-trash float-right fa-2x text-danger cursor-pointer delete-image"
-                                    (click)="row_image.deleted = true"
-                                    placement="top"
-                                    ngbTooltip="Eliminar imagen"
-                                ></i> -->
                                     </div>
                                 </ng-container>
                             </div>
@@ -1188,7 +1183,7 @@
                                 <img
                                     class="img-fluid producto-imagen"
                                     src="{{ row.data }}"
-                                />
+                                 alt="producto-imagen"/>
                                 <span
                                     (click)="row.deleted = true"
                                     class="float-right cursor-pointer text-danger delete-image"
@@ -2408,7 +2403,7 @@
                                         <img
                                             class="img-fluid producto-imagen"
                                             src="{{ row_image.data }}"
-                                        />
+                                         alt="producto-imagen"/>
                                         <span
                                             (click)="row.deleted = true"
                                             class="float-right cursor-pointer text-danger delete-image"
@@ -2454,7 +2449,7 @@
                                 <img
                                     class="img-fluid producto-imagen"
                                     src="{{ row.data }}"
-                                />
+                                 alt="producto-imagen"/>
                                 <span
                                     (click)="row.deleted = true"
                                     class="float-right cursor-pointer text-danger delete-image"

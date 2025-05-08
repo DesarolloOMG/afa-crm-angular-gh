@@ -1,31 +1,49 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { mercadolibre_url } from './../../../environments/environment';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {backend_url, mercadolibre_url} from '@env/environment';
+import {map, switchMap} from 'rxjs/operators';
 
 @Injectable({
     providedIn: 'root',
 })
 export class MercadolibreService {
-    constructor(private http: HttpClient) {}
-
-    getItemData(item_id: string, token: string) {
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-
-        return this.http.get(`${mercadolibre_url}items/${item_id}`, { headers });
+    constructor(private http: HttpClient) {
     }
 
-    getItemDescription(item_id: string, token: string) {
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-
-        return this.http.get(`${mercadolibre_url}items/${item_id}/description`, { headers });
+    getItemData(item_id: string, marketplace_id: string) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(`${mercadolibre_url}items/${item_id}`, {headers});
+            })
+        );
     }
 
-    getUserPublicData(user_id: string) {
-        return this.http.get(`${mercadolibre_url}users/${user_id}`);
+    getItemDescription(item_id: string, marketplace_id: string) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(`${mercadolibre_url}items/${item_id}/description`, {headers});
+            })
+        );
+    }
+
+    getUserPublicData(user_id: string, marketplace_id: string) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(`${mercadolibre_url}users/${user_id}`, {headers});
+            })
+        );
     }
 
     getItemCategoryPredictionByTitle(title: string) {
@@ -34,13 +52,17 @@ export class MercadolibreService {
         );
     }
 
-    getItemCategoryVariants(category_id: string, token: string) {
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-
-        return this.http.get(
-            `${mercadolibre_url}categories/${category_id}/attributes`, { headers }
+    getItemCategoryVariants(category_id: string, marketplace_id: string) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(
+                    `${mercadolibre_url}categories/${category_id}/attributes`, {headers}
+                );
+            })
         );
     }
 
@@ -54,25 +76,50 @@ export class MercadolibreService {
         );
     }
 
-    getUserDataByNickName(nickname: string) {
-        return this.http.get(
-            `${mercadolibre_url}sites/MLM/search?nickname=${nickname}`
+    getUserDataByNickName(nickname: string, marketplace_id: string) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(`${mercadolibre_url}sites/MLM/search?nickname=${nickname}`, {headers});
+            })
         );
     }
 
-    getUserDataByID(user_id: string) {
-        return this.http.get(`${mercadolibre_url}users/${user_id}`);
-    }
-
-    getCurrentUserData(token: string) {
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-        
-        return this.http.get(`${mercadolibre_url}users/me`, { headers });
+    getUserDataByID(user_id: string, marketplace_id: string) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(`${mercadolibre_url}users/${user_id}`, {headers});
+            })
+        );
     }
 
     getBrandsByUser(user_id: number) {
         return this.http.get(`${mercadolibre_url}users/${user_id}/brands`);
     }
+
+    getCurrentUserData(marketplace_id: string) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(`${mercadolibre_url}users/me`, {headers});
+            })
+        );
+    }
+
+    getMarketplacetoken(marketplace_id: string) {
+        return this.http.get(
+            `${backend_url}venta/mercadolibre/token/data/${marketplace_id}`
+        );
+    }
+
 }

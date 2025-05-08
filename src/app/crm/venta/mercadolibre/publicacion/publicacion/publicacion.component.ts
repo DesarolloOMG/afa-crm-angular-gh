@@ -198,7 +198,7 @@ export class PublicacionComponent implements OnInit {
                 };
 
                 this.mercadolibreService
-                    .getItemData(item.publicacion_id, marketplace.marketplace_token)
+                    .getItemData(item.publicacion_id, marketplace.id)
                     .subscribe(
                         (res: any) => {
                             this.getSaleTermsForCategory(res.category_id);
@@ -243,7 +243,7 @@ export class PublicacionComponent implements OnInit {
                             });
 
                             this.mercadolibreService
-                                .getItemDescription(item.publicacion_id, marketplace.marketplace_token)
+                                .getItemDescription(item.publicacion_id, marketplace.id)
                                 .subscribe(
                                     (res: any) => {
                                         this.marketplace.description =
@@ -257,7 +257,7 @@ export class PublicacionComponent implements OnInit {
                             const item_data = res;
 
                             this.mercadolibreService
-                                .getItemCategoryVariants(res.category_id, marketplace.marketplace_token)
+                                .getItemCategoryVariants(res.category_id, marketplace.id)
                                 .subscribe(
                                     (res: any) => {
                                         this.variations = [
@@ -316,7 +316,7 @@ export class PublicacionComponent implements OnInit {
             (marketplace) => marketplace.id == this.search.marketplace
         );
 
-        this.mercadolibreService.getItemData(item.publicacion_id, marketplace.marketplace_token).subscribe(
+        this.mercadolibreService.getItemData(item.publicacion_id, marketplace.id).subscribe(
             (res: any) => {
                 this.getSaleTermsForCategory(res.category_id);
 
@@ -401,7 +401,7 @@ export class PublicacionComponent implements OnInit {
                 }
 
                 this.mercadolibreService
-                    .getItemDescription(item.publicacion_id, marketplace.marketplace_token)
+                    .getItemDescription(item.publicacion_id, marketplace.id)
                     .subscribe(
                         (res: any) => {
                             this.marketplace.description = res.plain_text;
@@ -414,7 +414,7 @@ export class PublicacionComponent implements OnInit {
                 const item_data = res;
 
                 this.mercadolibreService
-                    .getItemCategoryVariants(res.category_id, marketplace.marketplace)
+                    .getItemCategoryVariants(res.category_id, marketplace.id)
                     .subscribe(
                         (res: any) => {
                             this.variations = [
@@ -488,11 +488,11 @@ export class PublicacionComponent implements OnInit {
 
         if (marketplace && marketplace.pseudonimo) {
             this.mercadolibreService
-                .getUserDataByNickName(marketplace.pseudonimo)
+                .getUserDataByNickName(marketplace.pseudonimo, marketplace.id)
                 .subscribe(
                     (res: any) => {
                         this.mercadolibreService
-                            .getUserDataByID(res.seller.id)
+                            .getUserDataByID(res.seller.id, marketplace.id)
                             .subscribe(
                                 (res: any) => {
                                     this.user_data = { ...res };
@@ -671,8 +671,6 @@ export class PublicacionComponent implements OnInit {
                 type: 'error',
                 html: `Producto repetido`,
             });
-        console.log(this.product);
-        console.log(this.marketplace);
 
         if (
             this.product.sku == '' ||
@@ -693,7 +691,6 @@ export class PublicacionComponent implements OnInit {
 
         this.data.products.push(this.product);
         this.searchProduct();
-        console.log(this.data.products);
     }
 
     addVariation() {
@@ -789,7 +786,6 @@ export class PublicacionComponent implements OnInit {
     }
 
     getVariationNameByID(variation_id) {
-        console.log(variation_id);
 
         const variation = this.marketplace.variations.find(
             (v) => v.id == variation_id

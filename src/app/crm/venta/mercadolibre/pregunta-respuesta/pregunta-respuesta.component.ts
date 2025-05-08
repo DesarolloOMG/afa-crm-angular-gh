@@ -47,7 +47,7 @@ export class PreguntaRespuestaComponent implements OnInit {
 
                     preguntas.map((pregunta) => {
                         this.mercadolibreService
-                            .getUserPublicData(pregunta.from.id)
+                            .getUserPublicData(pregunta.from.id, marketplace.id)
                             .subscribe(
                                 (res: any) => {
                                     pregunta.user_data = res;
@@ -85,7 +85,7 @@ export class PreguntaRespuestaComponent implements OnInit {
 
                     this.preguntas.map((pregunta) => {
                         this.mercadolibreService
-                            .getItemData(pregunta.item, marketplace.marketplace_token)
+                            .getItemData(pregunta.item, marketplace.id)
                             .subscribe(
                                 (res: any) => {
                                     pregunta.item_data = res;
