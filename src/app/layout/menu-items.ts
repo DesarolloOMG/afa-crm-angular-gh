@@ -226,24 +226,24 @@ const MENUITEMS = [
                     },
                 ],
             },
-            {
-                main_state: 'compra',
-                state: 'pedimento',
-                short_label: 'PD',
-                name: 'Pedimentos',
-                type: 'sub',
-                icon: 'fa fa-pallet',
-                level: [12],
-                sublevel: 1,
-                children: [
-                    {
-                        state: 'crear',
-                        name: 'Crear pedimento',
-                        level: [12],
-                        sublevel: 1,
-                    },
-                ],
-            },
+            // {
+            //     main_state: 'compra',
+            //     state: 'pedimento',
+            //     short_label: 'PD',
+            //     name: 'Pedimentos',
+            //     type: 'sub',
+            //     icon: 'fa fa-pallet',
+            //     level: [12],
+            //     sublevel: 1,
+            //     children: [
+            //         {
+            //             state: 'crear',
+            //             name: 'Crear pedimento',
+            //             level: [12],
+            //             sublevel: 1,
+            //         },
+            //     ],
+            // },
             {
                 main_state: 'compra',
                 state: 'proveedor',
