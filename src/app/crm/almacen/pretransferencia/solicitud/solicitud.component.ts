@@ -10,6 +10,8 @@ import { AlmacenService } from '@services/http/almacen.service';
 import { GeneralService } from '@services/http/general.service';
 import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import {VentaService} from '@services/http/venta.service';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-solicitud',
@@ -33,7 +35,7 @@ export class SolicitudComponent implements OnInit {
     data = {
         area: '',
         marketplace: 0,
-        empresa: '7',
+        empresa: '1',
         almacen_entrada: 0,
         almacen_salida: 0,
         observacion: '',
@@ -108,7 +110,9 @@ export class SolicitudComponent implements OnInit {
         private http: HttpClient,
         private auth: AuthService,
         private almacenService: AlmacenService,
-        private generalService: GeneralService
+        private generalService: GeneralService,
+        private ventaService: VentaService,
+        private compraService: CompraService,
     ) {
         this.niveles_usuario = JSON.parse(this.auth.userData().sub).niveles;
     }
@@ -118,7 +122,6 @@ export class SolicitudComponent implements OnInit {
     }
 
     agregarProducto() {
-        console.log(this.producto);
         if (!this.producto.sku) {
             return;
         }
@@ -147,9 +150,9 @@ export class SolicitudComponent implements OnInit {
         this.producto = {
             sku: this.producto.sku,
             codigo_text: this.producto.codigo_text,
-            descripcion: producto.producto,
+            descripcion: producto.descripcion,
             cantidad: this.producto.cantidad,
-            costo: producto.ultimo_costo ? producto.ultimo_costo : 0,
+            costo: producto.costo ? producto.costo : 0,
             serie: 0,
             alto: producto.alto ? producto.alto : 0,
             ancho: producto.ancho ? producto.ancho : 0,
@@ -206,7 +209,18 @@ export class SolicitudComponent implements OnInit {
 
             return;
         }
+
+        this.compraService.searchProduct(this.producto.codigo_text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
+        });
+
     }
+
 
     eliminarProducto(codigo) {
         const index = this.data.productos.findIndex(
@@ -257,7 +271,6 @@ export class SolicitudComponent implements OnInit {
             .subscribe(
                 (res: any) => {
                     this.publicaciones = [...res.publicaciones];
-                    console.log(res);
                 },
                 (err: any) => {
                     swalErrorHttpResponse(err);
@@ -320,9 +333,7 @@ export class SolicitudComponent implements OnInit {
 
     actualizarProductos() {
         this.data.productos = [];
-        console.log(this.data.publicaciones);
         this.data.publicaciones.forEach((publicacion) => {
-            console.log(publicacion);
             const form_data = new FormData();
             form_data.append('etiqueta', publicacion.etiqueta);
             form_data.append('publicacion', publicacion.id);
@@ -333,7 +344,6 @@ export class SolicitudComponent implements OnInit {
                 )
                 .subscribe(
                     (res) => {
-                        console.log(res);
                         res['productos'].forEach((producto) => {
                             const productoExistente = this.data.productos.find(
                                 (p) => p.sku === producto.sku
@@ -391,6 +401,16 @@ export class SolicitudComponent implements OnInit {
 
             return;
         }
+
+        this.ventaService.searchClients(this.data.cliente.input).subscribe({
+            next: (res: any) => {
+                this.clientes = [...res.data];
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
+        });
+
     }
 
     cambiarCliente() {
@@ -421,8 +441,6 @@ export class SolicitudComponent implements OnInit {
         if ($invalidFields.length > 0) {
             return console.log($invalidFields);
         }
-
-        console.log(this.data);
 
         if (!this.data.almacen_salida) {
             return swal({
@@ -517,10 +535,11 @@ export class SolicitudComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (e) => e.bd == this.data.empresa
+            (e) => e.id == 1
         );
 
         if (empresa) { this.almacenes = [...empresa.almacenes]; }
+        this.data.empresa = empresa.id;
     }
 
     cambiarArea() {
@@ -541,13 +560,8 @@ export class SolicitudComponent implements OnInit {
             (p) => p.id == this.data.paqueteria
         );
 
-        // console.log(paqueteria);
 
         return paqueteria ? paqueteria.guia : paqueteria;
-    }
-
-    onChangeSaltar() {
-        this.data.pendiente = 0;
     }
 
     onChangePendiente() {
@@ -684,7 +698,7 @@ export class SolicitudComponent implements OnInit {
         this.data = {
             area: '',
             marketplace: 0,
-            empresa: '7',
+            empresa: '1',
             almacen_entrada: 0,
             almacen_salida: 0,
             observacion: '',

@@ -9,38 +9,6 @@
                                 Información del movimiento
                             </h4>
 
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group form-primary">
-                                        <select
-                                            name="empresa"
-                                            #empresa="ngModel"
-                                            class="form-control"
-                                            [(ngModel)]="data.empresa"
-                                            (change)="cambiarEmpresa()"
-                                            required
-                                        >
-                                            <option value="" disabled></option>
-                                            <option
-                                                value="{{ empresa.id }}"
-                                                *ngFor="let empresa of empresas"
-                                            >
-                                                {{ empresa.empresa }}
-                                            </option>
-                                        </select>
-                                        <span class="form-bar"></span>
-                                        <label class="float-label"
-                                        >Empresa</label
-                                        >
-                                        <small
-                                            class="text-danger messages block"
-                                            *ngIf="empresa.errors?.required"
-                                        >Campo requerido</small
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-
                             <h4 class="sub-title m-t-20">
                                 Cargar información mediante un excel
                             </h4>
@@ -138,22 +106,6 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2" style="margin-top: -18px;">
-                            <label style="display: block; font-size: 9pt;"
-                                >CDMX - GDL</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="saltarfases"
-                                id="saltarfases"
-                                [(ngModel)]="data.saltar"
-                                (change)="onChangeSaltar()"
-                            ></ui-switch>
-                        </div>
-
                         <div
                             class="col-md-2"
                             style="margin-top: -18px;"
@@ -224,7 +176,7 @@
                                         value="{{ cliente.id }}"
                                         *ngFor="let cliente of clientes"
                                     >
-                                        {{ cliente.nombre_oficial }}
+                                        {{ cliente.razon_social }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
@@ -962,7 +914,7 @@
                                                 {{
                                                     producto.sku +
                                                         " - " +
-                                                        producto.producto
+                                                        producto.descripcion
                                                 }}
                                             </option>
                                         </select>
