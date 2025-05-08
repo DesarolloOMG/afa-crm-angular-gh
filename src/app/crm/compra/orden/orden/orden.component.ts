@@ -1,7 +1,7 @@
 /* tslint:disable:triple-equals */
 // noinspection JSUnusedLocalSymbols
 
-import {backend_url, commaNumber} from '@env/environment';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
@@ -108,16 +108,7 @@ export class OrdenComponent implements OnInit {
                 }
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                }).then();
+                swalErrorHttpResponse(response);
             }
         );
     }
@@ -170,16 +161,7 @@ export class OrdenComponent implements OnInit {
                 this.proveedores = [...res.data];
             },
             error: (err: any) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                                ? err.error.error_summary
-                                : err.error,
-                }).then();
+                swalErrorHttpResponse(err);
             },
         });
     }
@@ -233,15 +215,7 @@ export class OrdenComponent implements OnInit {
                 this.productos = [...res.data];
             },
             error: (err: any) => {
-                swal({
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                                ? err.error.error_summary
-                                : err.error,
-                }).then();
+                swalErrorHttpResponse(err);
             },
         });
     }
@@ -277,8 +251,40 @@ export class OrdenComponent implements OnInit {
         this.clearProducto();
     }
 
-    async existeProducto(_codigo) {
-        return new Promise((_resolve, _reject) => {
+    async existeProducto(codigo) {
+        return new Promise((resolve, _reject) => {
+            this.compraService.searchProduct(codigo)
+                .subscribe(
+                    (res: any) => {
+                        console.log(res.data);
+                        const productos = this.data.productos.filter(
+                            (producto) => producto.codigo == codigo
+                        );
+
+                        const existe =
+                            Object.values(res.data).length > 0;
+
+                        productos.map((producto) => {
+                            console.log(producto);
+
+                            producto.existe = existe;
+
+                            if (existe) {
+                                console.log(existe);
+                                producto.descripcion = res.data[0].descripcion;
+                                producto.comentario = '';
+                            }
+                            producto.descuento = producto.descuento ? producto.descuento : 0;
+                            console.log(producto);
+                        });
+
+                        resolve(1);
+                    },
+                    (response) => {
+                        swalErrorHttpResponse(response);
+                        resolve(1);
+                    }
+                );
         });
     }
 
@@ -370,16 +376,7 @@ export class OrdenComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
