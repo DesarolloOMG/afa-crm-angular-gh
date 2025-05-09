@@ -201,133 +201,133 @@
                         </div>
                     </div>
 
-                    <h4 class="sub-title m-t-20">Proveedor Dropshipping</h4>
+<!--                    <h4 class="sub-title m-t-20">Proveedor Dropshipping</h4>-->
 
-                    <div class="row m-t-20">
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="proveedor"
-                                    id="proveedor"
-                                    #proveedor="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="data.documento.proveedor"
-                                    (change)="cambiarProveedor()"
-                                >
-                                    <option value=""></option>
-                                    <option
-                                        value="{{ proveedor.id }}"
-                                        *ngFor="let proveedor of proveedores"
-                                    >
-                                        {{ proveedor.razon_social }} -
-                                        {{ proveedor.rfc }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Proveedor</label>
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="$any(empresa).proveedor?.required"
-                                    >Campo requerido</small
-                                >
-                            </div>
-                        </div>
-                    </div>
+<!--                    <div class="row m-t-20">-->
+<!--                        <div class="col-md-6">-->
+<!--                            <div class="form-group form-primary">-->
+<!--                                <select-->
+<!--                                    name="proveedor"-->
+<!--                                    id="proveedor"-->
+<!--                                    #proveedor="ngModel"-->
+<!--                                    class="form-control"-->
+<!--                                    [(ngModel)]="data.documento.proveedor"-->
+<!--                                    (change)="cambiarProveedor()"-->
+<!--                                >-->
+<!--                                    <option value=""></option>-->
+<!--                                    <option-->
+<!--                                        value="{{ proveedor.id }}"-->
+<!--                                        *ngFor="let proveedor of proveedores"-->
+<!--                                    >-->
+<!--                                        {{ proveedor.razon_social }} - -->
+<!--                                        {{ proveedor.rfc }}-->
+<!--                                    </option>-->
+<!--                                </select>-->
+<!--                                <span class="form-bar"></span>-->
+<!--                                <label class="float-label">Proveedor</label>-->
+<!--                                <small-->
+<!--                                    class="text-danger messages block"-->
+<!--                                    *ngIf="$any(empresa).proveedor?.required"-->
+<!--                                    >Campo requerido</small-->
+<!--                                >-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                    <h4 class="sub-title m-t-20" [hidden]="data.area != '2'">
-                        Addenda y complementos
-                    </h4>
+<!--                    <h4 class="sub-title m-t-20" [hidden]="data.area != '2'">-->
+<!--                        Addenda y complementos-->
+<!--                    </h4>-->
 
-                    <div class="row m-t-20" [hidden]="data.area != '2'">
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="addendaordencompra"
-                                    class="form-control"
-                                    #addendaordencompra="ngModel"
-                                    [(ngModel)]="data.addenda.orden_compra"
-                                    pattern="[^'&quot;]+$"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Número de orden de compra</label
-                                >
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="addendaordencompra.errors?.pattern"
-                                    >No se permite el caracter ' ó "</small
-                                >
-                            </div>
-                        </div>
+<!--                    <div class="row m-t-20" [hidden]="data.area != '2'">-->
+<!--                        <div class="col-md-6">-->
+<!--                            <div class="form-group form-primary">-->
+<!--                                <input-->
+<!--                                    type="text"-->
+<!--                                    name="addendaordencompra"-->
+<!--                                    class="form-control"-->
+<!--                                    #addendaordencompra="ngModel"-->
+<!--                                    [(ngModel)]="data.addenda.orden_compra"-->
+<!--                                    pattern="[^'&quot;]+$"-->
+<!--                                />-->
+<!--                                <span class="form-bar"></span>-->
+<!--                                <label class="float-label"-->
+<!--                                    >Número de orden de compra</label-->
+<!--                                >-->
+<!--                                <small-->
+<!--                                    class="text-danger messages block"-->
+<!--                                    *ngIf="addendaordencompra.errors?.pattern"-->
+<!--                                    >No se permite el caracter ' ó "</small-->
+<!--                                >-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="addendasolicitudpago"
-                                    class="form-control"
-                                    #addendasolicitudpago="ngModel"
-                                    [(ngModel)]="data.addenda.solicitud_pago"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Número de solicitud de pago</label
-                                >
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="addendasolicitudpago.errors?.pattern"
-                                    >No se permite el caracter ' ó "</small
-                                >
-                            </div>
-                        </div>
+<!--                        <div class="col-md-6">-->
+<!--                            <div class="form-group form-primary">-->
+<!--                                <input-->
+<!--                                    type="text"-->
+<!--                                    name="addendasolicitudpago"-->
+<!--                                    class="form-control"-->
+<!--                                    #addendasolicitudpago="ngModel"-->
+<!--                                    [(ngModel)]="data.addenda.solicitud_pago"-->
+<!--                                />-->
+<!--                                <span class="form-bar"></span>-->
+<!--                                <label class="float-label"-->
+<!--                                    >Número de solicitud de pago</label-->
+<!--                                >-->
+<!--                                <small-->
+<!--                                    class="text-danger messages block"-->
+<!--                                    *ngIf="addendasolicitudpago.errors?.pattern"-->
+<!--                                    >No se permite el caracter ' ó "</small-->
+<!--                                >-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="addendatipodocumento"
-                                    id="addendatipodocumento"
-                                    class="form-control"
-                                    [(ngModel)]="data.addenda.tipo_documento"
-                                >
-                                    <option value="" disabled selected></option>
-                                    <option value="1">Factura</option>
-                                    <option value="2">Nota de credito</option>
-                                    <option value="3">
-                                        Nota de cargo o debito
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Tipo de documento</label
-                                >
-                            </div>
-                        </div>
+<!--                        <div class="col-md-6">-->
+<!--                            <div class="form-group form-primary">-->
+<!--                                <select-->
+<!--                                    name="addendatipodocumento"-->
+<!--                                    id="addendatipodocumento"-->
+<!--                                    class="form-control"-->
+<!--                                    [(ngModel)]="data.addenda.tipo_documento"-->
+<!--                                >-->
+<!--                                    <option value="" disabled selected></option>-->
+<!--                                    <option value="1">Factura</option>-->
+<!--                                    <option value="2">Nota de credito</option>-->
+<!--                                    <option value="3">-->
+<!--                                        Nota de cargo o debito-->
+<!--                                    </option>-->
+<!--                                </select>-->
+<!--                                <span class="form-bar"></span>-->
+<!--                                <label class="float-label"-->
+<!--                                    >Tipo de documento</label-->
+<!--                                >-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="addendafacturaasociada"
-                                    class="form-control"
-                                    #addendafacturaasociada="ngModel"
-                                    [(ngModel)]="data.addenda.factura_asociada"
-                                    pattern="[^'&quot;]+$"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Número de factura asociada</label
-                                >
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="
-                                        addendafacturaasociada.errors?.pattern
-                                    "
-                                    >No se permite el caracter ' ó "</small
-                                >
-                            </div>
-                        </div>
-                    </div>
+<!--                        <div class="col-md-6">-->
+<!--                            <div class="form-group form-primary">-->
+<!--                                <input-->
+<!--                                    type="text"-->
+<!--                                    name="addendafacturaasociada"-->
+<!--                                    class="form-control"-->
+<!--                                    #addendafacturaasociada="ngModel"-->
+<!--                                    [(ngModel)]="data.addenda.factura_asociada"-->
+<!--                                    pattern="[^'&quot;]+$"-->
+<!--                                />-->
+<!--                                <span class="form-bar"></span>-->
+<!--                                <label class="float-label"-->
+<!--                                    >Número de factura asociada</label-->
+<!--                                >-->
+<!--                                <small-->
+<!--                                    class="text-danger messages block"-->
+<!--                                    *ngIf="-->
+<!--                                        addendafacturaasociada.errors?.pattern-->
+<!--                                    "-->
+<!--                                    >No se permite el caracter ' ó "</small-->
+<!--                                >-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
                     <h4 class="sub-title m-t-20">Información del cliente</h4>
 

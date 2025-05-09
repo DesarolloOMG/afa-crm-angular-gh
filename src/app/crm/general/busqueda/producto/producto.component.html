@@ -498,7 +498,8 @@
                                                 <td>{{ documento.id }}</td>
                                                 <td>
                                                     {{
-                                                        documento.documento_extra
+                                                        documento.tipo ==
+                                                        'RECEPCION' ? documento.recepcion_erp : documento.documento_extra
                                                     }}
                                                 </td>
                                                 <td
@@ -601,7 +602,10 @@
                                                     </td>
                                                 </ng-container>
                                                 <td>
-                                                    {{ documento.cantidad }}
+                                                    {{
+                                                        documento.tipo ==
+                                                        'RECEPCION' ? documento.cantidad_recepcion : documento.cantidad
+                                                    }}
                                                 </td>
                                                 <td class="no-wrap">
                                                     $

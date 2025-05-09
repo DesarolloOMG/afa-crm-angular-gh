@@ -634,6 +634,10 @@ export class ProductoComponent implements OnInit {
                 this.empresas = [...res.empresas];
                 this.tipos_documento = [...res.tipos_documento];
 
+                this.tipos_documento.map(td => {
+                    td.tipo = (td.tipo == 'ORDEN DE COMPRA' ? 'RECEPCION ' : '') + td.tipo;
+                });
+
                 if (this.empresas.length == 1) {
                     const [empresa] = this.empresas;
 
