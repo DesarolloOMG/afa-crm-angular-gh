@@ -552,6 +552,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
             .post(`${backend_url}almacen/packing/confirmar`, form_data)
             .subscribe(
                 (res) => {
+                    console.log(res);
                     if (res['code'] == 200) {
                         const series = res['series'].filter(
                             (serie) => serie.status == 0
@@ -630,6 +631,12 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                         if (!productos_no_terminados) {
                             this.guardarDocumento();
                         }
+                    } else {
+                        return swal({
+                            type: 'error',
+                            html: res['mensaje'],
+                            customClass: 'red-border-top',
+                        });
                     }
                 },
                 (response) => {

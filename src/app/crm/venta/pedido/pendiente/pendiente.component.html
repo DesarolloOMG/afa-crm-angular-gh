@@ -81,7 +81,7 @@
                             </td>
                             <td class="verde" *ngIf="venta.fulfillment"></td>
                             <td>
-                                <button
+                                <button *ngIf="venta.marketplace === 'MERCADOLIBRE'"
                                     class="btn btn-info btn-sm btn-block"
                                     (click)="
                                         informacionExtraMercadolibre(
