@@ -24,7 +24,7 @@ export class ClienteComponent implements OnInit {
 
     cliente = {
         id: 0,
-        empresa: '7',
+        empresa: '1',
         pais: '412',
         regimen: '',
         razon_social: '',

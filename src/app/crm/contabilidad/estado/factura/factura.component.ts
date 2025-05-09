@@ -26,7 +26,7 @@ export class FacturaComponent implements OnInit {
     commaNumber = commaNumber;
 
     data = {
-        empresa: '7',
+        empresa: '1',
         fecha_inicial: '',
         fecha_final: '',
         entidad: {

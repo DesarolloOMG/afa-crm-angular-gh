@@ -19,7 +19,7 @@ export class IngresoComponent implements OnInit {
     commaNumber = commaNumber;
 
     data = {
-        empresa: '7',
+        empresa: '1',
         entidad: {
             tipo: '',
             input: '',

@@ -17,7 +17,7 @@ export class ImportacionComponent implements OnInit {
     datatable: any;
 
     data = {
-        empresa: '7',
+        empresa: '1',
         productos: [],
     };
 

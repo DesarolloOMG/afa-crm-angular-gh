@@ -56,7 +56,7 @@ export class ProductoComponent implements OnInit {
     etiquetas: string[] = [];
 
     data = {
-        empresa: '7',
+        empresa: '1',
         almacen: 0,
         criterio: '',
         excel: '',

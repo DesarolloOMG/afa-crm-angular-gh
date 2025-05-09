@@ -42,7 +42,7 @@ export class PendienteComponent implements OnInit {
         folio: '',
         pagador: '',
         almacen: '',
-        empresa: '7',
+        empresa: '1',
         proveedor: '',
         seguimiento: [],
         archivos: [],

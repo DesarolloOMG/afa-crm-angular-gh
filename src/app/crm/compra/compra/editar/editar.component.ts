@@ -31,7 +31,7 @@ export class EditarComponent implements OnInit {
     seguimiento: any[] = [];
 
     data = {
-        empresa: '7',
+        empresa: '1',
         documento: 0,
         serie_documento: '',
         folio: '',
@@ -473,7 +473,7 @@ export class EditarComponent implements OnInit {
 
                     if (res['code'] == 200) {
                         this.data = {
-                            empresa: '7',
+                            empresa: '1',
                             documento: 0,
                             serie_documento: '',
                             folio: '',

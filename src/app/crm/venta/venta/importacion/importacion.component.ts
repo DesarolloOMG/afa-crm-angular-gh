@@ -23,7 +23,7 @@ export class ImportacionComponent implements OnInit {
     necesita_archivo: boolean = true;
     marketplace = {
         id: 0,
-        empresa: '7',
+        empresa: '1',
         almacen: '',
         marketplace: '',
         ventas: [],
@@ -401,7 +401,7 @@ export class ImportacionComponent implements OnInit {
                         }
                         this.marketplace = {
                             id: 0,
-                            empresa: '7',
+                            empresa: '1',
                             almacen: '',
                             marketplace: '',
                             ventas: [],

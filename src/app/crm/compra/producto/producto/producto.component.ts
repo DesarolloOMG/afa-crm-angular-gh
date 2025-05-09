@@ -43,7 +43,7 @@ export class ProductoComponent implements OnInit {
     datatable_producto: any;
 
     data = {
-        empresa: '7',
+        empresa: '1',
         tipo: '',
         criterio: '',
     };

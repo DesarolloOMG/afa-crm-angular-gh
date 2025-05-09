@@ -28,7 +28,7 @@ export class PolizaComponent implements OnInit {
     empresas_usuario: any[] = [];
 
     data = {
-        empresa: '7',
+        empresa: '1',
         fechas: {
             inicial: '',
             final: '',

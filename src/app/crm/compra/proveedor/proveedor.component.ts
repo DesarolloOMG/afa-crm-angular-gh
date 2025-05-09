@@ -24,7 +24,7 @@ export class ProveedorComponent implements OnInit {
 
     proveedor = {
         id: 0,
-        empresa: '7',
+        empresa: '1',
         pais: '412',
         regimen: '',
         razon_social: '',
@@ -161,7 +161,7 @@ export class ProveedorComponent implements OnInit {
                     if (res['code'] == 200) {
                         this.proveedor = {
                             id: 0,
-                            empresa: '7',
+                            empresa: '1',
                             pais: '412',
                             regimen: '',
                             razon_social: '',

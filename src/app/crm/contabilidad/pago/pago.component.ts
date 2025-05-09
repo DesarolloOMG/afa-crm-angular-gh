@@ -35,7 +35,7 @@ export class PagoComponent implements OnInit {
 
     data = {
         documento: '',
-        empresa: '7',
+        empresa: '1',
         empresa_externa: '',
         clave_periodo: '',
         marketplace: '',
@@ -377,7 +377,7 @@ export class PagoComponent implements OnInit {
         this.nota = [];
         this.data = {
             documento: '',
-            empresa: '7',
+            empresa: '1',
             empresa_externa: '',
             clave_periodo: '',
             marketplace: '',

@@ -46,7 +46,7 @@ export class PendienteComponent implements OnInit {
         referencia: '',
         factura_serie: '',
         factura_folio: '',
-        empresa: '7',
+        empresa: '1',
         archivos: [],
         productos: [],
         shipping_date: '',

@@ -48,7 +48,7 @@ export class HistorialComponent implements OnInit {
     };
 
     traspaso = {
-        empresa: '7',
+        empresa: '1',
         cuenta: '',
         moneda: 3,
         tipo_cambio: 1,

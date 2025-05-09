@@ -21,7 +21,7 @@ export class CrearComponent implements OnInit {
     commaNumber = commaNumber;
 
     data = {
-        empresa: '7',
+        empresa: '1',
         serie_documento: '',
         folio: '',
         fecha: this.currentDate(),
@@ -103,7 +103,7 @@ export class CrearComponent implements OnInit {
 
     proveedor = {
         id: 0,
-        empresa: '7',
+        empresa: '1',
         pais: '412',
         regimen: '',
         razon_social: '',
@@ -401,7 +401,7 @@ export class CrearComponent implements OnInit {
 
                                     $this.proveedor = {
                                         id: 0,
-                                        empresa: '7',
+                                        empresa: '1',
                                         pais: '412',
                                         regimen: $(this).attr('regimenfiscal'),
                                         razon_social: $(this).attr('nombre'),
@@ -916,7 +916,7 @@ export class CrearComponent implements OnInit {
 
     clearObject() {
         this.data = {
-            empresa: '7',
+            empresa: '1',
             serie_documento: '',
             folio: '',
             fecha: this.currentDate(),

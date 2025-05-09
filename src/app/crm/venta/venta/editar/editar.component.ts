@@ -70,7 +70,7 @@ export class EditarComponent implements OnInit {
     };
 
     data = {
-        empresa: '7',
+        empresa: '1',
         empresa_externa: '',
         area: '',
         documento: {
@@ -851,7 +851,7 @@ export class EditarComponent implements OnInit {
         };
 
         this.data = {
-            empresa: '7',
+            empresa: '1',
             empresa_externa: '',
             area: '',
             documento: {

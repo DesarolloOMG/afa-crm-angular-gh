@@ -12,7 +12,7 @@ import swal from 'sweetalert2';
 })
 export class CrearGastoComponent implements OnInit {
     data = {
-        empresa: '7',
+        empresa: '1',
         serie: '',
         folio: '',
         fecha: '',
@@ -271,7 +271,7 @@ export class CrearGastoComponent implements OnInit {
 
                                     $this.proveedor = {
                                         id: 0,
-                                        empresa: '7',
+                                        empresa: '1',
                                         pais: '412',
                                         regimen: $(this).attr('regimenfiscal'),
                                         razon_social: $(this).attr('nombre'),
@@ -601,7 +601,7 @@ export class CrearGastoComponent implements OnInit {
 
     clearData() {
         this.data = {
-            empresa: '7',
+            empresa: '1',
             serie: '',
             folio: '',
             fecha: '',

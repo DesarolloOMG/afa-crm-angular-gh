@@ -20,7 +20,7 @@ export class SaldarComponent implements OnInit {
     commaNumber = commaNumber;
 
     documento = {
-        empresa: '7',
+        empresa: '1',
         tipo: '',
         ingreso: '',
         factura: '',

@@ -35,7 +35,7 @@ export class ModificacionComponent implements OnInit {
         nombre: '',
         moneda: '',
         periodo: '',
-        empresa: '7',
+        empresa: '1',
         productos: [],
         created_at: '',
         razon_social: '',

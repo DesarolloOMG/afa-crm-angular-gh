@@ -29,7 +29,7 @@ export class DessaldarComponent implements OnInit {
 
     documento: DocumentoDesaldar = {
         id: 0,
-        empresa: '7',
+        empresa: '1',
         folio: '',
         pagos: [],
     };
@@ -95,7 +95,7 @@ export class DessaldarComponent implements OnInit {
         } else {
             this.documento = {
                 id: 0,
-                empresa: '7',
+                empresa: '1',
                 folio: '',
                 pagos: [],
             };

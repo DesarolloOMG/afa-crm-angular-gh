@@ -363,12 +363,12 @@ const MENUITEMS = [
                         level: [8],
                         sublevel: 0,
                     },
-                    {
-                        state: 'importacion',
-                        name: 'Importación masiva',
-                        level: [8],
-                        sublevel: 0,
-                    },
+                    // {
+                    //     state: 'importacion',
+                    //     name: 'Importación masiva',
+                    //     level: [8],
+                    //     sublevel: 0,
+                    // },
                 ],
             },
             {

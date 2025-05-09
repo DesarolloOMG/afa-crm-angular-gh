@@ -49,7 +49,7 @@ export class GenerarComponent implements OnInit {
     auxData: any;
 
     data = {
-        empresa: '7',
+        empresa: '1',
         tipo_documento: '',
         moneda: 0,
         tipo_cambio: '1',

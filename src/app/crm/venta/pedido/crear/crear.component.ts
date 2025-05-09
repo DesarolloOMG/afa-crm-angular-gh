@@ -69,7 +69,7 @@ export class CrearComponent implements OnInit {
     };
 
     data = {
-        empresa: '7',
+        empresa: '1',
         empresa_externa: '',
         area: '',
         area_text: '',

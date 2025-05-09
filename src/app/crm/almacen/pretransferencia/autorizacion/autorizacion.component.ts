@@ -20,7 +20,7 @@ export class AutorizacionComponent implements OnInit {
 
     detalle = {
         id: 0,
-        empresa: '7',
+        empresa: '1',
         area: '',
         marketplace: '',
         id_marketplace_area: '',
@@ -356,7 +356,7 @@ export class AutorizacionComponent implements OnInit {
 
                         this.detalle = {
                             id: 0,
-                            empresa: '7',
+                            empresa: '1',
                             area: '',
                             marketplace: '',
                             id_marketplace_area: '',
