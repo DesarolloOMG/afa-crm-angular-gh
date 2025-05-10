@@ -57,8 +57,10 @@ export class ClienteComponent implements OnInit {
     async ngOnInit() {
         this.compraService.getProveedoresViewData().subscribe({
             next: (res: any) => {
+                console.log(res);
                 this.regimenes = res.regimenes;
                 this.paises = res.paises;
+                this.condiciones = res.condiciones;
             },
             error: (err: any) => {
                 swal({
