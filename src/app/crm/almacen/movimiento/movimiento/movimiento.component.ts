@@ -1,28 +1,24 @@
-import {
-    backend_url,
-    downloadPDF,
-    swalErrorHttpResponse,
-} from '@env/environment';
-import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+/* tslint:disable:triple-equals */
+import {backend_url, downloadPDF, swalErrorHttpResponse} from '@env/environment';
+import {Component, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 import * as XLSX from 'xlsx';
 import swal from 'sweetalert2';
 
 /* Servicios */
-import { AlmacenService } from '@services/http/almacen.service';
-import { CompraService } from '@services/http/compra.service';
-import { AuthService } from '@services/auth.service';
+import {AlmacenService} from '@services/http/almacen.service';
+import {AuthService} from '@services/auth.service';
 
 /* Modelos */
-import { Empresa } from '@models/Empresa.model';
-import { DocumentoTipo } from '@models/DocumentoTipo.model';
-import { Modelo } from '@models/Modelo.model';
-import { EmpresaAlmacen } from '@models/EmpresaAlmacen.model';
+import {Empresa} from '@models/Empresa.model';
+import {DocumentoTipo} from '@models/DocumentoTipo.model';
+import {Modelo} from '@models/Modelo.model';
+import {EmpresaAlmacen} from '@models/EmpresaAlmacen.model';
 
 /* Enums */
-import { DocumentoTipo as EnumDocumentoTipo } from '@models/Enums/DocumentoTipo.enum';
-import { HttpClient } from '@angular/common/http';
+import {DocumentoTipo as EnumDocumentoTipo} from '@models/Enums/DocumentoTipo.enum';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
     selector: 'app-movimiento',
@@ -32,7 +28,6 @@ import { HttpClient } from '@angular/common/http';
 export class MovimientoComponent implements OnInit {
     @ViewChild('modalseries') modalseries: NgbModal;
 
-    modalReferenceToken: any;
     modalReference: any;
 
     EnumDocumentoTipo = EnumDocumentoTipo;
@@ -42,7 +37,7 @@ export class MovimientoComponent implements OnInit {
     almacenes: EmpresaAlmacen[] = [];
     productos: any[] = [];
 
-    search_product: string = '';
+    search_product = '';
 
     data = {
         empresa: null,
@@ -74,7 +69,6 @@ export class MovimientoComponent implements OnInit {
         private renderer: Renderer2,
         private authService: AuthService,
         private almacenService: AlmacenService,
-        private compraService: CompraService
     ) {
         const usuario = JSON.parse(this.authService.userData().sub);
 
@@ -110,7 +104,9 @@ export class MovimientoComponent implements OnInit {
     }
 
     searchProduct() {
-        if (!this.search_product) return;
+        if (!this.search_product) {
+            return;
+        }
 
         if (this.productos.length) {
             this.productos = [];
@@ -123,11 +119,12 @@ export class MovimientoComponent implements OnInit {
 
         const company = this.empresas.find((e) => e.id == this.data.empresa);
 
-        if (!company)
+        if (!company) {
             return swal({
                 type: 'error',
                 html: 'Selecciona una empresa para buscar los productos',
             });
+        }
 
         this.almacenService
             .getAlmacenMovimientoProductoData(this.search_product)
@@ -141,51 +138,51 @@ export class MovimientoComponent implements OnInit {
             );
     }
 
-    deleteProduct(product_sku: string) {
+    deleteProduct(productSku: string) {
         const index = this.data.productos.findIndex(
-            (producto) => producto.sku == product_sku
+            (producto) => producto.sku == productSku
         );
 
         this.data.productos.splice(index, 1);
     }
 
     addProduct() {
-        if (!this.producto.sku)
+        if (!this.producto.sku) {
             return swal({
                 type: 'error',
                 html: 'Selecciona un producto del listado',
             });
+        }
 
         const existe = this.data.productos.find(
-            (producto) => producto.sku == this.producto.sku
+            (p) => p.sku == this.producto.sku
         );
 
-        if (existe)
+        if (existe) {
             return swal({
                 type: 'error',
                 html: 'Producto repetido',
             });
+        }
 
         const producto = this.productos.find(
-            (producto) => producto.sku === this.producto.sku
+            (p) => p.sku === this.producto.sku
         );
 
-        if (!producto)
+        if (!producto) {
             return swal({
                 type: 'error',
                 html: 'Producto no encontrado en el listado',
             });
+        }
 
         this.producto.alto = producto.alto == null ? 0 : producto.alto;
         this.producto.ancho = producto.ancho == null ? 0 : producto.ancho;
         this.producto.largo = producto.largo == null ? 0 : producto.largo;
         this.producto.peso = producto.peso == null ? 0 : producto.peso;
-        this.producto.costo =
-            this.producto.costo <= 0
-                ? producto.ultimo_costo == null
-                    ? 0
-                    : producto.ultimo_costo
-                : this.producto.costo;
+        this.producto.costo = this.producto.costo <= 0
+            ? (producto.ultimo_costo == null ? 0 : producto.ultimo_costo)
+            : this.producto.costo;
         this.producto.descripcion = producto.descripcion;
 
         this.almacenService
@@ -194,15 +191,16 @@ export class MovimientoComponent implements OnInit {
                 (res: any) => {
                     this.producto.serie = res.producto.serie;
 
-                    if (!this.producto.serie && !this.producto.cantidad)
+                    if (!this.producto.serie && !this.producto.cantidad) {
                         return swal({
                             type: 'error',
                             html: 'No puedes agregar productos en cantidad 0',
                         });
+                    }
 
                     this.data.productos.push(this.producto);
 
-                    this.searchProduct();
+                    this.searchProduct().then();
                 },
                 (err: any) => {
                     this.producto.serie = false;
@@ -215,11 +213,12 @@ export class MovimientoComponent implements OnInit {
     addSeries(producto: Modelo) {
         this.data.producto_serie = producto.sku;
 
-        if (!producto.serie)
+        if (!producto.serie) {
             return swal({
                 type: 'error',
                 html: 'Este producto no es seriado',
             });
+        }
 
         this.data.series = [...producto.series];
 
@@ -227,7 +226,7 @@ export class MovimientoComponent implements OnInit {
             backdrop: 'static',
         });
 
-        let inputElement = this.renderer.selectRootElement('#serie');
+        const inputElement = this.renderer.selectRootElement('#serie');
         inputElement.focus();
     }
 
@@ -235,7 +234,7 @@ export class MovimientoComponent implements OnInit {
         this.data.serie = this.data.serie.replace(/['\\]/g, '');
 
         if (!$.trim(this.data.serie)) {
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
 
             return;
@@ -245,13 +244,13 @@ export class MovimientoComponent implements OnInit {
 
         if (series.length > 1) {
             series.forEach((serie) => {
-                this.duplicatedSerie(serie);
+                this.duplicatedSerie(serie).then();
             });
 
             return;
         }
 
-        this.duplicatedSerie(this.data.serie);
+        this.duplicatedSerie(this.data.serie).then();
     }
 
     deleteSerie(serie) {
@@ -262,7 +261,7 @@ export class MovimientoComponent implements OnInit {
         this.data.series.splice(index, 1);
 
         const producto = this.data.productos.find(
-            (producto) => producto.sku == this.data.producto_serie
+            (p) => p.sku == this.data.producto_serie
         );
 
         producto.series = this.data.series;
@@ -279,10 +278,8 @@ export class MovimientoComponent implements OnInit {
                     async (res: any) => {
                         const series = res.series.filter((s) => !s.status);
 
-                        let can_proceed = true;
 
                         if (series.length) {
-                            can_proceed = false;
 
                             this.invalidSeries = res.series
                                 .filter((s) => !s.status)
@@ -290,21 +287,37 @@ export class MovimientoComponent implements OnInit {
 
                             await swal({
                                 type: 'error',
-                                html: 'Las series marcadas en rojo no fueron encontradas, por favor ingrese en la aplicación de Authy y escribe el codigo en el recuadro de abajo.',
+                                html: 'Las series marcadas en rojo no fueron encontradas,' +
+                                    ' por favor escribe el código de autorización enviado a WhatsApp en el recuadro de abajo.',
                                 input: 'text',
-                            }).then();
-                        }
+                            }).then((confirm) => {
+                                if (!confirm.value) {
+                                    return;
+                                }
+                                this.http.get(`${backend_url}whatsapp/validateWhatsApp/${confirm.value}`).subscribe({
+                                    next: (validate: any) => {
+                                        console.log(validate);
+                                        if (validate.code === 200) {
 
-                        if (can_proceed) {
-                            const producto = this.data.productos.find(
-                                (producto) =>
-                                    producto.sku == this.data.producto_serie
-                            );
+                                            const producto = this.data.productos.find(
+                                                (p) =>
+                                                    p.sku == this.data.producto_serie
+                                            );
 
-                            producto.series = [...this.data.series];
+                                            producto.series = [...this.data.series];
 
-                            this.data.series = [];
-                            this.modalReference.close();
+                                            this.data.series = [];
+                                            this.modalReference.close();
+
+                                        } else {
+                                            swalErrorHttpResponse(validate);
+                                        }
+                                    },
+                                    error: (err) => {
+                                        swalErrorHttpResponse(err);
+                                    },
+                                });
+                            });
                         }
                     },
                     (err: any) => {
@@ -313,7 +326,7 @@ export class MovimientoComponent implements OnInit {
                 );
         } else {
             const producto = this.data.productos.find(
-                (producto) => producto.sku == this.data.producto_serie
+                (p) => p.sku == this.data.producto_serie
             );
 
             producto.series = [...this.data.series];
@@ -329,12 +342,14 @@ export class MovimientoComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
 
-        if ($('.ng-invalid').length > 0) {
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
         if (!this.data.productos.length) {
@@ -353,7 +368,8 @@ export class MovimientoComponent implements OnInit {
         if (wrong_quantity) {
             return swal({
                 type: 'error',
-                html: `No es posible agregar un movimiento con cantidad 0, sku ${wrong_quantity.sku}, favor de verificar e intentar de nuevo`,
+                html: `No es posible agregar un movimiento con cantidad 0, sku ${wrong_quantity.sku},
+                 favor de verificar e intentar de nuevo`,
             });
         }
 
@@ -363,7 +379,7 @@ export class MovimientoComponent implements OnInit {
                 .toPromise();
             let errorListHtml = '';
             if (res.errores && res.errores.length) {
-                errorListHtml = '<ul style="text-align:left;margin:0;padding-left:1em">';
+                errorListHtml = '<ul style="text-align:left;margin:0;padding-left:1em;">';
                 res.errores.forEach((err: string) => {
                     errorListHtml += `<li>${err}</li>`;
                 });
@@ -371,7 +387,7 @@ export class MovimientoComponent implements OnInit {
             }
 
             // Disparamos el alert combinando el mensaje general y la lista de errores
-            swal({
+            await swal({
                 type: res.errores && res.errores.length ? 'error' : 'success',
                 html: res.errores && res.errores.length ? errorListHtml : res.message,
             });
@@ -409,7 +425,7 @@ export class MovimientoComponent implements OnInit {
 
             if (repetida) {
                 this.data.serie = '';
-                swal(
+                await swal(
                     '',
                     `La serie ya se encuentra registrada en el sku ${repetida.sku}`,
                     'error'
@@ -422,7 +438,7 @@ export class MovimientoComponent implements OnInit {
                 );
                 if (repetida2) {
                     this.data.serie = '';
-                    swal('', 'La serie ya se encuentra registrada', 'error');
+                    await swal('', 'La serie ya se encuentra registrada', 'error');
 
                     return 0;
                 }
@@ -432,10 +448,10 @@ export class MovimientoComponent implements OnInit {
 
             this.data.serie = '';
 
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
         } catch (error) {
-            swal({
+            await swal({
                 title: '',
                 type: 'error',
             });
@@ -444,17 +460,15 @@ export class MovimientoComponent implements OnInit {
 
     onChangeProducto() {
         const producto = this.productos.find(
-            (producto) => producto.sku === this.producto.sku
+            (p) => p.sku === this.producto.sku
         );
 
-        this.producto.costo = !producto.ultimo_costo
-            ? 0
-            : producto.ultimo_costo;
+        this.producto.costo = producto.ultimo_costo ? producto.ultimo_costo : 0;
     }
 
     onChangeCompany() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.id == this.data.empresa
+            (e) => e.id == this.data.empresa
         );
 
         this.almacenes = [...empresa.almacenes];
@@ -471,14 +485,14 @@ export class MovimientoComponent implements OnInit {
 
         $this.data.productos = [];
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f: any) {
                 return async function (e: any) {
-                    var extension =
+                    const extension =
                         f.name.split('.')[f.name.split('.').length - 1];
 
                     if (extension != 'xlsx') {
@@ -494,14 +508,14 @@ export class MovimientoComponent implements OnInit {
                         type: 'binary',
                     });
 
-                    /* grab first sheet */
+                    /* grab the first sheet */
                     const wsname: string = wb.SheetNames[0];
                     const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-                    var rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                    const rows = XLSX.utils.sheet_to_json(ws, {header: 1});
                     rows.shift();
 
-                    for (let row of rows) {
+                    for (const row of rows) {
                         $this.producto = new Modelo();
 
                         $this.producto.sku = row[0];
@@ -520,7 +534,7 @@ export class MovimientoComponent implements OnInit {
                             );
 
                             if (!existe) {
-                                await new Promise((resolve, reject) => {
+                                await new Promise((resolve, _reject) => {
                                     $this.almacenService
                                         .getAlmacenMovimientoProductSerialInformation(
                                             $this.producto.sku
@@ -532,8 +546,9 @@ export class MovimientoComponent implements OnInit {
                                             if (
                                                 !$this.producto.serie &&
                                                 !$this.producto.cantidad
-                                            )
+                                            ) {
                                                 return;
+                                            }
 
                                             $this.data.productos.push(
                                                 $this.producto
@@ -548,8 +563,8 @@ export class MovimientoComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'Ocurrió un error al leer el archivo de excel',
@@ -563,10 +578,6 @@ export class MovimientoComponent implements OnInit {
 
     checkAlmacenesWithDocumentType(warehouses: any[]) {
         return warehouses.includes(Number(this.data.tipo));
-    }
-
-    isUserAdmin() {
-        return this.authService.isUserAdmin();
     }
 
     initObjects() {

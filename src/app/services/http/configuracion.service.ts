@@ -1,8 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { backend_url } from '@env/environment';
-import { MarketplaceArea } from '@models/MarketplaceArea.model';
-import { Usuario } from '@models/Usuario.model';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {backend_url} from '@env/environment';
+import {MarketplaceArea} from '@models/MarketplaceArea.model';
+import {Usuario} from '@models/Usuario.model';
 import {Impresora} from '@models/Impresora';
 
 @Injectable({
@@ -58,30 +58,13 @@ export class ConfiguracionService {
             form_data
         );
     }
-    getAccessToViewModal(data: object) {
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(data));
 
-        return this.http.post(
-            `${backend_url}developer/confirmar-authy`,
-            form_data
-        );
-    }
     getAccessToCCE(data: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
             `${backend_url}developer/confirmar-authy-cce`,
-            form_data
-        );
-    }
-    getAccessToButton(data: object) {
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(data));
-
-        return this.http.post(
-            `${backend_url}developer/confirmar-authy`,
             form_data
         );
     }

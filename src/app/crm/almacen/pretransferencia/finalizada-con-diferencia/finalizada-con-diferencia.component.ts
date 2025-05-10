@@ -1,17 +1,8 @@
-import {
-    ChangeDetectorRef,
-    Component,
-    OnInit,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import {
-    commaNumber,
-    dropbox_token
-} from '@env/environment';
-import { AlmacenService } from './../../../../services/http/almacen.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {ChangeDetectorRef, Component, OnInit, ViewChild,} from '@angular/core';
+import {backend_url, commaNumber, dropbox_token, swalErrorHttpResponse} from '@env/environment';
+import {AlmacenService} from '@services/http/almacen.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
 
@@ -28,10 +19,10 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
 
     modalReference: any;
 
-    documents_fase: number = 405;
+    documents_fase = 405;
 
     datatable: any;
-    datatable_name: string = '#almacen_pretransferencia_con_diferencia';
+    datatable_name = '#almacen_pretransferencia_con_diferencia';
 
     document_detail = {
         id: 0,
@@ -57,7 +48,7 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
     data = {
         id: 0,
         archivos: [],
-        authy_code: '',
+        code: '',
         seguimiento: '',
         productos: [],
     };
@@ -82,7 +73,7 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
 
     openModalWithData(documentId: number) {
         const document = this.documents.find(
-            (document) => document.id == documentId
+            (d) => d.id == documentId
         );
 
         this.document_detail = document;
@@ -100,8 +91,8 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
               };
 
         this.document_detail.archivos.forEach((archivo) => {
-            var re = /(?:\.([^.]+))?$/;
-            var ext = re.exec(archivo.nombre)[1];
+            const re = /(?:\.([^.]+))?$/;
+            const ext = re.exec(archivo.nombre)[1];
 
             if ($.inArray(ext, ['jpg', 'jpeg', 'png']) !== -1) {
                 archivo.icon = 'file-image-o';
@@ -124,55 +115,55 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
             return;
         }
 
-        if (!this.data.archivos.length)
+        if (!this.data.archivos.length) {
             return swal({
                 type: 'error',
-                html: `Para finalizar la pretransferencia, tienes que agregar el archivo del movimiento (traspaso) que cuadra inventario.`,
+                html: `Para finalizar la pretransferencia, tienes que agregar el archivo del movimiento
+                     (traspaso) que cuadra inventario.`,
             });
-
-        swal({
-            type: 'warning',
-            html: `Para finalizar la pretransferencia, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
-          Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) return;
-
-            this.data.authy_code = confirm.value;
-
-            this.almacenService
-                .savePretransferenciaOnFinalizarConDiferenciaFase(this.data)
-                .subscribe(
-                    (res: any) => {
-                        swal({
-                            type: 'success',
-                            html: res.message,
-                        });
-
-                        const index = this.documents.findIndex(
-                            (document) => document.id == this.data.id
-                        );
-                        this.documents.splice(index, 1);
-
-                        this.rebuildTable();
-
-                        this.modalReference.close();
-                    },
-                    (err: any) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                err.status == 0
-                                    ? err.message
-                                    : typeof err.error === 'object'
-                                    ? err.error.error_summary
-                                        ? err.error.error_summary
-                                        : err.error.message
-                                    : err.error,
-                        });
+        }
+        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+            next: (res) => {
+                console.log(res);
+                swal({
+                    type: 'warning',
+                    html: `Para finalizar la pretransferencia, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    input: 'text',
+                }).then((confirm) => {
+                    if (!confirm.value) {
+                        return;
                     }
-                );
+
+                    this.data.code = confirm.value;
+
+                    this.almacenService
+                        .savePretransferenciaOnFinalizarConDiferenciaFase(this.data)
+                        .subscribe(
+                            (save: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: save.message,
+                                }).then();
+
+                                const index = this.documents.findIndex(
+                                    (document) => document.id == this.data.id
+                                );
+                                this.documents.splice(index, 1);
+
+                                this.rebuildTable();
+
+                                this.modalReference.close();
+                            },
+                            (err: any) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                });
+            },
+            error: (error) => {
+                swalErrorHttpResponse(error);
+            }
         });
     }
 
@@ -186,18 +177,7 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
                     this.rebuildTable();
                 },
                 (err: any) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            err.status == 0
-                                ? err.message
-                                : typeof err.error === 'object'
-                                ? err.error.error_summary
-                                    ? err.error.error_summary
-                                    : err.error.message
-                                : err.error,
-                    });
+                    swalErrorHttpResponse(err);
                 }
             );
     }
@@ -207,13 +187,12 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
 
         this.document_detail.informacion_adicional.archivos = [];
 
-        var archivos = [];
-        var $this = this;
+        const archivos = [];
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e) {
@@ -225,12 +204,12 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
@@ -240,8 +219,8 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
         this.data.archivos = archivos;
     }
 
-    downloadFile(id_dropbox: string) {
-        var form_data = JSON.stringify({ path: id_dropbox });
+    downloadFile(idDropbox: string) {
+        const form_data = JSON.stringify({path: idDropbox});
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -261,16 +240,7 @@ export class FinalizadaConDiferenciaComponent implements OnInit {
                     window.open(res['link']);
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }

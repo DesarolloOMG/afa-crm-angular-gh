@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { AuthService } from '@services/http/auth.service';
-import { swalErrorHttpResponse } from '@env/environment';
-import { Router } from '@angular/router';
+import {Component} from '@angular/core';
+import {AuthService} from '@services/http/auth.service';
+import {swalErrorHttpResponse} from '@env/environment';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
-import { ILogin } from '@interfaces/general.interface';
+import {ILogin} from '@interfaces/general.interface';
 
 @Component({
     selector: 'app-login',
@@ -17,12 +17,6 @@ export class LoginComponent {
         email: '',
         code_sent: false,
     };
-
-    noticeTitle = 'Cambiamos nuestra manera de entrar!';
-    noticeMessage: string =
-        'Ahora enviaremos un código de autenticación por WatsApp al número registrado.\n' +
-        '<br>\n' +
-        'Esto sustirurá al código de authy.';
 
     constructor(private router: Router, private authService: AuthService) {}
 

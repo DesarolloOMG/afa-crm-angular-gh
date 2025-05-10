@@ -1,22 +1,14 @@
-import {
-    backend_url,
-    commaNumber,
-    swalErrorHttpResponse,
-} from '@env/environment';
-import { AuthService } from '@services/auth.service';
-import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {AuthService} from '@services/auth.service';
+import {Component, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
-import { ConfiguracionService } from '@services/http/configuracion.service';
-import { VentaService } from '@services/http/venta.service';
-import { CompraService } from '@services/http/compra.service';
-
-declare var tinymce: any;
-declare var require: any;
+import {ConfiguracionService} from '@services/http/configuracion.service';
+import {VentaService} from '@services/http/venta.service';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-crear',
@@ -33,7 +25,7 @@ export class CrearComponent implements OnInit {
     modalReferenceMercadolibre: any;
     modalReferencePromociones: any;
     modalReference: any;
-    token: string = '';
+    token = '';
 
     impresoras: any[] = [];
     ventas_mercadolibre: any[] = [];
@@ -52,7 +44,6 @@ export class CrearComponent implements OnInit {
     garantias: any[] = [];
     periodos: any[] = [];
     colonias_e: any[] = [];
-    colonias_f: any[] = [];
     cuentas: any[] = [];
     cuentas_cliente: any[] = [];
     bancos: any[] = [];
@@ -65,7 +56,7 @@ export class CrearComponent implements OnInit {
     usuarios_agro: any[] = [];
     fullfillment_allowed: string[] = ['35', '60'];
 
-    promocion_activa: boolean = false;
+    promocion_activa = false;
 
 
     producto = {
@@ -224,7 +215,6 @@ export class CrearComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private router: Router,
         private modalService: NgbModal,
         private renderer: Renderer2,
         private auth: AuthService,
@@ -271,23 +261,14 @@ export class CrearComponent implements OnInit {
                 this.cambiarEmpresa();
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
+                swalErrorHttpResponse(response);
             }
         );
     }
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.id == this.data.empresa
+            (e) => e.id == this.data.empresa
         );
 
         this.almacenes = empresa.almacenes;
@@ -297,7 +278,7 @@ export class CrearComponent implements OnInit {
 
     cambiarArea() {
         if (this.checkSellcenter()) {
-            const area = this.areas.find((area) => area.id == this.data.area);
+            const area = this.areas.find((a) => a.id == this.data.area);
             this.marketplaces = area.marketplaces;
             this.data.usuario_agro = 0;
             this.data.documento.marketplace = '';
@@ -308,8 +289,8 @@ export class CrearComponent implements OnInit {
     async cambiarMarketplace() {
         if (this.checkSellcenter()) {
             const marketplace = this.marketplaces.find(
-                (marketplace) =>
-                    marketplace.id == this.data.documento.marketplace
+                (m) =>
+                    m.id == this.data.documento.marketplace
             );
 
             let continuar = 1;
@@ -324,13 +305,14 @@ export class CrearComponent implements OnInit {
 
             if (!continuar) {
                 const empresa = this.empresas.find(
-                    (empresa) => empresa.bd == this.data.empresa
+                    (e) => e.bd == this.data.empresa
                 );
 
                 swal({
                     type: 'error',
                     html:
-                        'El marketplace seleccionado está configurado para crear facturas entre empresas, teniendo como comprador la empresa ' +
+                        'El marketplace seleccionado está configurado para crear facturas entre empresas, ' +
+                        'teniendo como comprador la empresa ' +
                         empresa.empresa +
                         ', favor de cambiar la empresa del documento o cambiar el marketplace.',
                 }).then(() => {
@@ -360,11 +342,13 @@ export class CrearComponent implements OnInit {
         if (this.data.documento.proveedor != '') {
             this.data.documento.fulfillment = 1;
 
-            const almacen = this.almacenes.find((almacen) =>
-                almacen.almacen.includes('DROPSHIPPING')
+            const almacen = this.almacenes.find((a) =>
+                a.almacen.includes('DROPSHIPPING')
             );
 
-            if (almacen) this.data.documento.almacen = almacen.id;
+            if (almacen) {
+                this.data.documento.almacen = almacen.id;
+            }
         }
         console.log(this.data.documento);
     }
@@ -376,7 +360,7 @@ export class CrearComponent implements OnInit {
     }
 
     buscarCliente() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, _reject) => {
             if (!this.data.cliente.input) {
                 resolve(1);
                 return;
@@ -396,16 +380,7 @@ export class CrearComponent implements OnInit {
                     this.clientes = [...res.data];
                 },
                 error: (err: any) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            err.status == 0
-                                ? err.message
-                                : typeof err.error === 'object'
-                                ? err.error.error_summary
-                                : err.error,
-                    });
+                    swalErrorHttpResponse(err);
                 },
             });
         });
@@ -413,7 +388,7 @@ export class CrearComponent implements OnInit {
 
     cambiarCliente() {
         const cliente = this.clientes.find(
-            (cliente) => cliente.id == this.data.cliente.select
+            (c) => c.id == this.data.cliente.select
         );
 
         this.data.cliente.rfc = cliente.rfc;
@@ -421,7 +396,7 @@ export class CrearComponent implements OnInit {
         this.data.cliente.credito_disponible = cliente.credito_disponible;
 
         if (this.data.cliente.rfc != 'XAXX010101000') {
-            var form_data = new FormData();
+            const form_data = new FormData();
 
             form_data.append('rfc', $.trim(this.data.cliente.rfc));
 
@@ -470,20 +445,10 @@ export class CrearComponent implements OnInit {
                         }
                     },
                     (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
+                        swalErrorHttpResponse(response);
                     }
                 );
         }
-        //! VERIFICAR 2024 '7'
 
         if (this.data.area == '7') {
             this.data.cliente.correo = 'ricardo@omg.com.mx';
@@ -507,7 +472,6 @@ export class CrearComponent implements OnInit {
     }
 
     async buscarVenta() {
-        //! BUSQUEDA LIVERPOOL
         if (
             !this.data.documento.venta ||
             this.data.documento.marketplace == '30'
@@ -527,7 +491,7 @@ export class CrearComponent implements OnInit {
             return;
         }
 
-        var form_data = new FormData();
+        const form_data = new FormData();
 
         form_data.append('venta', this.data.documento.venta);
         form_data.append('marketplace', JSON.stringify(this.marketplace_info));
@@ -545,7 +509,6 @@ export class CrearComponent implements OnInit {
 
                             const informacion = res['venta'];
                             let existe_paqueteria = 0;
-                            var $this = this;
 
                             switch (
                                 this.marketplace_info.marketplace.toLowerCase()
@@ -563,7 +526,7 @@ export class CrearComponent implements OnInit {
                                         return;
                                     }
 
-                                    this.ventaMultipleMercadolibre(
+                                    await this.ventaMultipleMercadolibre(
                                         res['venta'][0]
                                     );
 
@@ -606,13 +569,14 @@ export class CrearComponent implements OnInit {
                                     this.data.cliente.telefono_alt =
                                         informacion.AddressShipping.Phone2;
 
-                                    var costo_envio = 0;
-                                    var total_coupon = 0;
+                                    let costo_envio = 0;
+                                    let total_coupon = 0;
 
-                                    var paqueteria_id = '';
+                                    let paqueteria_id = '';
                                     this.data.documento.fulfillment = 1;
                                     this.data.documento.almacen = '6';
 
+                                    // @ts-ignore
                                     $this = this;
 
                                     if ($.isArray(informacion.productos)) {
@@ -670,22 +634,24 @@ export class CrearComponent implements OnInit {
 
                                             const marketplace =
                                                 this.marketplaces.find(
-                                                    (marketplace) =>
-                                                        marketplace.id ==
+                                                    (m) =>
+                                                        m.id ==
                                                         this.data.documento
                                                             .marketplace
                                                 );
                                             const almacen = this.almacenes.find(
-                                                (almacen) =>
-                                                    almacen.almacen.toLowerCase() ==
+                                                (a) =>
+                                                    a.almacen.toLowerCase() ==
                                                     marketplace.marketplace
                                                         .split(' ')[0]
                                                         .toLowerCase()
                                             );
 
-                                            if (almacen)
+                                            if (almacen) {
+                                                // @ts-ignore
                                                 $this.data.documento.almacen =
                                                     almacen.id;
+                                            }
                                         } else {
                                             this.data.documento.fulfillment = 0;
                                             this.data.documento.almacen = '2';
@@ -741,7 +707,7 @@ export class CrearComponent implements OnInit {
                                         );
                                     this.data.documento.direccion_envio.codigo_postal =
                                         informacion.AddressShipping.PostCode;
-                                    // this.data.documento.direccion_envio.referencia      = informacion.AddressShipping.Address3;
+                                    // this.data.documento.direccion_envio.referencia = informacion.AddressShipping.Address3;
                                     this.data.documento.mkt_coupon =
                                         total_coupon;
 
@@ -779,7 +745,7 @@ export class CrearComponent implements OnInit {
                                         });
                                     }
 
-                                    let proveedor = $.isArray(
+                                    const proveedor = $.isArray(
                                         informacion.productos
                                     )
                                         ? informacion.productos[0]
@@ -790,8 +756,8 @@ export class CrearComponent implements OnInit {
                                     if (paqueteria_id == '') {
                                         const paqueteria =
                                             this.paqueterias.find(
-                                                (paqueteria) =>
-                                                    paqueteria.paqueteria.toLowerCase() ==
+                                                (p) =>
+                                                    p.paqueteria.toLowerCase() ==
                                                     proveedor.toLowerCase()
                                             );
 
@@ -804,10 +770,12 @@ export class CrearComponent implements OnInit {
                                     }
 
                                     if (!existe_paqueteria) {
-                                        swal(
+                                        await swal(
                                             '',
-                                            'No se encontró la paquetería de la venta en el catologo del sistema, favor de contactar a un administrador y solicitar que agrega la siguiente paqueteria: ' +
-                                                proveedor,
+                                            'No se encontró la paquetería de la venta en el catologo del sistema, ' +
+                                            'favor de contactar a un administrador y solicitar que agrega la siguiente ' +
+                                            'paqueteria: ' +
+                                            proveedor,
                                             'warning'
                                         );
                                     }
@@ -818,9 +786,9 @@ export class CrearComponent implements OnInit {
                                     break;
 
                                 case 'amazon':
-                                    var total_coupon = 0;
-                                    var total_envio = 0;
-                                    var total_empaque = 0;
+                                    total_coupon = 0;
+                                    let total_envio = 0;
+                                    let total_empaque = 0;
 
                                     this.data.productos_venta = [];
                                     this.data.documento.mkt_created_at =
@@ -859,32 +827,23 @@ export class CrearComponent implements OnInit {
                                                     ) > 0
                                                 ) {
                                                     total_coupon +=
-                                                        item.PromotionDiscount !=
-                                                        undefined
-                                                            ? parseFloat(
-                                                                  item
-                                                                      .PromotionDiscount
-                                                                      .Amount
-                                                              )
-                                                            : 0;
+                                                        item.PromotionDiscount == undefined ? 0 : parseFloat(
+                                                            item
+                                                                .PromotionDiscount
+                                                                .Amount
+                                                        );
                                                     total_envio +=
-                                                        item.ShippingPrice !=
-                                                        undefined
-                                                            ? Number(
-                                                                  item
-                                                                      .ShippingPrice
-                                                                      .Amount
-                                                              )
-                                                            : 0;
-                                                    total_empaque +=
-                                                        item.GiftWrapPrice !=
-                                                        undefined
-                                                            ? Number(
-                                                                  item
-                                                                      .GiftWrapPrice
-                                                                      .Amount
-                                                              )
-                                                            : 0;
+                                                        item.ShippingPrice == undefined ? 0 : Number(
+                                                            item
+                                                                .ShippingPrice
+                                                                .Amount
+                                                        );
+                                                    total_empaque = total_empaque +
+                                                    item.GiftWrapPrice == undefined ? 0 : Number(
+                                                        item
+                                                            .GiftWrapPrice
+                                                            .Amount
+                                                    );
 
                                                     this.data.productos_venta.push(
                                                         item
@@ -895,32 +854,26 @@ export class CrearComponent implements OnInit {
                                     } else {
                                         total_coupon =
                                             informacion.OrderItems.OrderItem
-                                                .PromotionDiscount != undefined
-                                                ? parseFloat(
-                                                      informacion.OrderItems
-                                                          .OrderItem
-                                                          .PromotionDiscount
-                                                          .Amount
-                                                  )
-                                                : 0;
+                                                .PromotionDiscount == undefined ? 0 : parseFloat(
+                                                informacion.OrderItems
+                                                    .OrderItem
+                                                    .PromotionDiscount
+                                                    .Amount
+                                            );
                                         total_envio =
                                             informacion.OrderItems.OrderItem
-                                                .ShippingPrice != undefined
-                                                ? Number(
-                                                      informacion.OrderItems
-                                                          .OrderItem
-                                                          .ShippingPrice.Amount
-                                                  )
-                                                : 0;
+                                                .ShippingPrice == undefined ? 0 : Number(
+                                                informacion.OrderItems
+                                                    .OrderItem
+                                                    .ShippingPrice.Amount
+                                            );
                                         total_empaque +=
                                             informacion.OrderItems.OrderItem
-                                                .GiftWrapPrice != undefined
-                                                ? Number(
-                                                      informacion.OrderItems
-                                                          .OrderItem
-                                                          .GiftWrapPrice.Amount
-                                                  )
-                                                : 0;
+                                                .GiftWrapPrice == undefined ? 0 : Number(
+                                                informacion.OrderItems
+                                                    .OrderItem
+                                                    .GiftWrapPrice.Amount
+                                            );
 
                                         this.data.productos_venta.push(
                                             informacion.OrderItems.OrderItem
@@ -967,7 +920,6 @@ export class CrearComponent implements OnInit {
                                         informacion.ShippingAddress.AddressLine2;
                                     this.data.documento.direccion_envio.codigo_postal =
                                         informacion.ShippingAddress.PostalCode;
-                                    //this.data.documento.direccion_envio.referencia      = (informacion.ShippingAddress.AddressLine3 != undefined) ? informacion.AddressShipping.Address3 : '';
                                     this.data.documento.mkt_coupon =
                                         total_coupon;
 
@@ -981,22 +933,23 @@ export class CrearComponent implements OnInit {
 
                                         const marketplace =
                                             this.marketplaces.find(
-                                                (marketplace) =>
-                                                    marketplace.id ==
+                                                (m) =>
+                                                    m.id ==
                                                     this.data.documento
                                                         .marketplace
                                             );
                                         const almacen = this.almacenes.find(
-                                            (almacen) =>
-                                                almacen.almacen.toLowerCase() ==
+                                            (a) =>
+                                                a.almacen.toLowerCase() ==
                                                 marketplace.marketplace
                                                     .split(' ')[0]
                                                     .toLowerCase()
                                         );
 
-                                        if (almacen)
+                                        if (almacen) {
                                             this.data.documento.almacen =
                                                 almacen.id;
+                                        }
                                     } else {
                                         this.data.documento.almacen = '2';
                                         this.data.documento.fulfillment = 0;
@@ -1025,23 +978,6 @@ export class CrearComponent implements OnInit {
                                         );
                                     }, 2000);
 
-                                    tinymce.activeEditor.execCommand(
-                                        'mceInsertContent',
-                                        false,
-                                        '<h1>Venta: ' +
-                                            this.data.documento.venta +
-                                            '</h1>' +
-                                            '<h1>Total venta: $ ' +
-                                            informacion.OrderTotal.Amount +
-                                            '</h1>' +
-                                            '<h1>Total envio: $ ' +
-                                            total_envio +
-                                            '</h1>' +
-                                            '<h1>Envoltorio de regalo: $ ' +
-                                            total_empaque +
-                                            '</h1>'
-                                    );
-
                                     if (total_envio > 0) {
                                         this.data.productos_venta.push({
                                             SellerSKU: 'ZZGZ0001',
@@ -1054,17 +990,16 @@ export class CrearComponent implements OnInit {
                                     }
 
                                     break;
-                                //!! RELEASE T1 reemplazar
 
                                 case 'claroshop':
                                 case 'sears':
                                 case 'sanborns':
-                                    var total_pedido = 0;
+                                    let total_pedido = 0;
 
-                                    let purchase_date =
+                                    const purchase_date =
                                         informacion.purchase_date;
 
-                                    let formattedDate =
+                                    const formattedDate =
                                         purchase_date.split('T')[0] +
                                         ' ' +
                                         purchase_date
@@ -1138,7 +1073,6 @@ export class CrearComponent implements OnInit {
                                         informacion.shippingAddress.suburb;
                                     this.data.documento.direccion_envio.codigo_postal =
                                         informacion.shippingAddress.zipCode;
-                                    //this.data.documento.direccion_envio.referencia      = informacion.shippingAddress.betweenStreets;
                                     this.data.cliente.correo =
                                         'RICARDO@OMG.COM.MX';
 
@@ -1162,7 +1096,7 @@ export class CrearComponent implements OnInit {
 
                                     this.data.documento.paqueteria = '2';
 
-                                    var $this = this;
+                                    let $this = this;
 
                                     setTimeout(() => {
                                         $('#de_colonia option').each(
@@ -1198,7 +1132,7 @@ export class CrearComponent implements OnInit {
                                 //                     'Cancelado' &&
                                 //                 producto.estatus !=
                                 //                     'Reembolso realizado'
-                                //             ) {
+                                //             ){
                                 //                 total_pedido += parseFloat(
                                 //                     producto.importe
                                 //                 );
@@ -1308,7 +1242,7 @@ export class CrearComponent implements OnInit {
                                 //     break;
 
                                 case 'shopify':
-                                    var paqueteria_id = '';
+                                    paqueteria_id = '';
 
                                     this.data.productos_venta = [];
 
@@ -1352,7 +1286,7 @@ export class CrearComponent implements OnInit {
                                         ? informacion.customer.email
                                         : '';
 
-                                    var costo_envio = 0;
+                                    costo_envio = 0;
 
                                     informacion.shipping_lines.forEach(
                                         (shipping_line) => {
@@ -1484,8 +1418,6 @@ export class CrearComponent implements OnInit {
                                             .codigo_postal
                                     );
 
-                                    var $this = this;
-
                                     setTimeout(() => {
                                         this.colonias_e.forEach((colonia) => {
                                             if (
@@ -1547,7 +1479,7 @@ export class CrearComponent implements OnInit {
                                             regimen: '616',
                                             cp_fiscal: '45130',
                                         };
-                                    } //! VERIFICAR 2024 '7'
+                                    }
 
                                     if (this.data.empresa == '7') {
                                         this.data.cliente = {
@@ -1573,8 +1505,8 @@ export class CrearComponent implements OnInit {
 
                                     this.data.documento.total =
                                         informacion.items.reduce(
-                                            (total, producto) =>
-                                                total +
+                                            (ttl, producto) =>
+                                                ttl +
                                                 Number(producto.price) *
                                                     Number(producto.quantity),
                                             0
@@ -1583,7 +1515,6 @@ export class CrearComponent implements OnInit {
                                     this.data.documento.cobro.importe =
                                         this.data.documento.total;
 
-                                    // Comisión del marketplace para el área de arome
                                     if (
                                         this.data.area_text
                                             .toLocaleLowerCase()
@@ -1647,8 +1578,6 @@ export class CrearComponent implements OnInit {
                                             .codigo_postal
                                     );
 
-                                    var $this = this;
-
                                     setTimeout(() => {
                                         this.colonias_e.forEach((colonia) => {
                                             console.log(
@@ -1669,7 +1598,7 @@ export class CrearComponent implements OnInit {
                                         });
                                     }, 2000);
 
-                                    let paqueteria_e = this.paqueterias.find(
+                                    const paqueteria_e = this.paqueterias.find(
                                         (paqueteria) =>
                                             paqueteria.paqueteria.toLowerCase() ==
                                             informacion.shippingData.logisticsInfo[0].deliveryCompany.toLowerCase()
@@ -1750,7 +1679,7 @@ export class CrearComponent implements OnInit {
                                         informacion.shipping_price;
 
                                     if (informacion.customer.shipping_address) {
-                                        let envio_calle =
+                                        const envio_calle =
                                             informacion.customer.shipping_address.street_1.split(
                                                 ','
                                             );
@@ -1791,7 +1720,7 @@ export class CrearComponent implements OnInit {
                                         );
                                     }
 
-                                    let paqueteria_fedex =
+                                    const paqueteria_fedex =
                                         this.paqueterias.find(
                                             (paqueteria) =>
                                                 paqueteria.paqueteria.toLowerCase() ==
@@ -1835,7 +1764,7 @@ export class CrearComponent implements OnInit {
                                     this.data.documento.mkt_created_at =
                                         informacion.acceptance_decision_date;
 
-                                    let total = informacion.total_price;
+                                    const total = informacion.total_price;
 
                                     this.data.documento.total = total;
                                     this.data.documento.cobro.importe = total;
@@ -1872,7 +1801,7 @@ export class CrearComponent implements OnInit {
                                         informacion.shipping_price;
 
                                     if (informacion.customer.shipping_address) {
-                                        let envio_calle =
+                                        const envio_calle =
                                             informacion.customer.shipping_address.street_1.split(
                                                 ','
                                             );
@@ -1913,7 +1842,7 @@ export class CrearComponent implements OnInit {
 
                                     this.data.documento.paqueteria = '3'; // Siempre es fedex
 
-                                    let paqueteria_liverpool =
+                                    const paqueteria_liverpool =
                                         this.paqueterias.find(
                                             (paqueteria) =>
                                                 paqueteria.paqueteria.toLowerCase() ==
@@ -1959,22 +1888,11 @@ export class CrearComponent implements OnInit {
                                     break;
                             }
                         } else {
-                            swal('', res['message'], 'error');
+                            await swal('', res['message'], 'error');
                         }
                     },
-                    (response) => {
-                        console.log(response);
-
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
+                    (err) => {
+                        swalErrorHttpResponse(err);
                     }
                 );
         }
@@ -1995,16 +1913,16 @@ export class CrearComponent implements OnInit {
             return;
         }
 
-        let data = this.data;
+        const data = this.data;
         let existe_paqueteria = 0;
 
-        var $this = this;
+        const $this = this;
 
         if (
             informacion.status === 'cancelled' ||
             informacion.status === 'invalid'
         ) {
-            swal(
+            await swal(
                 '',
                 'La venta está cancelada o es inválida, favor de revisar en la plataforma de MercadoLibre',
                 'error'
@@ -2013,7 +1931,7 @@ export class CrearComponent implements OnInit {
             return;
         }
 
-        var total_coupon = 0;
+        const total_coupon = 0;
 
         this.data.documento.mkt_created_at = informacion.date_created;
         this.data.documento.total = informacion.total_amount;
@@ -2108,16 +2026,18 @@ export class CrearComponent implements OnInit {
                 existe_paqueteria = 1;
 
                 const marketplace = this.marketplaces.find(
-                    (marketplace) =>
-                        marketplace.id == this.data.documento.marketplace
+                    (m) =>
+                        m.id == this.data.documento.marketplace
                 );
                 const almacen = this.almacenes.find(
-                    (almacen) =>
-                        almacen.almacen.toLowerCase() ==
+                    (a) =>
+                        a.almacen.toLowerCase() ==
                         marketplace.marketplace.split(' ')[0].toLowerCase()
                 );
 
-                if (almacen) $this.data.documento.almacen = almacen.id;
+                if (almacen) {
+                    $this.data.documento.almacen = almacen.id;
+                }
             } else {
                 this.data.documento.almacen = '2';
 
@@ -2127,8 +2047,8 @@ export class CrearComponent implements OnInit {
                         paqueteria_id = '2';
                     } else {
                         const paqueteria = this.paqueterias.find(
-                            (paqueteria) =>
-                                paqueteria.paqueteria.toLowerCase() ==
+                            (p) =>
+                                p.paqueteria.toLowerCase() ==
                                 informacion.shipping.tracking_method
                                     .split(' ')[0]
                                     .toLowerCase()
@@ -2136,8 +2056,8 @@ export class CrearComponent implements OnInit {
 
                         if (!paqueteria) {
                             const existe = this.paqueterias.find(
-                                (paqueteria) =>
-                                    paqueteria.paqueteria ==
+                                (p) =>
+                                    p.paqueteria ==
                                     informacion.shipping.tracking_method
                             );
 
@@ -2154,10 +2074,11 @@ export class CrearComponent implements OnInit {
             }
 
             if (!existe_paqueteria) {
-                swal(
+                await swal(
                     '',
-                    'No se encontró la paquetería de la venta en el catologo del sistema, favor de contactar a un administrador y solicitar que agrega la siguiente paqueteria: ' +
-                        informacion.shipping.tracking_method,
+                    'No se encontró la paquetería de la venta en el catologo del sistema, ' +
+                    'favor de contactar a un administrador y solicitar que agrega la siguiente paqueteria: ' +
+                    informacion.shipping.tracking_method,
                     'warning'
                 );
             }
@@ -2168,7 +2089,7 @@ export class CrearComponent implements OnInit {
         this.data.documento.productos = [];
 
         if (informacion.productos.length > 0) {
-            for (let publicacion of informacion.productos) {
+            for (const publicacion of informacion.productos) {
                 this.almacenes.forEach((almacen) => {
                     if (almacen.id_almacen == publicacion.id_almacen) {
                         this.data.documento.almacen = almacen.id;
@@ -2177,12 +2098,13 @@ export class CrearComponent implements OnInit {
             }
         }
 
-        if (this.modalReferenceMercadolibre)
+        if (this.modalReferenceMercadolibre) {
             this.modalReferenceMercadolibre.close();
+        }
     }
 
     async existeVenta() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, _reject) => {
             this.http
                 .get(
                     `${backend_url}venta/venta/crear/existe/${this.data.documento.venta}/${this.data.documento.marketplace}`
@@ -2222,7 +2144,7 @@ export class CrearComponent implements OnInit {
 
     buscarProducto() {
         if (!this.data.empresa) {
-            swal('', 'Selecciona una empresa.', 'error');
+            swal('', 'Selecciona una empresa.', 'error').then();
 
             return;
         }
@@ -2264,16 +2186,7 @@ export class CrearComponent implements OnInit {
                 this.productos = [...res.data];
             },
             error: (err: any) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
+                swalErrorHttpResponse(err);
             },
         });
     }
@@ -2282,7 +2195,7 @@ export class CrearComponent implements OnInit {
         return new Promise((resolve, reject) => {
             if (this.productos.length > 0) {
                 const producto = this.productos.find(
-                    (producto) => producto.id == this.producto.id
+                    (p) => p.id == this.producto.id
                 );
 
                 this.producto.codigo = $.trim(producto.sku);
@@ -2298,7 +2211,6 @@ export class CrearComponent implements OnInit {
             }
 
             if (this.producto.tipo != 4) {
-                //! BUSCAR EXISTENCIA EN EL PROVEEDOR, SI TIENE
                 if (this.data.documento.proveedor != '') {
                     this.http
                         .get(
@@ -2311,7 +2223,7 @@ export class CrearComponent implements OnInit {
                         .subscribe(
                             async (res) => {
                                 if (res['code'] != 200) {
-                                    swal('', res['message'], 'error');
+                                    await swal('', res['message'], 'error');
 
                                     reject();
 
@@ -2333,7 +2245,7 @@ export class CrearComponent implements OnInit {
                                     this.producto.cantidad + agregados >
                                     res['existencia']
                                 ) {
-                                    swal({
+                                    await swal({
                                         title: '',
                                         type: 'error',
                                         html:
@@ -2415,7 +2327,6 @@ export class CrearComponent implements OnInit {
                             }
                         );
                 } else {
-                    //! BUSCAR EXISTENCIA EN EL ALMACEN, SI NO TIENE PROVEEDOR
 
                     this.http
                         .get(
@@ -2428,7 +2339,7 @@ export class CrearComponent implements OnInit {
                         .subscribe(
                             async (res) => {
                                 if (res['code'] != 200) {
-                                    swal('', res['message'], 'error');
+                                    await swal('', res['message'], 'error');
 
                                     reject();
 
@@ -2450,7 +2361,7 @@ export class CrearComponent implements OnInit {
                                     this.producto.cantidad + agregados >
                                     res['existencia']
                                 ) {
-                                    swal({
+                                    await swal({
                                         title: '',
                                         type: 'error',
                                         html:
@@ -2563,16 +2474,18 @@ export class CrearComponent implements OnInit {
                 return;
             }
 
-            $($('.ng-invalid').get().reverse()).each((index, value) => {
+            const $invalidFields = $('.ng-invalid');
+
+            $($invalidFields.get().reverse()).each((_index, value) => {
                 $(value).focus();
             });
 
-            if ($('.ng-invalid').length > 0) {
-                return;
+            if ($invalidFields.length > 0) {
+                return console.log($invalidFields);
             }
 
             if (!this.data.usuario_agro && this.data.area == '2') {
-                swal({
+                await swal({
                     title: 'Error',
                     html: 'Seleccione Sin usuario o seleccione uno de la lista arriba',
                     type: 'error',
@@ -2585,12 +2498,12 @@ export class CrearComponent implements OnInit {
 
             await this.verificarExistencia();
 
-            var vendedor_externo = 0;
-            var tiene_credito = 1;
+            let vendedor_externo = 0;
+            let tiene_credito = 1;
 
             const subniveles = JSON.parse(this.auth.userData().sub).subniveles;
 
-            for (var subnivel in subniveles) {
+            for (const subnivel in subniveles) {
                 if ($.inArray(12, subniveles[subnivel]) > -1) {
                     vendedor_externo = 1;
                 }
@@ -2606,7 +2519,7 @@ export class CrearComponent implements OnInit {
 
             if (!tiene_credito && !vendedor_externo) {
                 // Si no tiene credito el cliente de la venta, y el vendedor no es externo
-                swal({
+                await swal({
                     title: '',
                     type: 'error',
                     html:
@@ -2621,7 +2534,7 @@ export class CrearComponent implements OnInit {
             }
 
             if (!this.data.terminar) {
-                swal(
+                await swal(
                     '',
                     'El marketplace no ha sido configurado, favor de contactar al administrador.<br/> Error: Fvvc2683',
                     'error'
@@ -2631,11 +2544,11 @@ export class CrearComponent implements OnInit {
             }
 
             if (!this.data.terminar_producto) {
-                swal(
+                await swal(
                     '',
                     'La existencia actual en el almacén seleccionado no es suficiente para el codigo ' +
-                        this.data.terminar_producto_sku +
-                        '.',
+                    this.data.terminar_producto_sku +
+                    '.',
                     'error'
                 );
 
@@ -2643,8 +2556,8 @@ export class CrearComponent implements OnInit {
             }
 
             const marketplace = this.marketplaces.find(
-                (marketplace) =>
-                    marketplace.id == this.data.documento.marketplace
+                (m) =>
+                    m.id == this.data.documento.marketplace
             );
 
             this.data.documento.direccion_envio.colonia_text = $('#de_colonia')
@@ -2653,7 +2566,7 @@ export class CrearComponent implements OnInit {
 
             if (
                 $.inArray(marketplace.marketplace, this.marketplace_publico) !=
-                    -1 &&
+                -1 &&
                 $.trim(this.data.documento.venta) == '.'
             ) {
                 swal(
@@ -2686,21 +2599,22 @@ export class CrearComponent implements OnInit {
                 if (
                     this.data.documento.total > 0 &&
                     Math.round(this.data.documento.total) >
-                        Math.round(
-                            this.totalDocumento() *
-                                this.data.documento.tipo_cambio +
-                                3
-                        )
+                    Math.round(
+                        this.totalDocumento() *
+                        this.data.documento.tipo_cambio +
+                        3
+                    )
                 ) {
-                    swal({
+                    await swal({
                         title: '',
                         type: 'error',
                         html:
-                            'Las cifra total del documento y la suma de precios de los productos no concuerdan.<br>Total del documento: $ ' +
+                            'La cifra total del documento y la suma de precios de los productos no concuerdan.' +
+                            '<br>Total del documento: $ ' +
                             this.data.documento.total +
                             '<br>Total de los productos: $ ' +
                             this.totalDocumento() *
-                                this.data.documento.tipo_cambio +
+                            this.data.documento.tipo_cambio +
                             '',
                     });
 
@@ -2714,7 +2628,7 @@ export class CrearComponent implements OnInit {
                     this.totalDocumento() * this.data.documento.tipo_cambio
                 )
             ) {
-                swal({
+                await swal({
                     title: '',
                     type: 'error',
                     html:
@@ -2722,7 +2636,7 @@ export class CrearComponent implements OnInit {
                         this.data.documento.cobro.importe +
                         '<br>Total del documento: ' +
                         this.totalDocumento() *
-                            this.data.documento.tipo_cambio +
+                        this.data.documento.tipo_cambio +
                         '',
                 });
 
@@ -2758,7 +2672,7 @@ export class CrearComponent implements OnInit {
                     regimen: '616',
                     cp_fiscal: '45130',
                 };
-            } //! VERIFICAR 2024 '7'
+            }
 
             if (
                 this.data.empresa == '7' &&
@@ -2779,7 +2693,6 @@ export class CrearComponent implements OnInit {
                 };
             }
             const form_data = new FormData();
-            const utilidad_documento = this.utilidadDocumento() / (1 - 5 / 100);
             this.data.documento.total_user =
                 this.totalDocumento() * this.data.documento.tipo_cambio;
             this.data.documento.baja_utilidad = !this.cumpleConUtilidad();
@@ -2792,10 +2705,10 @@ export class CrearComponent implements OnInit {
                     (res) => {
                         console.log(res);
                         if (res['file'] != undefined) {
-                            let dataURI =
+                            const dataURI =
                                 'data:application/pdf;base64, ' + res['file'];
 
-                            let a = window.document.createElement('a');
+                            const a = window.document.createElement('a');
                             a.href = dataURI;
                             a.download = res['name'];
                             a.setAttribute('id', 'etiqueta_descargar');
@@ -2810,7 +2723,9 @@ export class CrearComponent implements OnInit {
                             html: res['message'],
                         });
 
-                        if (res['code'] == 200) this.restartObjects();
+                        if (res['code'] == 200) {
+                            this.restartObjects();
+                        }
                     },
                     (response) => {
                         console.log(response);
@@ -2830,53 +2745,55 @@ export class CrearComponent implements OnInit {
     }
 
     totalDocumento() {
-        if (this.data.documento.productos.length > 0)
+        if (this.data.documento.productos.length > 0) {
             return this.data.documento.productos.reduce(
                 (total, producto) =>
                     total +
                     Number(producto.precio) * 1.16 * Number(producto.cantidad),
                 0
             );
+        }
 
         return 0;
     }
 
     utilidadDocumento() {
-        if (this.data.documento.productos.length > 0)
+        if (this.data.documento.productos.length > 0) {
             return this.data.documento.productos.reduce(
                 (total, producto) =>
                     total +
                     (producto.tipo == 1
                         ? Number(producto.costo) *
-                          1.16 *
-                          Number(producto.cantidad)
+                        1.16 *
+                        Number(producto.cantidad)
                         : 0),
                 0
             );
+        }
 
         return 0;
     }
 
     YmdHis() {
-        var now = new Date();
-        var year = '' + now.getFullYear();
-        var month = '' + (now.getMonth() + 1);
+        const now = new Date();
+        const year = '' + now.getFullYear();
+        let month = '' + (now.getMonth() + 1);
         if (month.length == 1) {
             month = '0' + month;
         }
-        var day = '' + now.getDate();
+        let day = '' + now.getDate();
         if (day.length == 1) {
             day = '0' + day;
         }
-        var hour = '' + now.getHours();
+        let hour = '' + now.getHours();
         if (hour.length == 1) {
             hour = '0' + hour;
         }
-        var minute = '' + now.getMinutes();
+        let minute = '' + now.getMinutes();
         if (minute.length == 1) {
             minute = '0' + minute;
         }
-        var second = '' + now.getSeconds();
+        let second = '' + now.getSeconds();
         if (second.length == 1) {
             second = '0' + second;
         }
@@ -2895,58 +2812,56 @@ export class CrearComponent implements OnInit {
         );
     }
 
-    obtenerCoordenadas(codigo_postal, tipo) {
-        var data = this.data;
-
-        var google = require('@google/maps').createClient({
-            key: 'AIzaSyC-S0aqFAU3pP6ta-3neud0zFPa2GT1HYc',
-            Promise: Promise,
-        });
-
-        google
-            .geocode({
-                address: codigo_postal + ', MX',
-                region: 'MX',
-            })
-            .asPromise()
-            .then((response) => {
-                if (response.json.results.length == 0) {
-                    if (tipo == 0) {
-                        data.documento.direccion_envio.remitente_cord_found = 0;
-                    } else {
-                        data.documento.direccion_envio.destino_cord_found = 0;
-                    }
-                } else {
-                    if (tipo == 0) {
-                        data.documento.direccion_envio.remitente_cord = {
-                            lat: response.json.results[0].geometry.location.lat,
-                            lng: response.json.results[0].geometry.location.lng,
-                        };
-                        data.documento.direccion_envio.remitente_cord_found = 1;
-                    } else {
-                        data.documento.direccion_envio.destino_cord = {
-                            lat: response.json.results[0].geometry.location.lat,
-                            lng: response.json.results[0].geometry.location.lng,
-                        };
-                        data.documento.direccion_envio.destino_cord_found = 1;
-                    }
-                }
-            })
-            .catch((error) => {
-                if (tipo == 0) {
-                    data.documento.direccion_envio.remitente_cord_found = 0;
-                } else {
-                    data.documento.direccion_envio.destino_cord_found = 0;
-                }
-            });
-    }
+    // obtenerCoordenadas(codigo_postal, tipo) {
+    //     const data = this.data;
+    //
+    //     const google = require('@google/maps').createClient({
+    //         key: 'AIzaSyC-S0aqFAU3pP6ta-3neud0zFPa2GT1HYc',
+    //         Promise: Promise,
+    //     });
+    //
+    //     google
+    //         .geocode({
+    //             address: codigo_postal + ', MX',
+    //             region: 'MX',
+    //         })
+    //         .asPromise()
+    //         .then((response) => {
+    //             if (response.json.results.length == 0) {
+    //                 if (tipo == 0) {
+    //                     data.documento.direccion_envio.remitente_cord_found = 0;
+    //                 } else {
+    //                     data.documento.direccion_envio.destino_cord_found = 0;
+    //                 }
+    //             } else {
+    //                 if (tipo == 0) {
+    //                     data.documento.direccion_envio.remitente_cord = {
+    //                         lat: response.json.results[0].geometry.location.lat,
+    //                         lng: response.json.results[0].geometry.location.lng,
+    //                     };
+    //                     data.documento.direccion_envio.remitente_cord_found = 1;
+    //                 } else {
+    //                     data.documento.direccion_envio.destino_cord = {
+    //                         lat: response.json.results[0].geometry.location.lat,
+    //                         lng: response.json.results[0].geometry.location.lng,
+    //                     };
+    //                     data.documento.direccion_envio.destino_cord_found = 1;
+    //                 }
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             if (tipo == 0) {
+    //                 data.documento.direccion_envio.remitente_cord_found = 0;
+    //             } else {
+    //                 data.documento.direccion_envio.destino_cord_found = 0;
+    //             }
+    //         });
+    // }
 
     cambiarCodigoPostal(codigo) {
         if (!codigo) {
             return;
         }
-
-        //nueva url
 
         this.http
             .get(
@@ -2964,16 +2879,7 @@ export class CrearComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -2989,18 +2895,18 @@ export class CrearComponent implements OnInit {
             swal({
                 type: 'error',
                 html: 'Favor de completar todos los campos para agregar un archivo al documento.',
-            });
+            }).then();
 
             return;
         }
 
-        var archivos = [];
-        var $this = this;
+        const archivos = [];
+        const $this = this;
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e) {
@@ -3017,12 +2923,12 @@ export class CrearComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
@@ -3030,6 +2936,7 @@ export class CrearComponent implements OnInit {
         }
     }
 
+    // noinspection JSUnusedGlobalSymbols
     aplicarRetencion(modal) {
         if (!this.producto.ret) {
             this.modalService.open(modal, {
@@ -3068,7 +2975,7 @@ export class CrearComponent implements OnInit {
         };
 
         const marketplace = this.marketplaces.find(
-            (marketplace) => marketplace.id == this.data.documento.marketplace
+            (m) => m.id == this.data.documento.marketplace
         );
 
         if (
@@ -3195,13 +3102,13 @@ export class CrearComponent implements OnInit {
     }
 
     currentDate() {
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth() + 1; //January is 0!
-        var yyyy = today.getFullYear();
+        const today = new Date();
+        const dd = today.getDate();
+        const mm = today.getMonth() + 1;
+        const yyyy = today.getFullYear();
 
-        var d = '';
-        var m = '';
+        let d: string;
+        let m: string;
 
         if (dd < 10) {
             d = '0' + dd;
@@ -3218,14 +3125,12 @@ export class CrearComponent implements OnInit {
         return yyyy + '-' + m + '-' + d;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     dateISOtoNormal(date_iso) {
-        var date = new Date(date_iso);
-        var time =
-            this.ConvertNumberToTwoDigitString(date.getUTCHours()) +
+        const date = new Date(date_iso);
+        return this.ConvertNumberToTwoDigitString(date.getUTCHours()) +
             ':' +
             this.ConvertNumberToTwoDigitString(date.getUTCMinutes());
-
-        return time;
     }
 
     ConvertNumberToTwoDigitString(n) {
@@ -3233,13 +3138,13 @@ export class CrearComponent implements OnInit {
     }
 
     similarity(s1, s2) {
-        var longer = s1;
-        var shorter = s2;
+        let longer = s1;
+        let shorter = s2;
         if (s1.length < s2.length) {
             longer = s2;
             shorter = s1;
         }
-        var longerLength = longer.length;
+        const longerLength = longer.length;
         if (longerLength == 0) {
             return 1.0;
         }
@@ -3253,26 +3158,30 @@ export class CrearComponent implements OnInit {
         s1 = s1.toLowerCase();
         s2 = s2.toLowerCase();
 
-        var costs = new Array();
-        for (var i = 0; i <= s1.length; i++) {
-            var lastValue = i;
-            for (var j = 0; j <= s2.length; j++) {
-                if (i == 0) costs[j] = j;
-                else {
+        const costs = [];
+        for (let i = 0; i <= s1.length; i++) {
+            let lastValue = i;
+            for (let j = 0; j <= s2.length; j++) {
+                if (i == 0) {
+                    costs[j] = j;
+                } else {
                     if (j > 0) {
-                        var newValue = costs[j - 1];
-                        if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                        let newValue = costs[j - 1];
+                        if (s1.charAt(i - 1) != s2.charAt(j - 1)) {
                             newValue =
                                 Math.min(
                                     Math.min(newValue, lastValue),
                                     costs[j]
                                 ) + 1;
+                        }
                         costs[j - 1] = lastValue;
                         lastValue = newValue;
                     }
                 }
             }
-            if (i > 0) costs[s2.length] = lastValue;
+            if (i > 0) {
+                costs[s2.length] = lastValue;
+            }
         }
         return costs[s2.length];
     }
@@ -3282,7 +3191,7 @@ export class CrearComponent implements OnInit {
             backdrop: 'static',
         });
 
-        let inputElement = this.renderer.selectRootElement('#cuenta_nombre');
+        const inputElement = this.renderer.selectRootElement('#cuenta_nombre');
         inputElement.focus();
     }
 
@@ -3308,7 +3217,7 @@ export class CrearComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         this.cuenta = {
@@ -3325,16 +3234,7 @@ export class CrearComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -3347,24 +3247,23 @@ export class CrearComponent implements OnInit {
 
     cambiarEntidadDestino() {
         const empresa =
-            this.data.empresa_externa != ''
-                ? this.data.empresa_externa
-                : this.data.empresa;
+            this.data.empresa_externa == '' ? this.data.empresa : this.data.empresa_externa;
 
         if (!empresa) {
-            swal('', 'Selecciona una empresa.', 'error');
+            swal('', 'Selecciona una empresa.', 'error').then();
 
             return;
         }
     }
 
     async verificarExistencia() {
-        for (let producto of this.data.documento.productos) {
+        for (const producto of this.data.documento.productos) {
             if (producto['tipo'] == 1) {
-                await new Promise((resolve, reject) => {
+                await new Promise((resolve, _reject) => {
                     this.http
                         .get(
-                            `${backend_url}venta/venta/crear/producto/existencia/${producto['codigo']}/${this.data.documento.almacen}/${producto['cantidad']}`
+                            `${backend_url}venta/venta/crear/producto/existencia/${producto['codigo']}
+                            /${this.data.documento.almacen}/${producto['cantidad']}`
                         )
                         .subscribe(
                             (res) => {
@@ -3414,7 +3313,7 @@ export class CrearComponent implements OnInit {
             swal({
                 type: 'error',
                 html: 'Favor de completar los campos necesarios',
-            });
+            }).then();
 
             return;
         }
@@ -3445,29 +3344,21 @@ export class CrearComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     async agregarPromocion(promocion_id) {
         const promocion = this.promociones.find(
-            (promocion) => promocion.id == promocion_id
+            (p) => p.id == promocion_id
         );
 
         let correcto = true;
 
         /* Checamos que los productos de la promoción tengan existencia en el almacén seleccionado */
-        for (let producto of promocion.productos) {
-            await new Promise((resolve, reject) => {
+        for (const producto of promocion.productos) {
+            await new Promise((resolve, _reject) => {
                 this.http
                     .get(
                         `${backend_url}venta/venta/crear/producto/existencia/${$.trim(
@@ -3479,7 +3370,7 @@ export class CrearComponent implements OnInit {
                     .subscribe(
                         async (res) => {
                             if (res['code'] != 200) {
-                                swal('', res['message'], 'error');
+                                await swal('', res['message'], 'error');
 
                                 correcto = false;
                                 resolve(1);
@@ -3489,10 +3380,10 @@ export class CrearComponent implements OnInit {
 
                             const agregados =
                                 this.data.documento.productos.reduce(
-                                    (total, producto) =>
+                                    (total, p) =>
                                         total +
-                                        (producto.codigo == this.producto.codigo
-                                            ? producto.cantidad
+                                        (p.codigo == this.producto.codigo
+                                            ? p.cantidad
                                             : 0),
                                     0
                                 );
@@ -3501,7 +3392,7 @@ export class CrearComponent implements OnInit {
                                 this.producto.cantidad + agregados >
                                 res['existencia']
                             ) {
-                                swal({
+                                await swal({
                                     title: '',
                                     type: 'error',
                                     html:
@@ -3539,7 +3430,9 @@ export class CrearComponent implements OnInit {
         }
 
         /* Si alguno de los productos no tiene existencia, no los agregará */
-        if (!correcto) return;
+        if (!correcto) {
+            return;
+        }
 
         promocion.productos.forEach((producto) => {
             this.data.documento.productos.push({
@@ -3576,25 +3469,27 @@ export class CrearComponent implements OnInit {
     }
 
     cumpleConUtilidad() {
-        let utilidad = this.utilidadDocumento() / (1 - 5 / 100);
-        let total = this.totalDocumento() * this.data.documento.tipo_cambio;
+        const utilidad = this.utilidadDocumento() / (1 - 5 / 100);
+        const total = this.totalDocumento() * this.data.documento.tipo_cambio;
 
-        return !this.promocion_activa ? !(utilidad >= total) : true;
+        return this.promocion_activa ? true : !(utilidad >= total);
     }
 
     paqueteriaContieneApi() {
-        if (this.marketplace_info.guia) return false;
+        if (this.marketplace_info.guia) {
+            return false;
+        }
 
         const paqueteria = this.paqueterias.find(
-            (paqueteria) => paqueteria.id == this.data.documento.paqueteria
+            (p) => p.id == this.data.documento.paqueteria
         );
 
-        return paqueteria ? (paqueteria.api == 1 ? true : false) : false;
+        return paqueteria ? (paqueteria.api == 1) : false;
     }
 
     paqueteriaTipos() {
         const paqueteria = this.paqueterias.find(
-            (paqueteria) => paqueteria.id == this.data.documento.paqueteria
+            (p) => p.id == this.data.documento.paqueteria
         );
 
         return paqueteria ? paqueteria.tipos : [];
@@ -3618,7 +3513,8 @@ export class CrearComponent implements OnInit {
         if (this.data.area == '2' && this.data.documento.paqueteria == '9') {
             swal({
                 type: 'error',
-                html: 'La paqueteria seleccionada no es apta para su venta, utilice "OMG"<br/> Favor de seleccionar la paqueteria nuevamente.',
+                html: 'La paqueteria seleccionada no es apta para su venta, utilice "OMG"' +
+                    '<br/> Favor de seleccionar la paqueteria nuevamente.',
             }).then(() => {
                 this.data.documento.paqueteria = '';
             });
@@ -3630,7 +3526,8 @@ export class CrearComponent implements OnInit {
         ) {
             swal({
                 type: 'error',
-                html: 'La paqueteria seleccionada no es apta para su venta, utilice "OMG"<br/> Favor de seleccionar la paqueteria nuevamente.',
+                html: 'La paqueteria seleccionada no es apta para su venta, utilice "OMG"' +
+                    '<br/> Favor de seleccionar la paqueteria nuevamente.',
             }).then(() => {
                 this.data.documento.paqueteria = '';
             });
@@ -3638,16 +3535,13 @@ export class CrearComponent implements OnInit {
         } else {
             return true;
         }
-        //agro es this.data.area 2
-        //Agronegocios es this.data.documento.marketplace = 22
-        //sellcenter = ths.data.documento.paqueteria 9
     }
 
     validarCCE() {
         if (!this.data.documento.cce) {
             return swal({
                 type: 'warning',
-                html: 'Necesita autorización, abre tu aplicación de Authy y escribe el token proporcionado en el recuadro de abajo',
+                html: 'Necesita autorización, escribe el token proporcionado vía WhatsApp en el recuadro de abajo',
                 input: 'text',
                 inputAttributes: {
                     maxlength: '7',
@@ -3655,20 +3549,12 @@ export class CrearComponent implements OnInit {
                 showCancelButton: true,
             }).then((res) => {
                 if (res.value) {
-                    const data = {
-                        authy_id: this.authy.id,
-                        authy_token: res.value,
-                    };
-
-                    this.configuracionService.getAccessToCCE(data).subscribe(
-                        (res: any) => {
-                            console.log(res);
-
+                    this.configuracionService.getAccessToCCE(res.value).subscribe(
+                        () => {
                             this.data.documento.cce = 1;
                         },
                         (err: any) => {
                             this.data.documento.cce = 0;
-
                             swalErrorHttpResponse(err);
                         }
                     );

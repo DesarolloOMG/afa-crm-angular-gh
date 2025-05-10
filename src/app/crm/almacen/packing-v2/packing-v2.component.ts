@@ -1,20 +1,12 @@
 /* tslint:disable:triple-equals */
-// noinspection DuplicatedCode,JSDeprecatedSymbols
+// noinspection DuplicatedCode,JSDeprecatedSymbols,ParameterNamingConventionJS,JSClassNamingConvention
 
-import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    HostListener,
-    OnInit,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import {backend_url, downloadPDF} from '@env/environment';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
+import {AfterViewInit, Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {backend_url, downloadPDF, swalErrorHttpResponse} from '@env/environment';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
-import { AuthService } from '@services/auth.service';
+import {AuthService} from '@services/auth.service';
 
 @Component({
     selector: 'app-packing-v2',
@@ -22,7 +14,6 @@ import { AuthService } from '@services/auth.service';
     styleUrls: ['./packing-v2.component.scss'],
 })
 export class PackingV2Component implements OnInit, AfterViewInit {
-    // modal_reference_token: any;
     modal_reference: any;
     modal_reference_logistica: any;
     documento: any;
@@ -59,11 +50,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
         guia: '',
     };
 
-    authy = {
-        authy: '',
-        token: '',
-    };
-
     series: any[] = [];
     problemas: any[] = [];
     usuarios: any[] = [];
@@ -73,31 +59,9 @@ export class PackingV2Component implements OnInit, AfterViewInit {
     allowActions = false;
     usuario_id: any;
 
-    @ViewChild('modaltoken') modaltoken: NgbModal;
     @ViewChild('modalseries') modalseries: NgbModal;
     @ViewChild('modalguia') modalguia: NgbModal;
-    @ViewChild('codigoescaneado') codigoescaneado: ElementRef;
-
-    @HostListener('window:keydown', ['$event'])
-    onKeyPress($event: KeyboardEvent) {
-        if (this.allowActions) { return; }
-
-        if (($event.ctrlKey || $event.metaKey) && $event.keyCode == 67) {
-            $event.preventDefault();
-        }
-        if (($event.ctrlKey || $event.metaKey) && $event.keyCode == 86) {
-            $event.preventDefault();
-        }
-    }
-
-    @HostListener('contextmenu', ['$event'])
-    onRightClick($event) {
-        if (this.allowActions) { return; }
-
-        $event.preventDefault();
-    }
-
-
+    @ViewChild(`codigoescaneado`) codigoescaneado: ElementRef;
 
     constructor(
         private http: HttpClient,
@@ -125,6 +89,29 @@ export class PackingV2Component implements OnInit, AfterViewInit {
         this.usuario_id = usuario.id;
     }
 
+    @HostListener('window:keydown', ['$event'])
+    onKeyPress($event: KeyboardEvent) {
+        if (this.allowActions) {
+            return;
+        }
+
+        if (($event.ctrlKey || $event.metaKey) && $event.keyCode == 67) {
+            $event.preventDefault();
+        }
+        if (($event.ctrlKey || $event.metaKey) && $event.keyCode == 86) {
+            $event.preventDefault();
+        }
+    }
+
+    @HostListener('contextmenu', ['$event'])
+    onRightClick($event) {
+        if (this.allowActions) {
+            return;
+        }
+
+        $event.preventDefault();
+    }
+
     ngOnInit() {
         this.http.get(`${backend_url}almacen/packing/v2/data`).subscribe(
             (res) => {
@@ -141,8 +128,8 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                         response.status == 0
                             ? response.message
                             : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
+                                ? response.error.error_summary
+                                : response.error,
                 }).then();
             }
         );
@@ -153,7 +140,9 @@ export class PackingV2Component implements OnInit, AfterViewInit {
     }
 
     buscarDocumento() {
-        if (!this.documento) { return; }
+        if (!this.documento) {
+            return;
+        }
 
         this.http
             .get(
@@ -225,15 +214,17 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                                    ? response.error.error_summary
+                                    : response.error,
                     }).then();
                 }
             );
     }
 
     buscarProducto() {
-        if (!this.codigo_escaneado) { return; }
+        if (!this.codigo_escaneado) {
+            return;
+        }
 
         const $this = this;
 
@@ -247,7 +238,8 @@ export class PackingV2Component implements OnInit, AfterViewInit {
             setTimeout(function () {
                 swal({
                     type: 'warning',
-                    html: `Un código de problema fue escaneado.<br><br>'<b>${es_problema.problema}</b>'<br><br>Escanea el codigo de producto que presenta el problema.`,
+                    html: `Un código de problema fue escaneado.<br><br>'<b>${es_problema.problema}</b>'<br>
+                            <br>Escanea el codigo de producto que presenta el problema.`,
                     input: 'text',
                 }).then((value) => {
                     if (value.value) {
@@ -282,7 +274,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
         let producto;
 
         let productos = this.data.productos.filter(
-            (producto) => producto.sku == this.codigo_escaneado
+            (p) => p.sku == this.codigo_escaneado
         );
 
         if (productos.length != 0) {
@@ -296,8 +288,8 @@ export class PackingV2Component implements OnInit, AfterViewInit {
         let continuar = 1;
 
         if (!producto) {
-            productos = this.data.productos.filter((producto) =>
-                producto.sinonimos.find(
+            productos = this.data.productos.filter((p) =>
+                p.sinonimos.find(
                     (sinonimo) => sinonimo == this.codigo_escaneado
                 )
             );
@@ -310,7 +302,9 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                 }
             }
 
-            if (!producto) { continuar = 0; }
+            if (!producto) {
+                continuar = 0;
+            }
         }
 
         if (!continuar) {
@@ -319,7 +313,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                     type: 'error',
                     html: 'El código escaneado no pertenece al pedido',
                     customClass: 'red-border-top',
-                    // timer: 2000,
                 }).then();
 
                 $this.codigo_escaneado = '';
@@ -343,7 +336,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                     type: 'error',
                     html: 'La cantidad escaneada excede a la cantidad del pedido',
                     customClass: 'red-border-top',
-                    // timer: 2000,
                 }).then();
 
                 $this.codigo_escaneado = '';
@@ -374,7 +366,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
         this.codigo_escaneado = '';
 
         const productos_no_terminados = this.data.productos.find(
-            (producto) => producto.cantidad != producto.cantidad_escaneada
+            (p) => p.cantidad != p.cantidad_escaneada
         );
 
         if (!productos_no_terminados) {
@@ -427,26 +419,8 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                 });
                 return;
             }
-
-            // const form_data2 = new FormData();
-            // form_data2.append('serie', serie);
-            // form_data2.append('almacen', this.informacion.almacen_id.toString());
-            //
-            // const res2 = await this.http
-            //     .post(`${backend_url}developer/serieVsAlmacen`, form_data2)
-            //     .toPromise();
-            //
-            // if (!res2['existe_almacen']) {
-            //     this.serie = '';
-            //     swal({
-            //         type: 'error',
-            //         html: `La serie no existe en este almacen.`,
-            //     });
-            //     return;
-            // }
-
-            const repetida = this.data.productos.find((producto) =>
-                producto.series.find(
+            const repetida = this.data.productos.find((p) =>
+                p.series.find(
                     (serie_repetida) => serie_repetida == serie
                 )
             );
@@ -457,17 +431,16 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                         type: 'error',
                         html: `La serie ya se encuentra registrada en el sku ${repetida.producto}`,
                         customClass: 'red-border-top',
-                        // timer: 2000,
                     });
                 }, 100);
                 return;
             }
             let producto = this.data.productos.find(
-                (producto) => producto.sku == this.codigo_escaneado
+                (p) => p.sku == this.codigo_escaneado
             );
             if (!producto) {
-                producto = this.data.productos.find((producto) =>
-                    producto.sinonimos.find(
+                producto = this.data.productos.find((p) =>
+                    p.sinonimos.find(
                         (sinonimo) => sinonimo == this.codigo_escaneado
                     )
                 );
@@ -486,7 +459,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                         type: 'error',
                         html: `La serie no puede ser igual al SKU (${this.codigo_escaneado}) del producto`,
                         customClass: 'red-border-top',
-                        // timer: 2000,
                     });
                 }, 100);
                 return;
@@ -498,7 +470,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                         type: 'warning',
                         html: 'Ya no puedes agregar más series',
                         customClass: 'purple-border-top',
-                        // timer: 2000,
                     });
                 }, 100);
                 return;
@@ -513,7 +484,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                         type: 'error',
                         html: 'Serie repetida',
                         customClass: 'red-border-top',
-                        // timer: 2000,
                     });
                 }, 100);
                 return;
@@ -572,24 +542,15 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                                 customClass: 'red-border-top',
                             });
 
-                            // return swal({
-                            //     type: 'error',
-                            //     html: 'Las series marcadas en rojo no fueron encontradas, se necesita un administrador para que autorice la remisión.',
-                            // }).then(() => {
-                            //     this.modal_reference_token =
-                            //         this.modalService.open(this.modaltoken, {
-                            //             backdrop: 'static',
-                            //         });
-                            // });
                         }
 
                         let producto = this.data.productos.find(
-                            (producto) => producto.sku == this.codigo_escaneado
+                            (p) => p.sku == this.codigo_escaneado
                         );
 
                         if (!producto) {
-                            producto = this.data.productos.find((producto) =>
-                                producto.sinonimos.find(
+                            producto = this.data.productos.find((p) =>
+                                p.sinonimos.find(
                                     (sinonimo) =>
                                         sinonimo == this.codigo_escaneado
                                 )
@@ -623,9 +584,9 @@ export class PackingV2Component implements OnInit, AfterViewInit {
 
                         const productos_no_terminados =
                             this.data.productos.find(
-                                (producto) =>
-                                    producto.cantidad !=
-                                    producto.cantidad_escaneada
+                                (p) =>
+                                    p.cantidad !=
+                                    p.cantidad_escaneada
                             );
 
                         if (!productos_no_terminados) {
@@ -640,101 +601,10 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        customClass: 'red-border-top',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
-
-    /*confirmarAuthy() {
-        const form_data = new FormData();
-
-        form_data.append('data', JSON.stringify(this.authy));
-
-        this.http
-            .post(`${backend_url}almacen/packing/confirmar-authy`, form_data)
-            .subscribe(
-                (res) => {
-                    if (res['code'] != 200) {
-                        return swal({
-                            title: '',
-                            type: 'error',
-                            html: res['message'],
-                        });
-                    }
-
-                    this.modal_reference_token.close();
-                    this.modal_reference.close();
-
-                    let producto = this.data.productos.find(
-                        (producto) => producto.sku == this.codigo_escaneado
-                    );
-
-                    if (!producto) {
-                        producto = this.data.productos.find((producto) =>
-                            producto.sinonimos.find(
-                                (sinonimo) => sinonimo == this.codigo_escaneado
-                            )
-                        );
-                    }
-
-                    if (!producto) {
-                        return swal({
-                            type: 'error',
-                            html: 'No se encontró el producto, favor de contactar a un administrador',
-                        });
-                    }
-
-                    producto.series = [...this.series];
-                    producto.cantidad_escaneada = producto.cantidad;
-
-                    this.series = [];
-
-                    this.modal_reference.close();
-
-                    this.codigo_escaneado = '';
-
-                    var $this = this;
-
-                    setTimeout(function () {
-                        $this.renderer
-                            .selectRootElement('#codigoescaneado')
-                            .focus();
-                    }, 100);
-
-                    const productos_no_terminados = this.data.productos.find(
-                        (producto) =>
-                            producto.cantidad != producto.cantidad_escaneada
-                    );
-
-                    if (!productos_no_terminados) {
-                        this.guardarDocumento();
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-    }*/
-
     onCloseModalSeries() {
         this.modal_reference.close();
 
@@ -772,7 +642,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                             html: res['message'],
                             timer: 2000,
                         }).then(() => {
-                            if (res['backup'] == 1 ) {
+                            if (res['backup'] == 1) {
                                 downloadPDF('guia_descarga', res['file']);
                             }
                             if (res['code'] == 200) {
@@ -802,23 +672,15 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        customClass: response['color'],
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     guardarGuia() {
-        if (!this.logistica.guia.trim()) { return; }
+        if (!this.logistica.guia.trim()) {
+            return;
+        }
 
         const form_data = new FormData();
 
@@ -848,16 +710,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -940,18 +793,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                     }
                 },
                 (response) => {
-                    console.log(response);
-
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -1016,16 +858,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                 console.log(res);
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                }).then();
+                swalErrorHttpResponse(response);
             }
         );
     }

@@ -264,12 +264,10 @@ export class EtiquetaComponent implements OnInit {
             return;
         }
 
-        // noinspection JSJQueryEfficiency, JSUnusedGlobalSymbols
         $($('.ng-invalid').get().reverse()).each((index, value) => {
             $(value).focus();
         });
 
-        // noinspection JSJQueryEfficiency
         if (
             $('.ng-invalid').length > 0 &&
             this.etiqueta_generar.etiquetas.length === 0

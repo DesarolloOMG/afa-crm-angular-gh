@@ -1,16 +1,11 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import {
-    commaNumber,
-    swalErrorHttpResponse,
-    dropbox_token,
-} from '@env/environment';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AlmacenService } from '@services/http/almacen.service';
-import { GeneralService } from '@services/http/general.service';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {backend_url, commaNumber, dropbox_token, swalErrorHttpResponse,} from '@env/environment';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AlmacenService} from '@services/http/almacen.service';
+import {GeneralService} from '@services/http/general.service';
 import * as moment from 'moment';
 import swal from 'sweetalert2';
-import { resolve } from 'url';
 
 @Component({
     selector: 'app-pendiente',
@@ -25,15 +20,15 @@ export class PendienteComponent implements OnInit {
 
     modalReference: any;
 
-    documents_fase: number = 400;
+    documents_fase = 400;
 
     datatable: any;
-    datatable_name: string = '#almacen_pretransferencia_pendiente';
+    datatable_name = '#almacen_pretransferencia_pendiente';
 
     documents: any[] = [];
     products: any[] = [];
 
-    products_with_stock: boolean = true;
+    products_with_stock = true;
 
     document_detail = {
         id: 0,
@@ -71,7 +66,7 @@ export class PendienteComponent implements OnInit {
     data = {
         id: 0,
         archivos: [],
-        authy_code: '',
+        code: '',
         seguimiento: '',
         productos: [],
     };
@@ -98,95 +93,118 @@ export class PendienteComponent implements OnInit {
             return;
         }
 
-        if (!this.data.productos.length)
+        if (!this.data.productos.length) {
             return swal({
                 type: 'error',
                 html: 'No se puede crear la pretransferencia sin productos, favor de revisar e intentar de nuevo',
             });
+        }
 
         await this.confirmStockOfProducts();
 
-        if (!this.products_with_stock) return;
+        if (!this.products_with_stock) {
+            return;
+        }
 
-        swal({
-            type: 'warning',
-            html: `Para finalizar la pretransferencia, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
-            Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) return;
-
-            this.data.authy_code = confirm.value;
-
-            this.almacenService
-                .savePretransferenciaPendiente(this.data)
-                .subscribe(
-                    (res: any) => {
-                        swal({
-                            type: 'success',
-                            html: res.message,
-                        });
-
-                        const index = this.documents.findIndex(
-                            (document) => document.id == this.data.id
-                        );
-                        this.documents.splice(index, 1);
-
-                        this.rebuildTable();
-
-                        this.modalReference.close();
-                    },
-                    (err: any) => {
-                        swalErrorHttpResponse(err);
+        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+            next: (res) => {
+                console.log(res);
+                swal({
+                    type: 'warning',
+                    html: `Para finalizar la pretransferencia, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    input: 'text',
+                }).then((confirm) => {
+                    if (!confirm.value) {
+                        return;
                     }
-                );
+
+                    this.data.code = confirm.value;
+
+                    this.almacenService
+                        .savePretransferenciaPendiente(this.data)
+                        .subscribe(
+                            (save: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: save.message,
+                                });
+
+                                const index = this.documents.findIndex(
+                                    (document) => document.id == this.data.id
+                                );
+                                this.documents.splice(index, 1);
+
+                                this.rebuildTable();
+
+                                this.modalReference.close();
+                            },
+                            (err: any) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                });
+            },
+            error: (error) => {
+                swalErrorHttpResponse(error);
+            }
         });
     }
 
     deleteDocument(documento_id: number) {
-        swal({
-            type: 'warning',
-            html: `Para eliminar la pretransferencia, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
-            Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) return;
+        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+            next: (res) => {
+                console.log(res);
+                swal({
+                    type: 'warning',
+                    html: `Para finalizar la pretransferencia, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    input: 'text',
+                }).then((confirm) => {
+                    if (!confirm.value) {
+                        return;
+                    }
 
-            const data = {
-                id: documento_id,
-                authy_code: confirm.value,
-            };
+                    const data = {
+                        id: documento_id,
+                        code: confirm.value,
+                    };
 
-            this.data.authy_code = confirm.value;
+                    this.data.code = confirm.value;
 
-            this.almacenService.deletePretransferenciaPendiente(data).subscribe(
-                (res: any) => {
-                    swal({
-                        type: 'success',
-                        html: res.message,
-                    });
+                    this.almacenService.deletePretransferenciaPendiente(data).subscribe(
+                        (del: any) => {
+                            swal({
+                                type: 'success',
+                                html: del.message,
+                            }).then();
 
-                    const index = this.documents.findIndex(
-                        (document) => document.id == documento_id
+                            const index = this.documents.findIndex(
+                                (document) => document.id == documento_id
+                            );
+                            this.documents.splice(index, 1);
+
+                            this.rebuildTable();
+
+                            this.modalReference.close();
+                        },
+                        (err: any) => {
+                            swalErrorHttpResponse(err);
+                        }
                     );
-                    this.documents.splice(index, 1);
-
-                    this.rebuildTable();
-
-                    this.modalReference.close();
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
+                });
+            },
+            error: (error) => {
+                swalErrorHttpResponse(error);
+            }
         });
     }
 
     async confirmStockOfProducts() {
         this.products_with_stock = true;
 
-        for (let producto of this.data.productos) {
-            await new Promise((resolve, reject) => {
+        for (const producto of this.data.productos) {
+            await new Promise((resolve, _reject) => {
                 this.generalService
                     .getProductStock(
                         producto.sku,
@@ -194,7 +212,7 @@ export class PendienteComponent implements OnInit {
                         producto.cantidad
                     )
                     .subscribe(
-                        (res: any) => {
+                        () => {
                             resolve(true);
                         },
                         (err: any) => {
@@ -211,7 +229,7 @@ export class PendienteComponent implements OnInit {
 
     openModalWithData(document_id: number) {
         const document = this.documents.find(
-            (document) => document.id == document_id
+            (d) => d.id == document_id
         );
 
         this.document_detail = document;
@@ -231,8 +249,8 @@ export class PendienteComponent implements OnInit {
               };
 
         this.document_detail.archivos.forEach((archivo) => {
-            var re = /(?:\.([^.]+))?$/;
-            var ext = re.exec(archivo.nombre)[1];
+            const re = /(?:\.([^.]+))?$/;
+            const ext = re.exec(archivo.nombre)[1];
 
             if ($.inArray(ext, ['jpg', 'jpeg', 'png']) !== -1) {
                 archivo.icon = 'file-image-o';
@@ -276,17 +294,18 @@ export class PendienteComponent implements OnInit {
         }
 
         const existe = this.data.productos.find(
-            (producto) => producto.sku == this.product.sku
+            (p) => p.sku == this.product.sku
         );
 
-        if (existe)
+        if (existe) {
             return swal({
                 type: 'error',
                 html: 'Producto repetido',
             });
+        }
 
         const producto = this.products.find(
-            (producto) => producto.sku == this.product.sku
+            (p) => p.sku == this.product.sku
         );
 
         this.generalService
@@ -296,7 +315,7 @@ export class PendienteComponent implements OnInit {
                 this.product.cantidad
             )
             .subscribe(
-                (res: any) => {
+                () => {
                     this.product.descripcion = producto.producto;
                     this.product.costo = producto.ultimo_costo
                         ? producto.ultimo_costo
@@ -317,7 +336,7 @@ export class PendienteComponent implements OnInit {
 
         const archivos = [];
 
-        for (var i = 0, len = files.length; i < len; i++) {
+        for (let i = 0, len = files.length; i < len; i++) {
             const file = files[i];
 
             const reader = new FileReader();
@@ -332,12 +351,12 @@ export class PendienteComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
@@ -348,7 +367,7 @@ export class PendienteComponent implements OnInit {
     }
 
     downloadFile(id_dropbox: string) {
-        var form_data = JSON.stringify({ path: id_dropbox });
+        const form_data = JSON.stringify({path: id_dropbox});
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -368,16 +387,7 @@ export class PendienteComponent implements OnInit {
                     window.open(res['link']);
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }

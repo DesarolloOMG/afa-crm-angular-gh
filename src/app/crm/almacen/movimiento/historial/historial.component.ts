@@ -1,22 +1,13 @@
-import {
-    Component,
-    OnInit,
-    ChangeDetectorRef,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import {
-    swalErrorHttpResponse,
-    downloadPDF,
-    backend_url,
-} from '@env/environment';
-import { AlmacenService } from '@services/http/almacen.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { NgForm } from '@angular/forms';
+/* tslint:disable:triple-equals */
+import {ChangeDetectorRef, Component, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {backend_url, downloadPDF, swalErrorHttpResponse} from '@env/environment';
+import {AlmacenService} from '@services/http/almacen.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgForm} from '@angular/forms';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '@services/auth.service';
+import {HttpClient} from '@angular/common/http';
+import {AuthService} from '@services/auth.service';
 
 @Component({
     selector: 'app-historial',
@@ -31,7 +22,7 @@ export class HistorialComponent implements OnInit {
 
     modalReference: any;
     datatable: any;
-    datatable_name: string = '#almacen_movimiento_historial';
+    datatable_name = '#almacen_movimiento_historial';
 
     documents: any[] = [];
     types: any[] = [];
@@ -108,20 +99,22 @@ export class HistorialComponent implements OnInit {
             (!this.filter_data.final_date ||
                 !this.filter_data.initial_date ||
                 !this.filter_data.type)
-        )
+        ) {
             return swal({
                 type: 'error',
                 html: 'Favor de seleccionar todos los campos necesarios para hacer a búsqueda de documentos',
             });
+        }
 
         const initial_date = moment(this.filter_data.initial_date);
         const final_date = moment(this.filter_data.final_date);
 
-        if (final_date.isBefore(initial_date))
+        if (final_date.isBefore(initial_date)) {
             return swal({
                 type: 'error',
                 html: 'El rango de fechas es erroneo, favor de revisar en intentar de nuevo',
             });
+        }
         this.filter_data.su = this.is_su;
         this.almacenService
             .getMovimientoHistorialDocuments(this.filter_data)
@@ -137,8 +130,8 @@ export class HistorialComponent implements OnInit {
             );
     }
 
-    documentDetails(document_id: number) {
-        const document = this.documents.find((d) => d.id == document_id);
+    documentDetails(documentId: number) {
+        const document = this.documents.find((d) => d.id == documentId);
 
         this.data = document;
 
@@ -149,9 +142,9 @@ export class HistorialComponent implements OnInit {
             producto.series_afectar = [];
 
             if (producto.serie) {
+                this.requiere_series = true;
                 if (!producto.series) {
                     producto.series_afectar = [];
-                    this.requiere_series = true;
                 }
             }
         });
@@ -167,11 +160,11 @@ export class HistorialComponent implements OnInit {
         this.data.producto_serie = codigo;
 
         const producto = this.data.productos.find(
-            (producto) => producto.sku == codigo
+            (p) => p.sku == codigo
         );
 
         if (!producto.serie) {
-            swal('', 'Este producto no lleva series.', 'error');
+            swal('', 'Este producto no lleva series.', 'error').then();
 
             return;
         }
@@ -183,7 +176,7 @@ export class HistorialComponent implements OnInit {
             backdrop: 'static',
         });
 
-        let inputElement = this.renderer.selectRootElement('#serie');
+        const inputElement = this.renderer.selectRootElement('#serie');
         inputElement.focus();
     }
 
@@ -191,7 +184,7 @@ export class HistorialComponent implements OnInit {
         this.data.serie = this.data.serie.replace(/['\\]/g, '');
 
         if (!$.trim(this.data.serie)) {
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
 
             return;
@@ -201,17 +194,16 @@ export class HistorialComponent implements OnInit {
 
         if (series.length > 1) {
             series.forEach((serie) => {
-                this.duplicatedSerie(serie);
+                this.duplicatedSerie(serie).then();
             });
 
             return;
         }
 
-        this.duplicatedSerie(this.data.serie);
+        this.duplicatedSerie(this.data.serie).then();
     }
 
     sanitizeInput() {
-        // Elimina los caracteres no deseados
         this.data.serie = this.data.serie.replace(/['\\]/g, '');
     }
 
@@ -227,24 +219,24 @@ export class HistorialComponent implements OnInit {
 
             if (!res['valido']) {
                 this.data.serie = '';
-                swal({
+                await swal({
                     type: 'error',
                     html: `La serie es un SKU`,
                 });
                 return;
             }
 
-            const repetida = this.data.productos.find((producto) =>
-                producto.serie
+            const repetida = this.data.productos.find((p) =>
+                p.serie
                     ? this.data.series_afectar.find(
-                          (serie_ip) => serie_ip == serie
-                      )
+                        (serie_ip) => serie_ip == serie
+                    )
                     : undefined
             );
 
             if (repetida) {
                 this.data.serie = '';
-                swal(
+                await swal(
                     '',
                     `La serie ya se encuentra registrada en el sku ${repetida.sku}`,
                     'error'
@@ -259,13 +251,13 @@ export class HistorialComponent implements OnInit {
 
             if (!existe && this.data.id_tipo != 11) {
                 this.data.serie = '';
-                swal('', 'La serie no pertenece a este movimiento.', 'error');
+                await swal('', 'La serie no pertenece a este movimiento.', 'error');
 
                 return 0;
             }
 
             const producto = this.data.productos.find(
-                (producto) => producto.sku == this.data.producto_serie
+                (p) => p.sku == this.data.producto_serie
             );
 
             if (
@@ -273,7 +265,7 @@ export class HistorialComponent implements OnInit {
                 this.data.series_afectar.length == producto.cantidad
             ) {
                 this.data.serie = '';
-                swal('', 'No puedes agregar más series.', 'error');
+                await swal('', 'No puedes agregar más series.', 'error');
 
                 return;
             }
@@ -282,10 +274,10 @@ export class HistorialComponent implements OnInit {
 
             this.data.serie = '';
 
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
         } catch (error) {
-            swal({
+            await swal({
                 title: '',
                 type: 'error',
             });
@@ -299,14 +291,14 @@ export class HistorialComponent implements OnInit {
         this.data.series_afectar.splice(index, 1);
 
         const producto = this.data.productos.find(
-            (producto) => producto.sku == this.data.producto_serie
+            (p) => p.sku == this.data.producto_serie
         );
         producto.series_afectar = this.data.series_afectar;
     }
 
     getSeries(sku) {
         const producto = this.data.productos.find(
-            (producto) => producto.sku == sku
+            (p) => p.sku == sku
         );
 
         this.data.series = producto.series;
@@ -330,39 +322,50 @@ export class HistorialComponent implements OnInit {
     }
 
     affectDocument() {
+        console.log(this.data);
+        console.log(this.requiere_series);
         const document = this.documents.find((d) => d.id == this.data.id);
-        if (!document.puede_afectar || !document.afectador_de_traspasos)
+        if (!document.puede_afectar || !document.afectador_de_traspasos) {
             return swal({
                 type: 'error',
-                html: 'El documento no puede ser afectado por que no tienen el nivel de accesso correcto, favor de contactar con un administrador',
+                html: `El documento no puede ser afectado por que no tienen el nivel de accesso correcto,
+                        favor de contactar con un administrador`,
             });
-
-        swal({
-            type: 'warning',
-            html: `Para afectar el documento, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
-            Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) return;
-
-            const data = {
-                document: this.data.id,
-                authy_code: confirm.value,
-            };
-
-            this.almacenService
-                .affectMovimientoHistorialDocumento(data)
-                .subscribe(
-                    (res: any) => {
-                        document.entregado = new Date().toISOString();
-                        document.autorizado = 1;
-                        document.autorizado_by = 1;
-                    },
-                    (err: any) => {
-                        swalErrorHttpResponse(err);
+        }
+        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+            next: () => {
+                swal({
+                    type: 'warning',
+                    html: `Para afectar el documento escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    input: 'text',
+                }).then((confirm) => {
+                    if (!confirm.value) {
+                        return;
                     }
-                );
+                    const data = {
+                        document: this.data.id,
+                        code: confirm.value,
+                    };
+
+                    this.almacenService
+                        .affectMovimientoHistorialDocumento(data)
+                        .subscribe(
+                            () => {
+                                document.autorizado = 1;
+                                document.autorizado_by = 1;
+                            },
+                            (err: any) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                });
+            },
+            error: (error) => {
+                swalErrorHttpResponse(error);
+            }
         });
+
     }
 
     saveInternalDocument(event) {
@@ -371,15 +374,16 @@ export class HistorialComponent implements OnInit {
         }
 
         const producto = this.data.productos.find(
-            (producto) =>
+            (p) =>
                 producto.serie &&
-                producto.series_afectar.length != producto.cantidad
+                producto.series_afectar.length != p.cantidad
         );
 
         if (producto) {
             return swal({
                 type: 'error',
-                html: `Faltan series en el producto ${producto.sku}.<br><br>Cantidad: ${producto.cantidad}<br>Capturadas: ${producto.series_afectar.length}`,
+                html: `Faltan series en el producto ${producto.sku}.<br>
+<br>Cantidad: ${producto.cantidad}<br>Capturadas: ${producto.series_afectar.length}`,
             });
         }
 
@@ -393,46 +397,18 @@ export class HistorialComponent implements OnInit {
 
                     document.importado = 1;
 
-                    res.productos.forEach((producto) => {
+                    res.productos.forEach((p) => {
                         const producto_data = this.data.productos.find(
-                            (producto_d) => producto_d.sku == producto.sku
+                            (producto_d) => producto_d.sku == p.sku
                         );
 
-                        producto_data.series = producto.series;
+                        producto_data.series = p.series;
                     });
                 },
                 (err: any) => {
                     swalErrorHttpResponse(err);
                 }
             );
-    }
-
-    UID() {
-        return Math.random().toString(36).substr(2, 9);
-    }
-
-    currentDate() {
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth() + 1; //January is 0!
-        var yyyy = today.getFullYear();
-
-        var d = '';
-        var m = '';
-
-        if (dd < 10) {
-            d = '0' + dd;
-        } else {
-            d = String(dd);
-        }
-
-        if (mm < 10) {
-            m = '0' + mm;
-        } else {
-            m = String(mm);
-        }
-
-        return yyyy + '-' + m + '-' + d;
     }
 
     rebuildTable() {
@@ -446,12 +422,6 @@ export class HistorialComponent implements OnInit {
         this.almacenService.getMovimientosHistorialData().subscribe(
             (res: any) => {
                 this.types = [...res.tipos_documento];
-
-                // if (!this.is_su) {
-                //     this.types = this.types.filter(
-                //         (item) => item.id !== 3 && item.id !== 4
-                //     );
-                // }
             },
             (err: any) => {
                 swalErrorHttpResponse(err);

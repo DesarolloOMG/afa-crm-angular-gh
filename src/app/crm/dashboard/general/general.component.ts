@@ -1,14 +1,8 @@
-import { backend_url } from '@env/environment';
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {backend_url} from '@env/environment';
+import {Component, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
-import {
-    animate,
-    state,
-    style,
-    transition,
-    trigger,
-} from '@angular/animations';
+import {animate, state, style, transition, trigger,} from '@angular/animations';
 
 @Component({
     selector: 'app-general',
@@ -89,5 +83,13 @@ export class GeneralComponent implements OnInit {
                 });
             }
         );
+        // this.http.get(`${backend_url}whatsapp/validateWhatsApp`).subscribe({
+        //     next: (res) => {
+        //         console.log(res);
+        //     },
+        //     error: (error) => {
+        //         swalErrorHttpResponse(error);
+        //     }
+        // });
     }
 }

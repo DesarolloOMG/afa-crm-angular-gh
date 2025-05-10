@@ -1,15 +1,8 @@
-import {
-    backend_url
-} from '@env/environment';
-import {
-    Component,
-    OnInit,
-    ChangeDetectorRef,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+/* tslint:disable:triple-equals */
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
 
 @Component({
@@ -56,11 +49,6 @@ export class EnvioComponent implements OnInit {
         },
     };
 
-    authy = {
-        authy: '',
-        token: '',
-    };
-
     constructor(
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
@@ -85,16 +73,7 @@ export class EnvioComponent implements OnInit {
                     this.datatable = table.DataTable();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
 
@@ -103,23 +82,15 @@ export class EnvioComponent implements OnInit {
                 this.usuarios = res['usuarios'];
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
+                swalErrorHttpResponse(response);
+
             }
         );
     }
 
-    verDetalle(modal, id_solicitud) {
+    verDetalle(modal, idSolicitud) {
         const solicitud = this.solicitudes.find(
-            (solicitud) => solicitud.id == id_solicitud
+            (s) => s.id == idSolicitud
         );
 
         this.detalle = solicitud;
@@ -133,8 +104,8 @@ export class EnvioComponent implements OnInit {
         });
 
         this.detalle.archivos.forEach((archivo) => {
-            var re = /(?:\.([^.]+))?$/;
-            var ext = re.exec(archivo.archivo)[1];
+            const re = /(?:\.([^.]+))?$/;
+            const ext = re.exec(archivo.archivo)[1];
 
             if ($.inArray(ext, ['jpg', 'jpeg', 'png']) !== -1) {
                 archivo.icon = 'file-image-o';
@@ -154,8 +125,8 @@ export class EnvioComponent implements OnInit {
 
     guardarDocumento() {
         const producto = this.detalle.productos.find(
-            (producto) =>
-                producto.serie && producto.cantidad > producto.series.length
+            (p) =>
+                p.serie && p.cantidad > p.series.length
         );
 
         if (!this.data.regresar && producto) {
@@ -181,9 +152,9 @@ export class EnvioComponent implements OnInit {
         }
 
         const productos_sin_serie_no_escaneados = this.detalle.productos.find(
-            (producto) =>
-                !producto.serie &&
-                producto.cantidad != producto.cantidad_sku_escaneado
+            (p) =>
+                !p.serie &&
+                p.cantidad != p.cantidad_sku_escaneado
         );
 
         if (!this.data.regresar && productos_sin_serie_no_escaneados) {
@@ -198,7 +169,7 @@ export class EnvioComponent implements OnInit {
             });
         }
 
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.detalle));
         form_data.append('regresar', String(this.data.regresar));
 
@@ -213,7 +184,7 @@ export class EnvioComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         const index = this.solicitudes.findIndex(
@@ -241,18 +212,18 @@ export class EnvioComponent implements OnInit {
                                 `${backend_url}almacen/movimiento/documento/${res['documento']}`
                             )
                             .subscribe(
-                                (res) => {
-                                    if (res['code'] != 200) {
-                                        swal('', res['message'], 'error');
+                                (respuesta) => {
+                                    if (respuesta['code'] != 200) {
+                                        swal('', respuesta['message'], 'error').then();
 
                                         return;
                                     }
 
-                                    let dataURI =
+                                    const dataURI =
                                         'data:application/pdf;base64, ' +
-                                        res['file'];
+                                        respuesta['file'];
 
-                                    let a = window.document.createElement('a');
+                                    const a = window.document.createElement('a');
                                     a.href = dataURI;
                                     a.download = res['name'];
                                     a.setAttribute('id', 'etiqueta_descargar');
@@ -262,32 +233,13 @@ export class EnvioComponent implements OnInit {
                                     $('#etiqueta_descargar').remove();
                                 },
                                 (response) => {
-                                    swal({
-                                        title: '',
-                                        type: 'error',
-                                        html:
-                                            response.status == 0
-                                                ? response.message
-                                                : typeof response.error ===
-                                                  'object'
-                                                ? response.error.error_summary
-                                                : response.error,
-                                    });
+                                    swalErrorHttpResponse(response);
                                 }
                             );
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -296,11 +248,11 @@ export class EnvioComponent implements OnInit {
         this.data.producto_serie = codigo;
 
         const producto = this.detalle.productos.find(
-            (producto) => producto.sku == codigo
+            (p) => p.sku == codigo
         );
 
         if (!producto.serie) {
-            swal('', 'Este producto no lleva series.', 'error');
+            swal('', 'Este producto no lleva series.', 'error').then();
 
             return;
         }
@@ -311,13 +263,13 @@ export class EnvioComponent implements OnInit {
             backdrop: 'static',
         });
 
-        let inputElement = this.renderer.selectRootElement('#serie');
+        const inputElement = this.renderer.selectRootElement('#serie');
         inputElement.focus();
     }
 
     agregarSerie() {
         if (!$.trim(this.data.serie)) {
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
 
             return;
@@ -327,13 +279,13 @@ export class EnvioComponent implements OnInit {
 
         if (series.length > 1) {
             series.forEach((serie) => {
-                this.serieRepetida(serie);
+                this.serieRepetida(serie).then();
             });
 
             return;
         }
 
-        this.serieRepetida(this.data.serie);
+        this.serieRepetida(this.data.serie).then();
     }
 
     eliminarSerie(serie) {
@@ -344,14 +296,14 @@ export class EnvioComponent implements OnInit {
         this.data.series.splice(index, 1);
 
         const producto = this.detalle.productos.find(
-            (producto) => producto.sku == this.data.producto_serie
+            (p) => p.sku == this.data.producto_serie
         );
 
         producto.series = this.data.series;
     }
 
     confirmarSeries() {
-        var form_data = new FormData();
+        const form_data = new FormData();
 
         form_data.append('producto', this.data.producto_serie);
         form_data.append('series', JSON.stringify(this.data.series));
@@ -367,7 +319,7 @@ export class EnvioComponent implements OnInit {
 
                         if (series.length > 0) {
                             series.forEach((serie) => {
-                                $("li:contains('" + serie.serie + "')").css(
+                                $('li:contains(\'' + serie.serie + '\')').css(
                                     'border-color',
                                     'red'
                                 );
@@ -375,7 +327,8 @@ export class EnvioComponent implements OnInit {
 
                             return swal({
                                 type: 'error',
-                                html: 'Las series marcadas en rojo no fueron encontradas, se necesita un administrador para que autorice el movimiento.',
+                                html: 'Las series marcadas en rojo no fueron encontradas, ' +
+                                    'se necesita un administrador para que autorice el movimiento.',
                             }).then(() => {
                                 this.modalReferenceToken =
                                     this.modalService.open(this.modaltoken, {
@@ -385,8 +338,8 @@ export class EnvioComponent implements OnInit {
                         }
 
                         const producto = this.detalle.productos.find(
-                            (producto) =>
-                                producto.sku == this.data.producto_serie
+                            (p) =>
+                                p.sku == this.data.producto_serie
                         );
                         producto.series = this.data.series;
 
@@ -396,23 +349,14 @@ export class EnvioComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     agregarProductosEscaneados(modal, codigo) {
         const producto = this.detalle.productos.find(
-            (producto) => producto.sku == codigo
+            (p) => p.sku == codigo
         );
 
         this.data.producto_serie = codigo;
@@ -422,7 +366,7 @@ export class EnvioComponent implements OnInit {
             backdrop: 'static',
         });
 
-        let inputElement =
+        const inputElement =
             this.renderer.selectRootElement('#productoescaneado');
         inputElement.focus();
     }
@@ -431,13 +375,16 @@ export class EnvioComponent implements OnInit {
         let continuar = 1;
 
         if (this.data.producto_escaneado != this.data.producto_serie) {
-            let producto = this.detalle.productos.find((producto) =>
-                producto.sinonimos.find(
+            // tslint:disable-next-line:no-shadowed-variable
+            const producto = this.detalle.productos.find((p) =>
+                p.sinonimos.find(
                     (sinonimo) => sinonimo == this.data.producto_escaneado
                 )
             );
 
-            if (!producto) continuar = 0;
+            if (!producto) {
+                continuar = 0;
+            }
         }
 
         if (!continuar) {
@@ -450,7 +397,7 @@ export class EnvioComponent implements OnInit {
         }
 
         const producto = this.detalle.productos.find(
-            (producto) => producto.sku == this.data.producto_serie
+            (p) => p.sku == this.data.producto_serie
         );
 
         if (producto.cantidad == this.data.cantidad_producto_escaneado) {
@@ -477,55 +424,13 @@ export class EnvioComponent implements OnInit {
 
         this.data.producto_escaneado = '';
 
-        let inputElement =
+        const inputElement =
             this.renderer.selectRootElement('#productoescaneado');
         inputElement.focus();
     }
 
-    confirmarAuthy() {
-        const form_data = new FormData();
-
-        form_data.append('data', JSON.stringify(this.authy));
-
-        this.http
-            .post(`${backend_url}almacen/packing/confirmar-authy`, form_data)
-            .subscribe(
-                (res) => {
-                    if (res['code'] != 200) {
-                        return swal({
-                            title: '',
-                            type: 'error',
-                            html: res['message'],
-                        });
-                    }
-
-                    const producto = this.detalle.productos.find(
-                        (producto) => producto.sku == this.data.producto_serie
-                    );
-                    producto.series = this.data.series;
-
-                    this.data.series = [];
-
-                    this.modalReferenceToken.close();
-                    this.modalReferenceSerie.close();
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
-    }
 
     sanitizeInput() {
-        // Elimina los caracteres no deseados
         this.data.serie = this.data.serie.replace(/['\\]/g, '');
     }
 
@@ -541,19 +446,19 @@ export class EnvioComponent implements OnInit {
 
             if (!res['valido']) {
                 this.data.serie = '';
-                swal({
+                await swal({
                     type: 'error',
                     html: `La serie es un SKU`,
                 });
                 return;
             }
-            const repetida = this.detalle.productos.find((producto) =>
-                producto.series.find((serie_ip) => serie_ip == serie)
+            const repetida = this.detalle.productos.find((p) =>
+                p.series.find((serie_ip) => serie_ip == serie)
             );
 
             if (repetida) {
                 this.data.serie = '';
-                swal(
+                await swal(
                     '',
                     `La serie ya se encuentra registrada en el sku ${repetida.sku}`,
                     'error'
@@ -563,12 +468,12 @@ export class EnvioComponent implements OnInit {
             }
 
             const producto = this.detalle.productos.find(
-                (producto) => producto.sku == this.data.producto_serie
+                (p) => p.sku == this.data.producto_serie
             );
 
             if (producto.cantidad == this.data.series.length) {
                 this.data.serie = '';
-                swal('', 'Ya no puedes agregar más series.', 'warning');
+                await swal('', 'Ya no puedes agregar más series.', 'warning');
 
                 return;
             }
@@ -577,18 +482,18 @@ export class EnvioComponent implements OnInit {
 
             this.data.serie = '';
 
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
         } catch (error) {
-            swal({
+            await swal({
                 title: '',
                 type: 'error',
             });
         }
     }
 
-    verArchivo(id_dropbox) {
-        var form_data = JSON.stringify({ path: id_dropbox });
+    verArchivo(idDropbox) {
+        const form_data = JSON.stringify({path: idDropbox});
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -609,40 +514,23 @@ export class EnvioComponent implements OnInit {
                     window.open(res['link']);
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
-    imprimirEtiquetas(publicacion_id, etiqueta) {
+    imprimirEtiquetas(publicacionId, etiqueta) {
         etiqueta = etiqueta == 'N/A' ? 'na' : etiqueta;
 
         this.http
             .get(
-                `${backend_url}almacen/pretransferencia/envio/etiqueta/${this.detalle.id}/${publicacion_id}/${etiqueta}`
+                `${backend_url}almacen/pretransferencia/envio/etiqueta/${this.detalle.id}/${publicacionId}/${etiqueta}`
             )
             .subscribe(
-                (res) => {},
+                () => {
+                },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }

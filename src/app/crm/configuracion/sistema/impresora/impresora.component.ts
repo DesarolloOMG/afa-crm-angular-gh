@@ -74,12 +74,10 @@ export class ImpresoraComponent implements OnInit {
 
     guardarImpresora() {
 
-        // noinspection JSJQueryEfficiency
         $($('.ng-invalid').get().reverse()).each((index, value) => {
             $(value).focus();
         });
 
-        // noinspection JSJQueryEfficiency
         if ($('.ng-invalid').length > 0) {
             return;
         }
