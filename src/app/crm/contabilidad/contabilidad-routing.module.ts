@@ -5,7 +5,6 @@ import { PagoComponent } from './pago/pago.component';
 import { LinioComponent } from './linio/linio.component';
 import { ProveedorComponent } from './proveedor/proveedor.component';
 import { GlobalizarComponent } from './globalizar/globalizar.component';
-import { ImportarComercialComponent } from './importar-comercial/importar/importar-comercial.component';
 import { RefacturarComponent } from './refacturar/refacturar.component';
 
 const routes: Routes = [
@@ -68,6 +67,11 @@ const routes: Routes = [
                 path: 'importar-comercial',
                 loadChildren:
                     './importar-comercial/importarcomercial.module#ImportarComercialModule',
+            },
+            {
+                path: 'tesoreria',
+                loadChildren:
+                    './tesoreria/tesoreria.module#TesoreriaModule',
             },
         ],
     },

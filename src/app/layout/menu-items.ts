@@ -1185,6 +1185,50 @@ const MENUITEMS = [
                     },
                 ],
             },
+            {
+                main_state: 'contabilidad',
+                state: 'tesoreria',
+                short_label: 'TS',
+                name: 'Tesoreria',
+                type: 'sub',
+                icon: 'fa fa-dollar',
+                level: [11],
+                sublevel: 0,
+                children: [
+                    {
+                        state: 'cuentas-bancarias',
+                        name: 'Cuentas Bancarias',
+                        level: [11],
+                        sublevel: 0,
+                    },
+                    {
+                        state: 'caja-chica',
+                        name: 'Caja Chica',
+                        level: [11],
+                        sublevel: 0,
+                    },
+                    {
+                        state: 'acreedor',
+                        name: 'Acreedor',
+                        level: [11],
+                        sublevel: 0,
+                    },
+                    {
+                        state: 'deudor',
+                        name: 'Deudor',
+                        level: [11],
+                        sublevel: 0,
+                    },
+                    {
+                        state: 'bancos',
+                        name: 'Bancos',
+                        level: [11],
+                        sublevel: 0,
+                    },
+
+
+                ],
+            },
         ],
     },
     {
