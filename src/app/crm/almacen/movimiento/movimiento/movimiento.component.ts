@@ -272,7 +272,7 @@ export class MovimientoComponent implements OnInit {
     async confirmSeries() {
         if (this.data.tipo != 3) {
             this.almacenService
-                .confirmAlmacenPackingSeries(
+                .confirmAlmacenMovimientoSeries(
                     this.data.producto_serie,
                     this.data.series
                 )
@@ -328,6 +328,16 @@ export class MovimientoComponent implements OnInit {
 
                                 },
                             });
+                        } else {
+                            const producto = this.data.productos.find(
+                                (p) =>
+                                    p.sku == this.data.producto_serie
+                            );
+
+                            producto.series = [...this.data.series];
+
+                            this.data.series = [];
+                            this.modalReference.close();
                         }
                     },
                     (err: any) => {

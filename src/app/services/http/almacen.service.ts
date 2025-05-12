@@ -21,6 +21,18 @@ export class AlmacenService {
         );
     }
 
+    confirmAlmacenMovimientoSeries(product_sku: string, series: any[]) {
+        const form_data = new FormData();
+
+        form_data.append('producto', product_sku);
+        form_data.append('series', JSON.stringify(series));
+
+        return this.http.post(
+            `${backend_url}almacen/movimiento/crear/confirmar`,
+            form_data
+        );
+    }
+
     confirmAlmacenPackingAuthy(data: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));

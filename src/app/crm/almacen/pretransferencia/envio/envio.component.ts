@@ -309,7 +309,7 @@ export class EnvioComponent implements OnInit {
         form_data.append('series', JSON.stringify(this.data.series));
 
         this.http
-            .post(`${backend_url}almacen/packing/confirmar`, form_data)
+            .post(`${backend_url}almacen/movimiento/crear/confirmar`, form_data)
             .subscribe(
                 (res) => {
                     if (res['code'] == 200) {
