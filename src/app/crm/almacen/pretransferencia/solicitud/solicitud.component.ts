@@ -169,10 +169,17 @@ export class SolicitudComponent implements OnInit {
                     this.producto.cantidad
                 )
                 .subscribe(
-                    () => {
-                        this.data.productos.push(this.producto);
+                    (res: any) => {
+                        if (res.code == 200) {
+                            this.data.productos.push(this.producto);
 
-                        this.buscarProducto();
+                            this.buscarProducto();
+                        } else {
+                            swal({
+                                type: 'error',
+                                html: res.message,
+                            });
+                        }
                     },
                     (err: any) => {
                         swalErrorHttpResponse(err);
@@ -461,7 +468,16 @@ export class SolicitudComponent implements OnInit {
                             producto.cantidad
                         )
                         .subscribe(
-                            (res) => resolve(res),
+                            (res: any) => {
+                                if (res.code !== 200) {
+                                    swal({
+                                        type: 'error',
+                                        html: res.message
+                                    });
+                                    return reject(res);
+                                }
+                                resolve(res);
+                            },
                             (err) => {
                                 swalErrorHttpResponse(err);
                                 reject(err);
