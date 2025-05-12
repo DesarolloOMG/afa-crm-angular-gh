@@ -1,17 +1,10 @@
-/* tslint:disable:triple-equals */
-import { HttpClient } from '@angular/common/http';
-import {
-    ChangeDetectorRef,
-    Component,
-    ElementRef,
-    OnInit,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import { backend_url, commaNumber } from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild,} from '@angular/core';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 import swal from 'sweetalert2';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from '@services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {AuthService} from '@services/auth.service';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-recepcion',
@@ -24,7 +17,7 @@ export class RecepcionComponent implements OnInit {
     @ViewChild('modalcaducidad') modalcaducidad: NgbModal;
     @ViewChild('modalupc') modalupc: NgbModal;
     @ViewChild('modaltoken') modaltoken: NgbModal;
-    @ViewChild('yearInput') yearInputElement: ElementRef;
+    @ViewChild(`yearInput`) yearInputElement: ElementRef;
 
     modalReference: any;
     modalReferenceSeries: any;
@@ -35,14 +28,14 @@ export class RecepcionComponent implements OnInit {
     commaNumber = commaNumber;
 
     datatable: any;
-    datatable_name: string = '#compra_orden_recepcion';
+    datatable_name = '#compra_orden_recepcion';
 
-    authy = {
+    whats = {
         usuario: '',
         token: '',
     };
 
-    autorizado: boolean = false;
+    autorizado = false;
     expirationMonth: string;
     expirationYear: string;
 
@@ -50,7 +43,7 @@ export class RecepcionComponent implements OnInit {
         id: '',
         proveedor: '',
         almacen: '',
-        empresa: '',
+        empresa: '1',
         comentarios: [],
     };
 
@@ -95,6 +88,9 @@ export class RecepcionComponent implements OnInit {
         serie: 0,
     };
 
+    timer = 0;
+    isTimerActive = false;
+
     documentos: any[] = [];
     empresas: any[] = [];
     usuarios: any[] = [];
@@ -105,7 +101,8 @@ export class RecepcionComponent implements OnInit {
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private renderer: Renderer2,
-        private auth: AuthService
+        private auth: AuthService,
+        private whatsappService: WhatsappService,
     ) {
         const usuario = JSON.parse(this.auth.userData().sub);
 
@@ -122,46 +119,44 @@ export class RecepcionComponent implements OnInit {
                 this.documentos = [...res.documentos];
                 this.empresas = [...res.empresas];
                 this.usuarios = [...res.usuarios];
+                console.log(res);
                 this.rebuildTable();
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
+                swalErrorHttpResponse(response);
             }
         );
     }
-    onMonthInput(event: any) {
+
+    iniciarTemporizador() {
+        this.timer = 10;
+        this.isTimerActive = true;
+
+        const interval = setInterval(() => {
+            this.timer--;
+
+            if (this.timer <= 0) {
+                clearInterval(interval);
+                this.isTimerActive = false;
+            }
+        }, 1000);
+    }
+
+    onMonthInput(_event: any) {
         if (this.expirationMonth.length === 2) {
-            let inputElement = this.renderer.selectRootElement('#yearInput');
+            const inputElement = this.renderer.selectRootElement('#yearInput');
             inputElement.focus();
         }
     }
 
     validateNumericInput(value: string, type: 'month' | 'year'): boolean {
         const regex = type === 'month' ? /^(0[1-9]|1[0-2])$/ : /^\d{2}$/;
-        if (!regex.test(value)) {
-            return false;
-        } else {
-            return true;
-        }
+        return regex.test(value);
     }
+
     detalleDocumento(documento) {
         const data = this.documentos.find(
             (documento_data) => documento_data.id == documento
-        );
-
-        const info_extra = JSON.parse(data.info_extra);
-
-        const empresa = this.empresas.find(
-            (empresa) => empresa.bd == info_extra.empresa
         );
 
         this.data = {
@@ -192,6 +187,8 @@ export class RecepcionComponent implements OnInit {
             archivos: [],
             finalizar: false,
         };
+        console.log(this.data);
+        console.log(this.final_data);
 
         this.modalReference = this.modalService.open(this.modal, {
             size: 'lg',
@@ -216,7 +213,7 @@ export class RecepcionComponent implements OnInit {
     }
 
     validateUPC() {
-        const { codigo, checkupc, serie } = this.checkupc;
+        const {codigo, checkupc, serie} = this.checkupc;
 
         if (codigo === checkupc) {
             this.procesarCodigoValido(codigo, serie);
@@ -242,19 +239,22 @@ export class RecepcionComponent implements OnInit {
                         error.status === 0
                             ? error.message
                             : typeof error.error === 'object'
-                            ? error.error.error_summary
-                            : error.error;
+                                ? error.error.error_summary
+                                : error.error;
                     this.mostrarError(errorMessage);
                 }
             );
     }
+
     validateUPCnoSerie(codigo) {
         swal({
             type: 'warning',
             html: `Escribe la cantidad recepcionada en el recuadro de abajo.<br>`,
             input: 'number',
         }).then((confirm) => {
-            if (!confirm.value) return;
+            if (!confirm.value) {
+                return;
+            }
 
             const producto = this.final_data.productos.find(
                 (p) => p.codigo == codigo
@@ -275,7 +275,7 @@ export class RecepcionComponent implements OnInit {
         swal({
             type: 'error',
             html: 'Códigos no coinciden',
-        });
+        }).then();
     }
 
     mostrarError(message: string) {
@@ -283,21 +283,22 @@ export class RecepcionComponent implements OnInit {
             title: '',
             type: 'error',
             html: message,
-        });
+        }).then();
     }
 
     agregarSeries(codigo) {
         this.series.producto = codigo;
 
         const producto = this.final_data.productos.find(
-            (producto) => producto.codigo == codigo
+            (p) => p.codigo == codigo
         );
 
-        if (!producto.serie)
+        if (!producto.serie) {
             return swal({
                 type: 'error',
                 html: 'El producto seleccionado no está configurado para asignar series.',
             });
+        }
 
         this.series.series = producto.series;
 
@@ -309,13 +310,13 @@ export class RecepcionComponent implements OnInit {
     }
 
     focus(input) {
-        let inputElement = this.renderer.selectRootElement(input);
+        const inputElement = this.renderer.selectRootElement(input);
         inputElement.focus();
     }
 
     agregarSerie() {
         if (!$.trim(this.series.serie)) {
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
 
             return;
@@ -325,13 +326,13 @@ export class RecepcionComponent implements OnInit {
 
         if (series.length > 1) {
             series.forEach((serie) => {
-                this.serieRepetida(serie);
+                this.serieRepetida(serie).then();
             });
 
             return;
         }
 
-        this.serieRepetida(this.series.serie);
+        this.serieRepetida(this.series.serie).then();
     }
 
     eliminarSerie(serie) {
@@ -342,7 +343,7 @@ export class RecepcionComponent implements OnInit {
         this.series.series.splice(cancelar, 1);
 
         const producto = this.final_data.productos.find(
-            (producto) => producto.codigo == this.series.producto
+            (p) => p.codigo == this.series.producto
         );
 
         producto.series = [...this.series.series];
@@ -364,7 +365,7 @@ export class RecepcionComponent implements OnInit {
                 .toPromise();
 
             if (!res['valido']) {
-                swal({
+                await swal({
                     type: 'error',
                     html: `La serie es un SKU`,
                 });
@@ -372,13 +373,13 @@ export class RecepcionComponent implements OnInit {
             }
 
             const repetida = this.final_data.productos.find(
-                (producto) =>
-                    producto.serie &&
-                    producto.series.find((serie_ip) => serie_ip.serie == serie)
+                (p) =>
+                    p.serie &&
+                    p.series.find((serie_ip) => serie_ip.serie == serie)
             );
 
             if (repetida) {
-                swal({
+                await swal({
                     type: 'error',
                     html: `La serie ya se encuentra registrada en el código ${repetida.codigo}`,
                 });
@@ -386,7 +387,7 @@ export class RecepcionComponent implements OnInit {
             }
 
             const producto = this.final_data.productos.find(
-                (producto) => producto.codigo == this.series.producto
+                (p) => p.codigo == this.series.producto
             );
 
             if (serie === this.series.producto) {
@@ -398,25 +399,27 @@ export class RecepcionComponent implements OnInit {
             }
 
             const agregadas = this.series.series.reduce(
-                (total, serie) => total + (serie.status ? 1 : 0),
+                (total, item) => total + (item.status ? 1 : 0),
                 0
             );
 
-            if (producto.cantidad == agregadas)
+            if (producto.cantidad == agregadas) {
                 return swal({
                     type: 'error',
                     html: 'Ya no se pueden agregar más series',
                 });
+            }
 
             const existe = this.series.series.find(
                 (serie_ip) => serie_ip.serie == serie && serie_ip.status
             );
 
-            if (existe)
+            if (existe) {
                 return swal({
                     type: 'error',
                     html: 'Serie repetida',
                 });
+            }
 
             if (this.series.series.length >= producto.cantidad) {
                 return swal({
@@ -433,7 +436,7 @@ export class RecepcionComponent implements OnInit {
                             backdrop: 'static',
                         }
                     ));
-                let inputElement =
+                const inputElement =
                     this.renderer.selectRootElement('#monthInput');
                 inputElement.focus();
             } else {
@@ -444,11 +447,11 @@ export class RecepcionComponent implements OnInit {
                 });
                 this.series.serie = '';
 
-                let inputElement = this.renderer.selectRootElement('#serie');
+                const inputElement = this.renderer.selectRootElement('#serie');
                 inputElement.focus();
             }
         } catch (error) {
-            swal({
+            await swal({
                 title: '',
                 type: 'error',
             });
@@ -476,7 +479,7 @@ export class RecepcionComponent implements OnInit {
                 fecha_caducidad: '',
             };
             this.modalReferenceCaducidad.close();
-            let inputElement = this.renderer.selectRootElement('#serie');
+            const inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
         } else {
             return;
@@ -503,7 +506,7 @@ export class RecepcionComponent implements OnInit {
                         if (series.length > 0) {
                             series.forEach((serie) => {
                                 $(
-                                    "li:contains('" + serie.serie.serie + "')"
+                                    'li:contains(\'' + serie.serie.serie + '\')'
                                 ).css('border-color', 'red');
                             });
 
@@ -511,14 +514,14 @@ export class RecepcionComponent implements OnInit {
                                 '',
                                 'Las series marcadas en rojo ya fueron registradas con anterioridad en el sistema.',
                                 'error'
-                            );
+                            ).then();
 
                             return;
                         }
 
                         const producto = this.final_data.productos.find(
-                            (producto) =>
-                                producto.codigo == this.series.producto
+                            (p) =>
+                                p.codigo == this.series.producto
                         );
 
                         producto.series = this.series.series;
@@ -534,16 +537,7 @@ export class RecepcionComponent implements OnInit {
                     this.modalReferenceSeries.close();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -564,14 +558,14 @@ export class RecepcionComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         if (res['file']) {
-                            let dataURI =
+                            const dataURI =
                                 'data:application/pdf;base64, ' + res['file'];
 
-                            let a = window.document.createElement('a');
+                            const a = window.document.createElement('a');
                             a.href = dataURI;
                             a.download = res['name'];
                             a.setAttribute('id', 'etiqueta_descargar');
@@ -634,7 +628,7 @@ export class RecepcionComponent implements OnInit {
                             });
                         }
 
-                        this.documentos.forEach((orden, index) => {
+                        this.documentos.forEach((orden, _index) => {
                             if (orden.id == this.final_data.id) {
                                 orden.productos = this.final_data.productos;
                             }
@@ -645,16 +639,7 @@ export class RecepcionComponent implements OnInit {
                     this.modalReference.close();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
 
                     this.clearData();
                     this.modalReference.close();
@@ -664,12 +649,12 @@ export class RecepcionComponent implements OnInit {
 
     cambiarCantidadRecepcionada(codigo) {
         const producto = this.final_data.productos.find(
-            (producto) => producto.codigo == codigo
+            (p) => p.codigo == codigo
         );
 
         if (
             Number(producto.cantidad_recepcionada) +
-                Number(producto.cantidad_recepcionada_anterior) >
+            Number(producto.cantidad_recepcionada_anterior) >
             producto.cantidad
         ) {
             swal({
@@ -680,7 +665,7 @@ export class RecepcionComponent implements OnInit {
                     Number(producto.cantidad_recepcionada) +
                     Number(producto.cantidad_recepcionada_anterior)
                 }`,
-            });
+            }).then();
 
             producto.cantidad_recepcionada = 0;
         }
@@ -698,20 +683,22 @@ export class RecepcionComponent implements OnInit {
             input: 'text',
         }).then((confirm) => {
             if (confirm.value) {
-                if (isNaN(confirm.value))
+                if (isNaN(confirm.value)) {
                     return swal({
                         type: 'error',
                         html: 'La cantidad de etiquetas a generar debe ser mayor a 0',
                     });
+                }
 
-                if (confirm.value <= 0)
+                if (confirm.value <= 0) {
                     return swal({
                         type: 'error',
                         html: 'La cantidad de etiquetas a generar debe ser mayor a 0',
                     });
+                }
 
                 const producto = this.final_data.productos.find(
-                    (producto) => producto.codigo == codigo
+                    (p) => p.codigo == codigo
                 );
 
                 const etiqueta_serie = {
@@ -728,98 +715,98 @@ export class RecepcionComponent implements OnInit {
                 this.http
                     .post(`${backend_url}almacen/etiqueta/serie`, form_data)
                     .subscribe(
-                        (res) => {},
+                        () => {
+                        },
                         (response) => {
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             }
         });
     }
 
-    modalUsuarioAuthy() {
-        this.modalReferenceToken = this.modalService.open(this.modaltoken, {
-            backdrop: 'static',
-        });
+    modalUsuarioWhatsapp() {
+        if (!this.final_data.finalizar) {
+            this.modalReferenceToken = this.modalService.open(this.modaltoken, {
+                backdrop: 'static',
+            });
 
-        const $this = this;
+            const $this = this;
 
-        setTimeout(() => {
-            $this.final_data.finalizar = false;
-        }, 1000);
+            setTimeout(() => {
+                $this.final_data.finalizar = false;
+            }, 1000);
+        }
     }
 
-    confirmarAuthyFinalizar() {
-        if (this.authy.usuario === '')
+    enviarCodigoWhatsApp() {
+        if (this.whats.usuario === '') {
             return swal({
                 type: 'error',
-                html: 'Selecciona al usuario que proporcionará el token de authy.',
+                html: 'Selecciona al usuario para enviar el token.',
             });
+        }
+        this.whatsappService.sendWhatsappWithOption(this.whats).subscribe(
+            () => {
+                this.iniciarTemporizador();
+                this.whats.token = '';
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
+    }
 
-        if (this.authy.token === '')
+    confirmarWhatsFinalizar() {
+        if (this.whats.usuario === '') {
             return swal({
                 type: 'error',
-                html: 'Tienes que escribir el token que la aplicación de Authy te proporciona',
+                html: 'Selecciona al usuario que proporcionará el token de autorización.',
             });
+        }
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.authy));
+        if (this.whats.token === '') {
+            return swal({
+                type: 'error',
+                html: 'Tienes que escribir el token que Whatsapp te proporciona',
+            });
+        }
 
-        this.http
-            .post(`${backend_url}compra/orden/recepcion/authy`, form_data)
-            .subscribe(
-                (res: any) => {
-                    swal({
-                        title: '',
-                        type: res.code == 200 ? 'success' : 'error',
-                        html: res.message,
-                    });
+        this.whatsappService.validateWhatsappWithOption(this.whats).subscribe(
+            (validate: any) => {
+                swal({
+                    title: '',
+                    type: validate.code == 200 ? 'success' : 'error',
+                    html: validate.message,
+                }).then();
 
-                    if (res['code'] == 200) {
-                        this.authy = {
-                            usuario: '',
-                            token: '',
-                        };
+                if (validate.code == 200) {
+                    this.whats = {
+                        usuario: '',
+                        token: '',
+                    };
 
-                        this.final_data.finalizar = true;
+                    this.final_data.finalizar = true;
 
-                        this.modalReferenceToken.close();
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    this.modalReferenceToken.close();
                 }
-            );
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
     }
 
     agregarArchivos() {
         const files = $('#archivos').prop('files');
 
-        var archivos = [];
-        var $this = this;
+        const archivos = [];
+        const $this = this;
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e) {
@@ -833,12 +820,12 @@ export class RecepcionComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
@@ -851,7 +838,7 @@ export class RecepcionComponent implements OnInit {
             id: '',
             proveedor: '',
             almacen: '',
-            empresa: '',
+            empresa: '1',
             comentarios: [],
         };
 

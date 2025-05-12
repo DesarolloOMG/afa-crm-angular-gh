@@ -1,17 +1,12 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import {
-    backend_url,
-    commaNumber,
-    backend_url_password,
-    swalErrorHttpResponse,
-} from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {backend_url, backend_url_password, commaNumber, swalErrorHttpResponse,} from '@env/environment';
 import swal from 'sweetalert2';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
-import { AuthService } from '@services/auth.service';
+import {AuthService} from '@services/auth.service';
 import * as moment from 'moment';
-import { VentaService } from '@services/http/venta.service';
-import { DatePipe } from '@angular/common';
+import {VentaService} from '@services/http/venta.service';
+import {DatePipe} from '@angular/common';
 
 @Component({
     selector: 'app-sin-venta',
@@ -27,7 +22,7 @@ export class SinVentaComponent implements OnInit {
     data = {
         serie: '',
         titulo: 'Nota de credito ',
-        empresa: '',
+        empresa: '1',
         cliente: {
             id: '',
             busqueda: '',
@@ -365,7 +360,7 @@ export class SinVentaComponent implements OnInit {
         this.data = {
             serie: '',
             titulo: 'Nota de credito ',
-            empresa: '',
+            empresa: '1',
             cliente: {
                 id: '',
                 busqueda: '',

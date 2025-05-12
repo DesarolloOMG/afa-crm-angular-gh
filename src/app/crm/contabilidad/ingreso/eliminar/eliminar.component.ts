@@ -1,11 +1,7 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import {
-    backend_url,
-    commaNumber,
-    backend_url_password,
-} from '@env/environment';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '@services/auth.service';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {backend_url, backend_url_password, commaNumber,} from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {AuthService} from '@services/auth.service';
 import swal from 'sweetalert2';
 
 @Component({
@@ -22,7 +18,7 @@ export class EliminarComponent implements OnInit {
     busqueda: string = '';
 
     data = {
-        empresa: '',
+        empresa: '1',
         tipo: '',
         entidad: '',
     };

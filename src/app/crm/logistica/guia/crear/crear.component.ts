@@ -1,8 +1,8 @@
-import { backend_url } from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import {backend_url} from './../../../../../environments/environment';
+import {AuthService} from './../../../../services/auth.service';
+import {Component, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {ActivatedRoute} from '@angular/router';
 import swal from 'sweetalert2';
 
 declare var require: any;
@@ -26,7 +26,7 @@ export class CrearComponent implements OnInit {
         alto: 1,
         seguro: 0,
         info_remitente: {
-            empresa: '',
+            empresa: '1',
             contacto: '',
             telefono: '',
             celular: '',
@@ -45,7 +45,7 @@ export class CrearComponent implements OnInit {
             },
         },
         info_destinatario: {
-            empresa: '',
+            empresa: '1',
             contacto: '',
             telefono: '',
             celular: '',

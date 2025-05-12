@@ -1,11 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import {
-    swalErrorHttpResponse,
-    swalSuccessHttpResponse,
-} from '@env/environment';
-import { Empresa } from '@models/Empresa.model';
-import { ContabilidadService } from '@services/http/contabilidad.service';
-import { VentaService } from '@services/http/venta.service';
+import {Component, OnInit} from '@angular/core';
+import {swalErrorHttpResponse, swalSuccessHttpResponse,} from '@env/environment';
+import {Empresa} from '@models/Empresa.model';
+import {ContabilidadService} from '@services/http/contabilidad.service';
+import {VentaService} from '@services/http/venta.service';
 import swal from 'sweetalert2';
 
 @Component({
@@ -15,7 +12,7 @@ import swal from 'sweetalert2';
 })
 export class EditarIngresoComponent implements OnInit {
     data = {
-        empresa: '',
+        empresa: '1',
         movimiento: '',
         cliente: '',
     };

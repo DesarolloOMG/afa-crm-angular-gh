@@ -1,10 +1,10 @@
-import { backend_url, commaNumber } from '@env/environment';
-import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url, commaNumber} from '@env/environment';
+import {animate, style, transition, trigger} from '@angular/animations';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 
 @Component({
@@ -44,7 +44,7 @@ export class PretransferenciaComponent implements OnInit {
     almacenes: any[] = [];
 
     data = {
-        empresa: '',
+        empresa: '1',
         almacen_principal: '',
         almacen_secundario: '',
         observacion: '',
@@ -347,7 +347,7 @@ export class PretransferenciaComponent implements OnInit {
         this.colonias_e = [];
 
         this.data = {
-            empresa: '',
+            empresa: '1',
             almacen_principal: '',
             almacen_secundario: '',
             observacion: '',

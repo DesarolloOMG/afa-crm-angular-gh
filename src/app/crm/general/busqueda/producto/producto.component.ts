@@ -1,15 +1,10 @@
-import {
-    backend_url,
-    commaNumber,
-    swalErrorHttpResponse,
-    downloadExcelReport,
-} from '@env/environment';
-import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { GeneralService } from '@services/http/general.service';
+import {backend_url, commaNumber, downloadExcelReport, swalErrorHttpResponse,} from '@env/environment';
+import {animate, style, transition, trigger} from '@angular/animations';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {GeneralService} from '@services/http/general.service';
 import swal from 'sweetalert2';
 
 @Component({
@@ -83,7 +78,7 @@ export class ProductoComponent implements OnInit {
     };
 
     kardex_crm_busqueda = {
-        empresa: '',
+        empresa: '1',
         producto: '',
         tipo_documento: '',
         fecha_inicial: '',

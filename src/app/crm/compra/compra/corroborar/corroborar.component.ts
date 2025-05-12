@@ -1,10 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { backend_url } from '@env/environment';
-import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
-import { NgForm } from '@angular/forms';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {backend_url} from '@env/environment';
+import {AuthService} from '@services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {ActivatedRoute} from '@angular/router';
+import {NgForm} from '@angular/forms';
 import swal from 'sweetalert2';
 
 @Component({
@@ -35,7 +35,7 @@ export class CorroborarComponent implements OnInit {
         pagador: '',
         proveedor: '',
         almacen: '',
-        empresa: '',
+        empresa: '1',
         rfc: '',
         total: 0,
         seguimiento: [],
@@ -162,7 +162,7 @@ export class CorroborarComponent implements OnInit {
                             pagador: '',
                             proveedor: '',
                             almacen: '',
-                            empresa: '',
+                            empresa: '1',
                             rfc: '',
                             total: 0,
                             seguimiento: [],

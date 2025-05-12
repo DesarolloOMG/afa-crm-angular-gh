@@ -29,7 +29,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
     informacion = {
         area: '',
         marketplace: '',
-        empresa: '',
+        empresa: '1',
         almacen: '',
         almacen_id: 0,
         paqueteria: '',
@@ -819,7 +819,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
         this.informacion = {
             area: '',
             marketplace: '',
-            empresa: '',
+            empresa: '1',
             almacen: '',
             almacen_id: 0,
             paqueteria: '',

@@ -8,6 +8,7 @@ import swal from 'sweetalert2';
 import * as moment from 'moment';
 import {HttpClient} from '@angular/common/http';
 import {AuthService} from '@services/auth.service';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-historial',
@@ -69,6 +70,7 @@ export class HistorialComponent implements OnInit {
         private modalService: NgbModal,
         private renderer: Renderer2,
         private almacenService: AlmacenService,
+        private whatsappService: WhatsappService,
         private auth: AuthService
     ) {
         const table: any = $(this.datatable_name);
@@ -332,7 +334,7 @@ export class HistorialComponent implements OnInit {
                         favor de contactar con un administrador`,
             });
         }
-        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+        this.whatsappService.sendWhatsapp().subscribe({
             next: () => {
                 swal({
                     type: 'warning',

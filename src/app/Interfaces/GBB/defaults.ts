@@ -4,7 +4,7 @@ export function createEmptyGBBData(): GBBData {
     return {
         id_fase: 0,
         created_at: '',
-        empresa: '',
+        empresa: '1',
         empresa_externa: '',
         empresa_externa_razon: '',
         empresa_razon: '',
@@ -102,7 +102,7 @@ export function createEmptyGBBNotaData(): GBBNotaData {
         total: 0,
         uuid: '',
         documentos_pagos: [],
-        empresa: '',
+        empresa: '1',
         estado: '',
         titulo: '',
         marketplace: '',

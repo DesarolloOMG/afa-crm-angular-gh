@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { backend_url, backend_url_password } from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {backend_url, backend_url_password} from '@env/environment';
 import swal from 'sweetalert2';
 
 @Component({
@@ -17,7 +17,7 @@ export class SaldarComponent implements OnInit {
     busqueda: string = '';
 
     data = {
-        empresa: '',
+        empresa: '1',
         proveedor: '',
         documento: '',
         egreso: '',

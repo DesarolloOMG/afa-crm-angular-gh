@@ -19,6 +19,7 @@ import {EmpresaAlmacen} from '@models/EmpresaAlmacen.model';
 /* Enums */
 import {DocumentoTipo as EnumDocumentoTipo} from '@models/Enums/DocumentoTipo.enum';
 import {HttpClient} from '@angular/common/http';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-movimiento',
@@ -69,6 +70,7 @@ export class MovimientoComponent implements OnInit {
         private renderer: Renderer2,
         private authService: AuthService,
         private almacenService: AlmacenService,
+        private whatsappService: WhatsappService
     ) {
         const usuario = JSON.parse(this.authService.userData().sub);
 
@@ -281,42 +283,50 @@ export class MovimientoComponent implements OnInit {
 
                         if (series.length) {
 
-                            this.invalidSeries = res.series
-                                .filter((s) => !s.status)
-                                .map((s) => s.serie.toLowerCase());
+                            this.whatsappService.sendWhatsapp().subscribe({
+                                next: async () => {
+                                    this.invalidSeries = res.series
+                                        .filter((s) => !s.status)
+                                        .map((s) => s.serie.toLowerCase());
 
-                            await swal({
-                                type: 'error',
-                                html: 'Las series marcadas en rojo no fueron encontradas,' +
-                                    ' por favor escribe el código de autorización enviado a WhatsApp en el recuadro de abajo.',
-                                input: 'text',
-                            }).then((confirm) => {
-                                if (!confirm.value) {
-                                    return;
-                                }
-                                this.http.get(`${backend_url}whatsapp/validateWhatsApp/${confirm.value}`).subscribe({
-                                    next: (validate: any) => {
-                                        console.log(validate);
-                                        if (validate.code === 200) {
-
-                                            const producto = this.data.productos.find(
-                                                (p) =>
-                                                    p.sku == this.data.producto_serie
-                                            );
-
-                                            producto.series = [...this.data.series];
-
-                                            this.data.series = [];
-                                            this.modalReference.close();
-
-                                        } else {
-                                            swalErrorHttpResponse(validate);
+                                    await swal({
+                                        type: 'error',
+                                        html: 'Las series marcadas en rojo no fueron encontradas,' +
+                                            ' por favor escribe el código de autorización enviado a WhatsApp en el recuadro de abajo.',
+                                        input: 'text',
+                                    }).then((confirm) => {
+                                        if (!confirm.value) {
+                                            return;
                                         }
-                                    },
-                                    error: (err) => {
-                                        swalErrorHttpResponse(err);
-                                    },
-                                });
+                                        this.whatsappService.validateWhatsapp(confirm.value).subscribe({
+                                            next: (validate: any) => {
+                                                console.log(validate);
+                                                if (validate.code === 200) {
+
+                                                    const producto = this.data.productos.find(
+                                                        (p) =>
+                                                            p.sku == this.data.producto_serie
+                                                    );
+
+                                                    producto.series = [...this.data.series];
+
+                                                    this.data.series = [];
+                                                    this.modalReference.close();
+
+                                                } else {
+                                                    swalErrorHttpResponse(validate);
+                                                }
+                                            },
+                                            error: (err) => {
+                                                swalErrorHttpResponse(err);
+                                            },
+                                        });
+                                    });
+                                },
+                                error: (error) => {
+                                    swalErrorHttpResponse(error);
+
+                                },
                             });
                         }
                     },

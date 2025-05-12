@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { backend_url } from '@env/environment';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '@services/auth.service';
-import { Router } from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {backend_url} from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {AuthService} from '@services/auth.service';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 
 @Component({
@@ -44,7 +44,7 @@ export class CrearGastoComponent implements OnInit {
 
     proveedor = {
         id: 0,
-        empresa: '',
+        empresa: '1',
         pais: '',
         regimen: '',
         razon_social: '',
@@ -633,7 +633,7 @@ export class CrearGastoComponent implements OnInit {
 
         this.proveedor = {
             id: 0,
-            empresa: '',
+            empresa: '1',
             pais: '',
             regimen: '',
             razon_social: '',

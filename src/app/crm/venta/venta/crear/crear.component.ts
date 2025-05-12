@@ -6,9 +6,9 @@ import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
 import 'moment/locale/pt-br';
-import {ConfiguracionService} from '@services/http/configuracion.service';
 import {VentaService} from '@services/http/venta.service';
 import {CompraService} from '@services/http/compra.service';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-crear',
@@ -212,13 +212,14 @@ export class CrearComponent implements OnInit {
         nombre: '',
         contenido: '',
     };
+    protected readonly Boolean = Boolean;
 
     constructor(
         private http: HttpClient,
         private modalService: NgbModal,
         private renderer: Renderer2,
         private auth: AuthService,
-        private configuracionService: ConfiguracionService,
+        private whatsappService: WhatsappService,
         private ventaService: VentaService,
         private compraService: CompraService
     ) {
@@ -336,21 +337,6 @@ export class CrearComponent implements OnInit {
                 this.marketplace_info.marketplace.split(' ')[0];
             this.data.terminar = this.marketplace_info.app_id ? 0 : 1;
         }
-    }
-
-    cambiarProveedor() {
-        if (this.data.documento.proveedor != '') {
-            this.data.documento.fulfillment = 1;
-
-            const almacen = this.almacenes.find((a) =>
-                a.almacen.includes('DROPSHIPPING')
-            );
-
-            if (almacen) {
-                this.data.documento.almacen = almacen.id;
-            }
-        }
-        console.log(this.data.documento);
     }
 
     cambiarPaqueteria() {
@@ -512,7 +498,7 @@ export class CrearComponent implements OnInit {
 
                             switch (
                                 this.marketplace_info.marketplace.toLowerCase()
-                            ) {
+                                ) {
                                 case 'mercadolibre':
                                     if (res['venta'].length > 1) {
                                         this.ventas_mercadolibre = res['venta'];
@@ -520,7 +506,7 @@ export class CrearComponent implements OnInit {
                                         this.modalReferenceMercadolibre =
                                             this.modalService.open(
                                                 this.modalventasmercadolibre,
-                                                { backdrop: 'static' }
+                                                {backdrop: 'static'}
                                             );
 
                                         return;
@@ -584,9 +570,9 @@ export class CrearComponent implements OnInit {
                                             (producto) => {
                                                 if (
                                                     producto.ShippingType !=
-                                                        undefined &&
+                                                    undefined &&
                                                     producto.ShippingType ==
-                                                        'Dropshipping'
+                                                    'Dropshipping'
                                                 ) {
                                                     paqueteria_id = '';
 
@@ -597,11 +583,11 @@ export class CrearComponent implements OnInit {
 
                                                 total_coupon +=
                                                     producto.VoucherAmount !=
-                                                        undefined ||
+                                                    undefined ||
                                                     producto.VoucherAmount != ''
                                                         ? parseFloat(
-                                                              producto.VoucherAmount
-                                                          )
+                                                            producto.VoucherAmount
+                                                        )
                                                         : 0;
 
                                                 costo_envio +=
@@ -663,9 +649,9 @@ export class CrearComponent implements OnInit {
                                             informacion.productos
                                                 .VoucherAmount != ''
                                                 ? parseFloat(
-                                                      informacion.productos
-                                                          .VoucherAmount
-                                                  )
+                                                    informacion.productos
+                                                        .VoucherAmount
+                                                )
                                                 : 0;
                                         costo_envio =
                                             informacion.productos
@@ -677,7 +663,7 @@ export class CrearComponent implements OnInit {
 
                                         this.data.productos_venta.push({
                                             SellerSKU:
-                                                informacion.productos.Sku,
+                                            informacion.productos.Sku,
                                             Title: informacion.productos.Name,
                                             QuantityOrdered: 1,
                                             ItemPrice: {
@@ -749,9 +735,9 @@ export class CrearComponent implements OnInit {
                                         informacion.productos
                                     )
                                         ? informacion.productos[0]
-                                              .ShipmentProvider
+                                            .ShipmentProvider
                                         : informacion.productos
-                                              .ShipmentProvider;
+                                            .ShipmentProvider;
 
                                     if (paqueteria_id == '') {
                                         const paqueteria =
@@ -808,8 +794,8 @@ export class CrearComponent implements OnInit {
                                     ) {
                                         this.data.documento.mkt_fee =
                                             (parseFloat(
-                                                informacion.OrderTotal.Amount
-                                            ) *
+                                                    informacion.OrderTotal.Amount
+                                                ) *
                                                 10) /
                                             100;
                                     }
@@ -925,7 +911,7 @@ export class CrearComponent implements OnInit {
 
                                     if (
                                         informacion.FulfillmentChannel !=
-                                            undefined &&
+                                        undefined &&
                                         informacion.FulfillmentChannel == 'AFN'
                                     ) {
                                         this.data.documento.paqueteria = '9';
@@ -1401,9 +1387,9 @@ export class CrearComponent implements OnInit {
                                         informacion.shippingInfo.postalAddress
                                             .address5
                                             ? informacion.shippingInfo.postalAddress.address5.substr(
-                                                  0,
-                                                  30
-                                              )
+                                                0,
+                                                30
+                                            )
                                             : '';
 
                                     informacion.shipments.forEach(
@@ -1457,7 +1443,7 @@ export class CrearComponent implements OnInit {
                                             SellerSKU: item.item.sku,
                                             Title: item.item.productName,
                                             QuantityOrdered:
-                                                item.orderLineQuantity.amount,
+                                            item.orderLineQuantity.amount,
                                             ItemPrice: {
                                                 Amount: item.item.unitPrice
                                                     .amount,
@@ -1508,7 +1494,7 @@ export class CrearComponent implements OnInit {
                                             (ttl, producto) =>
                                                 ttl +
                                                 Number(producto.price) *
-                                                    Number(producto.quantity),
+                                                Number(producto.quantity),
                                             0
                                         );
 
@@ -1564,7 +1550,7 @@ export class CrearComponent implements OnInit {
                                         informacion.shippingData.address
                                             .complement
                                             ? informacion.shippingData.address
-                                                  .complement
+                                                .complement
                                             : '';
                                     this.data.documento.direccion_envio.colonia_text =
                                         informacion.shippingData.address.neighborhood;
@@ -1710,8 +1696,8 @@ export class CrearComponent implements OnInit {
                                                 .shipping_address
                                                 .additional_info
                                                 ? informacion.customer
-                                                      .shipping_address
-                                                      .additional_info
+                                                    .shipping_address
+                                                    .additional_info
                                                 : '';
 
                                         this.cambiarCodigoPostal(
@@ -1830,8 +1816,8 @@ export class CrearComponent implements OnInit {
                                                 .shipping_address
                                                 .additional_info
                                                 ? informacion.customer
-                                                      .shipping_address
-                                                      .additional_info
+                                                    .shipping_address
+                                                    .additional_info
                                                 : '';
 
                                         this.cambiarCodigoPostal(
@@ -1961,15 +1947,15 @@ export class CrearComponent implements OnInit {
                 $.trim(informacion.buyer.phone.area_code) == ''
                     ? informacion.buyer.phone.number
                     : informacion.buyer.phone.area_code +
-                      ' - ' +
-                      informacion.buyer.phone.number;
+                    ' - ' +
+                    informacion.buyer.phone.number;
             this.data.cliente.telefono_alt =
                 informacion.buyer.alternative_phone.area_code == null ||
                 informacion.buyer.alternative_phone.area_code == ''
                     ? informacion.buyer.alternative_phone.number
                     : informacion.buyer.alternative_phone.area_code +
-                      ' - ' +
-                      informacion.buyer.alternative_phone.number;
+                    ' - ' +
+                    informacion.buyer.alternative_phone.number;
         }
 
         // Información del envío
@@ -2124,8 +2110,8 @@ export class CrearComponent implements OnInit {
                                 response.status == 0
                                     ? response.message
                                     : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
+                                        ? response.error.error_summary
+                                        : response.error,
                         });
 
                         resolve({
@@ -2134,8 +2120,8 @@ export class CrearComponent implements OnInit {
                                 response.status == 0
                                     ? response.message
                                     : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
+                                        ? response.error.error_summary
+                                        : response.error,
                         });
                     }
                 );
@@ -2300,8 +2286,8 @@ export class CrearComponent implements OnInit {
                                 this.producto.descripcion =
                                     this.producto.descripcion == ''
                                         ? $(
-                                              '#pro_codigo option:selected'
-                                          ).text()
+                                            '#pro_codigo option:selected'
+                                        ).text()
                                         : this.producto.descripcion;
 
                                 this.data.documento.productos.push(
@@ -2321,8 +2307,8 @@ export class CrearComponent implements OnInit {
                                         response.status == 0
                                             ? response.message
                                             : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
+                                                ? response.error.error_summary
+                                                : response.error,
                                 });
                             }
                         );
@@ -2416,8 +2402,8 @@ export class CrearComponent implements OnInit {
                                 this.producto.descripcion =
                                     this.producto.descripcion == ''
                                         ? $(
-                                              '#pro_codigo option:selected'
-                                          ).text()
+                                            '#pro_codigo option:selected'
+                                        ).text()
                                         : this.producto.descripcion;
 
                                 this.data.documento.productos.push(
@@ -2437,8 +2423,8 @@ export class CrearComponent implements OnInit {
                                         response.status == 0
                                             ? response.message
                                             : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
+                                                ? response.error.error_summary
+                                                : response.error,
                                 });
                             }
                         );
@@ -2736,8 +2722,8 @@ export class CrearComponent implements OnInit {
                                 response.status == 0
                                     ? response.message
                                     : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
+                                        ? response.error.error_summary
+                                        : response.error,
                         });
                     }
                 );
@@ -2772,44 +2758,6 @@ export class CrearComponent implements OnInit {
         }
 
         return 0;
-    }
-
-    YmdHis() {
-        const now = new Date();
-        const year = '' + now.getFullYear();
-        let month = '' + (now.getMonth() + 1);
-        if (month.length == 1) {
-            month = '0' + month;
-        }
-        let day = '' + now.getDate();
-        if (day.length == 1) {
-            day = '0' + day;
-        }
-        let hour = '' + now.getHours();
-        if (hour.length == 1) {
-            hour = '0' + hour;
-        }
-        let minute = '' + now.getMinutes();
-        if (minute.length == 1) {
-            minute = '0' + minute;
-        }
-        let second = '' + now.getSeconds();
-        if (second.length == 1) {
-            second = '0' + second;
-        }
-        return (
-            year +
-            '-' +
-            month +
-            '-' +
-            day +
-            ' ' +
-            hour +
-            ':' +
-            minute +
-            ':' +
-            second
-        );
     }
 
     // obtenerCoordenadas(codigo_postal, tipo) {
@@ -2857,6 +2805,44 @@ export class CrearComponent implements OnInit {
     //             }
     //         });
     // }
+
+    YmdHis() {
+        const now = new Date();
+        const year = '' + now.getFullYear();
+        let month = '' + (now.getMonth() + 1);
+        if (month.length == 1) {
+            month = '0' + month;
+        }
+        let day = '' + now.getDate();
+        if (day.length == 1) {
+            day = '0' + day;
+        }
+        let hour = '' + now.getHours();
+        if (hour.length == 1) {
+            hour = '0' + hour;
+        }
+        let minute = '' + now.getMinutes();
+        if (minute.length == 1) {
+            minute = '0' + minute;
+        }
+        let second = '' + now.getSeconds();
+        if (second.length == 1) {
+            second = '0' + second;
+        }
+        return (
+            year +
+            '-' +
+            month +
+            '-' +
+            day +
+            ' ' +
+            hour +
+            ':' +
+            minute +
+            ':' +
+            second
+        );
+    }
 
     cambiarCodigoPostal(codigo) {
         if (!codigo) {
@@ -3298,8 +3284,8 @@ export class CrearComponent implements OnInit {
                                         response.status == 0
                                             ? response.message
                                             : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
+                                                ? response.error.error_summary
+                                                : response.error,
                                 });
                             }
                         );
@@ -3419,8 +3405,8 @@ export class CrearComponent implements OnInit {
                                     response.status == 0
                                         ? response.message
                                         : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
+                                            ? response.error.error_summary
+                                            : response.error,
                             });
 
                             resolve(1);
@@ -3539,27 +3525,39 @@ export class CrearComponent implements OnInit {
 
     validarCCE() {
         if (!this.data.documento.cce) {
-            return swal({
-                type: 'warning',
-                html: 'Necesita autorización, escribe el token proporcionado vía WhatsApp en el recuadro de abajo',
-                input: 'text',
-                inputAttributes: {
-                    maxlength: '7',
-                },
-                showCancelButton: true,
-            }).then((res) => {
-                if (res.value) {
-                    this.configuracionService.getAccessToCCE(res.value).subscribe(
-                        () => {
-                            this.data.documento.cce = 1;
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: () => {
+                    return swal({
+                        type: 'warning',
+                        html: 'Necesita autorización, escribe el token proporcionado vía WhatsApp en el recuadro de abajo',
+                        input: 'text',
+                        inputAttributes: {
+                            maxlength: '7',
                         },
-                        (err: any) => {
+                        showCancelButton: true,
+                    }).then((res) => {
+                        if (res.value) {
+                            this.whatsappService.validateWhatsapp(res.value).subscribe(
+                                (validate: any) => {
+                                    if (validate.code === 200) {
+                                        this.data.documento.cce = 1;
+                                    } else {
+                                        this.data.documento.cce = 0;
+                                        swalErrorHttpResponse(validate);
+                                    }
+                                },
+                                (err: any) => {
+                                    this.data.documento.cce = 0;
+                                    swalErrorHttpResponse(err);
+                                }
+                            );
+                        } else {
                             this.data.documento.cce = 0;
-                            swalErrorHttpResponse(err);
                         }
-                    );
-                } else {
-                    this.data.documento.cce = 0;
+                    });
+                },
+                error: (error) => {
+                    swalErrorHttpResponse(error);
                 }
             });
         } else {

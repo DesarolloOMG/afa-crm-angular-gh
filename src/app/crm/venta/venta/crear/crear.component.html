@@ -1,10 +1,11 @@
+<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols, JSUnusedLocalSymbols -->
 <div class="row">
     <!-- <button class="btn btn-block btn-danger" (click)="ngOnInit()">GET</button> -->
     <div class="col-sm-12">
         <form class="md-float-material form-material" #f="ngForm">
             <div class="auth-box card">
                 <div class="card-block">
-                    <div class="row" [hidden]="empresas_usuario.length < 2">
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group form-primary">
                                 <select
@@ -710,7 +711,7 @@
                                     class="form-control"
                                     [(ngModel)]="data.documento.periodo"
                                     (change)="cambiarPeriodo()"
-                                    [disabled]="data.desactivar_periodo_metodo"
+                                    [disabled]="Boolean(data.desactivar_periodo_metodo)"
                                 >
                                     <option value="" disabled></option>
                                     <option

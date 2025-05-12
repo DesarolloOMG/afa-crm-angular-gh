@@ -1,13 +1,9 @@
-import {
-    backend_url,
-    backend_url_password,
-    commaNumber,
-} from './../../../../../environments/environment';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url, backend_url_password, commaNumber,} from './../../../../../environments/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AuthService} from './../../../../services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
 
@@ -69,7 +65,7 @@ export class HistorialComponent implements OnInit {
     };
 
     poliza_automatica = {
-        empresa: '',
+        empresa: '1',
         template: '',
         movimiento: '',
     };

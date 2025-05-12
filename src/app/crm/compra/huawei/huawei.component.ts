@@ -1,7 +1,7 @@
-import { backend_url } from './../../../../environments/environment';
-import { Component, OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
+import {backend_url} from './../../../../environments/environment';
+import {Component, OnInit} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import * as XLSX from 'xlsx';
 import swal from 'sweetalert2';
 
@@ -15,7 +15,7 @@ export class HuaweiComponent implements OnInit {
     datatable: any;
 
     data = {
-        empresa: '',
+        empresa: '1',
         almacen: '',
         xmls: [],
     };

@@ -1,10 +1,10 @@
-import { backend_url, commaNumber } from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {backend_url, commaNumber} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
-import { Router } from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-historial',
@@ -47,7 +47,7 @@ export class HistorialComponent implements OnInit {
         id_fase: '',
         nombre: '',
         almacen: '',
-        empresa: '',
+        empresa: '1',
         factura_serie: '',
         factura_folio: '',
         razon_social: '',

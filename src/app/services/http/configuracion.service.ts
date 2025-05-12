@@ -59,15 +59,6 @@ export class ConfiguracionService {
         );
     }
 
-    getAccessToCCE(data: object) {
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(data));
-
-        return this.http.post(
-            `${backend_url}developer/confirmar-authy-cce`,
-            form_data
-        );
-    }
     saveConfiguracionSistemaMarketplace(data: MarketplaceArea) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
@@ -108,4 +99,5 @@ export class ConfiguracionService {
             `${backend_url}configuracion/sistema/impresora/${impersora_id}`,
         );
     }
+
 }

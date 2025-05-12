@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols, JSUnusedGlobalSymbols -->
 <div class="card">
     <div class="card-header">
         <h5>Ordenes de compra</h5>
@@ -7,29 +8,29 @@
             <div class="col-md-12">
                 <table class="table table-striped" id="compra_orden_recepcion">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Proveedor</th>
-                            <th>Creador</th>
-                            <th>Fecha</th>
-                            <th>Fecha de arribo</th>
-                        </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Proveedor</th>
+                        <th>Creador</th>
+                        <th>Fecha</th>
+                        <th>Fecha de arribo</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let row of documentos; let index = index">
-                            <td>
-                                <button
-                                    class="btn btn-info btn-sm btn-block"
-                                    (click)="detalleDocumento(row.id)"
-                                >
-                                    {{ row.id }}
-                                </button>
-                            </td>
-                            <td>{{ row.razon_social }}</td>
-                            <td>{{ row.nombre }}</td>
-                            <td>{{ row.created_at }}</td>
-                            <td>{{ row.fecha_entrega }}</td>
-                        </tr>
+                    <tr *ngFor="let row of documentos; let index = index">
+                        <td>
+                            <button
+                                (click)="detalleDocumento(row.id)"
+                                class="btn btn-info btn-sm btn-block"
+                            >
+                                {{ row.id }}
+                            </button>
+                        </td>
+                        <td>{{ row.razon_social }}</td>
+                        <td>{{ row.nombre }}</td>
+                        <td>{{ row.created_at }}</td>
+                        <td>{{ row.fecha_entrega }}</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -76,7 +77,7 @@
 
                 <div class="form-group group-div">
                     <label class="col-form-label col-sm-2"
-                        >Información extra para series</label
+                    >Información extra para series</label
                     >
                     <div class="col-sm-10 inline-block">
                         <input
@@ -93,68 +94,68 @@
                     <div class="col-sm-10 inline-block">
                         <table class="table table-striped">
                             <thead>
-                                <tr>
-                                    <th>Código</th>
-                                    <th>Descripción</th>
-                                    <th>Cantidad</th>
-                                    <th>Recepcionada</th>
-                                    <th></th>
-                                    <th></th>
-                                </tr>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Recepcionada</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr
-                                    *ngFor="
+                            <tr
+                                *ngFor="
                                         let row of final_data.productos;
                                         let index = index
                                     "
-                                >
-                                    <td>{{ row.oculto }}</td>
-                                    <td>{{ row.descripcion }}</td>
-                                    <td>{{ row.cantidad }}</td>
-                                    <td>
-                                        {{ row.cantidad_recepcionada_anterior }}
-                                    </td>
-                                    <td *ngIf="row.serie">
-                                        <button
-                                            class="btn btn-outline-info btn-sm btn-block"
-                                            placement="top"
-                                            ngbTooltip="Agregar series"
-                                            (click)="
+                            >
+                                <td>{{ row.oculto }}</td>
+                                <td>{{ row.descripcion }}</td>
+                                <td>{{ row.cantidad }}</td>
+                                <td>
+                                    {{ row.cantidad_recepcionada_anterior }}
+                                </td>
+                                <td *ngIf="row.serie">
+                                    <button
+                                        (click)="
                                                 checkUPCserie(row.codigo, 1)
                                             "
-                                        >
-                                            <i class="fa fa-barcode fa-2x"></i>
-                                        </button>
-                                    </td>
-                                    <td *ngIf="!row.serie">
-                                        <button
-                                            class="btn btn-outline-info btn-sm btn-block"
-                                            placement="top"
-                                            name="cantidadrecepcionada{{
-                                                index
-                                            }}"
-                                            ngbTooltip="Agregar cantidad"
-                                            (click)="
+                                        class="btn btn-outline-info btn-sm btn-block"
+                                        ngbTooltip="Agregar series"
+                                        placement="top"
+                                    >
+                                        <i class="fa fa-barcode fa-2x"></i>
+                                    </button>
+                                </td>
+                                <td *ngIf="!row.serie">
+                                    <button
+                                        (click)="
                                                 checkUPCserie(row.codigo, 0)
                                             "
-                                        >
-                                            <i class="">{{
+                                        class="btn btn-outline-info btn-sm btn-block"
+                                        name="cantidadrecepcionada{{
+                                                index
+                                            }}"
+                                        ngbTooltip="Agregar cantidad"
+                                        placement="top"
+                                    >
+                                        <i class="">{{
                                                 row.cantidad_recepcionada
                                             }}</i>
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <button
-                                            class="btn btn-sm btn-block btn-outline-info"
-                                            (click)="generarCodigos(row.codigo)"
-                                            placement="top"
-                                            ngbTooltip="Generar etiquetas"
-                                        >
-                                            <i class="fa fa-barcode fa-2x"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button
+                                        (click)="generarCodigos(row.codigo)"
+                                        class="btn btn-sm btn-block btn-outline-info"
+                                        ngbTooltip="Generar etiquetas"
+                                        placement="top"
+                                    >
+                                        <i class="fa fa-barcode fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -188,8 +189,8 @@
                                                 <p class="chat-cont">
                                                     {{
                                                         seguimiento.nombre +
-                                                            " - " +
-                                                            seguimiento.created_at
+                                                        " - " +
+                                                        seguimiento.created_at
                                                     }}
                                                 </p>
                                                 <p
@@ -209,7 +210,7 @@
 
                 <div class="form-group group-div">
                     <label class="col-form-label col-sm-2"
-                        >Adjuntar archivos</label
+                    >Adjuntar archivos</label
                     >
                     <div class="col-sm-10 inline-block m-t-10">
                         <div class="row">
@@ -236,9 +237,7 @@
                             name="finalizarodc"
                             id="finalizarodc"
                             [(ngModel)]="final_data.finalizar"
-                            placement="top"
-                            ngbTooltio="Para finalizar la ODC, es necesario autorización con 'Authy'"
-                            (change)="modalUsuarioAuthy()"
+                            (change)="modalUsuarioWhatsapp()"
                         ></ui-switch>
                     </div>
                 </div>
@@ -314,7 +313,7 @@
                                 <span
                                     (click)="eliminarSerie(serie.serie)"
                                     class="float-right cursor-pointer text-danger"
-                                    >Quitar</span
+                                >Quitar</span
                                 >
                             </li>
                         </ng-container>
@@ -372,18 +371,12 @@
 
 <ng-template #modaltoken let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
+        <button (click)="d('Cross click')" aria-label="Close" class="close" id="cerrar_modal" type="button">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     <div class="modal-body table-responsive">
-        <form class="md-float-material form-material mt-10">
+        <form (ngSubmit)="confirmarWhatsFinalizar()" class="md-float-material form-material mt-10">
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group form-primary">
@@ -392,42 +385,50 @@
                             id="usuario"
                             class="form-control"
                             required
-                            [(ngModel)]="authy.usuario"
+                            [(ngModel)]="whats.usuario"
                         >
                             <option value="" disabled></option>
-                            <option
-                                value="{{ usuario.authy }}"
-                                *ngFor="let usuario of usuarios"
-                            >
+                            <option *ngFor="let usuario of usuarios" [value]="usuario.id">
                                 {{ usuario.nombre }} - {{ usuario.nivel }}
                             </option>
                         </select>
                         <span class="form-bar"></span>
                         <label class="float-label">Usuario</label>
                     </div>
+                    <button
+                        (click)="enviarCodigoWhatsApp()"
+                        [disabled]="isTimerActive"
+                        class="btn btn-info btn-sm mt-2"
+                        type="button"
+                    >
+                        {{ isTimerActive ? ('Reenviar en ' + timer + 's') : 'Enviar código' }}
+                    </button>
                 </div>
             </div>
-            <div class="row">
+
+            <div class="row mt-3">
                 <div class="col-md-12">
                     <div class="form-group form-primary">
                         <input
                             type="text"
                             name="token"
                             id="token"
-                            class="form-control http-disabled"
-                            [(ngModel)]="authy.token"
-                            #tokenmodel="ngModel"
-                            (keyup.enter)="confirmarAuthyFinalizar()"
+                            [(ngModel)]="whats.token"
+                            class="form-control"
                             pattern="^[0-9]+$"
                         />
                         <span class="form-bar"></span>
                         <label class="float-label">Token</label>
                     </div>
+                    <button class="btn btn-success btn-sm mt-2" type="submit">
+                        Validar token
+                    </button>
                 </div>
             </div>
         </form>
     </div>
 </ng-template>
+
 
 <ng-template #modalcaducidad let-c="close" let-d="dismiss">
     <div class="modal-header">
@@ -444,7 +445,7 @@
 
             <div class="form-group">
                 <label class="float-label ol-form-label col-sm-4"
-                    >Mes/Año (MM/YY)</label
+                >Mes/Año (MM/YY)</label
                 >
                 <div class="col-sm-5 inline-block">
                     <!-- Month Input -->

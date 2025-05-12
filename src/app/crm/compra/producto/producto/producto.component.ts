@@ -1,11 +1,11 @@
 /* tslint:disable:triple-equals */
-import { backend_url } from '@env/environment';
-import { animate, style, transition, trigger } from '@angular/animations';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
+import {backend_url} from '@env/environment';
+import {animate, style, transition, trigger} from '@angular/animations';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
 import * as XLSX from 'xlsx';
 import swal from 'sweetalert2';
 
@@ -77,7 +77,7 @@ export class ProductoComponent implements OnInit {
             descripcion: '',
         },
         precio: {
-            empresa: '',
+            empresa: '1',
             precio: 0,
             productos: [],
         },

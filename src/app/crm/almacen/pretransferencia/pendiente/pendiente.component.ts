@@ -1,11 +1,12 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {backend_url, commaNumber, dropbox_token, swalErrorHttpResponse,} from '@env/environment';
+import {commaNumber, dropbox_token, swalErrorHttpResponse} from '@env/environment';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AlmacenService} from '@services/http/almacen.service';
 import {GeneralService} from '@services/http/general.service';
 import * as moment from 'moment';
 import swal from 'sweetalert2';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-pendiente',
@@ -76,7 +77,8 @@ export class PendienteComponent implements OnInit {
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private http: HttpClient,
-        private generalService: GeneralService
+        private generalService: GeneralService,
+        private whatsappService: WhatsappService,
     ) {
         this.moment.locale('es_MX');
 
@@ -106,7 +108,7 @@ export class PendienteComponent implements OnInit {
             return;
         }
 
-        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+        this.whatsappService.sendWhatsapp().subscribe({
             next: (res) => {
                 console.log(res);
                 swal({
@@ -152,7 +154,7 @@ export class PendienteComponent implements OnInit {
     }
 
     deleteDocument(documento_id: number) {
-        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+        this.whatsappService.sendWhatsapp().subscribe({
             next: (res) => {
                 console.log(res);
                 swal({

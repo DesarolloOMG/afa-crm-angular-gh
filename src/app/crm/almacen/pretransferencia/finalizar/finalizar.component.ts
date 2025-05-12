@@ -1,11 +1,12 @@
 /* tslint:disable:triple-equals */
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {backend_url, commaNumber, dropbox_token, swalErrorHttpResponse} from '@env/environment';
+import {commaNumber, dropbox_token, swalErrorHttpResponse} from '@env/environment';
 import {AlmacenService} from '@services/http/almacen.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-finalizar',
@@ -60,7 +61,8 @@ export class FinalizarComponent implements OnInit {
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private almacenService: AlmacenService
+        private almacenService: AlmacenService,
+        private whatsappService: WhatsappService
     ) {
         this.moment.locale('es_MX');
 
@@ -122,7 +124,7 @@ export class FinalizarComponent implements OnInit {
                 html: `Para finalizar la pretransferencia, tienes que agregar el archivo de recibido que el marketplace te proporcionó.`,
             });
         }
-        this.http.get(`${backend_url}whatsapp/sendWhatsApp`).subscribe({
+        this.whatsappService.sendWhatsapp().subscribe({
             next: (res) => {
                 console.log(res);
                 swal({

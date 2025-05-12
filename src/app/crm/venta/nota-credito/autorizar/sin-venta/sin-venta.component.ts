@@ -1,18 +1,13 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { animate, style, transition, trigger } from '@angular/animations';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {animate, style, transition, trigger} from '@angular/animations';
 import swal from 'sweetalert2';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from '@services/auth.service';
-import { VentaService } from '@services/http/venta.service';
+import {NgbModal, NgbTabset} from '@ng-bootstrap/ng-bootstrap';
+import {AuthService} from '@services/auth.service';
+import {VentaService} from '@services/http/venta.service';
 import * as moment from 'moment';
 
-import {
-    backend_url,
-    swalErrorHttpResponse,
-    commaNumber,
-} from '@env/environment';
+import {backend_url, commaNumber, swalErrorHttpResponse,} from '@env/environment';
 
 @Component({
     selector: 'app-sin-venta',
@@ -63,7 +58,7 @@ export class SinVentaComponent implements OnInit {
 
     data: any;
     final_data = {
-        empresa: '',
+        empresa: '1',
         uso: '',
         almacen: '',
         periodo: '',

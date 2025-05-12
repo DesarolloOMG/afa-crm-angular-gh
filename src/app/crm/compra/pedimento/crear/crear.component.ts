@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { backend_url, backend_url_password } from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {backend_url, backend_url_password} from '@env/environment';
 import swal from 'sweetalert2';
 
 @Component({
@@ -10,7 +10,7 @@ import swal from 'sweetalert2';
 })
 export class CrearComponent implements OnInit {
     data = {
-        empresa: '',
+        empresa: '1',
         fecha_importacion: '',
         titulo: '',
         pedimento: '',

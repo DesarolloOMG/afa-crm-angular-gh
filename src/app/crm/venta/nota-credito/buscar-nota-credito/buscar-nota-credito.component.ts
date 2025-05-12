@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { VentaService } from '@services/http/venta.service';
-import { swalErrorHttpResponse } from '@env/environment';
+import {Component, OnInit} from '@angular/core';
+import {VentaService} from '@services/http/venta.service';
+import {swalErrorHttpResponse} from '@env/environment';
 import swal from 'sweetalert2';
 
 @Component({
@@ -10,7 +10,7 @@ import swal from 'sweetalert2';
 })
 export class BuscarNotaCreditoComponent implements OnInit {
     busqueda = {
-        empresa: '',
+        empresa: '1',
         documento: '',
     };
 
