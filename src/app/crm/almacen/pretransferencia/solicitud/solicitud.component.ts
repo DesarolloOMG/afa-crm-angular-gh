@@ -350,7 +350,7 @@ export class SolicitudComponent implements OnInit {
                     form_data
                 )
                 .subscribe(
-                    (res) => {
+                    (res: any) => {
                         res['productos'].forEach((producto) => {
                             const productoExistente = this.data.productos.find(
                                 (p) => p.sku === producto.sku
@@ -383,7 +383,7 @@ export class SolicitudComponent implements OnInit {
                         });
                         this.buscarPublicacion().then();
                     },
-                    (response) => {
+                    (response: any) => {
                         swalErrorHttpResponse(response);
                     }
                 );
@@ -474,11 +474,11 @@ export class SolicitudComponent implements OnInit {
                                         type: 'error',
                                         html: res.message
                                     });
-                                    return reject(res);
+                                    reject(res);
                                 }
                                 resolve(res);
                             },
-                            (err) => {
+                            (err: any) => {
                                 swalErrorHttpResponse(err);
                                 reject(err);
                             }
@@ -506,7 +506,7 @@ export class SolicitudComponent implements OnInit {
                             }
                         );
                 })
-                .catch((err) => {
+                .catch((err: any) => {
                     console.error('An error occurred:', err);
                 });
         }
@@ -666,14 +666,21 @@ export class SolicitudComponent implements OnInit {
                                                 $this.producto.cantidad
                                             )
                                             .subscribe(
-                                                () => {
-                                                    $this.data.productos.push(
-                                                        $this.producto
-                                                    );
+                                                (res: any) => {
+                                                    if (res.code == 200) {
+                                                        $this.data.productos.push(
+                                                            $this.producto
+                                                        );
 
-                                                    $this.buscarProducto();
+                                                        $this.buscarProducto();
 
-                                                    resolve(1);
+                                                        resolve(1);
+                                                    } else {
+                                                        swal({
+                                                            type: 'error',
+                                                            html: res.message,
+                                                        });
+                                                    }
                                                 },
                                                 (err: any) => {
                                                     swalErrorHttpResponse(err);
@@ -778,7 +785,6 @@ export class SolicitudComponent implements OnInit {
             },
             (err: any) => {
                 swalErrorHttpResponse(err);
-            }
-        );
+            });
     }
 }

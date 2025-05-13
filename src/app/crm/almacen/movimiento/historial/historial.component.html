@@ -247,10 +247,12 @@
                                 class="btn btn-info btn-sm btn-block m-t-10 m-b-10"
                                 (click)="affectDocument()"
                                 [disabled]="
-                                !$any(data).autorizado ||
-                                (requiere_series && data.series_afectar.length <= 0)
-"
-                            >
+                                    ($any(data).entregado != '' &&
+                                        $any(data).entregado != null) ||
+                                    $any(data).autorizado ||
+                                    (requiere_series &&
+                                        data.series_afectar.length <= 0)
+                                ">
                                 {{
                                     data.id_tipo == 11
                                         ? "Autorizar documento"
