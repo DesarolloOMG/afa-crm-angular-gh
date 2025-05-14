@@ -1,8 +1,7 @@
 import {backend_url, swalErrorHttpResponse} from '@env/environment';
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
-import {NgModel} from '@angular/forms';
 import swal from 'sweetalert2';
 import {WhatsappService} from '@services/http/whatsapp.service';
 
@@ -12,15 +11,12 @@ import {WhatsappService} from '@services/http/whatsapp.service';
     styleUrls: ['./eliminar.component.scss'],
 })
 export class EliminarComponent implements OnInit {
-    @ViewChild('tokenmodel') token_view: NgModel;
     modalReference: any;
-
-    venta: any = '';
-    token: any = '';
-    authy: any = '';
     usuarios: any[] = [];
+
     garantia: any = 1;
-    motivo: '';
+    venta = '';
+    motivo = '';
     timer = 0;
     isTimerActive = false;
 
@@ -63,46 +59,9 @@ export class EliminarComponent implements OnInit {
             });
         }
 
-        const form_data = new FormData();
-
-        form_data.append('authy', this.authy);
-        form_data.append('documento', this.venta);
-        form_data.append('token', $.trim(this.token));
-        form_data.append('garantia', $.trim(this.garantia));
-        form_data.append('motivo', $.trim(this.motivo));
-
-        this.http
-            .post(`${backend_url}venta/venta/cancelar`, form_data)
-            .subscribe(
-                (res) => {
-                    if (res['code'] == 406) {
-                        this.modalReference = this.modalService.open(modal, {
-                            backdrop: 'static',
-                        });
-
-                        return;
-                    }
-
-                    swal({
-                        title: '',
-                        type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message'],
-                    }).then();
-
-                    if (res['code'] == 200) {
-                        this.venta = '';
-                        this.authy = '';
-                        this.token = '';
-                        this.garantia = 0;
-                        this.motivo = '';
-
-                        this.modalReference.close();
-                    }
-                },
-                (response) => {
-                    swalErrorHttpResponse(response);
-                }
-            );
+        this.modalReference = this.modalService.open(modal, {
+            backdrop: 'static',
+        });
     }
 
     iniciarTemporizador() {
@@ -154,6 +113,47 @@ export class EliminarComponent implements OnInit {
 
         this.whatsappService.validateWhatsappWithOption(this.whats).subscribe(
             (validate: any) => {
+                swal({
+                    title: '',
+                    type: validate.code == 200 ? 'success' : 'error',
+                    html: validate.message,
+                }).then();
+
+                if (validate.code == 200) {
+                    const form_data = new FormData();
+
+                    form_data.append('documento', this.venta);
+                    form_data.append('garantia', $.trim(this.garantia));
+                    form_data.append('motivo', $.trim(this.motivo));
+
+                    this.http
+                        .post(`${backend_url}venta/venta/cancelar`, form_data)
+                        .subscribe(
+                            (res) => {
+
+
+                                swal({
+                                    title: '',
+                                    type: res['code'] == 200 ? 'success' : 'error',
+                                    html: res['message'],
+                                }).then();
+
+                                if (res['code'] == 200) {
+                                    this.venta = '';
+                                    this.garantia = 0;
+                                    this.motivo = '';
+                                    this.whats = {
+                                        usuario: '',
+                                        token: '',
+                                    };
+                                    this.modalReference.close();
+                                }
+                            },
+                            (response) => {
+                                swalErrorHttpResponse(response);
+                            }
+                        );
+                }
             },
             (response) => {
                 swalErrorHttpResponse(response);

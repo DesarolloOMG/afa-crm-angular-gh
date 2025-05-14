@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import { VentaService } from '@services/http/venta.service';
+import {VentaService} from '@services/http/venta.service';
 import {commaNumber, swalErrorHttpResponse} from '@env/environment';
 import swal from 'sweetalert2';
 
@@ -9,6 +9,7 @@ import swal from 'sweetalert2';
     styleUrls: ['./validar-ventas.component.scss'],
 })
 export class ValidarVentasComponent implements OnInit {
+    // NEXT AUTHY
     data = {
         area: '',
         marketplace: '',
@@ -29,7 +30,7 @@ export class ValidarVentasComponent implements OnInit {
         private ventaService: VentaService,
         private chRef: ChangeDetectorRef,
     ) {
-        const table_busqueda: any = $("#validar_venta_mercadolibre");
+        const table_busqueda: any = $('#validar_venta_mercadolibre');
 
         this.datatable_busqueda = table_busqueda.DataTable();
     }
@@ -80,11 +81,12 @@ export class ValidarVentasComponent implements OnInit {
             return;
         }
 
-        if (!this.data.marketplace)
+        if (!this.data.marketplace) {
             return swal({
                 type: 'error',
                 html: `Selecciona un area y marketplace para validar las ventas de mercadolibre`,
             });
+        }
 
         this.ventaService.validateOrdersMercadoLibreData(this.data).subscribe(
             (res: any) => {
@@ -93,7 +95,7 @@ export class ValidarVentasComponent implements OnInit {
                     html: res.message,
                 });
 
-                this.ventas_raw = res["ventas"];
+                this.ventas_raw = res['ventas'];
 
                 this.filtrarVentas();
 
@@ -125,7 +127,7 @@ export class ValidarVentasComponent implements OnInit {
     }
 
     onChangeArea() {
-        const area = this.areas.find((area) => area.id == this.data.area);
+        const area = this.areas.find((a) => a.id == this.data.area);
 
         this.data.marketplace = '';
         this.marketplaces = area.marketplaces;

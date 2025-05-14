@@ -138,7 +138,7 @@ export interface DataSimple {
         quantity: number;
         price: number;
     };
-    authy_code: string;
+    auth_code: string;
 }
 export interface MarketplaceObj {
     id: number;
@@ -165,7 +165,7 @@ export interface MarketplaceObj {
             unit: string;
         };
     };
-    authy_code: string;
+    auth_code: string;
 }
 
 export interface DataAux {
@@ -200,5 +200,5 @@ export interface DataAux {
         quantity: number;
         price: number;
     };
-    authy_code: string;
+    auth_code: string;
 }

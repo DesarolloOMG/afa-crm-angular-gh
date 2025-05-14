@@ -1,19 +1,14 @@
-import { commaNumber, swalErrorHttpResponse } from '@env/environment';
-import { animate, style, transition, trigger } from '@angular/animations';
-import {
-    Component,
-    OnInit,
-    ChangeDetectorRef,
-    IterableDiffers,
-    ViewChild,
-} from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { VentaService } from '@services/http/venta.service';
-import { MercadolibreService } from '@services/http/mercadolibre.service';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+// noinspection InconsistentLineSeparators
+import {commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {animate, style, transition, trigger} from '@angular/animations';
+import {ChangeDetectorRef, Component, DoCheck, IterableDiffers, OnInit, ViewChild} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {VentaService} from '@services/http/venta.service';
+import {MercadolibreService} from '@services/http/mercadolibre.service';
+import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 import swal from 'sweetalert2';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-publicacion',
@@ -32,7 +27,7 @@ import swal from 'sweetalert2';
         ]),
     ],
 })
-export class PublicacionComponent implements OnInit {
+export class PublicacionComponent implements OnInit, DoCheck {
     @ViewChild('modalitemcrm') modalitemcrm: NgbModal;
     @ViewChild('modalitemmarketplace') modalitemmarketplace: NgbModal;
     @ViewChild('modalattribute') modalattribute: NgbModal;
@@ -43,9 +38,7 @@ export class PublicacionComponent implements OnInit {
     iterableDiffer: any;
 
     datatable: any;
-    datatable_name: string = '#venta-mercadolibre-publicacion-publicacion';
-
-    publicacion_similar = '';
+    datatable_name = '#venta-mercadolibre-publicacion-publicacion';
 
     user_data = {
         id: 0,
@@ -95,7 +88,7 @@ export class PublicacionComponent implements OnInit {
                 unit: '',
             },
         },
-        authy_code: '',
+        auth_code: '',
     };
 
     product = {
@@ -122,15 +115,13 @@ export class PublicacionComponent implements OnInit {
     sale_terms: any[] = [];
 
     commaNumber = commaNumber;
-    buscar_activo: boolean = true;
-
     constructor(
         private ventaService: VentaService,
         private mercadolibreService: MercadolibreService,
-        private http: HttpClient,
         private modalService: NgbModal,
         private chRef: ChangeDetectorRef,
-        private iterableDiffers: IterableDiffers
+        private iterableDiffers: IterableDiffers,
+        private whatsappService: WhatsappService,
     ) {
         this.iterableDiffer = this.iterableDiffers.find([]).create(null);
 
@@ -145,15 +136,18 @@ export class PublicacionComponent implements OnInit {
     ngDoCheck() {
         const changes = this.iterableDiffer.diff(this.items);
 
-        if (changes) this.rebuildTable();
+        if (changes) {
+            this.rebuildTable();
+        }
     }
 
     searchItems() {
-        if (!this.search.marketplace)
+        if (!this.search.marketplace) {
             return swal({
                 type: 'error',
                 html: `Favor de indicar un marketplace del cual quieres buscar las publicaciones`,
             });
+        }
 
         this.ventaService.getItemsByFilters(this.search).subscribe(
             (res: any) => {
@@ -166,10 +160,10 @@ export class PublicacionComponent implements OnInit {
     }
 
     viewItemDataCRM(item_id) {
-        const item = this.items.find((item) => item.id == item_id);
+        const item = this.items.find((i) => i.id == item_id);
 
         const marketplace = this.marketplaces.find(
-            (marketplace) => marketplace.id == this.search.marketplace
+            (m) => m.id == this.search.marketplace
         );
 
         this.ventaService.getItemData(item.id).subscribe(
@@ -179,13 +173,15 @@ export class PublicacionComponent implements OnInit {
                     : item.id_almacen_empresa_fulfillment;
 
                 if (warehouse_saved) {
-                    const company = this.companies.find((company) =>
-                        company.almacenes.find((a) => a.id == warehouse_saved)
+                    const company = this.companies.find((c) =>
+                        c.almacenes.find((a) => a.id == warehouse_saved)
                     );
 
                     this.data.company = company ? company.id : '';
 
-                    if (this.data.company) this.onChangeCompany();
+                    if (this.data.company) {
+                        this.onChangeCompany();
+                    }
                 }
 
                 this.data = {
@@ -200,23 +196,23 @@ export class PublicacionComponent implements OnInit {
                 this.mercadolibreService
                     .getItemData(item.publicacion_id, marketplace.id)
                     .subscribe(
-                        (res: any) => {
-                            this.getSaleTermsForCategory(res.category_id);
+                        (itemData: any) => {
+                            this.getSaleTermsForCategory(itemData.category_id);
 
                             this.marketplace = {
                                 id: item.id,
                                 title: this.marketplace.title,
-                                variations: res.variations,
+                                variations: itemData.variations,
                                 attributes: [],
                                 pictures_data: [],
                                 description: '',
-                                quantity: res.available_quantity,
-                                price: res.base_price,
-                                previous_price: res.base_price,
-                                sales: res.sold_quantity,
+                                quantity: itemData.available_quantity,
+                                price: itemData.base_price,
+                                previous_price: itemData.base_price,
+                                sales: itemData.sold_quantity,
                                 logistic_type: item.logistic_type,
-                                video: res.video_id ? res.video_id : '',
-                                listing_type: res.listing_type_id,
+                                video: itemData.video_id ? itemData.video_id : '',
+                                listing_type: itemData.listing_type_id,
                                 warranty: {
                                     type: {
                                         id: 'WARRANTY_TYPE',
@@ -228,7 +224,7 @@ export class PublicacionComponent implements OnInit {
                                         unit: '',
                                     },
                                 },
-                                authy_code: '',
+                                auth_code: '',
                             };
 
                             this.marketplace.variations.map((v) => {
@@ -245,29 +241,29 @@ export class PublicacionComponent implements OnInit {
                             this.mercadolibreService
                                 .getItemDescription(item.publicacion_id, marketplace.id)
                                 .subscribe(
-                                    (res: any) => {
+                                    (itemDesc: any) => {
                                         this.marketplace.description =
-                                            res.plain_text;
+                                            itemDesc.plain_text;
                                     },
                                     (err: any) => {
                                         swalErrorHttpResponse(err);
                                     }
                                 );
 
-                            const item_data = res;
+                            const item_data = itemData;
 
                             this.mercadolibreService
                                 .getItemCategoryVariants(res.category_id, marketplace.id)
                                 .subscribe(
-                                    (res: any) => {
+                                    (itemCat: any) => {
                                         this.variations = [
-                                            ...res.filter(
+                                            ...itemCat.filter(
                                                 (v) => v.tags.allow_variations
                                             ),
                                         ];
 
                                         this.marketplace.attributes = [
-                                            ...res.filter(
+                                            ...itemCat.filter(
                                                 (v) =>
                                                     !v.tags.allow_variations &&
                                                     !v.tags.hidden
@@ -310,10 +306,10 @@ export class PublicacionComponent implements OnInit {
     }
 
     viewItemDataMarketplace(item_id) {
-        const item = this.items.find((item) => item.id == item_id);
+        const item = this.items.find((i) => i.id == item_id);
 
         const marketplace = this.marketplaces.find(
-            (marketplace) => marketplace.id == this.search.marketplace
+            (m) => m.id == this.search.marketplace
         );
 
         this.mercadolibreService.getItemData(item.publicacion_id, marketplace.id).subscribe(
@@ -356,7 +352,7 @@ export class PublicacionComponent implements OnInit {
                                 : '',
                         },
                     },
-                    authy_code: '',
+                    auth_code: '',
                 };
 
                 if (!this.marketplace.variations.length) {
@@ -403,8 +399,8 @@ export class PublicacionComponent implements OnInit {
                 this.mercadolibreService
                     .getItemDescription(item.publicacion_id, marketplace.id)
                     .subscribe(
-                        (res: any) => {
-                            this.marketplace.description = res.plain_text;
+                        (itemDesc: any) => {
+                            this.marketplace.description = itemDesc.plain_text;
                         },
                         (err: any) => {
                             swalErrorHttpResponse(err);
@@ -416,13 +412,13 @@ export class PublicacionComponent implements OnInit {
                 this.mercadolibreService
                     .getItemCategoryVariants(res.category_id, marketplace.id)
                     .subscribe(
-                        (res: any) => {
+                        (itemCat: any) => {
                             this.variations = [
-                                ...res.filter((v) => v.tags.allow_variations),
+                                ...itemCat.filter((v) => v.tags.allow_variations),
                             ];
 
                             this.marketplace.attributes = [
-                                ...res.filter(
+                                ...itemCat.filter(
                                     (v) =>
                                         !v.tags.allow_variations &&
                                         !v.tags.hidden
@@ -475,7 +471,7 @@ export class PublicacionComponent implements OnInit {
     }
 
     onChangeArea() {
-        const area = this.areas.find((area) => area.id == this.search.area);
+        const area = this.areas.find((a) => a.id == this.search.area);
 
         this.search.marketplace = '';
         this.marketplaces = area.marketplaces;
@@ -483,7 +479,7 @@ export class PublicacionComponent implements OnInit {
 
     onChangeMarketplace() {
         const marketplace = this.marketplaces.find(
-            (marketplace) => marketplace.id == this.search.marketplace
+            (m) => m.id == this.search.marketplace
         );
 
         if (marketplace && marketplace.pseudonimo) {
@@ -494,16 +490,16 @@ export class PublicacionComponent implements OnInit {
                         this.mercadolibreService
                             .getUserDataByID(res.seller.id, marketplace.id)
                             .subscribe(
-                                (res: any) => {
-                                    this.user_data = { ...res };
+                                (userData: any) => {
+                                    this.user_data = {...userData};
 
                                     if (this.user_data.user_type === 'brand') {
                                         this.mercadolibreService
                                             .getBrandsByUser(this.user_data.id)
                                             .subscribe(
-                                                (res: any) => {
+                                                (brandsUser: any) => {
                                                     this.brands = [
-                                                        ...res.brands,
+                                                        ...brandsUser.brands,
                                                     ];
                                                 },
                                                 (err: any) => {
@@ -526,14 +522,15 @@ export class PublicacionComponent implements OnInit {
 
     onChangeCompany() {
         const company = this.companies.find(
-            (company) => company.id == this.data.company
+            (c) => c.id == this.data.company
         );
 
         this.warehouses = company.almacenes;
     }
 
     onChangeImageAddVariation(inputname, variation) {
-        const files = $('#' + inputname).prop('files');
+        const $input = $('#' + inputname);
+        const files = $input.prop('files');
 
         const archivos = [];
 
@@ -551,11 +548,12 @@ export class PublicacionComponent implements OnInit {
                         if (
                             evt['path'][0].naturalHeight > 1200 ||
                             evt['path'][0].naturalWidth > 1200
-                        )
+                        ) {
                             return swal({
                                 type: 'error',
                                 html: `Las imagenes solamente pueden tener un tamaÃ±o mÃ¡ximo de 1200x1200`,
                             });
+                        }
 
                         archivos.push({
                             tipo: f.type.split('/')[0],
@@ -569,23 +567,25 @@ export class PublicacionComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
             reader.readAsDataURL(file);
         }
 
-        $('#' + inputname).val('');
+        $input.val('');
     }
 
     onChangeImageAdd() {
-        const files = $('#images').prop('files');
+        const $imagesInput = $('#images');
+        const files = $imagesInput.prop('files');
+
         const $this = this;
 
         for (let i = 0, len = files.length; i < len; i++) {
@@ -602,11 +602,12 @@ export class PublicacionComponent implements OnInit {
                         if (
                             evt['path'][0].naturalHeight > 1200 ||
                             evt['path'][0].naturalWidth > 1200
-                        )
+                        ) {
                             return swal({
                                 type: 'error',
                                 html: `Las imagenes solamente pueden tener un tamaÃ±o mÃ¡ximo de 1200x1200`,
                             });
+                        }
 
                         $this.marketplace.pictures_data.push({
                             tipo: f.type.split('/')[0],
@@ -618,33 +619,35 @@ export class PublicacionComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     swal({
                         type: 'error',
                         html: 'No fue posible agregar el archivo',
-                    });
+                    }).then();
                 };
             })(file);
 
             reader.readAsDataURL(file);
         }
 
-        $('#images').val('');
+        $imagesInput.val('');
     }
 
     searchProduct() {
-        if (!this.data.company)
+        if (!this.data.company) {
             return swal({
                 type: 'error',
                 html: `Selecciona una empresa para buscar un producto`,
             });
+        }
 
-        if (!this.product.search)
+        if (!this.product.search) {
             return swal({
                 type: 'error',
                 html: `Escribe algo para inicia la bÃºsqueda`,
             });
+        }
 
         if (this.products.length) {
             this.products = [];
@@ -653,10 +656,6 @@ export class PublicacionComponent implements OnInit {
 
             return;
         }
-
-        const company = this.companies.find(
-            (company) => company.id == this.data.company
-        );
     }
 
     addProduct() {
@@ -666,11 +665,12 @@ export class PublicacionComponent implements OnInit {
                 p.variation == this.product.variation
         );
 
-        if (exists)
+        if (exists) {
             return swal({
                 type: 'error',
                 html: `Producto repetido`,
             });
+        }
 
         if (
             this.product.sku == '' ||
@@ -679,18 +679,19 @@ export class PublicacionComponent implements OnInit {
             (this.marketplace.variations != undefined &&
                 this.marketplace.variations.length > 0 &&
                 !this.product.variation)
-        )
+        ) {
             return swal({
                 type: 'error',
                 html: 'Favor de seleccionar todos los campos para agregar un producto.',
             });
+        }
 
         const product = this.products.find((p) => p.sku == this.product.sku);
 
         this.product.description = product.producto;
 
         this.data.products.push(this.product);
-        this.searchProduct();
+        this.searchProduct().then();
     }
 
     addVariation() {
@@ -716,11 +717,12 @@ export class PublicacionComponent implements OnInit {
                 JSON.stringify(attribute_combinations)
         );
 
-        if (variation_already_exists)
+        if (variation_already_exists) {
             return swal({
                 type: 'error',
                 html: 'La variaciÃ³n ya existe!',
             });
+        }
 
         this.marketplace.variations.push({
             attribute_combinations: attribute_combinations,
@@ -737,6 +739,7 @@ export class PublicacionComponent implements OnInit {
         });
     }
 
+    // noinspection JSUnusedGlobalSymbols
     getVariationCombinedName(variation) {
         return variation.attribute_combinations.map((v) => {
             return v.value_name + ' / ';
@@ -802,7 +805,7 @@ export class PublicacionComponent implements OnInit {
     }
 
     getOptionsForAttributesSelect(options) {
-        return options ? options.map((op, i) => op.name) : [];
+        return options ? options.map((op, _i) => op.name) : [];
     }
 
     updateItemCRM(evt) {
@@ -810,12 +813,14 @@ export class PublicacionComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
 
-        if ($('.ng-invalid').length > 0) {
-            return console.log($('.ng-invalid'));
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
         this.ventaService.updateItemCRM(this.data).subscribe(
@@ -823,7 +828,7 @@ export class PublicacionComponent implements OnInit {
                 swal({
                     type: 'success',
                     html: res.message,
-                });
+                }).then();
 
                 this.modalReferenceCRM.close();
             },
@@ -842,20 +847,22 @@ export class PublicacionComponent implements OnInit {
             (v) => !v.pictures_data.length
         );
 
-        if (variations_without_images.length)
+        if (variations_without_images.length) {
             return swal({
                 type: 'error',
                 html: `Las variaciones tienen que tener al menos 1 imagen`,
             });
+        }
 
         const variations_with_wrong_quantity =
             this.marketplace.variations.filter((v) => v.quantity <= 0);
 
-        if (variations_with_wrong_quantity.length)
+        if (variations_with_wrong_quantity.length) {
             return swal({
                 type: 'error',
                 html: `La cantidad de las variaciones tienen que ser mayor a 0`,
             });
+        }
 
         const attribute_required_not_completed =
             this.marketplace.attributes.find(
@@ -882,34 +889,36 @@ export class PublicacionComponent implements OnInit {
 
         this.marketplace.pictures_data = this.marketplace.pictures_data.filter(
             (pd) => {
-                if (pd.new && pd.deleted) {
-                    return false;
-                }
-
-                return true;
+                return !(pd.new && pd.deleted);
             }
         );
 
         this.marketplace.variations.map((v) => {
             v.pictures_data = v.pictures_data.filter((pd) => {
-                if (pd.new && pd.deleted) {
-                    return false;
-                }
-
-                return true;
+                return !(pd.new && pd.deleted);
             });
         });
 
         if (this.marketplace.price != this.marketplace.previous_price) {
-            await swal({
-                type: 'warning',
-                html: `Para actualizar la publicaciÃ³n, abre tu aplicaciÃ³n de <b>authy</b> y escribe el cÃ³digo de autorizaciÃ³n en el recuadro de abajo.<br><br>
-                Si todavÃ­a no cuentas con tu aplicaciÃ³n configurada, contacta un administrador.`,
-                input: 'text',
-            }).then((confirm) => {
-                if (!confirm.value) return;
 
-                this.marketplace.authy_code = confirm.value;
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: async () => {
+                    await swal({
+                        type: 'warning',
+                        html: `Para actualizar la publicación, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        input: 'text',
+                    }).then((confirm) => {
+                        if (!confirm.value) {
+                            return;
+                        }
+
+                        this.marketplace.auth_code = confirm.value;
+                    });
+                },
+                error: (err) => {
+                    swalErrorHttpResponse(err);
+                },
             });
         }
 
@@ -929,11 +938,12 @@ export class PublicacionComponent implements OnInit {
     }
 
     updateItems() {
-        if (!this.search.marketplace)
+        if (!this.search.marketplace) {
             return swal({
                 type: 'error',
                 html: `Favor de indicar un marketplace del cual quieres actualizar las publicaciones`,
             });
+        }
 
         this.ventaService.updateItems(this.search).subscribe(
             (res: any) => {

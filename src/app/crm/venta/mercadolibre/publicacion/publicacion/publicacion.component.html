@@ -1,3 +1,4 @@
+<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
 <div class="card">
     <div class="card-header">
         <form class="md-float-material form-material m-t-10">
@@ -1087,7 +1088,7 @@
                                             }}"
                                             class="form-control"
                                             [(ngModel)]="
-                                                row.attributes[0].value_name
+                                                row.attributes[0].value_name //noinspection UnresolvedReference
                                             "
                                         />
                                         <span class="form-bar"></span>
@@ -1120,7 +1121,6 @@
                                 <ng-container
                                     *ngFor="
                                         let row_image of row.pictures_data;
-                                        let index = index
                                     "
                                 >
                                     <div
@@ -1130,7 +1130,7 @@
                                         <img
                                             class="img-fluid producto-imagen"
                                             src="{{ row_image.data }}"
-                                        />
+                                            alt=""/>
                                         <span
                                             (click)="row.deleted = true"
                                             class="float-right cursor-pointer text-danger delete-image"
@@ -1169,25 +1169,18 @@
                         <ng-container
                             *ngFor="
                                 let row of marketplace.pictures_data;
-                                let index = index
                             "
                         >
                             <div class="col-md-3" *ngIf="!row.deleted">
                                 <img
                                     class="img-fluid producto-imagen"
                                     src="{{ row.data }}"
-                                />
+                                    alt=""/>
                                 <span
                                     (click)="row.deleted = true"
                                     class="float-right cursor-pointer text-danger delete-image"
                                     >Eliminar imagen</span
                                 >
-                                <!-- <i
-                                    class="fa fa-trash float-right fa-2x text-danger cursor-pointer delete-image"
-                                    (click)="row.deleted = true"
-                                    placement="top"
-                                    ngbTooltip="Eliminar imagen"
-                                ></i> -->
                             </div>
                         </ng-container>
                     </div>
@@ -1296,8 +1289,8 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2" style="margin-top: -16px">
-                            <label style="display: block; font-size: 9pt"
+                        <div class="col-md-2" style="margin-top: -16px;">
+                            <label style="display: block; font-size: 9pt;"
                                 >Eliminar</label
                             >
                             <ui-switch

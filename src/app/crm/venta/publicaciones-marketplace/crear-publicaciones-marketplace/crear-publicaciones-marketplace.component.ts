@@ -1,4 +1,3 @@
-/* tslint:disable:triple-equals */
 import {Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {swalErrorHttpResponse} from '@env/environment';
 import {AuthService} from '@services/auth.service';
@@ -21,6 +20,7 @@ import {NgxSpinnerService} from 'ngx-spinner';
 import swal from 'sweetalert2';
 import {CompraService} from '@services/http/compra.service';
 import {Router} from '@angular/router';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-crear-publicaciones-marketplace',
@@ -31,15 +31,18 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
     @ViewChild('amazonTemplate') amazonClaroTemplateRef!: TemplateRef<any>;
     @ViewChild('linioTemplate') linioTemplateRef!: TemplateRef<any>;
 
-    constructor(
-        private auth: AuthService,
-        private ventaService: VentaService,
-        private spinner: NgxSpinnerService,
-        private router: Router,
-        private compraService: CompraService
-    ) {
-        this.usuario = JSON.parse(this.auth.userData().sub);
-    }
+    data_simple: DataSimple = {
+        area: '',
+        marketplace: '',
+        item: {
+            title: '',
+            asin: '',
+            shipping: 'N/A',
+            quantity: 0,
+            price: 0,
+        },
+        auth_code: '',
+    };
 
     plataforma: string;
     loadingTitle = '';
@@ -74,40 +77,6 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
         subniveles: {},
         niveles: [],
     };
-
-    data_simple: DataSimple = {
-        area: '',
-        marketplace: '',
-        item: {
-            title: '',
-            asin: '',
-            shipping: 'N/A',
-            quantity: 0,
-            price: 0,
-        },
-        authy_code: '',
-    };
-
-    data_productos: DataProductos = {
-        id: 0,
-        company: '',
-        provider: '',
-        products: [],
-        principal_warehouse: '',
-        secondary_warehouse: '',
-    };
-
-    product: ProductObj = {
-        id: 0,
-        sku: '',
-        search: '',
-        description: '',
-        quantity: 0,
-        warranty: '',
-        variation: '',
-        percentage: 0,
-    };
-
     marketplace: MarketplaceObj = {
         id: 0,
         title: '',
@@ -133,9 +102,28 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
                 unit: '',
             },
         },
-        authy_code: '',
+        auth_code: '',
     };
 
+    data_productos: DataProductos = {
+        id: 0,
+        company: '',
+        provider: '',
+        products: [],
+        principal_warehouse: '',
+        secondary_warehouse: '',
+    };
+
+    product: ProductObj = {
+        id: 0,
+        sku: '',
+        search: '',
+        description: '',
+        quantity: 0,
+        warranty: '',
+        variation: '',
+        percentage: 0,
+    };
     data_aux: DataAux = {
         area: '',
         marketplace: '',
@@ -168,8 +156,19 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
             quantity: 0,
             price: 0,
         },
-        authy_code: '',
+        auth_code: '',
     };
+
+    constructor(
+        private auth: AuthService,
+        private ventaService: VentaService,
+        private spinner: NgxSpinnerService,
+        private router: Router,
+        private compraService: CompraService,
+        private whatsappService: WhatsappService,
+    ) {
+        this.usuario = JSON.parse(this.auth.userData().sub);
+    }
 
     // General
     get template(): TemplateRef<any> | null {
@@ -250,40 +249,47 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
                 html: `Favor de agregar productos a la publicacion`,
             });
         }
-
-        swal({
-            type: 'warning',
-            html: `Para crear la publicación, abre tu aplicación de <b>authy</b>
- y escribe el código de autorización en el recuadro de abajo.<br><br>
-            Si todavía no cuentas con tu aplicación configurada, contacta un administrador.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) { return; }
-            this.loadingTitle = 'Creando Publicación';
-            this.spinner.show().then();
-            this.data_simple.authy_code = confirm.value;
-            this.data_simple.area = this.data_aux.area;
-            this.data_simple.marketplace = this.data_aux.marketplace;
-
-            this.ventaService
-                .saveMarketplacePublicaciones(
-                    this.data_simple,
-                    this.data_productos
-                )
-                .subscribe(
-                    (res: any) => {
-                        swal({
-                            type: 'success',
-                            html: res.message,
-                        }).then();
-                        this.spinner.hide().then();
-                        this.initDataSimple();
-                    },
-                    (err: any) => {
-                        this.spinner.hide().then();
-                        swalErrorHttpResponse(err);
+        this.whatsappService.sendWhatsapp().subscribe({
+            next: () => {
+                swal({
+                    type: 'warning',
+                    html: `Para crear la publicación, escribe el código de autorización enviado a
+                             <b>WhatsApp</b> en el recuadro de abajo.`,
+                    input: 'text',
+                }).then((confirm) => {
+                    if (!confirm.value) {
+                        return;
                     }
-                );
+                    this.loadingTitle = 'Creando Publicación';
+                    this.spinner.show().then();
+                    this.data_simple.auth_code = confirm.value;
+                    this.data_simple.area = this.data_aux.area;
+                    this.data_simple.marketplace = this.data_aux.marketplace;
+
+                    this.ventaService
+                        .saveMarketplacePublicaciones(
+                            this.data_simple,
+                            this.data_productos
+                        )
+                        .subscribe(
+                            (res: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: res.message,
+                                }).then();
+                                this.spinner.hide().then();
+                                this.initDataSimple();
+                            },
+                            (err: any) => {
+                                this.spinner.hide().then();
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                });
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
         });
     }
 
