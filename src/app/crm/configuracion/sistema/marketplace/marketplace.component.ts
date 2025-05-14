@@ -1,17 +1,16 @@
-import {
-    swalErrorHttpResponse,
-    swalSuccessHttpResponse,
-} from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { ConfiguracionService } from '@services/http/configuracion.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {swalErrorHttpResponse, swalSuccessHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {ConfiguracionService} from '@services/http/configuracion.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
 
-import { MarketplaceArea } from '@models/MarketplaceArea.model';
-import { MarketplaceApi } from '@models/MarketplaceApi.model';
-import { Area } from '@models/Area.model';
-import { Empresa } from '@models/Empresa.model';
-import { MarketplaceAreaEmpresa } from '@models/MarketplaceAreaEmpresa.model';
+import {MarketplaceArea} from '@models/MarketplaceArea.model';
+import {MarketplaceApi} from '@models/MarketplaceApi.model';
+import {Area} from '@models/Area.model';
+import {Empresa} from '@models/Empresa.model';
+import {MarketplaceAreaEmpresa} from '@models/MarketplaceAreaEmpresa.model';
+import {WhatsappService} from '@services/http/whatsapp.service';
+
 @Component({
     selector: 'app-marketplace',
     templateUrl: './marketplace.component.html',
@@ -22,7 +21,7 @@ export class MarketplaceComponent implements OnInit {
 
     modalReference: any;
 
-    datatablename: string = '#configuracion_sistema_marketplace';
+    datatablename = '#configuracion_sistema_marketplace';
     datatable: any;
 
     data: MarketplaceArea;
@@ -31,12 +30,13 @@ export class MarketplaceComponent implements OnInit {
     areas: Area[];
     empresas: Empresa[];
 
-    visualizar_api: boolean = false;
+    visualizar_api = false;
 
     constructor(
         private modalService: NgbModal,
         private chRef: ChangeDetectorRef,
-        private configuracionService: ConfiguracionService
+        private configuracionService: ConfiguracionService,
+        private whatsappService: WhatsappService
     ) {
         const table: any = $(this.datatablename);
         this.datatable = table.DataTable();
@@ -65,38 +65,49 @@ export class MarketplaceComponent implements OnInit {
 
     getAccessToViewApi() {
         if (this.data.api.id && !this.visualizar_api) {
-            return swal({
-                type: 'warning',
-                html: 'Para ver y/o editar las credenciales del marketplace, favor abre tu aplicación de Authy y escribe el token proporcionado en el recuadro de abajo',
-                input: 'text',
-                inputAttributes: {
-                    maxlength: '7',
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: (res) => {
+                    console.log(res);
+                    swal({
+                        type: 'warning',
+                        html: `Para ver y/o editar las credenciales del marketplace, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        input: 'text',
+                        inputAttributes: {
+                            maxlength: '7',
+                        },
+                        showCancelButton: true,
+                    }).then((confirm) => {
+                        if (!confirm.value) {
+                            return;
+                        }
+
+                        const data = {
+                            code: confirm.value,
+                            marketplace_api: this.data.api.id,
+                        };
+
+                        this.configuracionService
+                            .getAccessToViewApiData(data)
+                            .subscribe(
+                                (validate: any) => {
+                                    this.visualizar_api = true;
+
+                                    this.data.api.secret = validate.data;
+                                },
+                                (err: any) => {
+                                    swalErrorHttpResponse(err);
+                                }
+                            );
+                    });
                 },
-                showCancelButton: true,
-            }).then((res) => {
-                if (res.value) {
-                    const data = {
-                        authy_token: res.value,
-                        marketplace_api: this.data.api.id,
-                    };
-
-                    this.configuracionService
-                        .getAccessToViewApiData(data)
-                        .subscribe(
-                            (res: any) => {
-                                this.visualizar_api = true;
-
-                                this.data.api.secret = res.data;
-                            },
-                            (err: any) => {
-                                swalErrorHttpResponse(err);
-                            }
-                        );
-                }
+                error: (err) => {
+                    console.log(err);
+                },
             });
+        } else if (this.visualizar_api) {
+            this.visualizar_api = false;
         }
-
-        this.visualizar_api = !this.visualizar_api;
     }
 
     saveMarketplace(event) {
@@ -104,12 +115,14 @@ export class MarketplaceComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
 
-        if ($('.ng-invalid').length > 0) {
-            return console.log($('.ng-invalid'));
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
         if (!this.data.area.id) {

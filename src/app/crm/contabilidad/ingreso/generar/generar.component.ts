@@ -1,11 +1,12 @@
-import { backend_url, commaNumber } from '@env/environment';
-import { AuthService } from '@services/auth.service';
-import { ChangeDetectorRef, Component, OnInit, Renderer2 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {AuthService} from '@services/auth.service';
+import {ChangeDetectorRef, Component, OnInit, Renderer2} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-generar',
@@ -13,7 +14,7 @@ import * as moment from 'moment';
     styleUrls: ['./generar.component.scss'],
 })
 export class GenerarComponent implements OnInit {
-    datatable_name: string = '#contabilidad_ingreso_generar_facturas';
+    datatable_name = '#contabilidad_ingreso_generar_facturas';
     datatable: any;
 
     commaNumber = commaNumber;
@@ -46,7 +47,6 @@ export class GenerarComponent implements OnInit {
         documentos: [],
         indexes: [],
     };
-    auxData: any;
 
     data = {
         empresa: '1',
@@ -82,9 +82,9 @@ export class GenerarComponent implements OnInit {
         cuenta_proveedor: '',
         facturas_a_pagar: [],
         buscar_facturas: true,
-        authy: {
-            necesita_authy: false,
-            authy_code: '',
+        whats: {
+            necesita_auth: false,
+            code: '',
         },
     };
 
@@ -105,7 +105,8 @@ export class GenerarComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private auth: AuthService,
-        private chRef: ChangeDetectorRef
+        private chRef: ChangeDetectorRef,
+        private whatsappService: WhatsappService,
     ) {
         this.moment.locale('es_MX');
 
@@ -148,7 +149,7 @@ export class GenerarComponent implements OnInit {
                 'No tienes empresas asignadas, favor de contactar a un administrador.',
                 'error'
             ).then(() => {
-                this.router.navigate(['/dashboard']);
+                this.router.navigate(['/dashboard']).then();
             });
 
             return;
@@ -167,21 +168,22 @@ export class GenerarComponent implements OnInit {
 
                     if (this.empresas_usuario.length == 1) {
                         const empresa = this.empresas.find(
-                            (empresa) => empresa.id === this.empresas_usuario[0]
+                            (e) => e.id === this.empresas_usuario[0]
                         );
 
                         if (!empresa) {
                             swal({
                                 type: 'error',
-                                html: 'Tus empresas asignada no coinciden con las empresas activas, favor de contactar con un administrador',
-                            });
+                                html: 'Tus empresas asignada no coinciden con las empresas activas, ' +
+                                    'favor de contactar con un administrador',
+                            }).then();
 
-                            this.router.navigate(['/dashboard']);
+                            this.router.navigate(['/dashboard']).then();
 
                             return;
                         }
 
-                        this.data.empresa = empresa.bd;
+                        this.data.empresa = empresa.id;
                     }
 
                     this.empresas.forEach((empresa, index) => {
@@ -195,16 +197,7 @@ export class GenerarComponent implements OnInit {
                     this.cambiarEmpresa();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
 
@@ -343,12 +336,12 @@ export class GenerarComponent implements OnInit {
 
     cambiarEntidad(tipo) {
         if (this.data.empresa == '') {
-            swal('', 'Selecciona una empresa', 'error');
+            swal('', 'Selecciona una empresa', 'error').then();
 
             return;
         }
 
-        var consulta = '';
+        let consulta: string;
 
         /*  Egreso */
         if (this.data.tipo_documento == '0') {
@@ -499,7 +492,7 @@ export class GenerarComponent implements OnInit {
         }
 
         if (consulta == '') {
-            swal('', 'No permitido.', 'error');
+            swal('', 'No permitido.', 'error').then();
 
             return;
         }
@@ -509,10 +502,12 @@ export class GenerarComponent implements OnInit {
         }
     }
 
+    // noinspection JSUnusedGlobalSymbols
     splitArray(array, chunk) {
         const chunkSize = chunk || 10;
 
-        const chunkedArray = array.reduce(
+        // [[]] is used to initialize the accumulator with an empty array
+        return array.reduce(
             (acc, item) => {
                 // delete the last item from acumulator
                 // (it is made until the group get all the chunk items)
@@ -531,13 +526,12 @@ export class GenerarComponent implements OnInit {
                 return acc;
             },
             [[]]
-        ); // [[]] is used to initialize the accumulator with an empty array
-
-        return chunkedArray;
+        );
     }
-    cambiarCuentaBancaria(origen) {
+
+    cambiarCuentaBancaria(_origen) {
         if (!this.data.empresa) {
-            swal('', 'Selecciona una empresa', 'error');
+            swal('', 'Selecciona una empresa', 'error').then();
 
             return;
         }
@@ -574,11 +568,6 @@ export class GenerarComponent implements OnInit {
             }
         });
 
-        var destino =
-            this.data.tipo_documento == '1'
-                ? this.data.origen.entidad_rfc
-                : this.data.destino.entidad_rfc;
-
         if (
             (this.data.tipo_documento == '0' ||
                 this.data.tipo_documento == '2') &&
@@ -598,32 +587,27 @@ export class GenerarComponent implements OnInit {
                         }
                     },
                     (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
+                        swalErrorHttpResponse(response);
                     }
                 );
         }
     }
 
     montoAplicarFactura(factura_id) {
-        if (Number(this.data.tipo_cambio) > 0) return;
+        if (Number(this.data.tipo_cambio) > 0) {
+            return;
+        }
 
         const factura = this.facturas_con_saldo.find(
-            (factura) => factura.documento == factura_id
+            (f) => f.documento == factura_id
         );
 
-        if (factura.tc > 1) return;
+        if (factura.tc > 1) {
+            return;
+        }
 
         const total_aplicado = this.facturas_con_saldo.reduce(
-            (total, factura) => total + factura.monto_aplicar * factura.tc,
+            (total, f) => total + f.monto_aplicar * f.tc,
             0
         );
 
@@ -634,7 +618,7 @@ export class GenerarComponent implements OnInit {
             swal({
                 type: 'warning',
                 html: 'El total aplicado supera el monto total del ingreso, se ajustará el monto a aplicar de la ultima factura.',
-            });
+            }).then();
 
             let restante = total_aplicado - factura.monto_aplicar * factura.tc;
             restante =
@@ -644,7 +628,7 @@ export class GenerarComponent implements OnInit {
         }
     }
 
-    async guardarDocumento(event) {
+    async guardarDocumento(_event) {
         if (Number(this.data.tipo_cambio) < 1) {
             return swal({
                 type: 'error',
@@ -659,13 +643,14 @@ export class GenerarComponent implements OnInit {
             });
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
 
-        if ($('.ng-invalid').length > 0) {
-            console.log($('.ng-invalid'));
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
         const total_aplicado = this.facturas_con_saldo.reduce(
@@ -673,7 +658,7 @@ export class GenerarComponent implements OnInit {
             0
         );
 
-        var seguir = true;
+        let seguir = true;
 
         if (this.data.origen.monto > total_aplicado) {
             seguir = await swal({
@@ -688,7 +673,9 @@ export class GenerarComponent implements OnInit {
             });
         }
 
-        if (!seguir) return;
+        if (!seguir) {
+            return;
+        }
 
         this.data.facturas_a_pagar = this.facturas_con_saldo.filter(
             (factura) => factura.monto_aplicar > 0
@@ -698,7 +685,7 @@ export class GenerarComponent implements OnInit {
         this.data.destino.fecha_afectacion = this.data.origen.fecha_afectacion;
 
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (e) => e.id == this.data.empresa
         );
 
         if (
@@ -720,7 +707,7 @@ export class GenerarComponent implements OnInit {
                 );
 
                 if (cuenta_conciliada) {
-                    this.data.authy.necesita_authy = moment(
+                    this.data.whats.necesita_auth = moment(
                         fecha_operacion
                     ).isSameOrBefore(cuenta_conciliada.fecha);
                 }
@@ -732,7 +719,7 @@ export class GenerarComponent implements OnInit {
                 );
 
                 if (cuenta_conciliada_origen) {
-                    this.data.authy.necesita_authy = moment(
+                    this.data.whats.necesita_auth = moment(
                         this.data.origen.fecha_operacion
                     ).isSameOrBefore(cuenta_conciliada_origen.fecha);
                 }
@@ -742,30 +729,38 @@ export class GenerarComponent implements OnInit {
                 );
 
                 if (cuenta_conciliada_destino) {
-                    this.data.authy.necesita_authy = moment(
+                    this.data.whats.necesita_auth = moment(
                         this.data.destino.fecha_operacion
                     ).isSameOrBefore(cuenta_conciliada_destino.fecha);
                 }
             }
         }
 
-        if (this.data.authy.necesita_authy) {
-            await swal({
-                type: 'warning',
-                html: `La cuenta seleccionada para generar el movimiento se encuentra conciliada a la fecha.<br>
-                Para crear el movimiento, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
-                Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.`,
-                input: 'text',
-            }).then((confirm) => {
-                this.data.authy.authy_code = confirm.value;
+        if (this.data.whats.necesita_auth) {
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: async () => {
+                    await swal({
+                        type: 'warning',
+                        html: `La cuenta seleccionada para generar el movimiento se encuentra conciliada a la fecha.<br>
+                              Para crear el movimiento, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        input: 'text',
+                    }).then((confirm) => {
+                        this.data.whats.code = confirm.value;
+                    });
+                },
+                error: (error) => {
+                    swalErrorHttpResponse(error);
+                },
             });
         }
 
-        if (this.data.authy.necesita_authy && !this.data.authy.authy_code)
+        if (this.data.whats.necesita_auth && !this.data.whats.code) {
             return swal({
                 type: 'error',
-                html: 'Para generar el movimiento, se necesita de autorización mediante Authy',
+                html: 'Para generar el movimiento, se necesita de autorización mediante código',
             });
+        }
 
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.data));
@@ -821,47 +816,38 @@ export class GenerarComponent implements OnInit {
                             cuenta_proveedor: '',
                             facturas_a_pagar: [],
                             buscar_facturas: true,
-                            authy: {
-                                necesita_authy: false,
-                                authy_code: '',
+                            whats: {
+                                necesita_auth: false,
+                                code: '',
                             },
                         };
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     cambiarBanco() {
         const razon = this.razones.find(
-            (razon) => razon.razon == this.cuenta.razon_social_banco
+            (r) => r.razon == this.cuenta.razon_social_banco
         );
         this.cuenta.rfc_banco = razon.rfc;
     }
 
     crearCuenta() {
         if (!this.data.empresa) {
-            swal('', 'Selecciona una empresa', 'error');
+            swal('', 'Selecciona una empresa', 'error').then();
 
             return;
         }
 
-        var rfc_entidad =
+        const rfc_entidad =
             this.data.tipo_documento == '0'
                 ? this.data.destino.entidad_rfc
                 : this.data.origen.entidad_rfc;
-        var form_data = new FormData();
+        const form_data = new FormData();
 
         form_data.append('data', JSON.stringify(this.cuenta));
         form_data.append('rfc_entidad', rfc_entidad);
@@ -878,7 +864,7 @@ export class GenerarComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         this.cambiarCuentaBancaria(this.data.tipo_documento);
@@ -897,30 +883,20 @@ export class GenerarComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     buscarEntidad(tipo) {
         if (!this.data.empresa) {
-            swal('', 'Selecciona una empresa', 'error');
+            swal('', 'Selecciona una empresa', 'error').then();
 
             return;
         }
 
-        var tipo_consulta = '';
-        var query = '';
-        var returned = 0;
+        let tipo_consulta = '';
+        const returned = 0;
 
         if (tipo == 0) {
             if (this.data.tipo_documento == '1') {
@@ -931,7 +907,6 @@ export class GenerarComponent implements OnInit {
                 }
             }
 
-            query = this.data.origen.entidad_text;
 
             if (tipo_consulta != '') {
                 if (this.entidades_origen.length > 0) {
@@ -939,9 +914,6 @@ export class GenerarComponent implements OnInit {
                     this.data.origen.entidad_text = '';
 
                     $('#origen_entidad_text').focus();
-
-                    returned = 1;
-
                     return;
                 }
             }
@@ -954,7 +926,6 @@ export class GenerarComponent implements OnInit {
                 }
             }
 
-            query = this.data.destino.entidad_text;
 
             if (tipo_consulta != '') {
                 if (this.entidades_destino.length > 0) {
@@ -962,9 +933,6 @@ export class GenerarComponent implements OnInit {
                     this.data.destino.entidad_text = '';
 
                     $('#destino_entidad_text').focus();
-
-                    returned = 1;
-
                     return;
                 }
             }
@@ -978,13 +946,13 @@ export class GenerarComponent implements OnInit {
     cambiarEmpresa() {}
 
     currentDate() {
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth() + 1; //January is 0!
-        var yyyy = today.getFullYear();
+        const today = new Date();
+        const dd = today.getDate();
+        const mm = today.getMonth() + 1;
+        const yyyy = today.getFullYear();
 
-        var d = '';
-        var m = '';
+        let d: string;
+        let m: string;
 
         if (dd < 10) {
             d = '0' + dd;
@@ -1006,7 +974,7 @@ export class GenerarComponent implements OnInit {
             backdrop: 'static',
         });
 
-        let inputElement = this.renderer.selectRootElement('#cuenta_nombre');
+        const inputElement = this.renderer.selectRootElement('#cuenta_nombre');
         inputElement.focus();
     }
 

@@ -1,11 +1,12 @@
-import { backend_url, commaNumber } from '@env/environment';
-import { AuthService } from '@services/auth.service';
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {AuthService} from '@services/auth.service';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {ActivatedRoute} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
-import { CompraService } from '@services/http/compra.service';
+import {CompraService} from '@services/http/compra.service';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-crear',
@@ -95,7 +96,7 @@ export class CrearComponent implements OnInit {
         usuario: 0,
     };
 
-    authy = {
+    whats = {
         usuario: '',
         token: '',
         autorizado: false,
@@ -113,9 +114,10 @@ export class CrearComponent implements OnInit {
         celular: '',
     };
 
-    total_compra = 0;
     busqueda_xml = 0;
     es_comprador_admin = false;
+    timer = 0;
+    isTimerActive = false;
 
     niveles: any[] = [];
     subniveles: any[] = [];
@@ -129,9 +131,8 @@ export class CrearComponent implements OnInit {
     periodos: any[] = [];
     usos: any[] = [];
     usuarios: any[] = [];
-    usuarios_authy: any[] = [];
+    usuarios_whats: any[] = [];
     tipos: any[] = [];
-    codigos_sat: any[] = [];
     regimenes: any[] = [];
     categorias: any[];
     pedimentos: any[] = [];
@@ -141,7 +142,8 @@ export class CrearComponent implements OnInit {
         private auth: AuthService,
         private route: ActivatedRoute,
         private modalService: NgbModal,
-        private compraService: CompraService
+        private compraService: CompraService,
+        private whatsappService: WhatsappService
     ) {
         this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
         this.niveles = JSON.parse(this.auth.userData().sub).niveles;
@@ -171,7 +173,7 @@ export class CrearComponent implements OnInit {
                 this.metodos = [...res.metodos];
                 this.tipos = [...res.tipos];
                 this.usos = [...res.usos];
-                this.usuarios_authy = [...res.usuarios_authy];
+                this.usuarios_whats = [...res.usuarios_whats];
 
                 const [empresa] = this.empresas;
 
@@ -184,22 +186,13 @@ export class CrearComponent implements OnInit {
                 }
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
+                swalErrorHttpResponse(response);
             }
         );
     }
 
     async buscarProveedor() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, _reject) => {
             if (this.data.empresa == '') {
                 swal('', 'Selecciona una empresa.', 'error');
 
@@ -230,16 +223,7 @@ export class CrearComponent implements OnInit {
                         }
                     },
                     error: (err: any) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                err.status == 0
-                                    ? err.message
-                                    : typeof err.error === 'object'
-                                    ? err.error.error_summary
-                                    : err.error,
-                        });
+                        swalErrorHttpResponse(err);
                     },
                 });
         });
@@ -263,7 +247,7 @@ export class CrearComponent implements OnInit {
     agregarProducto() {
         this.data.productos.push(this.producto);
 
-        this.existeProducto(this.producto.codigo);
+        this.existeProducto(this.producto.codigo).then();
 
         this.buscarProducto();
     }
@@ -299,7 +283,7 @@ export class CrearComponent implements OnInit {
 
     cambiarProveedor() {
         const proveedor = this.proveedores.find(
-            (proveedor) => proveedor.idproveedor == this.data.proveedor.id
+            (p) => p.idproveedor == this.data.proveedor.id
         );
 
         this.data.proveedor = {
@@ -314,18 +298,18 @@ export class CrearComponent implements OnInit {
     }
 
     async cargarXML() {
-        var files = $('#xml_factura').prop('files');
-        var archivos = [];
-        var $this = this;
+        const files = $('#xml_factura').prop('files');
+        const archivos = [];
+        const $this = this;
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e: any) {
-                    var extension =
+                    const extension =
                         f.name.split('.')[f.name.split('.').length - 1];
 
                     if (extension.toLowerCase() != 'xml') {
@@ -338,11 +322,11 @@ export class CrearComponent implements OnInit {
 
                     $this.busqueda_xml = 1;
 
-                    var xml = $(e.target.result);
+                    const xml = $(e.target.result);
 
                     xml.each(function () {
                         if ($(this).get(0).tagName == 'CFDI:COMPROBANTE') {
-                            var date = new Date($(this).attr('fecha'));
+                            const date = new Date($(this).attr('fecha'));
 
                             $this.data.serie_documento = $(this).attr('serie');
                             $this.data.folio = $(this).attr('folio');
@@ -429,13 +413,13 @@ export class CrearComponent implements OnInit {
                                 if ($this.data.productos.length == 0) {
                                     $(this)
                                         .children()
-                                        .each(function (index, e) {
+                                        .each(function (_index, _e) {
                                             const descuento = $(this).attr(
                                                 'descuento'
                                             )
                                                 ? Number(
-                                                      $(this).attr('descuento')
-                                                  )
+                                                    $(this).attr('descuento')
+                                                )
                                                 : 0;
                                             const descripcion =
                                                 $(this).attr('descripcion');
@@ -445,12 +429,12 @@ export class CrearComponent implements OnInit {
                                                 ) == ''
                                                     ? 'TEMPORAL'
                                                     : $(this).attr(
-                                                          'noidentificacion'
-                                                      );
+                                                        'noidentificacion'
+                                                    );
                                             const costo =
                                                 (Number(
-                                                    $(this).attr('importe')
-                                                ) -
+                                                        $(this).attr('importe')
+                                                    ) -
                                                     descuento) /
                                                 Number(
                                                     $(this).attr('cantidad')
@@ -532,9 +516,9 @@ export class CrearComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
-                    archivos.push({ tipo: '', nombre: '', data: '' });
+            reader.onerror = (function (_f) {
+                return function (_e) {
+                    archivos.push({tipo: '', nombre: '', data: ''});
                 };
             })(file);
 
@@ -568,36 +552,27 @@ export class CrearComponent implements OnInit {
                         return;
                     }
 
-                    swal('', 'No se encontró ningun usuario.', 'error');
+                    swal('', 'No se encontró ningun usuario.', 'error').then();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     agregarUsuario() {
         const repetido = this.data.usuarios.find(
-            (usuario) => usuario.id == this.usuario.usuario
+            (u) => u.id == this.usuario.usuario
         );
 
         if (repetido) {
-            swal('', 'El usuario ya se encuentra dentro de la lista.', 'error');
+            swal('', 'El usuario ya se encuentra dentro de la lista.', 'error').then();
 
             return;
         }
 
         const usuario = this.usuarios.find(
-            (usuario) => usuario.id == this.usuario.usuario
+            (u) => u.id == this.usuario.usuario
         );
 
         this.data.usuarios.push(usuario);
@@ -610,8 +585,10 @@ export class CrearComponent implements OnInit {
         this.data.usuarios.splice(index, 1);
     }
 
-    async existeProducto(codigo) {
-        return new Promise((resolve, reject) => {});
+    async existeProducto(_codigo) {
+        return new Promise((_resolve, _reject) => {
+        });
+        // ???
     }
 
     async buscarProductoPorDescripcion(des) {
@@ -626,17 +603,7 @@ export class CrearComponent implements OnInit {
                         resolve(res['productos']);
                     },
                     (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
+                        swalErrorHttpResponse(response);
                         reject();
                     }
                 );
@@ -661,11 +628,11 @@ export class CrearComponent implements OnInit {
 
                     this.data.proveedor.text = res.data.razon_social;
 
-                    this.buscarProveedor();
+                    this.buscarProveedor().then();
 
                     const total = res.data.productos.reduce(
-                        (total, producto) =>
-                            total + producto.cantidad * producto.costo,
+                        (ttl, producto) =>
+                            ttl + producto.cantidad * producto.costo,
                         0
                     );
 
@@ -695,18 +662,23 @@ export class CrearComponent implements OnInit {
                     });
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
+    }
+
+    iniciarTemporizador() {
+        this.timer = 10;
+        this.isTimerActive = true;
+
+        const interval = setInterval(() => {
+            this.timer--;
+
+            if (this.timer <= 0) {
+                clearInterval(interval);
+                this.isTimerActive = false;
+            }
+        }, 1000);
     }
 
     async guardarCompra(event) {
@@ -714,14 +686,14 @@ export class CrearComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
 
-        if ($('.ng-invalid').length > 0) {
-            console.log($('.ng-invalid'));
-
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
         this.data.productos.map((producto) => {
@@ -730,7 +702,6 @@ export class CrearComponent implements OnInit {
                 : (producto.codigo = producto.codigo);
         });
 
-        let continuar = 1;
 
         if (this.data.recepcion != 0 && this.recepcion.total != 0) {
             const total_compra = this.data.productos.reduce(
@@ -739,12 +710,11 @@ export class CrearComponent implements OnInit {
             );
 
             if (total_compra > this.recepcion.total) {
-                if (!this.authy.autorizado) {
-                    continuar = 0;
-
+                if (!this.whats.autorizado) {
                     return swal({
                         type: 'error',
-                        html: `El total de la recepción no concuerda con el total de la compra, favor de verificar<br><br><b>Total compra:</b> $ ${total_compra}<br><b>Total recepción:</b> $ ${this.recepcion.total}`,
+                        html: `El total de la recepción no concuerda con el total de la compra, favor de verificar<br>
+                            <br><b>Total compra:</b> $ ${total_compra}<br><b>Total recepción:</b> $ ${this.recepcion.total}`,
                     }).then(() => {
                         this.modalReferenceToken = this.modalService.open(
                             this.modaltoken,
@@ -757,13 +727,13 @@ export class CrearComponent implements OnInit {
             }
         }
 
-        if (!continuar) return;
-
-        if (this.data.recepcion != 0) this.data.importar = 1;
+        if (this.data.recepcion != 0) {
+            this.data.importar = 1;
+        }
 
         if (this.data.pedimento.id != '') {
             const pedimento = this.pedimentos.find(
-                (pedimento) => pedimento.value == this.data.pedimento.id
+                (p) => p.value == this.data.pedimento.id
             );
 
             this.data.pedimento.pedimento = pedimento.label;
@@ -782,25 +752,18 @@ export class CrearComponent implements OnInit {
                         html: res['message'],
                     });
 
-                    if (res['code'] == 200) this.clearObject();
+                    if (res['code'] == 200) {
+                        this.clearObject();
+                    }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     existeUUID() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('uuid', this.data.uuid);
 
         this.http
@@ -812,29 +775,20 @@ export class CrearComponent implements OnInit {
                             title: '',
                             type: res['code'] == 200 ? 'success' : 'error',
                             html: res['message'],
-                        });
+                        }).then();
 
                         this.clearObject();
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     crearProducto(codigo) {
         const producto = this.data.productos.find(
-            (producto) => producto.codigo == codigo
+            (p) => p.codigo == codigo
         );
 
         this.producto_nuevo = {
@@ -856,60 +810,66 @@ export class CrearComponent implements OnInit {
         window.open('/#/compra/producto/gestion/1', '_blank');
     }
 
-    confirmarAuthyFinalizar() {
-        if (this.authy.usuario === '')
+    enviarCodigoWhatsApp() {
+        if (this.whats.usuario === '') {
             return swal({
                 type: 'error',
-                html: 'Selecciona al usuario que proporcionará el token de authy.',
+                html: 'Selecciona al usuario para enviar el token.',
             });
+        }
+        this.whatsappService.sendWhatsappWithOption(this.whats).subscribe(
+            () => {
+                this.iniciarTemporizador();
+                this.whats.token = '';
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
+    }
 
-        if (this.authy.token === '')
+    confirmarWhatsFinalizar() {
+        if (this.whats.usuario === '') {
             return swal({
                 type: 'error',
-                html: 'Tienes que escribir el token que la aplicación de Authy te proporciona',
+                html: 'Selecciona al usuario que proporcionará el token de autorización.',
             });
+        }
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.authy));
+        if (this.whats.token === '') {
+            return swal({
+                type: 'error',
+                html: 'Tienes que escribir el token que Whatsapp te proporciona',
+            });
+        }
 
-        this.http
-            .post(`${backend_url}compra/compra/crear/authy`, form_data)
-            .subscribe(
-                (res: any) => {
-                    swal({
-                        title: '',
-                        type: res.code == 200 ? 'success' : 'error',
-                        html: res.message,
-                    });
+        this.whatsappService.validateWhatsappWithOption(this.whats).subscribe(
+            (validate: any) => {
+                swal({
+                    title: '',
+                    type: validate.code == 200 ? 'success' : 'error',
+                    html: validate.message,
+                }).then();
 
-                    if (res['code'] == 200) {
-                        this.authy = {
-                            usuario: '',
-                            token: '',
-                            autorizado: true,
-                        };
+                if (validate['code'] == 200) {
+                    this.whats = {
+                        usuario: '',
+                        token: '',
+                        autorizado: true,
+                    };
 
-                        this.modalReferenceToken.close();
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    this.modalReferenceToken.close();
                 }
-            );
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
     }
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.id == this.data.empresa
+            (e) => e.id == this.data.empresa
         );
         this.almacenes = empresa.almacenes;
     }
@@ -957,7 +917,7 @@ export class CrearComponent implements OnInit {
             total: 0,
         };
 
-        this.authy = {
+        this.whats = {
             usuario: '',
             token: '',
             autorizado: false,
@@ -970,13 +930,13 @@ export class CrearComponent implements OnInit {
     }
 
     currentDate() {
-        var today = new Date();
-        var dd = today.getDate();
-        var mm = today.getMonth() + 1; //January is 0!
-        var yyyy = today.getFullYear();
+        const today = new Date();
+        const dd = today.getDate();
+        const mm = today.getMonth() + 1;
+        const yyyy = today.getFullYear();
 
-        var d = '';
-        var m = '';
+        let d: string;
+        let m: string;
 
         if (dd < 10) {
             d = '0' + dd;

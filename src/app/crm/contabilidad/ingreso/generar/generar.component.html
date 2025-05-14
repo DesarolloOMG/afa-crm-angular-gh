@@ -1,3 +1,4 @@
+<!--suppress JSUnusedGlobalSymbols, JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
 <form class="md-float-material form-material" #f="ngForm">
     <div class="auth-box card">
         <div class="card-block">
@@ -15,7 +16,7 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ empresa.bd }}"
+                                value="{{ empresa.id }}"
                                 *ngFor="let empresa of empresas"
                             >
                                 {{ empresa.empresa }}

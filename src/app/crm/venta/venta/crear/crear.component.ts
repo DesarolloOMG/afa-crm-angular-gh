@@ -199,12 +199,6 @@ export class CrearComponent implements OnInit {
         guia: 0,
     };
 
-    authy = {
-        id: 0,
-        usuario: 0,
-        token: '',
-    };
-
     archivo = {
         guia: '',
         tipo: '',
@@ -223,9 +217,6 @@ export class CrearComponent implements OnInit {
         private ventaService: VentaService,
         private compraService: CompraService
     ) {
-        const usuario = JSON.parse(this.auth.userData().sub);
-
-        this.authy.id = usuario.id;
         moment.locale('es');
     }
 
@@ -1103,129 +1094,6 @@ export class CrearComponent implements OnInit {
                                     }, 2000);
 
                                     break;
-
-                                // case 'claroshop':
-                                // case 'sears':
-                                //     var total_pedido = 0;
-
-                                //     this.data.documento.mkt_created_at =
-                                //         informacion.estatuspedido.fechacolocado;
-
-                                //     informacion.productos.forEach(
-                                //         (producto) => {
-                                //             if (
-                                //                 producto.estatus !=
-                                //                     'Cancelado' &&
-                                //                 producto.estatus !=
-                                //                     'Reembolso realizado'
-                                //             ){
-                                //                 total_pedido += parseFloat(
-                                //                     producto.importe
-                                //                 );
-
-                                //                 this.data.productos_venta.push({
-                                //                     SellerSKU: producto.sku,
-                                //                     Title: producto.producto,
-                                //                     QuantityOrdered: 1,
-                                //                     ItemPrice: {
-                                //                         Amount:
-                                //                             Number(
-                                //                                 producto.importe
-                                //                             ) +
-                                //                             Number(
-                                //                                 producto.envio
-                                //                             ),
-                                //                     },
-                                //                 });
-                                //             }
-                                //         }
-                                //     );
-
-                                //     this.data.documento.total = total_pedido;
-                                //     this.data.documento.cobro.importe =
-                                //         total_pedido;
-
-                                //     // Comisión del marketplace para el área de arome
-                                //     if (
-                                //         this.data.area_text
-                                //             .toLocaleLowerCase()
-                                //             .includes('arome')
-                                //     ) {
-                                //         this.data.documento.mkt_fee =
-                                //             (total_pedido * 14) / 100;
-                                //     }
-
-                                //     // Informacion general del documento
-                                //     this.data.documento.observacion = '';
-                                //     this.data.documento.referencia =
-                                //         this.data.documento.venta;
-                                //     this.data.documento.cobro.referencia =
-                                //         this.data.documento.venta;
-
-                                //     // Información del cliente
-                                //     this.data.cliente.razon_social =
-                                //         informacion.datosenvio.entregara.toUpperCase();
-                                //     this.data.cliente.telefono = '';
-                                //     this.data.cliente.telefono_alt = '';
-                                //     this.data.cliente.correo = '';
-
-                                //     // Información del envío
-                                //     this.data.documento.info_extra = '';
-                                //     this.data.documento.costo_envio = 0;
-                                //     this.data.documento.direccion_envio.contacto =
-                                //         informacion.datosenvio.entregara.toUpperCase();
-                                //     this.data.documento.direccion_envio.calle =
-                                //         informacion.datosenvio.direccion;
-                                //     this.data.documento.direccion_envio.numero =
-                                //         '.';
-                                //     this.data.documento.direccion_envio.colonia_text =
-                                //         informacion.datosenvio.colonia;
-                                //     this.data.documento.direccion_envio.codigo_postal =
-                                //         informacion.datosenvio.cp;
-                                //     //this.data.documento.direccion_envio.referencia      = informacion.datosenvio.entrecalles;
-                                //     this.data.cliente.correo =
-                                //         'RICARDO@OMG.COM.MX';
-
-                                //     this.cambiarCodigoPostal(
-                                //         this.data.documento.direccion_envio
-                                //             .codigo_postal
-                                //     );
-
-                                //     switch (this.data.area) {
-                                //         case '1':
-                                //             this.data.documento.almacen = '2';
-
-                                //             break;
-                                //         case '7':
-                                //             this.data.documento.almacen = '4';
-
-                                //             break;
-                                //             defaul: break;
-                                //     }
-
-                                //     this.data.documento.paqueteria = '3';
-
-                                //     var $this = this;
-
-                                //     setTimeout(() => {
-                                //         $('#de_colonia option').each(
-                                //             function () {
-                                //                 if (
-                                //                     $this.similarity(
-                                //                         $(this)
-                                //                             .text()
-                                //                             .toLocaleLowerCase(),
-                                //                         $this.data.documento.direccion_envio.colonia_text.toLocaleLowerCase()
-                                //                     ) > 0.7
-                                //                 ) {
-                                //                     $this.data.documento.direccion_envio.colonia =
-                                //                         String($(this).val());
-                                //                 }
-                                //             }
-                                //         );
-                                //     }, 2000);
-
-                                //     break;
 
                                 case 'shopify':
                                     paqueteria_id = '';
@@ -2760,52 +2628,6 @@ export class CrearComponent implements OnInit {
         return 0;
     }
 
-    // obtenerCoordenadas(codigo_postal, tipo) {
-    //     const data = this.data;
-    //
-    //     const google = require('@google/maps').createClient({
-    //         key: 'AIzaSyC-S0aqFAU3pP6ta-3neud0zFPa2GT1HYc',
-    //         Promise: Promise,
-    //     });
-    //
-    //     google
-    //         .geocode({
-    //             address: codigo_postal + ', MX',
-    //             region: 'MX',
-    //         })
-    //         .asPromise()
-    //         .then((response) => {
-    //             if (response.json.results.length == 0) {
-    //                 if (tipo == 0) {
-    //                     data.documento.direccion_envio.remitente_cord_found = 0;
-    //                 } else {
-    //                     data.documento.direccion_envio.destino_cord_found = 0;
-    //                 }
-    //             } else {
-    //                 if (tipo == 0) {
-    //                     data.documento.direccion_envio.remitente_cord = {
-    //                         lat: response.json.results[0].geometry.location.lat,
-    //                         lng: response.json.results[0].geometry.location.lng,
-    //                     };
-    //                     data.documento.direccion_envio.remitente_cord_found = 1;
-    //                 } else {
-    //                     data.documento.direccion_envio.destino_cord = {
-    //                         lat: response.json.results[0].geometry.location.lat,
-    //                         lng: response.json.results[0].geometry.location.lng,
-    //                     };
-    //                     data.documento.direccion_envio.destino_cord_found = 1;
-    //                 }
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             if (tipo == 0) {
-    //                 data.documento.direccion_envio.remitente_cord_found = 0;
-    //             } else {
-    //                 data.documento.direccion_envio.destino_cord_found = 0;
-    //             }
-    //         });
-    // }
-
     YmdHis() {
         const now = new Date();
         const year = '' + now.getFullYear();
@@ -2919,21 +2741,6 @@ export class CrearComponent implements OnInit {
             })(file);
 
             reader.readAsDataURL(file);
-        }
-    }
-
-    // noinspection JSUnusedGlobalSymbols
-    aplicarRetencion(modal) {
-        if (!this.producto.ret) {
-            this.modalService.open(modal, {
-                backdrop: 'static',
-            });
-
-            setTimeout(() => {
-                this.producto.ret = 0;
-            }, 500);
-
-            return;
         }
     }
 
@@ -3292,47 +3099,6 @@ export class CrearComponent implements OnInit {
                 });
             }
         }
-    }
-
-    verificarAuthy(modal) {
-        if (this.authy.token == '' || !this.authy.usuario) {
-            swal({
-                type: 'error',
-                html: 'Favor de completar los campos necesarios',
-            }).then();
-
-            return;
-        }
-
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.authy));
-
-        this.http
-            .post(`${backend_url}venta/venta/crear/authy`, form_data)
-            .subscribe(
-                (res) => {
-                    if (res['code'] == 200) {
-                        this.producto.ret = 1;
-
-                        return;
-                    }
-
-                    if (res['code'] != 200) {
-                        swal({
-                            type: 'error',
-                            html: res['message'],
-                        }).then(() => {
-                            this.modalReferenceMercadolibre =
-                                this.modalService.open(modal, {
-                                    backdrop: 'static',
-                                });
-                        });
-                    }
-                },
-                (response) => {
-                    swalErrorHttpResponse(response);
-                }
-            );
     }
 
     async agregarPromocion(promocion_id) {

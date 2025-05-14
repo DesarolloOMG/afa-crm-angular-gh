@@ -1,5 +1,5 @@
 import {HttpClient} from '@angular/common/http';
-import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild,} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 import swal from 'sweetalert2';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';

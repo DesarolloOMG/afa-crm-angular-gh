@@ -1,18 +1,11 @@
-/* tslint:disable:triple-equals */
-// noinspection JSIgnoredPromiseFromCall
-
-import {
-    backend_url,
-    commaNumber,
-    swalErrorHttpResponse,
-} from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import swal, { SweetAlertResult, SweetAlertType } from 'sweetalert2';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {ActivatedRoute, Router} from '@angular/router';
+import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
+import swal, {SweetAlertResult, SweetAlertType} from 'sweetalert2';
 import * as moment from 'moment';
-import { AuthService } from '@services/auth.service';
+import {AuthService} from '@services/auth.service';
 import {
     createEmptyGBBArchivo,
     createEmptyGBBData,
@@ -22,8 +15,9 @@ import {
     GBBData,
     GBBFinalData,
     GBBNotaData,
-} from '../../../../Interfaces/GBB';
+} from '@interfaces/GBB';
 import formapagoMapping from '../../../../Interfaces/GBB/formapagoMapping';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-venta',
@@ -66,7 +60,8 @@ export class VentaComponent implements OnInit {
         private readonly modalService: NgbModal,
         private readonly route: ActivatedRoute,
         private readonly router: Router,
-        private readonly auth: AuthService
+        private readonly auth: AuthService,
+        private readonly whatsappService: WhatsappService,
     ) {
         this.moment.locale('es_MX');
 
@@ -75,7 +70,7 @@ export class VentaComponent implements OnInit {
             this.data.campo = params.campo;
 
             $('#searchInput').val('');
-            this.buscarVenta();
+            this.buscarVenta().then();
         });
 
         const table: any = $(this.tablename);
@@ -85,22 +80,7 @@ export class VentaComponent implements OnInit {
         this.id_usuario = JSON.parse(this.auth.userData().sub).id;
     }
 
-    ngOnInit() {}
-
-    private swalResponse(
-        type: SweetAlertType,
-        title: string,
-        html: string
-    ): Promise<SweetAlertResult> {
-        return swal(title, html, type);
-    }
-
-    private mostrarResultado(res: any): void {
-        swal({
-            title: '',
-            type: res.code == 200 ? 'success' : 'error',
-            html: res.message,
-        });
+    ngOnInit() {
     }
 
     async buscarVenta(): Promise<void | SweetAlertResult> {
@@ -280,7 +260,7 @@ export class VentaComponent implements OnInit {
     }
 
     async verArchivo(id_dropbox: string): Promise<void> {
-        const form_data = JSON.stringify({ path: id_dropbox });
+        const form_data = JSON.stringify({path: id_dropbox});
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -324,7 +304,7 @@ export class VentaComponent implements OnInit {
             html: '¿Estás seguro de borrar el archivo?',
         }).then((confirm) => {
             if (confirm.value) {
-                const form_data = JSON.stringify({ path: id_dropbox });
+                const form_data = JSON.stringify({path: id_dropbox});
 
                 const httpOptions = {
                     headers: new HttpHeaders({
@@ -368,13 +348,13 @@ export class VentaComponent implements OnInit {
         });
     }
 
-    descargarNotaCredito(nota: string, tipo: number): void {
+    descargarNotaCredito(_nota: string, tipo: number): void {
         if (![1, 2].includes(tipo)) {
             this.swalResponse(
                 'error',
                 'Error',
                 'Tipo inválido. Debe ser 1 (XML) o 2 (PDF).'
-            );
+            ).then();
             return;
         }
     }
@@ -400,46 +380,8 @@ export class VentaComponent implements OnInit {
                     'error',
                     'Error',
                     'No fue posible agregar el archivo: ' + error
-                );
+                ).then();
             });
-    }
-
-    private validarCampos(files: FileList): boolean {
-        if (
-            files.length == 0 ||
-            this.archivo.guia == '' ||
-            this.archivo.impresora == ''
-        ) {
-            this.swalResponse(
-                'error',
-                'Error',
-                'Favor de completar todos los campos para agregar un archivo al documento.'
-            );
-            return false;
-        }
-        return true;
-    }
-
-    private leerArchivo(file: File): Promise<any> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-
-            reader.onload = (e) => {
-                resolve({
-                    guia: this.archivo.guia,
-                    tipo: file.type.split('/')[0],
-                    impresora: this.archivo.impresora,
-                    nombre: file.name,
-                    data: e.target.result,
-                });
-            };
-
-            reader.onerror = () => {
-                reject('Error de lectura del archivo');
-            };
-
-            reader.readAsDataURL(file);
-        });
     }
 
     verSeries(sku: string, modal: any): void {
@@ -448,13 +390,13 @@ export class VentaComponent implements OnInit {
         );
 
         if (!producto) {
-            this.swalResponse('error', 'Error', 'Producto no encontrado.');
+            this.swalResponse('error', 'Error', 'Producto no encontrado.').then();
             return;
         }
 
         this.data.series = producto.series;
 
-        this.modalService.open(modal, { backdrop: 'static' });
+        this.modalService.open(modal, {backdrop: 'static'});
     }
 
     async crearRefacturacion($option: any): Promise<void | SweetAlertResult> {
@@ -463,14 +405,32 @@ export class VentaComponent implements OnInit {
 
         if (!currentDate.isSame(documentDate, 'month')) {
             this.final_data.necesita_token = true;
-            this.final_data.token = await this.obtenerTokenAuthy();
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: async () => {
+                    await swal({
+                        type: 'warning',
+                        html: `Para realizar la facturación, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.<br><br>
+               Esto se debe a que la factura no es del mismo mes. Sí tienes alguna duda, favor de contactar a administración.`,
+                        input: 'text',
+                    }).then((confirm) => {
+                        if (!confirm.value) {
+                            return;
+                        }
+                        this.final_data.token = confirm.value;
+                    });
+                },
+                error: (error) => {
+                    swalErrorHttpResponse(error);
+                },
+            });
         }
 
         if (this.final_data.necesita_token && !this.final_data.token) {
             return this.swalResponse(
                 'error',
                 'Error',
-                'Necesitas escribir un token de authy para poder autorizar la refacturación'
+                'Necesitas escribir un token para poder autorizar la refacturación'
             );
         }
 
@@ -498,19 +458,6 @@ export class VentaComponent implements OnInit {
         } catch (response) {
             swalErrorHttpResponse(response);
         }
-    }
-
-    private async obtenerTokenAuthy(): Promise<string> {
-        const { value } = await swal({
-            type: 'warning',
-            html: `Para realizar la facturación, abre tu aplicación de <b>authy</b>
-               y escribe el código de autorización en el recuadro de abajo.<br><br>
-               Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.<br><br>
-               Esto se debe a que la factura no es del mismo mes. Sí tienes alguna duda, favor de contactar a administración.`,
-            input: 'text',
-        });
-
-        return value;
     }
 
     async crearNotaCredito(
@@ -557,20 +504,8 @@ export class VentaComponent implements OnInit {
         }
     }
 
-    private async mostrarConfirmacion(message: string): Promise<boolean> {
-        const { value } = await swal({
-            type: 'warning',
-            html: message,
-            showConfirmButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'Sí, continuar',
-            cancelButtonText: 'No, regresar',
-        });
-
-        return value;
+    async enviarFactura(): Promise<void> {
     }
-
-    async enviarFactura(): Promise<void> {}
 
     async informacionExtraMercadolibre(
         modal: any
@@ -610,11 +545,13 @@ export class VentaComponent implements OnInit {
     }
 
     async descargarDocumento(
-        tipo_documento: number,
-        documento_extra: string
-    ): Promise<void> {}
+        _tipo_documento: number,
+        _documento_extra: string
+    ): Promise<void> {
+    }
 
-    descargarComplemento(tipo_documento: number): void {}
+    descargarComplemento(_tipo_documento: number): void {
+    }
 
     clearData(): void {
         this.data = createEmptyGBBData();
@@ -667,15 +604,83 @@ export class VentaComponent implements OnInit {
         return number * 1.16;
     }
 
-    downloadXMLorPDF(type: boolean): void {}
+    downloadXMLorPDF(_type: boolean): void {
+    }
 
     quitarArchivo(index: number): void {
         this.final_data.archivos.splice(index, 1);
     }
 
+    private swalResponse(
+        type: SweetAlertType,
+        title: string,
+        html: string
+    ): Promise<SweetAlertResult> {
+        return swal(title, html, type);
+    }
+
+    private mostrarResultado(res: any): void {
+        swal({
+            title: '',
+            type: res.code == 200 ? 'success' : 'error',
+            html: res.message,
+        }).then();
+    }
+
+    private validarCampos(files: FileList): boolean {
+        if (
+            files.length == 0 ||
+            this.archivo.guia == '' ||
+            this.archivo.impresora == ''
+        ) {
+            this.swalResponse(
+                'error',
+                'Error',
+                'Favor de completar todos los campos para agregar un archivo al documento.'
+            ).then();
+            return false;
+        }
+        return true;
+    }
+
+    private leerArchivo(file: File): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                resolve({
+                    guia: this.archivo.guia,
+                    tipo: file.type.split('/')[0],
+                    impresora: this.archivo.impresora,
+                    nombre: file.name,
+                    data: e.target.result,
+                });
+            };
+
+            reader.onerror = () => {
+                reject('Error de lectura del archivo');
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    private async mostrarConfirmacion(message: string): Promise<boolean> {
+        const {value} = await swal({
+            type: 'warning',
+            html: message,
+            showConfirmButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Sí, continuar',
+            cancelButtonText: 'No, regresar',
+        });
+
+        return value;
+    }
+
     private async solicitarEmpresa(): Promise<string | null> {
         try {
-            const { value } = await swal({
+            const {value} = await swal({
                 type: 'info',
                 html: 'Seleccione la empresa a la que pertenece la nota',
                 input: 'select',
@@ -703,6 +708,7 @@ export class VentaComponent implements OnInit {
         }
     }
 
+    // noinspection JSUnusedLocalSymbols
     private async setNotaData(
         estado: string,
         form_data_nota: FormData
@@ -790,10 +796,14 @@ export class VentaComponent implements OnInit {
         }
     }
 
-    private async setVentaData(): Promise<void | null> {}
+    private async setVentaData(): Promise<void | null> {
+    }
 
-    private async updateVentaFromFolio(venta, folio): Promise<void> {}
+    // noinspection JSUnusedLocalSymbols
+    private async updateVentaFromFolio(_venta, _folio): Promise<void> {
+    }
 
+    // noinspection JSUnusedLocalSymbols
     private assignFacturaData(venta, res): void {
         if ($.isArray(res) && res.length > 0) {
             const factura = Object.values(res).find(
@@ -848,51 +858,3 @@ export class VentaComponent implements OnInit {
         venta.pago = pagosValidos;
     }
 }
-
-// if (this.data.refacturacion_pendiente) {
-//     swal({
-//         title: '',
-//         type: 'error',
-//         html: 'Refacturación pendiente de autorización o ya existente',
-//     });
-// } else {
-//     await swal({
-//         type: 'warning',
-//         html: `Se enviará la refacturación an Autorización`,
-//         showConfirmButton: true,
-//         showCancelButton: true,
-//         confirmButtonText: 'Sí, continuar',
-//         cancelButtonText: 'No, regresar',
-//     }).then((confirm) => {
-//         if (!confirm.value) return;
-//         const form_data = new FormData();
-//         form_data.append('data', JSON.stringify(this.final_data));
-//         this.http
-//             .post(
-//                 `${backend_url}contabilidad/refacturacion/crear`,
-//                 form_data
-//             )
-//             .subscribe(
-//                 (res) => {
-//                     swal({
-//                         title: '',
-//                         type: res['code'] == 200 ? 'success' : 'error',
-//                         html: res['message'],
-//                     });
-//                     console.log(res);
-//                 },
-//                 (response) => {
-//                     swal({
-//                         title: '',
-//                         type: 'error',
-//                         html:
-//                             response.status == 0
-//                                 ? response.message
-//                                 : typeof response.error == 'object'
-//                                 ? response.error.error_summary
-//                                 : response.error,
-//                     });
-//                 }
-//             );
-//     });
-// }

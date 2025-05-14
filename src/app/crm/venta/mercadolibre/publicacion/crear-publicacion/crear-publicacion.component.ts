@@ -1,13 +1,14 @@
 /* tslint:disable:triple-equals */
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { VentaService } from '@services/http/venta.service';
-import { MercadolibreService } from '@services/http/mercadolibre.service';
-import { swalErrorHttpResponse } from '@env/environment';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {Component, OnInit, ViewChild} from '@angular/core';
+import {VentaService} from '@services/http/venta.service';
+import {MercadolibreService} from '@services/http/mercadolibre.service';
+import {swalErrorHttpResponse} from '@env/environment';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
-import { isArray } from 'util';
-import { Observable } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators';
+import {isArray} from 'util';
+import {Observable} from 'rxjs';
+import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-crear-publicacion',
@@ -62,13 +63,14 @@ export class CrearPublicacionComponent implements OnInit {
             quantity: 0,
             price: 0,
         },
-        authy_code: '',
+        auth_code: '',
     };
 
     constructor(
         private ventaService: VentaService,
         private mercadolibreService: MercadolibreService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private whatsappService: WhatsappService
     ) {}
 
     ngOnInit() {
@@ -293,33 +295,43 @@ export class CrearPublicacionComponent implements OnInit {
             }
         }
 
-        if (!cntinue) { return; }
-
-        swal({
-            type: 'warning',
-            html: `Para crear la publicación, abre tu aplicación de <b>authy</b>
- y escribe el código de autorización en el recuadro de abajo.<br><br>
-            Si todavía no cuentas con tu aplicación configurada, contacta un administrador.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) { return; }
-
-            this.data.authy_code = confirm.value;
-
-            this.ventaService.createProductItem(this.data).subscribe(
-                (res: any) => {
+        if (!cntinue) {
+            return;
+        } else {
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: () => {
                     swal({
-                        type: 'success',
-                        html: res.message,
-                    }).then();
+                        type: 'warning',
+                        html: `Para crear la publicación, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        input: 'text',
+                    }).then((confirm) => {
+                        if (!confirm.value) {
+                            return;
+                        }
 
-                    this.initObjects();
+                        this.data.auth_code = confirm.value;
+
+                        this.ventaService.createProductItem(this.data).subscribe(
+                            (res: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: res.message,
+                                }).then();
+
+                                this.initObjects();
+                            },
+                            (err: any) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                    });
                 },
-                (err: any) => {
+                error: (err) => {
                     swalErrorHttpResponse(err);
-                }
-            );
-        });
+                },
+            });
+        }
     }
 
     onChangeImageAdd() {
@@ -531,7 +543,7 @@ export class CrearPublicacionComponent implements OnInit {
                 quantity: 0,
                 price: 0,
             },
-            authy_code: '',
+            auth_code: '',
         };
     }
 }

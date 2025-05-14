@@ -1,9 +1,9 @@
-import { backend_url } from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
-import { AuthService } from '@services/auth.service';
+import {AuthService} from '@services/auth.service';
 
 @Component({
     selector: 'app-cambio',
@@ -67,7 +67,7 @@ export class CambioComponent implements OnInit {
         nota_pendiente: 0,
     };
 
-    authy = { id: 0 };
+    auth_id = {id: 0};
 
     constructor(
         private http: HttpClient,
@@ -82,7 +82,7 @@ export class CambioComponent implements OnInit {
         this.datatable = table_producto.DataTable();
         const usuario = JSON.parse(this.auth.userData().sub);
 
-        this.authy.id = usuario.id;
+        this.auth_id.id = usuario.id;
     }
 
     ngOnInit() {
@@ -112,33 +112,23 @@ export class CambioComponent implements OnInit {
 
                         this.chRef.detectChanges();
 
-                        // Now you can use jQuery DataTables :
                         const table: any = $(
                             '#soporte_garantia_devolucion_garantia_cambio'
                         );
                         this.datatable = table.DataTable();
                     } else {
-                        swal('', res['message'], 'error');
+                        swal('', res['message'], 'error').then();
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     detalleVenta(modal, documento) {
         const venta = this.ventas.find(
-            (venta) => venta.documento_garantia == documento
+            (v) => v.documento_garantia == documento
         );
 
         this.final_data.documento = venta.id;
@@ -172,7 +162,7 @@ export class CambioComponent implements OnInit {
     }
 
     guardarDocumento() {
-        var terminar = 0;
+        let terminar = 0;
 
         if (this.final_data.terminar) {
             this.final_data.productos_anteriores.forEach((producto) => {
@@ -209,10 +199,11 @@ export class CambioComponent implements OnInit {
                 type: 'warning',
                 html:
                     'Ocurrió un error al revisar los productos que se cambiaran, favor de corroborar los siguientes puntos.<br><br>' +
-                    "1.- Al no ser un producto distinto, al menos un producto de la tabla debe tener seleccionar el switch 'cambio'.<br>" +
+                    '1.- Al no ser un producto distinto, al menos un producto de la tabla debe tener seleccionar el switch ' +
+                    '\'cambio\'.<br>' +
                     '2.- Sí el producto no lleva series, la cantidad a cambiar debe ser mayor a 0.<br>' +
                     '3.- Sí el producto lleva serie, al menos una serie debe ser cambiada.',
-            });
+            }).then();
 
             return;
         }
@@ -222,12 +213,12 @@ export class CambioComponent implements OnInit {
                 '',
                 'Debes especificar un almacén de donde saldrá la mercancia de cambio',
                 'error'
-            );
+            ).then();
 
             return;
         }
 
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
 
         this.http
@@ -241,7 +232,7 @@ export class CambioComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         if (this.final_data.terminar) {
@@ -255,16 +246,7 @@ export class CambioComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -290,7 +272,7 @@ export class CambioComponent implements OnInit {
                 '',
                 'No se encontró ningun que requiera cambio para generar la solicitud.',
                 'error'
-            );
+            ).then();
 
             return;
         }
@@ -304,12 +286,12 @@ export class CambioComponent implements OnInit {
                 '',
                 `El producto ${cambio_cero.sku} está marcado para cambio pero no se han especificado las series, favor de verificar`,
                 'error'
-            );
+            ).then();
 
             return;
         }
 
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
 
         this.http
@@ -320,14 +302,14 @@ export class CambioComponent implements OnInit {
             .subscribe(
                 (res) => {
                     if (res['code'] != 200) {
-                        swal('', res['message'], 'error');
+                        swal('', res['message'], 'error').then();
 
                         return;
                     }
 
-                    let dataURI = 'data:application/pdf;base64, ' + res['file'];
+                    const dataURI = 'data:application/pdf;base64, ' + res['file'];
 
-                    let a = window.document.createElement('a');
+                    const a = window.document.createElement('a');
                     a.href = dataURI;
                     a.download = res['name'];
                     a.setAttribute('id', 'etiqueta_descargar');
@@ -337,16 +319,7 @@ export class CambioComponent implements OnInit {
                     $('#etiqueta_descargar').remove();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -362,7 +335,7 @@ export class CambioComponent implements OnInit {
         } else {
             this.series = [];
 
-            for (var i = 0; i < Number(cantidad); i++) {
+            for (let i = 0; i < Number(cantidad); i++) {
                 this.series.push({
                     id: 0,
                     serie: '',
@@ -377,7 +350,7 @@ export class CambioComponent implements OnInit {
 
     confirmarSeries() {
         const producto = this.final_data.productos_anteriores.find(
-            (producto) => producto.sku == this.data.producto
+            (p) => p.sku == this.data.producto
         );
         producto.series = this.series;
 
@@ -401,9 +374,8 @@ export class CambioComponent implements OnInit {
     }
 
     solicitarAutorizacion() {
-        //enviar a la tabla de pendientes auorizar
 
-        var terminar = 0;
+        let terminar = 0;
 
         if (this.final_data.terminar) {
             this.final_data.productos_anteriores.forEach((producto) => {
@@ -440,10 +412,11 @@ export class CambioComponent implements OnInit {
                 type: 'warning',
                 html:
                     'Ocurrió un error al revisar los productos que se cambiaran, favor de corroborar los siguientes puntos.<br><br>' +
-                    "1.- Al no ser un producto distinto, al menos un producto de la tabla debe tener seleccionar el switch 'cambio'.<br>" +
+                    '1.- Al no ser un producto distinto, al menos un producto de la tabla debe tener seleccionar el switch ' +
+                    '\'cambio\'.<br>' +
                     '2.- Sí el producto no lleva series, la cantidad a cambiar debe ser mayor a 0.<br>' +
                     '3.- Sí el producto lleva serie, al menos una serie debe ser cambiada.',
-            });
+            }).then();
 
             return;
         }
@@ -453,14 +426,14 @@ export class CambioComponent implements OnInit {
                 '',
                 'Debes especificar un almacén de donde saldrá la mercancia de cambio',
                 'error'
-            );
+            ).then();
 
             return;
         }
 
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
-        form_data.append('usuario', JSON.stringify(this.authy.id));
+        form_data.append('usuario', JSON.stringify(this.auth_id.id));
         form_data.append('modulo', JSON.stringify('G'));
         form_data.append('doc', JSON.stringify(this.data));
 
@@ -475,23 +448,14 @@ export class CambioComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
                     if (res['code'] == 200) {
                         this.getData();
                         this.modalReference.close();
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }

@@ -1,10 +1,11 @@
-import { backend_url, commaNumber } from './../../../../../environments/environment';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthService } from './../../../../services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-cuenta',
@@ -17,8 +18,11 @@ export class CuentaComponent implements OnInit {
 
     commaNumber = commaNumber;
 
-    token: any = "";
-    authy: any = "";
+    whats = {
+        usuario: '',
+        token: '',
+    };
+
     usuarios: any[] = [];
 
     empresas_usuario: any[] = [];
@@ -32,33 +36,43 @@ export class CuentaComponent implements OnInit {
 
     cuenta = {
         id: 0,
-        empresa: "1",
-        saldo_inicial: "",
-        descripcion: ""
-    }
+        empresa: '1',
+        saldo_inicial: '',
+        descripcion: ''
+    };
 
     conciliacion = {
         registro: 0,
         cuenta: 0,
-        fecha: ""
-    }
+        fecha: ''
+    };
 
     estado_cuenta = {
         cuenta: 0,
-        fecha_inicial: "",
-        fecha_final: "",
+        fecha_inicial: '',
+        fecha_final: '',
         saldo_inicial: 0,
         saldo_final: 0,
         movimientos: []
-    }
+    };
 
-    constructor(private http: HttpClient, private chRef: ChangeDetectorRef, private modalService: NgbModal, private router: Router, private auth: AuthService) {
-        const table: any = $("#contabilidad_ingreso_cuenta");
-        const table_movimiento: any = $("#contabilidad_ingreso_cuenta_movimiento");
+    timer = 0;
+    isTimerActive = false;
+
+    constructor(
+        private http: HttpClient,
+        private chRef: ChangeDetectorRef,
+        private modalService: NgbModal,
+        private router: Router,
+        private auth: AuthService,
+        private whatsappService: WhatsappService,
+    ) {
+        const table: any = $('#contabilidad_ingreso_cuenta');
+        const table_movimiento: any = $('#contabilidad_ingreso_cuenta_movimiento');
 
         this.cuentas_datatable = table.DataTable();
         this.movimientos_datatable = table_movimiento.DataTable({
-            "order": [[4, "desc"]]
+            'order': [[4, 'desc']]
         });
 
         this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
@@ -66,8 +80,8 @@ export class CuentaComponent implements OnInit {
 
     ngOnInit() {
         if (this.empresas_usuario.length == 0) {
-            swal("", "No tienes empresas asignadas, favor de contactar a un administrador.", "error").then(() => {
-                this.router.navigate(['/dashboard']);
+            swal('', 'No tienes empresas asignadas, favor de contactar a un administrador.', 'error').then(() => {
+                this.router.navigate(['/dashboard']).then();
             });
 
             return;
@@ -95,18 +109,14 @@ export class CuentaComponent implements OnInit {
                     });
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
     obtenerCuentas() {
-        $("#loading-spinner").fadeIn();
+        $('#loading-spinner').fadeIn();
 
-        var form_data = new FormData();
+        const form_data = new FormData();
 
         form_data.append('empresa', this.empresa);
 
@@ -118,18 +128,14 @@ export class CuentaComponent implements OnInit {
                     this.reconstruirTabla(res['cuentas']);
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
     modificarCuenta(id_cuenta, modal) {
         this.cuenta = this.cuentas.find(cuenta => cuenta.id == id_cuenta);
 
-        this.modalService.open(modal, { backdrop: 'static' });
+        this.modalService.open(modal, {backdrop: 'static'});
     }
 
     sincronizarCuentas() {
@@ -139,16 +145,12 @@ export class CuentaComponent implements OnInit {
                     this.reconstruirTabla(res['cuentas']);
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
     actualizarCuenta() {
-        var form_data = new FormData();
+        const form_data = new FormData();
 
         form_data.append('cuenta', JSON.stringify(this.cuenta));
 
@@ -156,49 +158,44 @@ export class CuentaComponent implements OnInit {
             .subscribe(
                 res => {
                     swal({
-                        title: "",
+                        title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message']
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         this.modalReference.close();
                     }
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
     conciliarCuenta(cuenta, modal) {
         this.conciliacion.cuenta = cuenta;
 
-        this.modalService.open(modal, { backdrop: 'static' });
+        this.modalService.open(modal, {backdrop: 'static'});
     }
 
     conciliarDia(modal) {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('conciliacion', JSON.stringify(this.conciliacion));
 
         this.http.post(`${backend_url}contabilidad/ingreso/cuenta/conciliar`, form_data)
             .subscribe(
                 res => {
                     if (res['code'] == 200) {
-                        swal("", res['message'], "success");
+                        swal('', res['message'], 'success').then();
 
                         this.conciliacion = {
                             registro: 0,
                             cuenta: 0,
-                            fecha: ""
-                        }
+                            fecha: ''
+                        };
 
                         this.modalReference.close();
-                    }
-                    else {
+                    } else {
                         swal({
                             type: 'error',
                             title: '',
@@ -211,55 +208,56 @@ export class CuentaComponent implements OnInit {
                             if (confirm.value) {
                                 this.conciliacion.registro = res['registro'];
 
-                                this.modalReference = this.modalService.open(modal, { backdrop: 'static' });
+                                this.modalReference = this.modalService.open(modal, {backdrop: 'static'});
                             }
                         });
                     }
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
-    desconciliarDia(modal) {
-        var form_data = new FormData();
+    desconciliarDia() {
+        if (this.whats.usuario === '') {
+            return swal({
+                type: 'error',
+                html: 'Selecciona al usuario que proporcionará el token de autorización.',
+            });
+        }
+
+        if (this.whats.token === '') {
+            return swal({
+                type: 'error',
+                html: 'Tienes que escribir el token que Whatsapp te proporciona',
+            });
+        }
+        const form_data = new FormData();
 
         form_data.append('registro', String(this.conciliacion.registro));
-        form_data.append('authy', this.authy);
-        form_data.append('token', $.trim(this.token));
+        form_data.append('data', JSON.stringify(this.whats));
 
         this.http.post(`${backend_url}contabilidad/ingreso/cuenta/desconciliar`, form_data)
             .subscribe(
                 res => {
-                    if (res['code'] == 406) {
-                        this.modalReference = this.modalService.open(modal, { backdrop: 'static' });
-
-                        return;
-                    }
 
                     swal({
-                        title: "",
+                        title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message']
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
-                        this.authy = "";
-                        this.token = "";
+                        this.whats = {
+                            usuario: '',
+                            token: '',
+                        };
 
                         this.modalReference.close();
                     }
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
@@ -269,11 +267,11 @@ export class CuentaComponent implements OnInit {
         this.estado_cuenta.saldo_final = 0;
         this.estado_cuenta.movimientos = [];
 
-        this.modalService.open(modal, { windowClass: 'bigger-modal', backdrop: 'static' });
+        this.modalService.open(modal, {windowClass: 'bigger-modal', backdrop: 'static'});
     }
 
     generarEstadoCuenta() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.estado_cuenta));
 
         this.http.post(`${backend_url}contabilidad/ingreso/cuenta/estado`, form_data)
@@ -284,7 +282,7 @@ export class CuentaComponent implements OnInit {
                             title: '',
                             type: 'error',
                             html: res['message']
-                        });
+                        }).then();
 
                         return;
                     }
@@ -298,28 +296,30 @@ export class CuentaComponent implements OnInit {
                     this.chRef.detectChanges();
 
                     setTimeout(() => {
-                        const table: any = $("#contabilidad_ingreso_cuenta_movimiento");
+                        const table: any = $('#contabilidad_ingreso_cuenta_movimiento');
                         this.movimientos_datatable = table.DataTable({
-                            "order": [[4, "desc"]]
+                            'order': [[4, 'desc']]
                         });
                     }, 500);
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
     today() {
-        var now = new Date();
-        var year = "" + now.getFullYear();
-        var month = "" + (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
-        var day = "" + now.getDate(); if (day.length == 1) { day = "0" + day; }
+        const now = new Date();
+        const year = '' + now.getFullYear();
+        let month = '' + (now.getMonth() + 1);
+        if (month.length == 1) {
+            month = '0' + month;
+        }
+        let day = '' + now.getDate();
+        if (day.length == 1) {
+            day = '0' + day;
+        }
 
-        return year + "-" + month + "-" + day;
+        return year + '-' + month + '-' + day;
     }
 
     reconstruirTabla(cuentas) {
@@ -328,7 +328,39 @@ export class CuentaComponent implements OnInit {
         this.cuentas = cuentas;
 
         this.chRef.detectChanges();
-        const table: any = $("#contabilidad_ingreso_cuenta");
+        const table: any = $('#contabilidad_ingreso_cuenta');
         this.cuentas_datatable = table.DataTable();
+    }
+
+    iniciarTemporizador() {
+        this.timer = 10;
+        this.isTimerActive = true;
+
+        const interval = setInterval(() => {
+            this.timer--;
+
+            if (this.timer <= 0) {
+                clearInterval(interval);
+                this.isTimerActive = false;
+            }
+        }, 1000);
+    }
+
+    enviarCodigoWhatsApp() {
+        if (this.whats.usuario === '') {
+            return swal({
+                type: 'error',
+                html: 'Selecciona al usuario para enviar el token.',
+            });
+        }
+        this.whatsappService.sendWhatsappWithOption(this.whats).subscribe(
+            () => {
+                this.iniciarTemporizador();
+                this.whats.token = '';
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
     }
 }

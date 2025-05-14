@@ -1,3 +1,4 @@
+<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols, JSUnusedLocalSymbols -->
 <form class="md-float-material form-material" #f="ngForm" autocomplete="off">
     <div class="auth-box card">
         <div class="card-block">
@@ -256,7 +257,6 @@
                                 data.tipo_cambio = data.moneda == '3' ? 1 : 0
                             "
                             #monedadocumento="ngModel"
-                            step="0.01"
                         >
                             <option value="" disabled selected></option>
                             <option
@@ -786,18 +786,14 @@
 
 <ng-template #modaltoken let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
+        <h4 class="modal-title">Autorización requerida</h4>
+
+        <button (click)="d('Cross click')" aria-label="Close" class="close" id="cerrar_modal" type="button">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
     <div class="modal-body table-responsive">
-        <form class="md-float-material form-material mt-10">
+        <form (ngSubmit)="confirmarWhatsFinalizar()" class="md-float-material form-material mt-10">
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group form-primary">
@@ -806,37 +802,44 @@
                             id="usuario"
                             class="form-control"
                             required
-                            [(ngModel)]="authy.usuario"
+                            [(ngModel)]="whats.usuario"
                         >
                             <option value="" disabled></option>
-                            <option
-                                value="{{ usuario.authy }}"
-                                *ngFor="let usuario of usuarios_authy"
-                            >
+                            <option *ngFor="let usuario of usuarios" [value]="usuario.id">
                                 {{ usuario.nombre }} - {{ usuario.nivel }}
                             </option>
                         </select>
                         <span class="form-bar"></span>
                         <label class="float-label">Usuario</label>
                     </div>
+                    <button
+                        (click)="enviarCodigoWhatsApp()"
+                        [disabled]="isTimerActive"
+                        class="btn btn-outline-info btn-block mt-2"
+                        type="button"
+                    >
+                        {{ isTimerActive ? ('Reenviar en ' + timer + 's') : 'Enviar código' }}
+                    </button>
                 </div>
             </div>
-            <div class="row">
+
+            <div class="row mt-4">
                 <div class="col-md-12">
                     <div class="form-group form-primary">
                         <input
                             type="text"
                             name="token"
                             id="token"
-                            class="form-control http-disabled"
-                            [(ngModel)]="authy.token"
-                            #tokenmodel="ngModel"
-                            (keyup.enter)="confirmarAuthyFinalizar()"
+                            [(ngModel)]="whats.token"
+                            class="form-control"
                             pattern="^[0-9]+$"
                         />
                         <span class="form-bar"></span>
                         <label class="float-label">Token</label>
                     </div>
+                    <button class="btn btn-outline-success btn-block mt-2" type="submit">
+                        Validar token
+                    </button>
                 </div>
             </div>
         </form>

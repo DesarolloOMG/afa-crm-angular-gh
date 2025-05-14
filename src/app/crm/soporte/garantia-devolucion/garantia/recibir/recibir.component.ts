@@ -1,13 +1,10 @@
-import {
-    backend_url,
-    swalErrorHttpResponse,
-
-} from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
-import { SoporteService } from '@services/http/soporte.service';
+import {SoporteService} from '@services/http/soporte.service';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-recibir',
@@ -19,7 +16,7 @@ export class RecibirComponent implements OnInit {
 
 
     datatable: any;
-    datatable_name: string = '#soporte_garantia_devolucion_garantia_recibir';
+    datatable_name = '#soporte_garantia_devolucion_garantia_recibir';
 
     ventas: any[] = [];
     paqueterias: any[] = [];
@@ -62,7 +59,8 @@ export class RecibirComponent implements OnInit {
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private soporteService: SoporteService
+        private soporteService: SoporteService,
+        private whatsappService: WhatsappService,
     ) {
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
@@ -82,23 +80,14 @@ export class RecibirComponent implements OnInit {
                     this.rebuildTable();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     detalleVenta(modal, documento) {
         const venta = this.ventas.find(
-            (venta) => venta.documento_garantia == documento
+            (v) => v.documento_garantia == documento
         );
 
         this.final_data.documento = venta.id;
@@ -125,7 +114,7 @@ export class RecibirComponent implements OnInit {
     }
 
     guardarDocumento() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
 
         this.http
@@ -139,7 +128,7 @@ export class RecibirComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         if (this.final_data.terminar) {
@@ -153,16 +142,7 @@ export class RecibirComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -181,7 +161,7 @@ export class RecibirComponent implements OnInit {
             return;
         }
 
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('criterio', this.usuario.text);
 
         this.http
@@ -192,64 +172,64 @@ export class RecibirComponent implements OnInit {
                         if (res['usuarios'].length > 0) {
                             this.usuarios = res['usuarios'];
                         } else {
-                            swal('', 'No se encontró ningun usuario.', 'error');
+                            swal('', 'No se encontró ningun usuario.', 'error').then();
                         }
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     eliminarDocumento(documento) {
-        swal({
-            type: 'warning',
-            html: `Para eliminar el documento, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
-            Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) return;
-
-            const data = {
-                documento: documento.documento_garantia,
-                authy_code: confirm.value,
-            };
-
-            this.soporteService
-                .deleteGarantiaDevolucionDocument(data)
-                .subscribe(
-                    (res: any) => {
-                        swal({
-                            type: 'success',
-                            html: res.message,
-                        });
-
-                        const index = this.ventas.findIndex(
-                            (d) => d.id == documento.id
-                        );
-                        this.ventas.splice(index, 1);
-
-                        this.rebuildTable();
-                    },
-                    (err) => {
-                        swalErrorHttpResponse(err);
+        this.whatsappService.sendWhatsapp().subscribe({
+            next: () => {
+                swal({
+                    type: 'warning',
+                    html: `Para eliminar el documento, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    input: 'text',
+                }).then((confirm) => {
+                    if (!confirm.value) {
+                        return;
                     }
-                );
+
+                    const data = {
+                        documento: documento.documento_garantia,
+                        code: confirm.value,
+                    };
+
+                    this.soporteService
+                        .deleteGarantiaDevolucionDocument(data)
+                        .subscribe(
+                            (res: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: res.message,
+                                }).then();
+
+                                const index = this.ventas.findIndex(
+                                    (d) => d.id == documento.id
+                                );
+                                this.ventas.splice(index, 1);
+
+                                this.rebuildTable();
+                            },
+                            (err) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                });
+            },
+            error: (err) => {
+                swalErrorHttpResponse(err);
+            },
         });
     }
 
     agregarUsuario() {
-        var repetido = 0;
+        let repetido = 0;
 
         this.final_data.notificados.forEach((usuario) => {
             if (usuario.id == this.usuario.usuario) {
@@ -258,7 +238,7 @@ export class RecibirComponent implements OnInit {
         });
 
         if (repetido) {
-            swal('', 'El usuario ya se encuentra dentro de la lista.', 'error');
+            swal('', 'El usuario ya se encuentra dentro de la lista.', 'error').then();
 
             return;
         }

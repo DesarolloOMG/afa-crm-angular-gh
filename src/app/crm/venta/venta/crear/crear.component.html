@@ -2387,62 +2387,6 @@
     </div>
 </ng-template>
 
-<ng-template #modaltoken let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body table-responsive">
-        <form class="md-float-material form-material mt-10">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select
-                            name="usuarioauthy"
-                            id="usuarioauthy"
-                            class="form-control"
-                            [(ngModel)]="authy.usuario"
-                        >
-                            <option value="" disabled></option>
-                            <option
-                                value="{{ usuario.id }}"
-                                *ngFor="let usuario of usuarios"
-                            >
-                                {{ usuario.nombre }}
-                            </option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Usuario</label>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            name="usuariotoken"
-                            id="usuariotoken"
-                            class="form-control http-disabled"
-                            [(ngModel)]="authy.token"
-                            (keydown.enter)="verificarAuthy(modaltoken)"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Token</label>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</ng-template>
-
 <ng-template #modalpromociones let-c="close" let-d="dismiss">
     <div class="modal-header">
         <h4 class="modal-title">Promociones activas</h4>

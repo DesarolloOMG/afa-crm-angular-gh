@@ -1,14 +1,11 @@
-import {
-    backend_url,
-
-    swalErrorHttpResponse,
-} from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef, Renderer2 } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit, Renderer2} from '@angular/core';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
-import { SoporteService } from '@services/http/soporte.service';
-import { AuthService } from '@services/auth.service';
+import {SoporteService} from '@services/http/soporte.service';
+import {AuthService} from '@services/auth.service';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-pendiente',
@@ -19,7 +16,7 @@ export class PendienteComponent implements OnInit {
 
     modalReference: any;
     datatable: any;
-    datatable_name: string =
+    datatable_name =
         '#soporte_garantia_devolucion_devolucion_pendiente';
 
     ventas: any[] = [];
@@ -59,20 +56,21 @@ export class PendienteComponent implements OnInit {
         terminar: 1,
         nota_pendiente: 0,
     };
-    authy = { id: 0 };
+    auth_id = {id: 0};
     constructor(
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private renderer: Renderer2,
         private soporteService: SoporteService,
-        private auth: AuthService
+        private auth: AuthService,
+        private whatsappService: WhatsappService,
     ) {
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
         const usuario = JSON.parse(this.auth.userData().sub);
 
-        this.authy.id = usuario.id;
+        this.auth_id.id = usuario.id;
     }
 
     ngOnInit() {
@@ -101,16 +99,7 @@ export class PendienteComponent implements OnInit {
                     this.rebuildTable();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -119,7 +108,7 @@ export class PendienteComponent implements OnInit {
         this.final_data.documento = documento;
         this.data.documento = documento;
 
-        const venta = this.ventas.find((venta) => venta.id == documento);
+        const venta = this.ventas.find((v) => v.id == documento);
 
         this.final_data.documento_garantia = venta.documento_garantia;
         this.data.area = venta.area;
@@ -138,8 +127,8 @@ export class PendienteComponent implements OnInit {
         this.data.seguimiento_garantia = venta.seguimiento_garantia;
 
         this.data.archivos.forEach((archivo) => {
-            var re = /(?:\.([^.]+))?$/;
-            var ext = re.exec(archivo.archivo)[1];
+            const re = /(?:\.([^.]+))?$/;
+            const ext = re.exec(archivo.archivo)[1];
 
             if ($.inArray(ext, ['jpg', 'jpeg', 'png']) !== -1) {
                 archivo.icon = 'file-image-o';
@@ -160,9 +149,9 @@ export class PendienteComponent implements OnInit {
     }
 
     solicitarAutorizacion() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
-        form_data.append('usuario', JSON.stringify(this.authy.id));
+        form_data.append('usuario', JSON.stringify(this.auth_id.id));
         form_data.append('modulo', JSON.stringify('D'));
         form_data.append('doc', JSON.stringify(this.data));
 
@@ -177,29 +166,21 @@ export class PendienteComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
                     if (res['code'] == 200) {
                         this.getData();
                         this.modalReference.close();
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
+    // noinspection JSUnusedGlobalSymbols
     guardarDocumento() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
 
         this.http
@@ -213,7 +194,7 @@ export class PendienteComponent implements OnInit {
                         title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
-                    });
+                    }).then();
 
                     if (res['code'] == 200) {
                         const index = this.ventas.findIndex(
@@ -225,16 +206,7 @@ export class PendienteComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -252,20 +224,19 @@ export class PendienteComponent implements OnInit {
             backdrop: 'static',
         });
 
-        let inputElement = this.renderer.selectRootElement('#serie');
+        const inputElement = this.renderer.selectRootElement('#serie');
         inputElement.focus();
     }
 
     agregarSerie() {
+        const inputElement = this.renderer.selectRootElement('#serie');
         if (!$.trim(this.data.serie)) {
-            let inputElement = this.renderer.selectRootElement('#serie');
             inputElement.focus();
-
             return;
         }
 
-        const repetida = this.final_data.productos.find((producto) =>
-            producto.series.find((serie) => serie == this.data.serie)
+        const repetida = this.final_data.productos.find((p) =>
+            p.series.find((serie) => serie == this.data.serie)
         );
 
         if (repetida) {
@@ -273,34 +244,32 @@ export class PendienteComponent implements OnInit {
                 '',
                 'Serie repetida ya agregada en el SKU ' + repetida.sku,
                 'error'
-            );
+            ).then();
 
             return;
         }
 
         const producto = this.final_data.productos.find(
-            (producto) => producto.sku == this.data.producto_serie
+            (p) => p.sku == this.data.producto_serie
         );
 
         if (producto.cantidad > this.data.series.length) {
-            const repetida = this.data.series.find(
-                (serie) => serie == this.data.serie
+            const rep = this.data.series.find(
+                (s) => s == this.data.serie
             );
 
-            if (repetida) {
-                swal('', 'Serie repetida', 'error');
+            if (rep) {
+                swal('', 'Serie repetida', 'error').then();
 
                 return;
             }
 
             this.data.series.push($.trim(this.data.serie));
         } else {
-            swal('', 'Series completas', 'error');
+            swal('', 'Series completas', 'error').then();
         }
 
         this.data.serie = '';
-
-        let inputElement = this.renderer.selectRootElement('#serie');
         inputElement.focus();
     }
 
@@ -310,14 +279,14 @@ export class PendienteComponent implements OnInit {
         this.data.series.splice(index, 1);
 
         const producto = this.final_data.productos.find(
-            (producto) => producto.sku == this.data.producto_serie
+            (p) => p.sku == this.data.producto_serie
         );
         producto.series = this.data.series;
     }
 
     confirmarSeries() {
         const producto = this.final_data.productos.find(
-            (producto) => producto.sku == this.data.producto_serie
+            (p) => p.sku == this.data.producto_serie
         );
         producto.series = this.data.series;
 
@@ -326,16 +295,16 @@ export class PendienteComponent implements OnInit {
         $('#cerrar_modal_serie').click();
     }
 
-    agregarArchivo(event) {
+    agregarArchivo() {
         this.final_data.archivos = [];
 
-        var files = $('#archivos').prop('files');
-        var archivos = [];
+        const files = $('#archivos').prop('files');
+        const archivos = [];
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
 
-            var reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = (function (f) {
                 return function (e) {
@@ -347,8 +316,8 @@ export class PendienteComponent implements OnInit {
                 };
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
+            reader.onerror = (function (_f) {
+                return function (_e) {
                     archivos.push({ tipo: '', nombre: '', data: '' });
                 };
             })(file);
@@ -360,45 +329,54 @@ export class PendienteComponent implements OnInit {
     }
 
     eliminarDocumento(documento) {
-        swal({
-            type: 'warning',
-            html: `Para eliminar el documento, abre tu aplicación de <b>authy</b> y escribe el código de autorización en el recuadro de abajo.<br><br>
-            Si todavía no cuentas con tu aplicación configurada, contacta un administrador e intenta de nuevo.`,
-            input: 'text',
-        }).then((confirm) => {
-            if (!confirm.value) return;
-
-            const data = {
-                documento: documento.documento_garantia,
-                authy_code: confirm.value,
-            };
-
-            this.soporteService
-                .deleteGarantiaDevolucionDocument(data)
-                .subscribe(
-                    (res: any) => {
-                        swal({
-                            type: 'success',
-                            html: res.message,
-                        });
-
-                        const index = this.ventas.findIndex(
-                            (d) => d.id == documento.id
-                        );
-
-                        this.ventas.splice(index, 1);
-
-                        this.rebuildTable();
-                    },
-                    (err) => {
-                        swalErrorHttpResponse(err);
+        this.whatsappService.sendWhatsapp().subscribe({
+            next: () => {
+                swal({
+                    type: 'warning',
+                    html: `Para eliminar el documento, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    input: 'text',
+                }).then((confirm) => {
+                    if (!confirm.value) {
+                        return;
                     }
-                );
+
+                    const data = {
+                        documento: documento.documento_garantia,
+                        code: confirm.value,
+                    };
+
+                    this.soporteService
+                        .deleteGarantiaDevolucionDocument(data)
+                        .subscribe(
+                            (res: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: res.message,
+                                }).then();
+
+                                const index = this.ventas.findIndex(
+                                    (d) => d.id == documento.id
+                                );
+
+                                this.ventas.splice(index, 1);
+
+                                this.rebuildTable();
+                            },
+                            (err) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                });
+            },
+            error: (err) => {
+                swalErrorHttpResponse(err);
+            },
         });
     }
 
     verArchivo(id_dropbox) {
-        var form_data = JSON.stringify({ path: id_dropbox });
+        const form_data = JSON.stringify({path: id_dropbox});
 
         const httpOptions = {
             headers: new HttpHeaders({
@@ -419,16 +397,7 @@ export class PendienteComponent implements OnInit {
                     window.open(res['link']);
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
