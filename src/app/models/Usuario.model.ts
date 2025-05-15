@@ -3,7 +3,6 @@ export class Usuario {
     public nombre: string;
     public email: string;
     public celular: string;
-    public authy: string;
     public imagen: string;
     public imagen_data?: any;
     public marketplaces: any[];
@@ -17,7 +16,6 @@ export class Usuario {
         this.nombre = '';
         this.email = '';
         this.celular = '';
-        this.authy = '';
         this.imagen = '';
         this.marketplaces = [];
         this.subniveles = [];

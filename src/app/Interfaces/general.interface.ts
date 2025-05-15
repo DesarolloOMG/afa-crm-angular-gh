@@ -6,7 +6,6 @@ export interface Usuario {
     email: string;
     tag: string;
     celular: string;
-    authy: string;
     last_ip: string;
     imagen: string;
     firma: string;

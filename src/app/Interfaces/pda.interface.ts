@@ -61,7 +61,6 @@ interface Producto {
     serie: number;
     series: Serie[];
 }
-//s
 
 interface ErrorDetail {
     error_summary?: string;
@@ -118,7 +117,6 @@ export interface EmpresaPDA {
 }
 
 export interface UsuarioPDA {
-    authy: string;
     nivel: string;
     nombre: string;
 }

@@ -9,7 +9,6 @@ export function createDefaultUsuario(): Usuario {
         email: '',
         tag: '',
         celular: '',
-        authy: '',
         last_ip: '',
         imagen: '',
         firma: '',
