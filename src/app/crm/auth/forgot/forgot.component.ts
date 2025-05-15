@@ -1,7 +1,7 @@
-import { swalErrorHttpResponse } from '@env/environment';
-import { Component } from '@angular/core';
-import { AuthService } from '@services/http/auth.service';
-import { Router } from '@angular/router';
+import {swalErrorHttpResponse} from '@env/environment';
+import {Component} from '@angular/core';
+import {AuthService} from '@services/http/auth.service';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 
 @Component({
@@ -12,7 +12,7 @@ import swal from 'sweetalert2';
 export class ForgotComponent {
     data = {
         email: '',
-        authy: '',
+        wa_code: '',
         code_sent: false
     };
 
@@ -26,7 +26,7 @@ export class ForgotComponent {
             });
         }
 
-        if (this.data.code_sent && !this.data.authy) {
+        if (this.data.code_sent && !this.data.wa_code) {
             return swal({
                 type: 'error',
                 html: 'Escribe el codigo que recibiste en whatsapp',
@@ -42,7 +42,7 @@ export class ForgotComponent {
 
                 if (res.expired) {
                     this.data = {
-                        authy: '',
+                        wa_code: '',
                         email: '',
                         code_sent: false,
                     };

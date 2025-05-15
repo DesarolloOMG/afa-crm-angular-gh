@@ -6,8 +6,9 @@ import {NgbModal, NgbTabset} from '@ng-bootstrap/ng-bootstrap';
 import {AuthService} from '@services/auth.service';
 import {VentaService} from '@services/http/venta.service';
 import * as moment from 'moment';
-
-import {backend_url, commaNumber, swalErrorHttpResponse,} from '@env/environment';
+import {Usuario} from 'app/Interfaces';
+import {createDefaultUsuario} from '@interfaces/general.helper';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 
 @Component({
     selector: 'app-sin-venta',
@@ -32,29 +33,9 @@ export class SinVentaComponent implements OnInit {
 
     modalReference: any;
     commaNumber = commaNumber;
-    //cambiar para asignar Ingenieros
+    // Cambiar para asignar Ingenieros
     admins = [97, 31, 46, 58, 3, 78, 25, 51];
-    usuario = {
-        id: 0,
-        id_impresora_packing: 0,
-        nombre: '',
-        email: '',
-        tag: '',
-        celular: '',
-        authy: '',
-        last_ip: '',
-        imagen: '',
-        firma: '',
-        status: 0,
-        last_login: '',
-        created_at: '',
-        updated_at: '',
-        deleted_at: null,
-        marketplaces: [],
-        empresas: [],
-        subniveles: {},
-        niveles: [],
-    };
+    usuario: Usuario = createDefaultUsuario();
 
     data: any;
     final_data = {
@@ -70,9 +51,9 @@ export class SinVentaComponent implements OnInit {
     pendientes: any[] = [];
     terminados: any[] = [];
 
-    current_tab: string = 'PENDIENTES';
+    current_tab = 'PENDIENTES';
     datatable: any;
-    datatable_name: string = '#ncsv_pendientes';
+    datatable_name = '#ncsv_pendientes';
     esAdministrador: boolean;
 
     empresas: any[] = [];
@@ -121,7 +102,7 @@ export class SinVentaComponent implements OnInit {
     }
 
     getAutorizaciones() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         this.http
             .post(
                 `${backend_url}venta/nota-credito/autorizar/sin-venta/data`,
@@ -134,23 +115,14 @@ export class SinVentaComponent implements OnInit {
                     this.reconstruirTabla();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     onChangeTab(tabs: String) {
-        var c_tab = '';
-        var n_tab = '';
+        let c_tab = '';
+        let n_tab = '';
         switch (tabs) {
             case 'tab-pendientes':
                 c_tab = 'PENDIENTES';
@@ -187,14 +159,10 @@ export class SinVentaComponent implements OnInit {
     }
 
     esAdmin() {
-        if (this.admins.includes(this.usuario.id)) {
-            return true;
-        }
-
-        return false;
+        return this.admins.includes(this.usuario.id);
     }
 
-    autorizarNdc(id, modulo, data, info) {
+    autorizarNdc(id, modulo, data, _info) {
         // var cliente = info.rfc == 'XEXX010101000' ? info.id_erp : data.cliente;
         swal({
             type: 'warning',
@@ -206,7 +174,7 @@ export class SinVentaComponent implements OnInit {
             confirmButtonColor: '#3CB371',
         }).then((confirm) => {
             if (confirm.value) {
-                var form_data = new FormData();
+                const form_data = new FormData();
                 form_data.append('id', JSON.stringify(id));
                 if (modulo == 'Sin Venta') {
                     form_data.append('bd', data.bd);
@@ -246,7 +214,7 @@ export class SinVentaComponent implements OnInit {
             confirmButtonColor: '#3CB371',
         }).then((confirm) => {
             if (confirm.value) {
-                var form_data = new FormData();
+                const form_data = new FormData();
                 form_data.append('id', JSON.stringify(id));
 
                 this.http
@@ -260,21 +228,12 @@ export class SinVentaComponent implements OnInit {
                                 title: '',
                                 type: res['code'] == 200 ? 'success' : 'error',
                                 html: res['message'],
-                            });
+                            }).then();
                             this.modalReference.close();
                             this.getAutorizaciones();
                         },
                         (response) => {
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             }
@@ -284,22 +243,22 @@ export class SinVentaComponent implements OnInit {
     detalleVenta(modal, data) {
         this.data = data;
 
-        var empresa = this.empresas.find(
+        const empresa = this.empresas.find(
             (element) => element.bd == this.data.data.bd
         );
-        var uso = this.usos_factura.find(
+        const uso = this.usos_factura.find(
             (element) => element.codigo == this.data.data.uso_cfdi
         );
-        var almacen = empresa.almacenes.find(
+        const almacen = empresa.almacenes.find(
             (element) => element.id_erp == this.data.data.almacen
         );
-        var periodo = this.periodos.find(
+        const periodo = this.periodos.find(
             (element) => element.id == this.data.data.condicion_pago
         );
-        var forma = this.metodos_pago.find(
+        const forma = this.metodos_pago.find(
             (element) => element.codigo == this.data.data.forma_pago
         );
-        var moneda = this.monedas.find(
+        const moneda = this.monedas.find(
             (element) => element.id == this.data.data.divisa
         );
 

@@ -104,9 +104,9 @@
                             >
                                 <input
                                     type="text"
-                                    name="authy"
+                                    [(ngModel)]="user.wa_code"
                                     class="form-control form-control-center"
-                                    [(ngModel)]="user.authy"
+                                    name="waCode"
                                     (keyup.enter)="login()"
                                     maxlength="6"
                                 />

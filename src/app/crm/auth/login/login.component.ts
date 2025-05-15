@@ -12,7 +12,7 @@ import {ILogin} from '@interfaces/general.interface';
 })
 export class LoginComponent {
     user: ILogin = {
-        authy: '',
+        wa_code: '',
         password: '',
         email: '',
         code_sent: false,
@@ -28,7 +28,7 @@ export class LoginComponent {
             });
         }
 
-        if (this.user.code_sent && !this.user.authy) {
+        if (this.user.code_sent && !this.user.wa_code) {
             return swal({
                 type: 'error',
                 html: `Ingresa el codigo que te fue enviado a whatsapp para iniciar sesión`,
@@ -40,7 +40,7 @@ export class LoginComponent {
                 if (!res.token) {
                     if (res.expired) {
                         this.user = {
-                            authy: '',
+                            wa_code: '',
                             password: '',
                             email: '',
                             code_sent: false,

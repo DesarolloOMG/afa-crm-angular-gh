@@ -9,11 +9,9 @@ import swal from 'sweetalert2';
     styleUrls: ['./validar-ventas.component.scss'],
 })
 export class ValidarVentasComponent implements OnInit {
-    // NEXT AUTHY
     data = {
         area: '',
         marketplace: '',
-        authy_code: '',
     };
     datatable_busqueda: any;
     commaNumber = commaNumber;
@@ -93,7 +91,7 @@ export class ValidarVentasComponent implements OnInit {
                 swal({
                     type: 'success',
                     html: res.message,
-                });
+                }).then();
 
                 this.ventas_raw = res['ventas'];
 
@@ -114,7 +112,7 @@ export class ValidarVentasComponent implements OnInit {
                 swal({
                     type: res['code'] == 200 ? 'success' : 'error',
                     html: res['mensaje'],
-                });
+                }).then();
 
                 console.log(res);
 
@@ -148,7 +146,6 @@ export class ValidarVentasComponent implements OnInit {
         this.data = {
             area: this.data.area,
             marketplace: '',
-            authy_code: '',
         };
     }
 }

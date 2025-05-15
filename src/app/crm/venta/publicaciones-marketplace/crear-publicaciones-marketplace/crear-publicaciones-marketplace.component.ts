@@ -21,6 +21,7 @@ import swal from 'sweetalert2';
 import {CompraService} from '@services/http/compra.service';
 import {Router} from '@angular/router';
 import {WhatsappService} from '@services/http/whatsapp.service';
+import {createDefaultUsuario} from '@interfaces/general.helper';
 
 @Component({
     selector: 'app-crear-publicaciones-marketplace',
@@ -55,28 +56,7 @@ export class CrearPublicacionesMarketplaceComponent implements OnInit {
     warehouses: Warehouse[] = [];
     products: Product[] = [];
 
-    usuario: Usuario = {
-        id: 0,
-        id_impresora_packing: 0,
-        nombre: '',
-        email: '',
-        area: '',
-        tag: '',
-        celular: '',
-        authy: '',
-        last_ip: '',
-        imagen: '',
-        firma: '',
-        status: 0,
-        last_login: '',
-        created_at: '',
-        updated_at: '',
-        deleted_at: null,
-        marketplaces: [],
-        empresas: [],
-        subniveles: {},
-        niveles: [],
-    };
+    usuario: Usuario = createDefaultUsuario();
     marketplace: MarketplaceObj = {
         id: 0,
         title: '',

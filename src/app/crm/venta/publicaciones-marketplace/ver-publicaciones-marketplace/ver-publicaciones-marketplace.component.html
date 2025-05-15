@@ -1,11 +1,11 @@
-<!--suppress JSUnusedGlobalSymbols, JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
+<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
 <ngx-spinner
     bdColor="rgba(51,51,51,0.8)"
     size="medium"
     color="#fff"
     type="ball-scale-multiple"
 >
-    <p style="font-size: 20px; color: white">Procesando {{ loadingTitle }}</p>
+    <p style="font-size: 20px; color: #ffffff;">Procesando {{ loadingTitle }}</p>
 </ngx-spinner>
 
 <ng-template #title let-name="name">
@@ -1100,7 +1100,7 @@
                                             }}"
                                             class="form-control"
                                             [(ngModel)]="
-                                                row.attributes[0].value_name
+                                                row.attributes[0].value_name //noinspection UnresolvedReference
                                             "
                                         />
                                         <span class="form-bar"></span>
@@ -1303,8 +1303,8 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2" style="margin-top: -16px">
-                            <label style="display: block; font-size: 9pt"
+                        <div class="col-md-2" style="margin-top: -16px;">
+                            <label style="display: block; font-size: 9pt;"
                                 >Eliminar</label
                             >
                             <ui-switch
@@ -2360,7 +2360,7 @@
                                             }}"
                                             class="form-control"
                                             [(ngModel)]="
-                                                row.attributes[0].value_name
+                                                row.attributes[0].value_name //noinspection UnresolvedReference
                                             "
                                         />
                                         <span class="form-bar"></span>
@@ -2569,8 +2569,8 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2" style="margin-top: -16px">
-                            <label style="display: block; font-size: 9pt"
+                        <div class="col-md-2" style="margin-top: -16px;">
+                            <label style="display: block; font-size: 9pt;"
                                 >Eliminar</label
                             >
                             <ui-switch

@@ -1,12 +1,12 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { animate, style, transition, trigger } from '@angular/animations';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {animate, style, transition, trigger} from '@angular/animations';
 import swal from 'sweetalert2';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from '@services/auth.service';
-
-import { backend_url } from '../../../../../../environments/environment';
+import {NgbTabset} from '@ng-bootstrap/ng-bootstrap';
+import {AuthService} from '@services/auth.service';
+import {Usuario} from 'app/Interfaces';
+import {createDefaultUsuario} from '@interfaces/general.helper';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
 
 @Component({
     selector: 'app-autorizar',
@@ -28,36 +28,16 @@ import { backend_url } from '../../../../../../environments/environment';
 export class AutorizarComponent implements OnInit {
     @ViewChild('tabs') public tabs: NgbTabset;
 
-    //cambiar para asignar Ingenieros
+    // Cambiar para asignar Ingenieros
     admins = [97, 31, 46, 58, 3, 78, 25, 51];
-    usuario = {
-        id: 0,
-        id_impresora_packing: 0,
-        nombre: '',
-        email: '',
-        tag: '',
-        celular: '',
-        authy: '',
-        last_ip: '',
-        imagen: '',
-        firma: '',
-        status: 0,
-        last_login: '',
-        created_at: '',
-        updated_at: '',
-        deleted_at: null,
-        marketplaces: [],
-        empresas: [],
-        subniveles: {},
-        niveles: [],
-    };
+    usuario: Usuario = createDefaultUsuario();
 
     pendientes: any[] = [];
     terminados: any[] = [];
 
-    current_tab: string = 'PENDIENTES';
+    current_tab = 'PENDIENTES';
     datatable: any;
-    datatable_name: string = '#nc_pendientes';
+    datatable_name = '#nc_pendientes';
     esAdministrador: boolean;
 
     constructor(
@@ -85,7 +65,7 @@ export class AutorizarComponent implements OnInit {
     }
 
     getAutorizaciones() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         this.http
             .post(`${backend_url}venta/nota-credito/autorizar/data`, form_data)
             .subscribe(
@@ -95,23 +75,14 @@ export class AutorizarComponent implements OnInit {
                     this.reconstruirTabla();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     onChangeTab(tabs: String) {
-        var c_tab = '';
-        var n_tab = '';
+        let c_tab = '';
+        let n_tab = '';
         switch (tabs) {
             case 'tab-pendientes':
                 c_tab = 'PENDIENTES';
@@ -148,11 +119,7 @@ export class AutorizarComponent implements OnInit {
     }
 
     esAdmin() {
-        if (this.admins.includes(this.usuario.id)) {
-            return true;
-        }
-
-        return false;
+        return this.admins.includes(this.usuario.id);
     }
     goToLink(documento: string) {
         window.open('#/general/busqueda/venta/id/' + documento, '_blank');
@@ -169,7 +136,7 @@ export class AutorizarComponent implements OnInit {
             confirmButtonColor: '#3CB371',
         }).then((confirm) => {
             if (confirm.value) {
-                var form_data = new FormData();
+                const form_data = new FormData();
                 form_data.append('id', JSON.stringify(id));
                 form_data.append('documento', JSON.stringify(documento));
 
@@ -187,7 +154,7 @@ export class AutorizarComponent implements OnInit {
                                             ? 'success'
                                             : 'error',
                                     html: res['message'],
-                                });
+                                }).then();
 
                                 if (res['code'] == 200) {
                                     this.http
@@ -196,48 +163,28 @@ export class AutorizarComponent implements OnInit {
                                             form_data
                                         )
                                         .subscribe(
-                                            (res) => {
+                                            (autorizado) => {
                                                 if (modulo != 'Ventas') {
                                                     swal({
                                                         title: '',
                                                         type:
-                                                            res['code'] == 200
+                                                            autorizado['code'] == 200
                                                                 ? 'success'
                                                                 : 'error',
-                                                        html: res['message'],
-                                                    });
+                                                        html: autorizado['message'],
+                                                    }).then();
                                                     this.getAutorizaciones();
                                                 }
                                             },
                                             (response) => {
-                                                swal({
-                                                    title: '',
-                                                    type: 'error',
-                                                    html:
-                                                        response.status == 0
-                                                            ? response.message
-                                                            : typeof response.error ===
-                                                              'object'
-                                                            ? response.error
-                                                                  .error_summary
-                                                            : response.error,
-                                                });
+                                                swalErrorHttpResponse(response);
                                             }
                                         );
                                 }
                                 this.getAutorizaciones();
                             },
                             (response) => {
-                                swal({
-                                    title: '',
-                                    type: 'error',
-                                    html:
-                                        response.status == 0
-                                            ? response.message
-                                            : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                                });
+                                swalErrorHttpResponse(response);
                             }
                         );
                 }
@@ -257,7 +204,7 @@ export class AutorizarComponent implements OnInit {
             confirmButtonColor: '#3CB371',
         }).then((confirm) => {
             if (confirm.value) {
-                var form_data = new FormData();
+                const form_data = new FormData();
                 form_data.append('id', JSON.stringify(id));
                 form_data.append('documento', JSON.stringify(documento));
                 form_data.append('motivo', JSON.stringify(confirm.value));
@@ -272,21 +219,12 @@ export class AutorizarComponent implements OnInit {
                                 title: '',
                                 type: res['code'] == 200 ? 'success' : 'error',
                                 html: res['message'],
-                            });
+                            }).then();
 
                             this.getAutorizaciones();
                         },
                         (response) => {
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             }
@@ -304,11 +242,11 @@ export class AutorizarComponent implements OnInit {
             confirmButtonColor: '#3CB371',
         }).then((confirm) => {
             if (confirm.value) {
-                var data = {
+                const data = {
                     id,
                     documento,
                 };
-                var form_data = new FormData();
+                const form_data = new FormData();
                 form_data.append('data', JSON.stringify(data));
 
                 this.http
@@ -321,22 +259,11 @@ export class AutorizarComponent implements OnInit {
                                 title: '',
                                 type: res['code'] == 200 ? 'success' : 'error',
                                 html: res['message'],
-                            });
+                            }).then();
                             this.getAutorizaciones();
                         },
                         (response) => {
-                            console.log(response);
-
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             }

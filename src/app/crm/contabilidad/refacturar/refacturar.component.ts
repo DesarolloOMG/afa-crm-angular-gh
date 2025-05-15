@@ -1,13 +1,14 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { animate, style, transition, trigger } from '@angular/animations';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {animate, style, transition, trigger} from '@angular/animations';
 import swal from 'sweetalert2';
-import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from '@services/auth.service';
+import {NgbModal, NgbTabset} from '@ng-bootstrap/ng-bootstrap';
+import {AuthService} from '@services/auth.service';
 
-import { Refacturacion, Usuario } from '../../../Interfaces';
-import { backend_url } from '@env/environment';
-import { NgxSpinnerService } from 'ngx-spinner';
+import {Refacturacion, Usuario} from '../../../Interfaces';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {NgxSpinnerService} from 'ngx-spinner';
+import {createDefaultUsuario} from '@interfaces/general.helper';
 
 @Component({
     selector: 'app-refacturar',
@@ -27,49 +28,22 @@ import { NgxSpinnerService } from 'ngx-spinner';
     ],
 })
 
-//! HACER EL WIZZARD
-
-//! PONER NOMBRE A LOS PASOS
-
-//! Si se autoriza ya no se puede rechazar, osea tambien si hay en pasos siguientes
-//! ver si manejar la opcion de cancelar en pasos avanzados
 export class RefacturarComponent implements OnInit {
     @ViewChild('tabs') public tabs: NgbTabset;
     @ViewChild('modal') modal: NgbModal;
 
-    idxx: number = 0;
+    idxx = 0;
     modalReference: any;
-    loadingTitle: string = '';
+    loadingTitle = '';
 
-    usuario: Usuario = {
-        id: 0,
-        id_impresora_packing: 0,
-        nombre: '',
-        email: '',
-        area: '',
-        tag: '',
-        celular: '',
-        authy: '',
-        last_ip: '',
-        imagen: '',
-        firma: '',
-        status: 0,
-        last_login: '',
-        created_at: '',
-        updated_at: '',
-        deleted_at: null,
-        marketplaces: [],
-        empresas: [],
-        subniveles: {},
-        niveles: [],
-    };
+    usuario: Usuario = createDefaultUsuario();
 
     pendientes: Refacturacion[] = [];
     terminados: Refacturacion[] = [];
 
-    current_tab: string = 'PENDIENTES';
+    current_tab = 'PENDIENTES';
     datatable: any;
-    datatable_name: string = '#rf_pendientes';
+    datatable_name = '#rf_pendientes';
     permiso: boolean;
 
     constructor(
@@ -111,12 +85,12 @@ export class RefacturarComponent implements OnInit {
 
     getAutorizaciones(): void {
         this.loadingTitle = 'Cargando Documentos';
-        this.spinner.show();
+        this.spinner.show().then();
         this.http
             .get(`${backend_url}contabilidad/refacturacion/data`)
             .subscribe(
                 (res) => {
-                    this.spinner.hide();
+                    this.spinner.hide().then();
                     this.pendientes = res['pendientes'];
                     this.terminados = res['terminados'];
                     console.log(res);
@@ -124,24 +98,15 @@ export class RefacturarComponent implements OnInit {
                     this.reconstruirTabla();
                 },
                 (response) => {
-                    this.spinner.hide();
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    this.spinner.hide().then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
     onChangeTab(tabs: String): void {
-        var c_tab = '';
-        var n_tab = '';
+        let c_tab = '';
+        let n_tab = '';
         switch (tabs) {
             case 'tab-pendientes':
                 c_tab = 'PENDIENTES';
@@ -195,17 +160,13 @@ export class RefacturarComponent implements OnInit {
             title: 'Error en permisos',
             html: 'Usted no tiene permitido navegar aquí, regrese',
             type: 'error',
-        });
+        }).then();
 
         return false;
     }
 
     goToLink(documento: string): void {
         window.open('#/general/busqueda/venta/id/' + documento, '_blank');
-    }
-
-    autorizarRefacturacion() {
-        //SUPONGO QUE ABRIR MODAL CON EL WIZZ
     }
 
     rechazarRefacturacion(id: number): void {
@@ -220,35 +181,26 @@ export class RefacturarComponent implements OnInit {
         }).then((confirm) => {
             if (confirm.value) {
                 this.loadingTitle = 'Cancelando refacturación';
-                this.spinner.show();
+                this.spinner.show().then();
                 this.http
                     .get(
                         `${backend_url}contabilidad/refacturacion/cancelar/${id}`
                     )
                     .subscribe(
                         (res) => {
-                            this.spinner.hide();
+                            this.spinner.hide().then();
                             swal({
                                 title: '',
                                 type: res['code'] == 200 ? 'success' : 'error',
                                 html: res['message'],
-                            });
+                            }).then();
                             this.getAutorizaciones();
                             this.reconstruirTabla();
                         },
                         (response) => {
-                            this.spinner.hide();
+                            this.spinner.hide().then();
 
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             }

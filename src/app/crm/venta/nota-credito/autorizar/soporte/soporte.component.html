@@ -1,10 +1,10 @@
+<!--suppress JSUnusedLocalSymbols, JSUnusedGlobalSymbols -->
 <ng-template #title let-name="name">
     <h5>{{ name }}</h5>
 </ng-template>
 
 <div class="card">
     <div class="card-body">
-        <!-- <button class="btn btn-sm btn-danger" (click)="ngOnInit()">GET</button> -->
         <form
             class="md-float-material form-material m-t-10"
             [hidden]="!esAdministrador"
@@ -422,7 +422,7 @@
                             <i class="fa fa-{{ archivo.icon }}"></i>
                             <span
                                 class="text-muted"
-                                style="cursor: pointer"
+                                style="cursor: pointer;"
                                 (click)="verArchivo(archivo.dropbox)"
                             >
                                 {{ archivo.archivo }}</span
@@ -457,7 +457,7 @@
                 <div class="col-md-5">
                     <button
                         class="btn btn-sm btn-block btn-primary http-disabled"
-                        style="margin: 10px"
+                        style="margin: 10px;"
                         (click)="
                             autorizarNdcdevoluciones(
                                 final_data.documento,
@@ -471,7 +471,7 @@
                 <div class="col-md-5">
                     <button
                         class="btn btn-sm btn-block btn-danger http-disabled"
-                        style="margin: 10px"
+                        style="margin: 10px;"
                         (click)="
                             rechazarNdc(
                                 final_data.documento,
@@ -485,7 +485,7 @@
                 <div class="col-md-2">
                     <button
                         class="btn btn-sm btn-block btn-info http-disabled"
-                        style="margin: 10px"
+                        style="margin: 10px;"
                         (click)="
                             repararNDCdevoluciones(
                                 final_data.documento,
@@ -737,7 +737,7 @@
                         <div class="col-md-6">
                             <button
                                 class="btn btn-sm btn-block btn-primary http-disabled"
-                                style="margin: 10px"
+                                style="margin: 10px;"
                                 (click)="
                                     autorizarNdcgarantias(
                                         final_data.documento,
@@ -751,7 +751,7 @@
                         <div class="col-md-6">
                             <button
                                 class="btn btn-sm btn-block btn-danger http-disabled"
-                                style="margin: 10px"
+                                style="margin: 10px;"
                                 (click)="
                                     rechazarNdc(
                                         final_data.documento,

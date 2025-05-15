@@ -22,7 +22,7 @@ export interface Usuario {
 }
 
 export interface ILogin {
-    authy: string;
+    wa_code: string;
     email: string;
     password: string;
     code_sent: boolean;

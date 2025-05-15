@@ -1,6 +1,3 @@
-/* tslint:disable:triple-equals */
-// noinspection JSUnusedGlobalSymbols
-
 import {ChangeDetectorRef, Component, DoCheck, IterableDiffers, OnInit, ViewChild} from '@angular/core';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -11,6 +8,7 @@ import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import swal from 'sweetalert2';
 import {CompraService} from '@services/http/compra.service';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-ver-publicaciones-marketplace',
@@ -75,7 +73,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                 unit: '',
             },
         },
-        authy_code: '',
+        auth_code: '',
     };
 
     search = {
@@ -175,7 +173,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                 unit: '',
             },
         },
-        authy_code: '',
+        auth_code: '',
     };
     productML = {
         sku: '',
@@ -206,7 +204,8 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         private modalService: NgbModal,
         private chRef: ChangeDetectorRef,
         private iterableDiffers: IterableDiffers,
-        private compraService: CompraService
+        private compraService: CompraService,
+        private whatsappService: WhatsappService,
     ) {
         this.iterableDiffer = this.iterableDiffers.find([]).create(null);
         this.iterableDifferML = this.iterableDiffers.find([]).create(null);
@@ -274,7 +273,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                     unit: '',
                 },
             },
-            authy_code: '',
+            auth_code: '',
         };
 
         this.search = {
@@ -350,6 +349,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         }
     }
 
+    // noinspection JSUnusedGlobalSymbols
     onChangeTab(tabs) {
         let c_tab: string;
         switch (tabs) {
@@ -404,7 +404,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                             unit: '',
                         },
                     },
-                    authy_code: '',
+                    auth_code: '',
                 };
 
                 this.productML = {
@@ -886,34 +886,40 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         });
 
         if (this.marketplace.price != this.marketplace.previous_price) {
-            await swal({
-                type: 'warning',
-                html: `Para actualizar la publicaciÃ³n, abre tu aplicaciÃ³n de <b>authy</b>
- y escribe el cÃ³digo de autorizaciÃ³n en el recuadro de abajo.<br><br>
-                Si todavÃ­a no cuentas con tu aplicaciÃ³n configurada, contacta un administrador.`,
-                input: 'text',
-            }).then((confirm) => {
-                if (!confirm.value) {
-                    return;
-                }
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: async () => {
+                    await swal({
+                        type: 'warning',
+                        html: `Para actualizar la publicación, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        input: 'text',
+                    }).then((confirm) => {
+                        if (!confirm.value) {
+                            return;
+                        }
 
-                this.marketplace.authy_code = confirm.value;
+                        this.marketplace.auth_code = confirm.value;
+
+                        this.ventaService.updateItemMarketplace(this.marketplace).subscribe(
+                            (res: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: res.message,
+                                });
+
+                                this.modalReferenceMarketplace.close();
+                            },
+                            (err: any) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                    });
+                },
+                error: (err: any) => {
+                    swalErrorHttpResponse(err);
+                }
             });
         }
-
-        this.ventaService.updateItemMarketplace(this.marketplace).subscribe(
-            (res: any) => {
-                swal({
-                    type: 'success',
-                    html: res.message,
-                });
-
-                this.modalReferenceMarketplace.close();
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
     }
 
     autoCompleteSearch(data) {
@@ -940,6 +946,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         return options ? options.map((op, _i) => op.name) : [];
     }
 
+    // noinspection JSUnusedGlobalSymbols
     onChangeMarketplace() {
         const marketplace = this.marketplaces.find(
             (m) => m.id == this.search.marketplace
@@ -983,6 +990,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         }
     }
 
+    // noinspection JSUnusedGlobalSymbols
     getSelectedMarketplaceName() {
         const marketplace = this.marketplaces.find(
             (m) => m.id == this.search.marketplace
@@ -991,12 +999,14 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         return marketplace && marketplace.marketplace;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     getItemTypeByType(type) {
         const name = this.listing_types.find((lt) => lt.id === type);
 
         return name && name.name;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     viewItemDataMarketplace(item_id) {
         const item = this.items.find((i) => i.id == item_id);
 
@@ -1044,7 +1054,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                                 : '',
                         },
                     },
-                    authy_code: '',
+                    auth_code: '',
                 };
 
                 if (!this.marketplace.variations.length) {
@@ -1262,7 +1272,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                                         unit: '',
                                     },
                                 },
-                                authy_code: '',
+                                auth_code: '',
                             };
 
                             this.marketplaceML.variations.map((v) => {
@@ -1391,7 +1401,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                                 : '',
                         },
                     },
-                    authy_code: '',
+                    auth_code: '',
                 };
 
                 if (!this.marketplaceML.variations.length) {
@@ -1782,6 +1792,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         });
     }
 
+    // noinspection JSUnusedGlobalSymbols
     getVariationCombinedNameML(variation) {
         return variation.attribute_combinations.map((v) => {
             return v.value_name + ' / ';
@@ -1945,34 +1956,40 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         });
 
         if (this.marketplaceML.price != this.marketplaceML.previous_price) {
-            await swal({
-                type: 'warning',
-                html: `Para actualizar la publicaciÃ³n, abre tu aplicaciÃ³n de <b>authy</b>
- y escribe el cÃ³digo de autorizaciÃ³n en el recuadro de abajo.<br><br>
-                Si todavÃ­a no cuentas con tu aplicaciÃ³n configurada, contacta un administrador.`,
-                input: 'text',
-            }).then((confirm) => {
-                if (!confirm.value) {
-                    return;
-                }
+            this.whatsappService.sendWhatsapp().subscribe({
+                next: async () => {
+                    await swal({
+                        type: 'warning',
+                        html: `Para actualizar la publicación, escribe el código de autorización enviado a
+                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        input: 'text',
+                    }).then((confirm) => {
+                        if (!confirm.value) {
+                            return;
+                        }
 
-                this.marketplaceML.authy_code = confirm.value;
+                        this.marketplaceML.auth_code = confirm.value;
+
+                        this.ventaService.updateItemMarketplace(this.marketplaceML).subscribe(
+                            (res: any) => {
+                                swal({
+                                    type: 'success',
+                                    html: res.message,
+                                });
+
+                                this.modalReferenceMarketplaceML.close();
+                            },
+                            (err: any) => {
+                                swalErrorHttpResponse(err);
+                            }
+                        );
+                    });
+                },
+                error: (err: any) => {
+                    swalErrorHttpResponse(err);
+                }
             });
         }
-
-        this.ventaService.updateItemMarketplace(this.marketplaceML).subscribe(
-            (res: any) => {
-                swal({
-                    type: 'success',
-                    html: res.message,
-                });
-
-                this.modalReferenceMarketplaceML.close();
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
     }
 
     updateItemsML() {

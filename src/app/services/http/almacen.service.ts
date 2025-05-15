@@ -1,14 +1,17 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { backend_url } from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {backend_url} from '@env/environment';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AlmacenService {
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {
+    }
 
     /* Almacen > Packing */
+
+    // noinspection JSUnusedGlobalSymbols
     confirmAlmacenPackingSeries(product_sku: string, series: any[]) {
         const form_data = new FormData();
 
@@ -29,16 +32,6 @@ export class AlmacenService {
 
         return this.http.post(
             `${backend_url}almacen/movimiento/crear/confirmar`,
-            form_data
-        );
-    }
-
-    confirmAlmacenPackingAuthy(data: object) {
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(data));
-
-        return this.http.post(
-            `${backend_url}almacen/packing/confirmar-authy`,
             form_data
         );
     }
@@ -73,16 +66,6 @@ export class AlmacenService {
     downloadAlmacenMovimientoDocumentPDF(document_id: number) {
         return this.http.get(
             `${backend_url}almacen/movimiento/documento/${document_id}`
-        );
-    }
-
-    confirmAlmacenMovimentoAuthy(authy_code: string) {
-        const form_data = new FormData();
-        form_data.append('authy_code', authy_code);
-
-        return this.http.post(
-            `${backend_url}almacen/movimiento/crear/confirmar-authy`,
-            form_data
         );
     }
 

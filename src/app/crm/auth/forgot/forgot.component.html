@@ -49,12 +49,12 @@
 
                             <div class="form-group form-primary" *ngIf="data.code_sent">
                                 <input
-                                    #authy="ngModel"
+                                    #waCode="ngModel"
                                     type="text"
-                                    name="authy"
+                                    [(ngModel)]="data.wa_code"
                                     class="form-control"
                                     (keyup.enter)="reset()"
-                                    [(ngModel)]="data.authy"
+                                    name="waCode"
                                     required
                                 />
                                 <span class="form-bar"></span>
@@ -64,9 +64,9 @@
                                 <small
                                     class="text-danger messages"
                                     *ngIf="
-                                        authy.invalid &&
-                                        (authy.dirty || authy.touched) &&
-                                        authy.errors?.required
+                                        waCode.invalid &&
+                                        (waCode.dirty || waCode.touched) &&
+                                        waCode.errors?.required
                                     "
                                 >Campo requerido</small
                                 >
