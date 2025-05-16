@@ -1,5 +1,4 @@
-/* tslint:disable:triple-equals */
-// noinspection DuplicatedCode,JSDeprecatedSymbols,ParameterNamingConventionJS,JSClassNamingConvention
+// noinspection JSDeprecatedSymbols
 
 import {AfterViewInit, Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {backend_url, downloadPDF, swalErrorHttpResponse} from '@env/environment';
@@ -120,17 +119,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                 this.impresoras = res['impresoras'];
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    customClass: 'red-border-top',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                }).then();
+                swalErrorHttpResponse(response);
             }
         );
     }
@@ -207,16 +196,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
