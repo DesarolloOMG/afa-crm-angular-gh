@@ -4,6 +4,7 @@ import {ChangeDetectorRef, Component, OnInit, Renderer2, ViewChild} from '@angul
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
+import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-envio',
@@ -21,6 +22,13 @@ export class EnvioComponent implements OnInit {
 
     solicitudes: any[] = [];
     usuarios: any[] = [];
+    timer = 0;
+    isTimerActive = false;
+
+    whats = {
+        usuario: '',
+        token: '',
+    };
 
     detalle = {
         id: 0,
@@ -53,7 +61,8 @@ export class EnvioComponent implements OnInit {
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private renderer: Renderer2
+        private renderer: Renderer2,
+        private whatsappService: WhatsappService
     ) {
         const table: any = $('#almacen_pretransferencia_envio');
 
@@ -533,5 +542,83 @@ export class EnvioComponent implements OnInit {
                     swalErrorHttpResponse(response);
                 }
             );
+    }
+
+    enviarCodigoWhatsApp() {
+        if (this.whats.usuario === '') {
+            return swal({
+                type: 'error',
+                html: 'Selecciona al usuario para enviar el token.',
+            });
+        }
+        this.whatsappService.sendWhatsappWithOption(this.whats).subscribe(
+            () => {
+                this.iniciarTemporizador();
+                this.whats.token = '';
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
+    }
+
+    confirmarWhatsFinalizar() {
+        if (this.whats.usuario === '') {
+            return swal({
+                type: 'error',
+                html: 'Selecciona al usuario que proporcionará el token de autorización.',
+            });
+        }
+
+        if (this.whats.token === '') {
+            return swal({
+                type: 'error',
+                html: 'Tienes que escribir el token que Whatsapp te proporciona',
+            });
+        }
+
+        this.whatsappService.validateWhatsappWithOption(this.whats).subscribe(
+            (validate: any) => {
+                swal({
+                    title: '',
+                    type: validate.code == 200 ? 'success' : 'error',
+                    html: validate.message,
+                }).then();
+
+                if (validate.code == 200) {
+                    this.whats = {
+                        usuario: '',
+                        token: '',
+                    };
+
+                    const producto = this.detalle.productos.find(
+                        (p) => p.sku == this.data.producto_serie
+                    );
+                    producto.series = this.data.series;
+
+                    this.data.series = [];
+
+                    this.modalReferenceToken.close();
+                    this.modalReferenceSerie.close();
+                }
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
+    }
+
+    iniciarTemporizador() {
+        this.timer = 10;
+        this.isTimerActive = true;
+
+        const interval = setInterval(() => {
+            this.timer--;
+
+            if (this.timer <= 0) {
+                clearInterval(interval);
+                this.isTimerActive = false;
+            }
+        }, 1000);
     }
 }
