@@ -1,3 +1,109 @@
-<p>
-  caja-chica works!
-</p>
+<form class="md-float-material form-material" #f="ngForm">
+    <div class="auth-box card">
+        <div class="card-block">
+            <h4 class="sub-title m-t-20">Cajas chicas</h4>
+            <div class="row">
+                <div class="col-md-12 m-b-10">
+                    <button type="button" class="btn btn-info btn-sm" (click)="openModal(modalCaja)">
+                        <i class="fa fa-plus"></i> Nueva caja chica
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Moneda</th>
+                            <th>Comentarios</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let row of cajas">
+                            <td>{{ row.nombre }}</td>
+                            <td>{{ row.moneda }}</td>
+                            <td>{{ row.comentarios }}</td>
+                            <td class="text-center">
+                                <button
+                                    class="btn btn-outline-primary btn-action mr-1"
+                                    style="padding: 4px 10px; font-size: 1.1rem;"
+                                    (click)="openModal(modalCaja, row)">
+                                    <i class="fa fa-pen"></i>
+                                </button>
+                                <button
+                                    class="btn btn-outline-danger btn-action"
+                                    style="padding: 4px 10px; font-size: 1.1rem;"
+                                    (click)="eliminar(row)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="cajas.length === 0">
+                            <td colspan="4" class="text-center">Sin cajas chicas registradas</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Modal para crear/editar caja chica -->
+<ng-template #modalCaja let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">{{ data.id ? 'Editar' : 'Nueva' }} caja chica</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form class="md-float-material form-material" #formCaja="ngForm" (ngSubmit)="guardarCaja(c)">
+        <div class="modal-body">
+            <div class="row">
+                <!-- NOMBRE -->
+                <div class="col-md-12 m-b-10">
+                    <div class="form-group form-primary">
+                        <input type="text" class="form-control" name="nombre" [(ngModel)]="data.nombre" required maxlength="50">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Nombre</label>
+                        <small class="text-danger messages block" *ngIf="formCaja.submitted && !data.nombre">Campo requerido</small>
+                    </div>
+                </div>
+                <!-- MONEDA -->
+                <div class="col-md-12 m-b-10">
+                    <div class="form-group form-primary">
+                        <select
+                            name="moneda"
+                            class="form-control"
+                            [(ngModel)]="data.moneda"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option *ngFor="let moneda of monedas" [value]="moneda.id">
+                                {{ moneda.moneda }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Moneda</label>
+                        <small class="text-danger messages block" *ngIf="formCaja.submitted && !data.moneda">Campo requerido</small>
+                    </div>
+                </div>
+                <!-- COMENTARIOS -->
+                <div class="col-md-12 m-b-10">
+                    <div class="form-group form-primary">
+                        <textarea class="form-control" name="comentarios" [(ngModel)]="data.comentarios" maxlength="255"></textarea>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Comentarios</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="border-top: none;">
+            <button type="submit" class="btn btn-info btn-block" [disabled]="formCaja.invalid">
+                <i class="fa fa-save"></i> Guardar
+            </button>
+        </div>
+    </form>
+</ng-template>

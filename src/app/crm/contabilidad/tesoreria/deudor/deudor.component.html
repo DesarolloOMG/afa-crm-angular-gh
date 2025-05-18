@@ -1,3 +1,137 @@
-<p>
-  deudor works!
-</p>
+<!-- Tabla y botón -->
+<div class="auth-box card">
+    <div class="card-block">
+        <h4 class="sub-title m-t-20">Deudores</h4>
+        <div class="row">
+            <div class="col-md-12 m-b-10">
+                <button type="button" class="btn btn-info btn-sm" (click)="openModal(modalDeudor)">
+                    <i class="fa fa-plus"></i> Nuevo deudor
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Banco</th>
+                        <th>Moneda</th>
+                        <th>Comentarios</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let row of deudores">
+                        <td>{{ row.nombre }}</td>
+                        <td>{{ row.banco || '-' }}</td>
+                        <td>{{ row.moneda }}</td>
+                        <td>{{ row.comentarios }}</td>
+                        <td>
+                            <button class="btn btn-outline-primary btn-action mr-1" style="padding: 4px 10px; font-size: 1.1rem;" (click)="openModal(modalDeudor, row)">
+                                <i class="fa fa-pen"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-action" style="padding: 4px 10px; font-size: 1.1rem;" (click)="eliminar(row)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="deudores.length === 0">
+                        <td colspan="5" class="text-center">Sin deudores registrados</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal crear/editar deudor -->
+<ng-template #modalDeudor let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">{{ data.id ? 'Editar' : 'Nuevo' }} deudor</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form class="md-float-material form-material" #formDeudor="ngForm" (ngSubmit)="guardarDeudor(c)">
+        <div class="modal-body">
+            <div class="row">
+                <!-- Nombre -->
+                <div class="col-md-12 m-b-10">
+                    <div class="form-group form-primary">
+                        <input type="text" class="form-control" name="nombre" [(ngModel)]="data.nombre" required maxlength="100">
+                        <span class="form-bar"></span>
+                        <label class="float-label">Nombre</label>
+                        <small class="text-danger messages block" *ngIf="formDeudor.submitted && !data.nombre">Campo requerido</small>
+                    </div>
+                </div>
+                <!-- BANCO -->
+                <div class="col-md-8" [hidden]="bancosBuscados.length > 0">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="banco_input"
+                            class="form-control"
+                            [(ngModel)]="data.banco_input"
+                            (keyup.enter)="buscarBanco()"
+                            maxlength="100"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Buscar banco</label>
+                    </div>
+                </div>
+                <div class="col-md-8" [hidden]="bancosBuscados.length == 0">
+                    <div class="form-group form-primary">
+                        <select
+                            name="select_banco"
+                            class="form-control"
+                            [(ngModel)]="data.banco"
+                            required
+                        >
+                            <option value="" selected disabled></option>
+                            <option *ngFor="let banco of bancosBuscados" [value]="banco.id">
+                                {{ banco.nombre }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Seleccionar banco</label>
+                        <small class="text-danger messages block" *ngIf="formDeudor.submitted && !data.banco">Campo requerido</small>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-info btn-sm btn-block" (click)="buscarBanco()">
+                        Buscar
+                    </button>
+                </div>
+                <!-- MONEDA -->
+                <div class="col-md-12 m-b-10">
+                    <div class="form-group form-primary">
+                        <select name="moneda" class="form-control" [(ngModel)]="data.moneda" required>
+                            <option value="" selected disabled></option>
+                            <option *ngFor="let moneda of monedas" [value]="moneda.id">
+                                {{ moneda.moneda }}
+                            </option>
+                        </select>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Moneda</label>
+                        <small class="text-danger messages block" *ngIf="formDeudor.submitted && !data.moneda">Campo requerido</small>
+                    </div>
+                </div>
+                <!-- Comentarios -->
+                <div class="col-md-12 m-b-10">
+                    <div class="form-group form-primary">
+                        <textarea class="form-control" name="comentarios" [(ngModel)]="data.comentarios" maxlength="255"></textarea>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Comentarios</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer" style="border-top: none;">
+            <button type="submit" class="btn btn-info btn-block" [disabled]="formDeudor.invalid">
+                <i class="fa fa-save"></i> Guardar
+            </button>
+        </div>
+    </form>
+</ng-template>
