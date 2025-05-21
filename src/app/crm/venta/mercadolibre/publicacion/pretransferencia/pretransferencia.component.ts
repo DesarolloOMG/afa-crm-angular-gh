@@ -316,7 +316,7 @@ export class PretransferenciaComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
         this.almacenes = empresa.almacenes;
     }

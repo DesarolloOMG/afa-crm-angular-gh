@@ -25,6 +25,7 @@
     </div>
 </div>
 
+<!--suppress JSUnusedLocalSymbols -->
 <ng-template #modal let-c="close" let-d="dismiss">
     <div class="modal-header">
         <button
@@ -51,7 +52,7 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ empresa.bd }}"
+                                value="{{ empresa.id }}"
                                 *ngFor="let empresa of empresas"
                             >
                                 {{ empresa.empresa }}

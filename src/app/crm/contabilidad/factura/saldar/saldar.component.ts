@@ -1,10 +1,9 @@
-import { backend_url, commaNumber } from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url, commaNumber} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
-import { isArray } from 'util';
 
 @Component({
     selector: 'app-saldar',
@@ -68,7 +67,7 @@ export class SaldarComponent implements OnInit {
                         } else {
                             if (this.empresas_usuario.length == 1) {
                                 if (empresa.id == this.empresas_usuario[0]) {
-                                    this.documento.empresa = empresa.bd;
+                                    this.documento.empresa = empresa.id;
                                 }
                             }
                         }

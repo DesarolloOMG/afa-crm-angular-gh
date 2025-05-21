@@ -92,7 +92,7 @@ export class CrearComponent implements OnInit {
         );
 
         const form_data = new FormData();
-        form_data.append('bd', empresa.bd);
+        form_data.append('bd', empresa.id);
         form_data.append('password', backend_url_password);
         form_data.append('fecha_importacion', this.data.fecha_importacion);
         form_data.append('pedimento', this.data.pedimento);

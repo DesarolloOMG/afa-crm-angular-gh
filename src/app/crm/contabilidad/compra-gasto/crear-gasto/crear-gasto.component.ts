@@ -118,7 +118,7 @@ export class CrearGastoComponent implements OnInit {
                         }
                     });
 
-                    this.data.empresa = empresa.bd;
+                    this.data.empresa = empresa.id;
                 }
             },
             (response) => {

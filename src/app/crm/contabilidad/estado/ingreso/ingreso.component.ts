@@ -1,8 +1,8 @@
-import { backend_url, commaNumber } from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url, commaNumber} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 
 @Component({
@@ -67,7 +67,7 @@ export class IngresoComponent implements OnInit {
                         } else {
                             if (this.empresas_usuario.length == 1) {
                                 if (empresa.id == this.empresas_usuario[0]) {
-                                    this.data.empresa = empresa.bd;
+                                    this.data.empresa = empresa.id;
                                 }
                             }
                         }

@@ -1,19 +1,13 @@
 /* tslint:disable:triple-equals */
 // noinspection JSIgnoredPromiseFromCall
 
-import {
-    backend_url,
-    commaNumber,
-    swalErrorHttpResponse,
-} from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { AuthService } from '@services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url, commaNumber, swalErrorHttpResponse,} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {AuthService} from '@services/auth.service';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
-import { catchError, switchMap, tap } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { DocumentoDesaldar, Empresa } from '@interfaces/contabilidad/factura';
+import {DocumentoDesaldar, Empresa} from '@interfaces/contabilidad/factura';
 
 @Component({
     selector: 'app-dessaldar',
@@ -75,7 +69,7 @@ export class DessaldarComponent implements OnInit {
                             (e) => e.id === this.empresas_usuario[0]
                         );
                         if (empresa) {
-                            this.documento.empresa = empresa.bd;
+                            this.documento.empresa = String(empresa.id);
                         }
                     }
                 },

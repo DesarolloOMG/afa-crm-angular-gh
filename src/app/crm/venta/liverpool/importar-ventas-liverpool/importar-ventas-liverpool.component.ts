@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import { swalErrorHttpResponse } from '@env/environment';
-import { VentaService } from '@services/http/venta.service';
+import {swalErrorHttpResponse} from '@env/environment';
+import {VentaService} from '@services/http/venta.service';
 import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 
@@ -40,7 +40,7 @@ export class ImportarVentasLiverpoolComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.data.empresa
+            (empresa) => empresa.id == this.data.empresa
         );
 
         this.almacenes = empresa.almacenes;

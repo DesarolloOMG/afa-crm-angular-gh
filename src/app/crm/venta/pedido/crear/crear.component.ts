@@ -1,12 +1,12 @@
-import { backend_url} from '@env/environment';
-import { AuthService } from '@services/auth.service';
-import { Component, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url} from '@env/environment';
+import {AuthService} from '@services/auth.service';
+import {Component, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
-import { VentaService } from '@services/http/venta.service';
-import { CompraService } from '@services/http/compra.service';
+import {VentaService} from '@services/http/venta.service';
+import {CompraService} from '@services/http/compra.service';
 
 declare var tinymce: any;
 declare var require: any;
@@ -260,7 +260,7 @@ export class CrearComponent implements OnInit {
 
         if (!continuar) {
             const empresa = this.empresas.find(
-                (empresa) => empresa.bd == this.data.empresa
+                (empresa) => empresa.id == this.data.empresa
             );
 
             swal({

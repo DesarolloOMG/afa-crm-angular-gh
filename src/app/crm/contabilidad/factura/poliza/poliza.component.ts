@@ -1,9 +1,9 @@
-import { backend_url } from '@env/environment';
-import { animate, style, transition, trigger } from '@angular/animations';
-import { AuthService } from './../../../../services/auth.service';
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {backend_url} from '@env/environment';
+import {animate, style, transition, trigger} from '@angular/animations';
+import {AuthService} from './../../../../services/auth.service';
+import {Component, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 
 @Component({
@@ -73,7 +73,7 @@ export class PolizaComponent implements OnInit {
                         } else {
                             if (this.empresas_usuario.length == 1) {
                                 if (empresa.id == this.empresas_usuario[0]) {
-                                    this.data.empresa = empresa.bd;
+                                    this.data.empresa = empresa.id;
                                 }
                             }
                         }

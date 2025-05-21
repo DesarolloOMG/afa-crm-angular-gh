@@ -10,7 +10,7 @@
                         <select name="empresa" id="empresa" required #empresa="ngModel" class="form-control"
                             [(ngModel)]="data.empresa" (change)="cambiarEmpresa()">
                             <option value="" disabled></option>
-                            <option value="{{ empresa.bd }}" *ngFor="let empresa of empresas">{{ empresa.empresa }}
+                            <option *ngFor="let empresa of empresas" value="{{ empresa.id }}">{{ empresa.empresa }}
                             </option>
                         </select>
                         <span class="form-bar"></span>

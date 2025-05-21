@@ -284,7 +284,7 @@ export class SinVentaComponent implements OnInit {
         var n_cliente = this.data.cliente.razon_social;
 
         var final_data = {
-            bd: empresa.bd,
+            bd: empresa.id,
             password: backend_url_password,
             serie: this.data.serie,
             fecha: moment().format('YYYY-MM-DD HH:mm:ss'),

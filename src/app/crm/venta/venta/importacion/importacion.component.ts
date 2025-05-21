@@ -1,12 +1,12 @@
-import { backend_url } from './../../../../../environments/environment';
-import { AuthService } from './../../../../services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import {backend_url} from './../../../../../environments/environment';
+import {AuthService} from './../../../../services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
-import { NgxSpinnerService } from 'ngx-spinner';
+import {NgxSpinnerService} from 'ngx-spinner';
 
 @Component({
     selector: 'app-importacion',
@@ -82,7 +82,7 @@ export class ImportacionComponent implements OnInit {
                         } else {
                             if (this.empresas_usuario.length == 1) {
                                 if (this.empresas_usuario[0] == empresa.id) {
-                                    this.marketplace.empresa = empresa.bd;
+                                    this.marketplace.empresa = empresa.id;
                                 }
                             }
                         }
@@ -356,7 +356,7 @@ export class ImportacionComponent implements OnInit {
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.marketplace.empresa
+            (empresa) => empresa.id == this.marketplace.empresa
         );
 
         this.marketplace.almacen = '';

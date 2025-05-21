@@ -240,7 +240,7 @@ export class HistorialComponent implements OnInit {
 
     generarTraspaso() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.bd == this.traspaso.empresa
+            (empresa) => empresa.id == this.traspaso.empresa
         );
 
         this.traspaso.ingresos = this.documentos
@@ -425,7 +425,7 @@ export class HistorialComponent implements OnInit {
         };
 
         this.poliza_automatica = {
-            empresa: empresa.bd,
+            empresa: empresa.id,
             template: '',
             movimiento: documento.folio,
         };
