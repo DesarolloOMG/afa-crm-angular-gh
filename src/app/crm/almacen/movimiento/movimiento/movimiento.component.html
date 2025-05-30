@@ -4,41 +4,6 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <h4 class="sub-title m-t-20">Empresa del documento</h4>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="movimiento-empresa"
-                                    #movimentoempresa="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="data.empresa"
-                                    (change)="onChangeCompany()"
-                                    required
-                                >
-                                    <option value="" selected disabled></option>
-                                    <option
-                                        value="{{ row.id }}"
-                                        *ngFor="let row of empresas"
-                                    >
-                                        {{ row.empresa }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Empresa</label>
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="
-                                        (movimentoempresa.dirty ||
-                                            movimentoempresa.touched) &&
-                                        movimentoempresa.errors?.required
-                                    "
-                                    >Campo requerido</small
-                                >
-                            </div>
-                        </div>
-                    </div>
 
                     <h4 class="sub-title m-t-20">Información del documento</h4>
 

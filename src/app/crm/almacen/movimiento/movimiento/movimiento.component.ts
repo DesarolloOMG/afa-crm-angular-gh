@@ -1,4 +1,3 @@
-/* tslint:disable:triple-equals */
 import {downloadPDF, swalErrorHttpResponse} from '@env/environment';
 import {Component, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
@@ -39,7 +38,7 @@ export class MovimientoComponent implements OnInit {
     search_product = '';
 
     data = {
-        empresa: null,
+        empresa: 1,
         tipo: null,
         almacen_entrada: null,
         almacen_salida: null,
@@ -100,6 +99,7 @@ export class MovimientoComponent implements OnInit {
             .subscribe(
                 (res: any) => {
                     this.productos = res['productos'];
+                    console.log(res);
                 },
                 (err: any) => {
                     swalErrorHttpResponse(err);
@@ -373,7 +373,6 @@ export class MovimientoComponent implements OnInit {
                 errorListHtml += '</ul>';
             }
 
-            // Disparamos el alert combinando el mensaje general y la lista de errores
             await swal({
                 type: res.errores && res.errores.length ? 'error' : 'success',
                 html: res.errores && res.errores.length ? errorListHtml : res.message,
