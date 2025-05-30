@@ -1,8 +1,7 @@
-import {backend_url} from '@env/environment';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
 import {Component, OnInit} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import swal from 'sweetalert2';
-import {animate, state, style, transition, trigger,} from '@angular/animations';
+import {animate, state, style, transition, trigger} from '@angular/animations';
 
 @Component({
     selector: 'app-general',
@@ -31,31 +30,13 @@ import {animate, state, style, transition, trigger,} from '@angular/animations';
     ],
 })
 export class GeneralComponent implements OnInit {
-    user_token: string = '';
-    ventas_totales: number = 0;
-    ventas_pendientes_finalizar: number = 0;
-    ventas_mes_actual: number = 0;
-    diferencia_ventas_mes: number = 0;
-
-    tarea = {
-        titulo: '',
-        descripcion: '',
-        archivos: [],
-    };
+    ventas_totales = 0;
+    ventas_pendientes_finalizar = 0;
+    ventas_mes_actual = 0;
+    diferencia_ventas_mes = 0;
 
     areas: any[] = [];
-    tickets: any[] = [];
-    tickets_personal: any[] = [];
     subniveles: any[] = [];
-
-    public isCollapsedAutorizar = true;
-    public isCollapsedAutorizaciones = true;
-
-    public isCollapsedAutorizarSoporte = true;
-    public isCollapsedAutorizacionesSoporte = true;
-
-    public isCollapsedAutorizarSinVenta = true;
-    public isCollapsedAutorizacionesSinVenta = true;
 
     constructor(private http: HttpClient) {}
 
@@ -71,25 +52,8 @@ export class GeneralComponent implements OnInit {
                 this.areas = res['ventas_area'];
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? 'No hay conexión a internet.'
-                            : typeof response.error === 'string'
-                            ? response.error
-                            : response.error.text,
-                });
+                swalErrorHttpResponse(response);
             }
         );
-        // this.http.get(`${backend_url}whatsapp/validateWhatsApp`).subscribe({
-        //     next: (res) => {
-        //         console.log(res);
-        //     },
-        //     error: (error) => {
-        //         swalErrorHttpResponse(error);
-        //     }
-        // });
     }
 }

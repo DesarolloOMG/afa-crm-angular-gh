@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 export interface BadgeItem {
     type: string;
@@ -98,54 +98,18 @@ const MENUITEMS = [
                 level: [7, 8, 12],
                 sublevel: 0,
                 children: [
-                    /*
-                    {
-                        state: 'crear',
-                        name: 'Crear Compra',
-                        level: [12],
-                        sublevel: 0,
-                    },
-                    */
                     {
                         state: 'editar',
                         name: 'Editar Compra',
                         level: [6],
                         sublevel: 0,
                     },
-                    /*
-                    {
-                        state: 'corroborar',
-                        name: 'Corroborar Compra',
-                        level: [7, 12],
-                        sublevel: 0,
-                    },
-                    {
-                        state: 'autorizar',
-                        name: 'Autorizar Compra',
-                        level: [12],
-                        sublevel: 0,
-                    },
-                    {
-                        state: 'pendiente',
-                        name: 'Pendientes de finalizar',
-                        level: [7, 12],
-                        sublevel: 0,
-                    },
-                    */
                     {
                         state: 'historial',
                         name: 'Historial de compras',
                         level: [7, 8, 11, 12],
                         sublevel: 0,
                     },
-                    /*
-                    {
-                        state: 'backorder',
-                        name: 'Back orders',
-                        level: [12],
-                        sublevel: 0,
-                    },
-                    */
                 ],
             },
             {
@@ -226,24 +190,6 @@ const MENUITEMS = [
                     },
                 ],
             },
-            // {
-            //     main_state: 'compra',
-            //     state: 'pedimento',
-            //     short_label: 'PD',
-            //     name: 'Pedimentos',
-            //     type: 'sub',
-            //     icon: 'fa fa-pallet',
-            //     level: [12],
-            //     sublevel: 1,
-            //     children: [
-            //         {
-            //             state: 'crear',
-            //             name: 'Crear pedimento',
-            //             level: [12],
-            //             sublevel: 1,
-            //         },
-            //     ],
-            // },
             {
                 main_state: 'compra',
                 state: 'proveedor',
@@ -254,38 +200,6 @@ const MENUITEMS = [
                 level: [16],
                 sublevel: 29,
             },
-            /*
-            {
-                main_state: 'compra',
-                state: 'huawei',
-                short_label: 'HUA',
-                name: 'Huawei',
-                type: 'link',
-                icon: 'fa fa-mobile',
-                level: [12],
-                sublevel: 0,
-            },
-            {
-                main_state: 'compra',
-                state: 'presupuesto',
-                short_label: 'PRE',
-                name: 'Presupuesto',
-                type: 'link',
-                icon: 'fa fa-dollar',
-                level: [1],
-                sublevel: 1,
-            },
-            {
-                main_state: 'compra',
-                state: 'tipo-cambio',
-                short_label: 'TC',
-                name: 'Tipo de cambio',
-                type: 'link',
-                icon: 'fa fa-dollar',
-                level: [1],
-                sublevel: 1,
-            },
-            */
         ],
     },
     {
@@ -363,12 +277,6 @@ const MENUITEMS = [
                         level: [8],
                         sublevel: 0,
                     },
-                    // {
-                    //     state: 'importacion',
-                    //     name: 'Importación masiva',
-                    //     level: [8],
-                    //     sublevel: 0,
-                    // },
                 ],
             },
             {
@@ -411,63 +319,6 @@ const MENUITEMS = [
                     },
                 ],
             },
-            // {
-            //     main_state: 'venta',
-            //     state: 'nota-credito',
-            //     short_label: 'NDC',
-            //     name: 'Notas de credito',
-            //     type: 'sub',
-            //     icon: 'fa fa-file-invoice',
-            //     level: [11],
-            //     sublevel: 0,
-            //     children: [
-            //         {
-            //             state: 'buscar-nota-credito',
-            //             name: 'Buscar NC',
-            //             level: [8],
-            //             sublevel: 0,
-            //         },
-            //         {
-            //             state: 'sin-venta',
-            //             name: 'NC sin venta',
-            //             level: [11],
-            //             sublevel: 0,
-            //         },
-            //         {
-            //             state: 'autorizar',
-            //             type: 'sub',
-            //             name: 'Autorizar NC',
-            //             level: [6],
-            //             sublevel: [1],
-            //             children: [
-            //                 {
-            //                     state: 'autorizar',
-            //                     name: 'Ventas',
-            //                     level: [6],
-            //                     sublevel: [1],
-            //                 },
-            //                 {
-            //                     state: 'soporte',
-            //                     name: 'Soporte',
-            //                     level: [6],
-            //                     sublevel: [1],
-            //                 },
-            //                 {
-            //                     state: 'sin-venta',
-            //                     name: 'Sin Venta',
-            //                     level: [6],
-            //                     sublevel: [1],
-            //                 },
-            //                 {
-            //                     state: 'reportes',
-            //                     name: 'Reportes',
-            //                     level: [6],
-            //                     sublevel: [1],
-            //                 },
-            //             ],
-            //         },
-            //     ],
-            // },
             {
                 main_state: 'venta',
                 state: 'mercadolibre',
@@ -534,66 +385,6 @@ const MENUITEMS = [
                     },
                 ],
             },
-            /* {
-                main_state: 'venta',
-                state: 'walmart',
-                name: 'Walmart',
-                short_label: 'WT',
-                type: 'sub',
-                icon: 'fa fa-list-ul',
-                level: [8],
-                except: [13],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'importar-ventas',
-                        name: 'Importar Ventas',
-                        type: 'link',
-                        level: [14],
-                        sublevel: 22,
-                    },
-                ],
-            },
-            {
-                main_state: 'venta',
-                state: 'shopify',
-                name: 'Shopify',
-                short_label: 'SY',
-                type: 'sub',
-                icon: 'fa fa-list-ul',
-                level: [8],
-                except: [13],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'importar-ventas',
-                        name: 'Importar Ventas',
-                        type: 'link',
-                        level: [14],
-                        sublevel: 23,
-                    },
-                ],
-            },
-            {
-                main_state: 'venta',
-                state: 'liverpool',
-                name: 'Liverpool',
-                short_label: 'LP',
-                type: 'sub',
-                icon: 'fa fa-list-ul',
-                level: [8],
-                except: [13],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'importar-ventas-liverpool',
-                        name: 'Importar Ventas Liverpool',
-                        type: 'link',
-                        level: [14],
-                        sublevel: 0,
-                    },
-                ],
-            }, */
         ],
     },
     {
@@ -873,16 +664,6 @@ const MENUITEMS = [
         main: [
             {
                 main_state: 'logistica',
-                state: 'seguro',
-                short_label: 'SE',
-                name: 'Seguro',
-                type: 'link',
-                icon: 'fa fa-ambulance',
-                level: [9],
-                sublevel: 1,
-            },
-            {
-                main_state: 'logistica',
                 state: 'envio',
                 short_label: 'LO',
                 name: 'Envíos',
@@ -959,24 +740,6 @@ const MENUITEMS = [
                     },
                 ],
             },
-            {
-                main_state: 'logistica',
-                state: 'guia',
-                short_label: 'G',
-                name: 'Guías',
-                type: 'sub',
-                icon: 'fa fa-file',
-                level: [0],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'crear',
-                        name: 'Crear',
-                        level: [0],
-                        sublevel: 0,
-                    },
-                ],
-            },
         ],
     },
     {
@@ -1013,30 +776,6 @@ const MENUITEMS = [
                 level: [11],
                 sublevel: 0,
             },
-            /* {
-                main_state: 'contabilidad',
-                state: 'importar-comercial',
-                short_label: 'ZR',
-                name: 'Importar',
-                type: 'sub',
-                icon: 'fa fa-upload',
-                level: [11],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'actualizar',
-                        name: 'Actualizar',
-                        level: [11],
-                        sublevel: 11,
-                    },
-                    {
-                        state: 'importar',
-                        name: 'Importar',
-                        level: [11],
-                        sublevel: 11,
-                    },
-                ],
-            }, */
             {
                 main_state: 'contabilidad',
                 state: 'proveedor',
