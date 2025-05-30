@@ -1,5 +1,5 @@
 /* tslint:disable:triple-equals */
-import {backend_url, downloadPDF, swalErrorHttpResponse} from '@env/environment';
+import {downloadPDF, swalErrorHttpResponse} from '@env/environment';
 import {Component, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
@@ -8,7 +8,6 @@ import swal from 'sweetalert2';
 
 /* Servicios */
 import {AlmacenService} from '@services/http/almacen.service';
-import {AuthService} from '@services/auth.service';
 
 /* Modelos */
 import {Empresa} from '@models/Empresa.model';
@@ -18,7 +17,6 @@ import {EmpresaAlmacen} from '@models/EmpresaAlmacen.model';
 
 /* Enums */
 import {DocumentoTipo as EnumDocumentoTipo} from '@models/Enums/DocumentoTipo.enum';
-import {HttpClient} from '@angular/common/http';
 import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
@@ -60,49 +58,18 @@ export class MovimientoComponent implements OnInit {
         decimalLimit: 4,
     });
 
-    is_su: boolean;
-    usuario_subniveles: any[] = [];
     invalidSeries: string[] = [];
 
     constructor(
         private modalService: NgbModal,
-        private http: HttpClient,
         private renderer: Renderer2,
-        private authService: AuthService,
         private almacenService: AlmacenService,
         private whatsappService: WhatsappService
     ) {
-        const usuario = JSON.parse(this.authService.userData().sub);
-
-        this.http
-            .get(`${backend_url}dashboard/user/subnivel-nivel/${usuario.id}`)
-            .subscribe(
-                (res) => {
-                    this.usuario_subniveles = [res];
-                    this.usuario_subniveles = this.usuario_subniveles[0];
-                    this.is_su = this.usuario_subniveles.includes(70);
-                },
-                (response) => {
-                    swalErrorHttpResponse(response);
-                }
-            );
     }
 
     ngOnInit() {
-        this.initObjects();
         this.initData();
-    }
-
-    handlePaste(event: ClipboardEvent) {
-        if (!this.is_su) {
-            event.preventDefault();
-        }
-    }
-
-    handleDrop(event: DragEvent) {
-        if (!this.is_su) {
-            event.preventDefault();
-        }
     }
 
     searchProduct() {
@@ -429,7 +396,6 @@ export class MovimientoComponent implements OnInit {
     }
 
     sanitizeInput() {
-        // Elimina los caracteres no deseados
         this.data.serie = this.data.serie.replace(/['\\]/g, '');
     }
 
@@ -633,20 +599,6 @@ export class MovimientoComponent implements OnInit {
 
                     this.onChangeCompany();
                 }
-
-                // if (!this.isUserAdmin()) {
-                //     const index = this.tipos.findIndex(
-                //         (t) => t.id == EnumDocumentoTipo.ENTRADA
-                //     );
-                //
-                //     this.tipos.splice(index, 1);
-                // }
-
-                // if (!this.is_su) {
-                //     this.tipos = this.tipos.filter(
-                //         (item) => item.id !== 4 && item.id !== 3
-                //     );
-                // }
             },
             (err: any) => {
                 swalErrorHttpResponse(err);
