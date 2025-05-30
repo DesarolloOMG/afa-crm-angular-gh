@@ -8,7 +8,6 @@ import * as moment from 'moment';
 import 'moment/locale/pt-br';
 import {VentaService} from '@services/http/venta.service';
 import {CompraService} from '@services/http/compra.service';
-import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
     selector: 'app-crear',
@@ -50,7 +49,6 @@ export class CrearComponent implements OnInit {
     razones: any[] = [];
     monedas: any[] = [];
     usuarios: any[] = [];
-    proveedores: any[] = [];
     promociones: any[] = [];
     regimenes: any[] = [];
     usuarios_agro: any[] = [];
@@ -213,7 +211,6 @@ export class CrearComponent implements OnInit {
         private modalService: NgbModal,
         private renderer: Renderer2,
         private auth: AuthService,
-        private whatsappService: WhatsappService,
         private ventaService: VentaService,
         private compraService: CompraService
     ) {
@@ -234,7 +231,6 @@ export class CrearComponent implements OnInit {
                 this.empresas = res['empresas'];
                 this.usuarios = res['usuarios'];
                 this.impresoras = res['impresoras'];
-                this.proveedores = res['proveedores'];
                 this.usuarios_agro = res['usuarios_agro'];
                 this.regimenes = [...res.regimenes];
 
@@ -3286,48 +3282,6 @@ export class CrearComponent implements OnInit {
             return false;
         } else {
             return true;
-        }
-    }
-
-    validarCCE() {
-        if (!this.data.documento.cce) {
-            this.whatsappService.sendWhatsapp().subscribe({
-                next: () => {
-                    return swal({
-                        type: 'warning',
-                        html: 'Necesita autorización, escribe el token proporcionado vía WhatsApp en el recuadro de abajo',
-                        input: 'text',
-                        inputAttributes: {
-                            maxlength: '7',
-                        },
-                        showCancelButton: true,
-                    }).then((res) => {
-                        if (res.value) {
-                            this.whatsappService.validateWhatsapp(res.value).subscribe(
-                                (validate: any) => {
-                                    if (validate.code === 200) {
-                                        this.data.documento.cce = 1;
-                                    } else {
-                                        this.data.documento.cce = 0;
-                                        swalErrorHttpResponse(validate);
-                                    }
-                                },
-                                (err: any) => {
-                                    this.data.documento.cce = 0;
-                                    swalErrorHttpResponse(err);
-                                }
-                            );
-                        } else {
-                            this.data.documento.cce = 0;
-                        }
-                    });
-                },
-                error: (error) => {
-                    swalErrorHttpResponse(error);
-                }
-            });
-        } else {
-            this.data.documento.cce = 0;
         }
     }
 }

@@ -1,80 +1,9 @@
 <!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols, JSUnusedLocalSymbols -->
 <div class="row">
-    <!-- <button class="btn btn-block btn-danger" (click)="ngOnInit()">GET</button> -->
     <div class="col-sm-12">
         <form class="md-float-material form-material" #f="ngForm">
             <div class="auth-box card">
                 <div class="card-block">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="empresa"
-                                    id="empresa"
-                                    required
-                                    #empresa="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="data.empresa"
-                                    (change)="cambiarEmpresa()"
-                                >
-                                    <option value="" disabled></option>
-                                    <option
-                                        value="{{ empresa.id }}"
-                                        *ngFor="let empresa of empresas"
-                                    >
-                                        {{ empresa.empresa }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Empresa</label>
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="empresa.errors?.required"
-                                    >Campo requerido</small
-                                >
-                            </div>
-                        </div>
-                        <div class="col-md-2" style="margin-top: -18px">
-                            <label
-                                style="
-                                    display: block;
-                                    font-size: 9pt;
-                                    color: red;
-                                "
-                                >Shipping Null</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="shippingnull"
-                                id="shippingnull"
-                                [(ngModel)]="data.documento.shipping_null"
-                            ></ui-switch>
-                        </div>
-                        <div class="col-md-2" style="margin-top: -18px">
-                            <label
-                                style="
-                                    display: block;
-                                    font-size: 9pt;
-                                    color: red;
-                                "
-                                >CCE</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="cce"
-                                id="cce"
-                                [(ngModel)]="data.documento.cce"
-                                (change)="validarCCE()"
-                            ></ui-switch>
-                        </div>
-                    </div>
-
                     <div class="row m-t-20">
                         <div class="col-md-3">
                             <div class="form-group form-primary">
@@ -134,8 +63,8 @@
                             </div>
                         </div>
 
-                        <div class="col-md-2" style="margin-top: -18px">
-                            <label style="display: block; font-size: 9pt"
+                        <div class="col-md-2" style="margin-top: -18px;">
+                            <label style="display: block; font-size: 9pt;"
                                 >Factura anticipada</label
                             >
                             <ui-switch
@@ -151,13 +80,9 @@
 
                         <div
                             class="col-md-2"
-                            style="margin-top: -18px"
-                            [hidden]="
-                                data.documento.marketplace == '35' ||
-                                data.documento.marketplace == '60'
-                            "
+                            style="margin-top: -18px;"
                         >
-                            <label style="display: block; font-size: 9pt"
+                            <label style="display: block; font-size: 9pt;"
                                 >Fulfillment</label
                             >
                             <ui-switch
@@ -175,160 +100,26 @@
                                 "
                             ></ui-switch>
                         </div>
-                    </div>
-                    <h4 class="sub-title m-t-20" [hidden]="data.area != '2'">
-                        Usuario que solicita
-                    </h4>
-
-                    <div class="row m-t-20" [hidden]="data.area != '2'">
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="usuario_agro"
-                                    id="usuario_agro"
-                                    #usuario_agro="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="data.usuario_agro"
-                                >
-                                    <option value="" disabled></option>
-                                    <option
-                                        value="{{ usuario.id }}"
-                                        *ngFor="let usuario of usuarios_agro"
-                                    >
-                                        {{ usuario.nombre }}
-                                    </option>
-                                </select>
-                            </div>
+                        <div class="col-md-2" style="margin-top: -18px;">
+                            <label
+                                style="
+                                    display: block;
+                                    font-size: 9pt;
+                                    color: #ff0000;
+                                "
+                            >Shipping Null</label
+                            >
+                            <ui-switch
+                                [(ngModel)]="data.documento.shipping_null"
+                                class="js-single"
+                                color="#4680ff"
+                                id="shippingnull"
+                                name="shippingnull"
+                                size="medium"
+                                switchColor="#fff"
+                            ></ui-switch>
                         </div>
                     </div>
-
-<!--                    <h4 class="sub-title m-t-20">Proveedor Dropshipping</h4>-->
-
-<!--                    <div class="row m-t-20">-->
-<!--                        <div class="col-md-6">-->
-<!--                            <div class="form-group form-primary">-->
-<!--                                <select-->
-<!--                                    name="proveedor"-->
-<!--                                    id="proveedor"-->
-<!--                                    #proveedor="ngModel"-->
-<!--                                    class="form-control"-->
-<!--                                    [(ngModel)]="data.documento.proveedor"-->
-<!--                                    (change)="cambiarProveedor()"-->
-<!--                                >-->
-<!--                                    <option value=""></option>-->
-<!--                                    <option-->
-<!--                                        value="{{ proveedor.id }}"-->
-<!--                                        *ngFor="let proveedor of proveedores"-->
-<!--                                    >-->
-<!--                                        {{ proveedor.razon_social }} - -->
-<!--                                        {{ proveedor.rfc }}-->
-<!--                                    </option>-->
-<!--                                </select>-->
-<!--                                <span class="form-bar"></span>-->
-<!--                                <label class="float-label">Proveedor</label>-->
-<!--                                <small-->
-<!--                                    class="text-danger messages block"-->
-<!--                                    *ngIf="$any(empresa).proveedor?.required"-->
-<!--                                    >Campo requerido</small-->
-<!--                                >-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-
-<!--                    <h4 class="sub-title m-t-20" [hidden]="data.area != '2'">-->
-<!--                        Addenda y complementos-->
-<!--                    </h4>-->
-
-<!--                    <div class="row m-t-20" [hidden]="data.area != '2'">-->
-<!--                        <div class="col-md-6">-->
-<!--                            <div class="form-group form-primary">-->
-<!--                                <input-->
-<!--                                    type="text"-->
-<!--                                    name="addendaordencompra"-->
-<!--                                    class="form-control"-->
-<!--                                    #addendaordencompra="ngModel"-->
-<!--                                    [(ngModel)]="data.addenda.orden_compra"-->
-<!--                                    pattern="[^'&quot;]+$"-->
-<!--                                />-->
-<!--                                <span class="form-bar"></span>-->
-<!--                                <label class="float-label"-->
-<!--                                    >Número de orden de compra</label-->
-<!--                                >-->
-<!--                                <small-->
-<!--                                    class="text-danger messages block"-->
-<!--                                    *ngIf="addendaordencompra.errors?.pattern"-->
-<!--                                    >No se permite el caracter ' ó "</small-->
-<!--                                >-->
-<!--                            </div>-->
-<!--                        </div>-->
-
-<!--                        <div class="col-md-6">-->
-<!--                            <div class="form-group form-primary">-->
-<!--                                <input-->
-<!--                                    type="text"-->
-<!--                                    name="addendasolicitudpago"-->
-<!--                                    class="form-control"-->
-<!--                                    #addendasolicitudpago="ngModel"-->
-<!--                                    [(ngModel)]="data.addenda.solicitud_pago"-->
-<!--                                />-->
-<!--                                <span class="form-bar"></span>-->
-<!--                                <label class="float-label"-->
-<!--                                    >Número de solicitud de pago</label-->
-<!--                                >-->
-<!--                                <small-->
-<!--                                    class="text-danger messages block"-->
-<!--                                    *ngIf="addendasolicitudpago.errors?.pattern"-->
-<!--                                    >No se permite el caracter ' ó "</small-->
-<!--                                >-->
-<!--                            </div>-->
-<!--                        </div>-->
-
-<!--                        <div class="col-md-6">-->
-<!--                            <div class="form-group form-primary">-->
-<!--                                <select-->
-<!--                                    name="addendatipodocumento"-->
-<!--                                    id="addendatipodocumento"-->
-<!--                                    class="form-control"-->
-<!--                                    [(ngModel)]="data.addenda.tipo_documento"-->
-<!--                                >-->
-<!--                                    <option value="" disabled selected></option>-->
-<!--                                    <option value="1">Factura</option>-->
-<!--                                    <option value="2">Nota de credito</option>-->
-<!--                                    <option value="3">-->
-<!--                                        Nota de cargo o debito-->
-<!--                                    </option>-->
-<!--                                </select>-->
-<!--                                <span class="form-bar"></span>-->
-<!--                                <label class="float-label"-->
-<!--                                    >Tipo de documento</label-->
-<!--                                >-->
-<!--                            </div>-->
-<!--                        </div>-->
-
-<!--                        <div class="col-md-6">-->
-<!--                            <div class="form-group form-primary">-->
-<!--                                <input-->
-<!--                                    type="text"-->
-<!--                                    name="addendafacturaasociada"-->
-<!--                                    class="form-control"-->
-<!--                                    #addendafacturaasociada="ngModel"-->
-<!--                                    [(ngModel)]="data.addenda.factura_asociada"-->
-<!--                                    pattern="[^'&quot;]+$"-->
-<!--                                />-->
-<!--                                <span class="form-bar"></span>-->
-<!--                                <label class="float-label"-->
-<!--                                    >Número de factura asociada</label-->
-<!--                                >-->
-<!--                                <small-->
-<!--                                    class="text-danger messages block"-->
-<!--                                    *ngIf="-->
-<!--                                        addendafacturaasociada.errors?.pattern-->
-<!--                                    "-->
-<!--                                    >No se permite el caracter ' ó "</small-->
-<!--                                >-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
 
                     <h4 class="sub-title m-t-20">Información del cliente</h4>
 
@@ -660,7 +451,6 @@
                                 class="btn btn-primary btn-sm btn-block http-disabled"
                                 (click)="buscarVenta()"
                                 [disabled]="
-                                    data.documento.marketplace == '30' ||
                                     marketplace_info.secret == null ||
                                     marketplace_info.secret == '' ||
                                     (venta.invalid &&
@@ -1454,22 +1244,6 @@
                                 <label class="float-label">Garantía</label>
                             </div>
                         </div>
-
-                        <div class="col-md-1" style="margin-top: -18px">
-                            <label style="display: block; font-size: 9pt"
-                                >Regalo</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="pro_regalo"
-                                id="pro_regalo"
-                                [(ngModel)]="producto.regalo"
-                            ></ui-switch>
-                        </div>
-
                         <div class="col-md-12">
                             <div class="form-group form-primary">
                                 <input
@@ -1557,9 +1331,6 @@
                                         <th>Precio</th>
                                         <th>Regalo</th>
                                         <th>Garantía</th>
-                                        <!--
-                                        <th>Ret 6%</th>
-                                        -->
                                         <th>Modificación</th>
                                         <th>Comentario</th>
                                         <th>Addenda</th>
@@ -1589,17 +1360,6 @@
                                             ></i>
                                         </td>
                                         <td>{{ producto.garantia }}</td>
-                                        <!--
-                                        <td>
-                                            <i
-                                                class="fa fa-{{
-                                                    producto.ret
-                                                        ? 'check'
-                                                        : 'times'
-                                                }}"
-                                            ></i>
-                                        </td>
-                                        -->
                                         <td>{{ producto.modificacion }}</td>
                                         <td>{{ producto.comentario }}</td>
                                         <td>{{ producto.addenda }}</td>
@@ -1769,8 +1529,7 @@
                                     id="metodo_pago"
                                     class="form-control"
                                     [disabled]="
-                                        data.desactivar_periodo_metodo &&
-                                        data.documento.marketplace != '11'
+                                        data.desactivar_periodo_metodo
                                     "
                                 >
                                     <option value="" selected disabled></option>
@@ -2070,15 +1829,6 @@
                                                 class="float-right cursor-pointer text-danger"
                                                 >Quitar</span
                                             >
-                                            <!-- <i
-                                                class="fa fa-trash fa-2x text-danger link"
-                                                (click)="
-                                                    data.documento.archivos.splice(
-                                                        index,
-                                                        1
-                                                    )
-                                                "
-                                            ></i> -->
                                         </td>
                                     </tr>
                                 </tbody>
