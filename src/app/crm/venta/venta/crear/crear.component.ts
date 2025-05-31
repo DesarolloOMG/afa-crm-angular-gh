@@ -8,6 +8,7 @@ import * as moment from 'moment';
 import 'moment/locale/pt-br';
 import {VentaService} from '@services/http/venta.service';
 import {CompraService} from '@services/http/compra.service';
+import {Producto} from './models';
 
 @Component({
     selector: 'app-crear',
@@ -48,36 +49,14 @@ export class CrearComponent implements OnInit {
     bancos: any[] = [];
     razones: any[] = [];
     monedas: any[] = [];
-    usuarios: any[] = [];
     promociones: any[] = [];
     regimenes: any[] = [];
-    usuarios_agro: any[] = [];
     fullfillment_allowed: string[] = ['35', '60'];
 
     promocion_activa = false;
 
+    producto = new Producto();
 
-    producto = {
-        id: 0,
-        tipo: 0,
-        codigo: '',
-        codigo_text: '',
-        descripcion: '',
-        cantidad: 0,
-        precio: 0,
-        costo: 0,
-        garantia: '',
-        regalo: 0,
-        modificacion: '',
-        comentario: '',
-        ancho: 0,
-        alto: 0,
-        largo: 0,
-        peso: 0,
-        bajo_costo: 0,
-        ret: 0,
-        addenda: '',
-    };
 
     data = {
         empresa: '1',
@@ -229,18 +208,10 @@ export class CrearComponent implements OnInit {
                 this.areas = res['areas'];
                 this.monedas = res['monedas'];
                 this.empresas = res['empresas'];
-                this.usuarios = res['usuarios'];
                 this.impresoras = res['impresoras'];
-                this.usuarios_agro = res['usuarios_agro'];
                 this.regimenes = [...res.regimenes];
 
                 console.log(this.regimenes);
-
-                if (this.empresas.length) {
-                    const [empresa] = this.empresas;
-
-                    this.data.empresa = empresa.id;
-                }
 
                 res['marketplaces'].forEach((marketplace) => {
                     this.marketplace_publico.push(marketplace.marketplace);
@@ -264,19 +235,28 @@ export class CrearComponent implements OnInit {
         this.cambiarEntidadDestino();
     }
 
+    cambiarEntidadDestino() {
+        const empresa =
+            this.data.empresa_externa == '' ? this.data.empresa : this.data.empresa_externa;
+
+        if (!empresa) {
+            swal('', 'Selecciona una empresa.', 'error').then();
+
+            return;
+        }
+    }
+
     cambiarArea() {
-        if (this.checkSellcenter()) {
             const area = this.areas.find((a) => a.id == this.data.area);
             this.marketplaces = area.marketplaces;
             this.data.usuario_agro = 0;
             this.data.documento.marketplace = '';
             this.data.area_text = $('#area option:selected').text();
-        }
     }
 
     async cambiarMarketplace() {
-        if (this.checkSellcenter()) {
-            const marketplace = this.marketplaces.find(
+
+        const marketplace = this.marketplaces.find(
                 (m) =>
                     m.id == this.data.documento.marketplace
             );
@@ -323,13 +303,13 @@ export class CrearComponent implements OnInit {
             this.marketplace_info.marketplace =
                 this.marketplace_info.marketplace.split(' ')[0];
             this.data.terminar = this.marketplace_info.app_id ? 0 : 1;
-        }
+
     }
 
     cambiarPaqueteria() {
-        if (this.checkSellcenter()) {
-            this.data.documento.direccion_envio.tipo_envio = '';
-        }
+
+        this.data.documento.direccion_envio.tipo_envio = '';
+
     }
 
     buscarCliente() {
@@ -2319,8 +2299,8 @@ export class CrearComponent implements OnInit {
     }
 
     async crearVenta(event) {
-        if (this.checkSellcenter()) {
-            if (!event.detail || event.detail > 1) {
+
+        if (!event.detail || event.detail > 1) {
                 return;
             }
 
@@ -2591,7 +2571,7 @@ export class CrearComponent implements OnInit {
                         });
                     }
                 );
-        }
+
     }
 
     totalDocumento() {
@@ -3034,16 +3014,7 @@ export class CrearComponent implements OnInit {
         }
     }
 
-    cambiarEntidadDestino() {
-        const empresa =
-            this.data.empresa_externa == '' ? this.data.empresa : this.data.empresa_externa;
 
-        if (!empresa) {
-            swal('', 'Selecciona una empresa.', 'error').then();
-
-            return;
-        }
-    }
 
     async verificarExistencia() {
         for (const producto of this.data.documento.productos) {
@@ -3246,8 +3217,6 @@ export class CrearComponent implements OnInit {
     regimenPorTamanioRFC() {
         const condicion = this.data.cliente.rfc.length < 13 ? 'M' : 'F';
 
-        console.log();
-
         return this.regimenes.filter((regimen) =>
             regimen.condicion.includes(condicion)
         );
@@ -3257,31 +3226,4 @@ export class CrearComponent implements OnInit {
         this.data.cliente.regimen = '';
     }
 
-    checkSellcenter() {
-        if (this.data.area == '2' && this.data.documento.paqueteria == '9') {
-            swal({
-                type: 'error',
-                html: 'La paqueteria seleccionada no es apta para su venta, utilice "OMG"' +
-                    '<br/> Favor de seleccionar la paqueteria nuevamente.',
-            }).then(() => {
-                this.data.documento.paqueteria = '';
-            });
-
-            return false;
-        } else if (
-            this.data.documento.marketplace == '22' &&
-            this.data.documento.paqueteria == '9'
-        ) {
-            swal({
-                type: 'error',
-                html: 'La paqueteria seleccionada no es apta para su venta, utilice "OMG"' +
-                    '<br/> Favor de seleccionar la paqueteria nuevamente.',
-            }).then(() => {
-                this.data.documento.paqueteria = '';
-            });
-            return false;
-        } else {
-            return true;
-        }
-    }
 }
