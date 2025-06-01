@@ -67,14 +67,6 @@ export class VentaService {
         return this.http.get<any>(url);
     }
 
-    crearCuenta(data: any, rfcEntidad: string): Observable<any> {
-        const formData = new FormData();
-        formData.append('data', JSON.stringify(data));
-        formData.append('rfc_entidad', rfcEntidad);
-
-        return this.http.post(`${backend_url}contabilidad/ingreso/cuenta/crear`, formData);
-    }
-
     crearVenta(form_data: FormData) {
         return this.http.post(`${backend_url}venta/venta/crear`, form_data);
     }

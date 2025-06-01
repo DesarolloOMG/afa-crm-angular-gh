@@ -140,11 +140,6 @@ export class CrearComponent implements OnInit {
         return new Promise((resolve) => {
             const input = this.data.cliente.input;
 
-            if (!input) {
-                resolve(1);
-                return;
-            }
-
             if (this.clientes.length > 0) {
                 this.clientes = [];
                 this.data.cliente.input = '';
@@ -852,7 +847,6 @@ export class CrearComponent implements OnInit {
         }, 2000);
     }
 
-
     async cargarInformacionShopify(informacion: any): Promise<void> {
         this.data.productos_venta = [];
 
@@ -1278,7 +1272,6 @@ export class CrearComponent implements OnInit {
         }
     }
 
-
     buscarProducto() {
         if (!this.data.empresa) {
             swal('', 'Selecciona una empresa.', 'error').then();
@@ -1329,6 +1322,7 @@ export class CrearComponent implements OnInit {
                     const almacen = this.data.documento.almacen;
                     const cantidad = this.producto.cantidad;
                     const proveedor = this.data.documento.proveedor;
+                    console.log(proveedor);
 
                     const res = await this.ventaService.verificarExistenciaProducto(codigo, almacen, cantidad, proveedor);
 
@@ -1551,35 +1545,6 @@ export class CrearComponent implements OnInit {
 
         const inputElement = this.renderer.selectRootElement('#cuenta_nombre');
         inputElement.focus();
-    }
-
-    cambiarBanco() {
-        const banco = this.razones.find(b => b.razon === this.cuenta.razon_social_banco);
-        if (banco) {
-            this.cuenta.rfc_banco = banco.rfc;
-        }
-    }
-
-    crearCuenta() {
-        this.ventaService
-            .crearCuenta(this.cuenta, this.data.cliente.rfc)
-            .subscribe(
-                (res: any) => {
-                    swal({
-                        title: '',
-                        type: res.code === 200 ? 'success' : 'error',
-                        html: res.message,
-                    }).then();
-
-                    if (res.code === 200) {
-                        this.cuenta = new Cuenta();
-                        this.modalReference.close();
-                    }
-                },
-                (response) => {
-                    swalErrorHttpResponse(response);
-                }
-            );
     }
 
     cambiarPeriodo() {
