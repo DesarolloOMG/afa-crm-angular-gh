@@ -1303,7 +1303,6 @@
                                         <th>Descripción</th>
                                         <th>Cantidad</th>
                                         <th>Precio</th>
-                                        <th>Regalo</th>
                                         <th>Garantía</th>
                                         <th>Modificación</th>
                                         <th>Comentario</th>
@@ -1323,15 +1322,6 @@
                                         <td>{{ producto.cantidad }}</td>
                                         <td>
                                             $ {{ producto.precio.toFixed(4) }}
-                                        </td>
-                                        <td>
-                                            <i
-                                                class="fa fa-{{
-                                                    producto.regalo
-                                                        ? 'check'
-                                                        : 'times'
-                                                }}"
-                                            ></i>
                                         </td>
                                         <td>{{ producto.garantia }}</td>
                                         <td>{{ producto.modificacion }}</td>
@@ -1910,7 +1900,6 @@
                                             <th>Cantidad</th>
                                             <th>Precio</th>
                                             <th>Garantía</th>
-                                            <th>Regalo</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1940,15 +1929,6 @@
                                                         : producto.garantia +
                                                           " días"
                                                 }}
-                                            </td>
-                                            <td>
-                                                <i
-                                                    class="fa {{
-                                                        producto.regalo
-                                                            ? 'fa-check text-success'
-                                                            : 'fa-times text-danger'
-                                                    }} fa-2x"
-                                                ></i>
                                             </td>
                                         </tr>
                                     </tbody>

@@ -1239,38 +1239,6 @@
                             </div>
                         </div>
 
-                        <div class="col-md-1" style="margin-top: -18px">
-                            <label style="display: block; font-size: 9pt"
-                                >Regalo</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="pro_regalo"
-                                id="pro_regalo"
-                                [(ngModel)]="producto.regalo"
-                            ></ui-switch>
-                        </div>
-                        <!--
-                        <div class="col-md-1" style="margin-top: -18px">
-                            <label style="display: block; font-size: 9pt"
-                                >Ret. 6%</label
-                            >
-                            <ui-switch
-                                class="js-single"
-                                color="#4680ff"
-                                switchColor="#fff"
-                                size="medium"
-                                name="ret6"
-                                id="ret6"
-                                [(ngModel)]="producto.ret"
-                                (change)="aplicarRetencion()"
-                            ></ui-switch>
-                        </div>
-                        -->
-
                         <div class="col-md-12">
                             <div class="form-group form-primary">
                                 <input
@@ -1329,10 +1297,6 @@
                                         <th>Descripción</th>
                                         <th>Cantidad</th>
                                         <th>Precio</th>
-                                        <th>Regalo</th>
-                                        <!--
-                                        <th>Ret. 6%</th>
-                                        -->
                                         <th>Garantía</th>
                                         <th>Modificación</th>
                                         <th
@@ -1353,27 +1317,7 @@
                                         <td>{{ producto.descripcion }}</td>
                                         <td>{{ producto.cantidad }}</td>
                                         <td>$ {{ producto.precio }}</td>
-                                        <td>
-                                            <i
-                                                class="fa fa-{{
-                                                    producto.regalo
-                                                        ? 'check'
-                                                        : 'times'
-                                                }}"
-                                            ></i>
-                                        </td>
                                         <td>{{ producto.garantia }}</td>
-                                        <!--
-                                        <td>
-                                            <i
-                                                class="fa fa-{{
-                                                    producto.ret
-                                                        ? 'check'
-                                                        : 'times'
-                                                }}"
-                                            ></i>
-                                        </td>
-                                        -->
                                         <td>{{ producto.modificacion }}</td>
                                         <td
                                             [hidden]="
