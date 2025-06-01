@@ -1,42 +1,24 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { backend_url } from '@env/environment';
-import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {swalErrorHttpResponse} from '@env/environment';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
-import { CompraService } from '@services/http/compra.service';
+import {CompraService} from '@services/http/compra.service';
+import {Cliente} from './models';
 
 @Component({
     selector: 'app-cliente',
     templateUrl: './cliente.component.html',
     styleUrls: ['./cliente.component.scss'],
 })
-export class ClienteComponent implements OnInit {
+export class ClienteComponent implements OnInit, AfterViewInit {
     @ViewChild('modalcliente') modalcliente: NgbModal;
 
     datatable: any;
-    datatable_name: string = '#venta_cliente';
-
+    datatable_name = '#venta_cliente';
     modalReference: any;
 
-    cliente_busqueda: string = '';
-
-    cliente = {
-        id: 0,
-        empresa: '1',
-        pais: '412',
-        regimen: '',
-        razon_social: '',
-        rfc: '',
-        email: '',
-        telefono: '',
-        celular: '',
-        condicion: 1,
-        limite: 0,
-        cp: '',
-        fiscal: '',
-    };
+    cliente_busqueda = '';
+    cliente: Cliente = new Cliente();
 
     clientes: any[] = [];
     paises: any[] = [];
@@ -44,37 +26,26 @@ export class ClienteComponent implements OnInit {
     condiciones: any[] = [];
 
     constructor(
-        private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private auth: AuthService,
         private compraService: CompraService
     ) {
-        const table: any = $(this.datatable_name);
-        this.datatable = table.DataTable();
     }
 
     async ngOnInit() {
         this.compraService.getProveedoresViewData().subscribe({
             next: (res: any) => {
-                console.log(res);
                 this.regimenes = res.regimenes;
                 this.paises = res.paises;
                 this.condiciones = res.condiciones;
             },
-            error: (err: any) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
-            },
+            error: (err) => swalErrorHttpResponse(err),
         });
+    }
+
+    ngAfterViewInit(): void {
+        const table: any = $(this.datatable_name);
+        this.datatable = table.DataTable();
     }
 
     buscarCliente() {
@@ -82,52 +53,29 @@ export class ClienteComponent implements OnInit {
             return;
         }
 
-        this.http
-            .get(
-                `${backend_url}compra/cliente/data/${this.cliente_busqueda}/${this.cliente.empresa}`
-            )
-            .subscribe(
-                (res) => {
-                    this.clientes = res['data'];
-
-                    this.reconstruirTabla();
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
+        this.compraService.buscarCliente(this.cliente_busqueda, this.cliente.empresa).subscribe({
+            next: (res) => {
+                this.clientes = res.data;
+                console.log(res);
+                this.reconstruirTabla();
+            },
+            error: (err) => swalErrorHttpResponse(err),
+        });
     }
 
-    crearEditarCliente(cliente_id = 0) {
+    crearEditarCliente(cliente_id = 0): void {
         if (cliente_id) {
-            const cliente = this.clientes.find(
-                (cliente) => cliente.id == cliente_id
-            );
+            const cliente = this.clientes.find(c => c.id == cliente_id);
+            if (!cliente) {
+                return;
+            }
+            this.cliente = new Cliente({
+                ...cliente,
+                alt: cliente.tipo === 1 || cliente.tipo === 3
+            });
 
-            this.cliente = {
-                id: cliente.id,
-                empresa: this.cliente.empresa,
-                pais: cliente.pais,
-                regimen: cliente.regimen_id,
-                razon_social: cliente.razon_social,
-                rfc: cliente.rfc,
-                email: cliente.correo,
-                telefono: cliente.telefono,
-                celular: cliente.telefono_alt,
-                condicion: cliente.condicion,
-                limite: cliente.limite,
-                cp: cliente.codigo_postal_fiscal,
-                fiscal: cliente.regimen,
-            };
+        } else {
+            this.cliente = new Cliente();
         }
 
         this.modalReference = this.modalService.open(this.modalcliente, {
@@ -136,86 +84,42 @@ export class ClienteComponent implements OnInit {
         });
     }
 
-    guardarCliente(event) {
+    guardarCliente(event: any): void {
         if (!event.detail || event.detail > 1) {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
-
-        if ($('.ng-invalid').length > 0) {
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
-        const regimen_letra = this.regimenes.find(
-            (obj) => obj.id == this.cliente.regimen
-        );
+        const regimen = this.regimenes.find(r => r.id == this.cliente.regimen);
+        this.cliente.fiscal = regimen.regimen || '';
 
-        this.cliente.fiscal = regimen_letra.regimen;
+        this.compraService.guardarCliente(this.cliente).subscribe({
+            next: (res) => {
+                swal({title: '', type: res.code == 200 ? 'success' : 'error', html: res.message}).then();
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.cliente));
-
-        this.http
-            .post(`${backend_url}compra/cliente/guardar`, form_data)
-            .subscribe(
-                (res) => {
-                    swal({
-                        title: '',
-                        type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message'],
-                    });
-
-                    if (res['code'] == 200) {
-                        this.cliente = {
-                            id: 0,
-                            empresa: this.cliente.empresa,
-                            pais: '412',
-                            regimen: '',
-                            razon_social: '',
-                            rfc: '',
-                            email: '',
-                            telefono: '',
-                            celular: '',
-                            condicion: 1,
-                            limite: 0,
-                            cp: '',
-                            fiscal: '',
-                        };
-
-                        this.modalReference.close();
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                if (res.code == 200) {
+                    this.cliente = new Cliente();
+                    this.modalReference.close();
                 }
-            );
+            },
+            error: (err) => swalErrorHttpResponse(err),
+        });
     }
 
     regimenPorTamanioRFC() {
-        const condicion = this.cliente.rfc.length < 13 ? 'M' : 'F';
-
-        return this.regimenes.filter((regimen) =>
-            regimen.condicion.includes(condicion)
-        );
+        const tipo = this.cliente.rfc.length < 13 ? 'M' : 'F';
+        return this.regimenes.filter(r => r.condicion.includes(tipo));
     }
 
-    cambiarRegimentRFC() {
-        this.cliente.regimen = '';
-    }
 
-    reconstruirTabla() {
+    reconstruirTabla(): void {
         this.datatable.destroy();
         this.chRef.detectChanges();
         const table: any = $(this.datatable_name);

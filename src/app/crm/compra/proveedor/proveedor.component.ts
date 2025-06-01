@@ -1,18 +1,16 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { backend_url } from '@env/environment';
-import { AuthService } from '@services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
+import {swalErrorHttpResponse} from '@env/environment';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
-import { CompraService } from '@services/http/compra.service';
+import {CompraService} from '@services/http/compra.service';
+import {Proveedor} from './models';
 
 @Component({
     selector: 'app-proveedor',
     templateUrl: './proveedor.component.html',
     styleUrls: ['./proveedor.component.scss'],
 })
-export class ProveedorComponent implements OnInit {
+export class ProveedorComponent implements OnInit, AfterViewInit {
     @ViewChild('modalproveedor') modalproveedor: NgbModal;
 
     datatable: any;
@@ -22,37 +20,18 @@ export class ProveedorComponent implements OnInit {
 
     proveedor_busqueda = '';
 
-    proveedor = {
-        id: 0,
-        empresa: '1',
-        pais: '412',
-        regimen: '',
-        razon_social: '',
-        rfc: '',
-        email: '',
-        telefono: '',
-        celular: '',
-        cp: '',
-    };
+    proveedor: Proveedor = new Proveedor();
 
     proveedores: any[] = [];
-    empresas_usuario: any[] = [];
     empresas: any[] = [];
     paises: any[] = [];
     regimenes: any[] = [];
-    subniveles: any[] = [];
 
     constructor(
-        private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private auth: AuthService,
         private compraService: CompraService
     ) {
-        const table: any = $(this.datatable_name);
-        this.datatable = table.DataTable();
-
-        this.subniveles = JSON.parse(this.auth.userData().sub).subniveles;
     }
 
     ngOnInit() {
@@ -62,18 +41,14 @@ export class ProveedorComponent implements OnInit {
                 this.paises = res.paises;
             },
             error: (err: any) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
+                swalErrorHttpResponse(err);
             },
         });
+    }
+
+    ngAfterViewInit(): void {
+        const table: any = $(this.datatable_name);
+        this.datatable = table.DataTable();
     }
 
     buscarProveedor() {
@@ -81,49 +56,29 @@ export class ProveedorComponent implements OnInit {
             return;
         }
 
-        this.http
-            .get(
-                `${backend_url}compra/proveedor/data/${this.proveedor_busqueda}`
-            )
-            .subscribe(
-                (res) => {
-                    this.proveedores = res['data'];
-
-                    this.reconstruirTabla();
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
+        this.compraService.buscarProveedor(this.proveedor_busqueda).subscribe(
+            (res) => {
+                this.proveedores = res['data'];
+                this.reconstruirTabla();
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
     }
 
-    crearEditarProveedor(proveedor_id = 0) {
+    crearEditarProveedor(proveedor_id = 0): void {
         if (proveedor_id) {
-            const proveedor = this.proveedores.find(
-                (proveedor) => proveedor.id == proveedor_id
-            );
-
-            this.proveedor = {
-                id: proveedor.id,
-                empresa: this.proveedor.empresa,
-                pais: proveedor.pais,
-                regimen: proveedor.regimen,
-                razon_social: proveedor.razon_social,
-                rfc: proveedor.rfc,
-                email: proveedor.correo,
-                telefono: proveedor.telefono,
-                celular: proveedor.telefono_alt,
-                cp: proveedor.codigo_postal_fiscal,
-            };
+            const proveedor = this.proveedores.find(p => p.id === proveedor_id);
+            if (!proveedor) {
+                return;
+            }
+            this.proveedor = new Proveedor({
+                ...proveedor,
+                alt: proveedor.tipo === 2 || proveedor.tipo === 3
+            });
+        } else {
+            this.proveedor = new Proveedor();
         }
 
         this.modalReference = this.modalService.open(this.modalproveedor, {
@@ -137,71 +92,46 @@ export class ProveedorComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
-
-        if ($('.ng-invalid').length > 0) {
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.proveedor));
+        const regimen = this.regimenes.find(r => r.id == this.proveedor.regimen);
+        this.proveedor.fiscal = regimen.regimen || '';
 
-        this.http
-            .post(`${backend_url}compra/proveedor/guardar`, form_data)
-            .subscribe(
-                (res) => {
-                    swal({
-                        title: '',
-                        type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message'],
-                    });
+        this.compraService.guardarProveedor(this.proveedor).subscribe(
+            (res) => {
+                swal({
+                    title: '',
+                    type: res['code'] == 200 ? 'success' : 'error',
+                    html: res['message'],
+                }).then();
 
-                    if (res['code'] == 200) {
-                        this.proveedor = {
-                            id: 0,
-                            empresa: '1',
-                            pais: '412',
-                            regimen: '',
-                            razon_social: '',
-                            rfc: '',
-                            email: '',
-                            telefono: '',
-                            celular: '',
-                            cp: '',
-                        };
-
-                        this.modalReference.close();
-                    }
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                if (res['code'] == 200) {
+                    this.proveedor = new Proveedor();
+                    this.modalReference.close();
                 }
-            );
+            },
+            (response) => {
+                swalErrorHttpResponse(response);
+            }
+        );
     }
 
     regimenPorTamanioRFC() {
         const condicion = this.proveedor.rfc.length < 13 ? 'M' : 'F';
-
-        return this.regimenes.filter((regimen) =>
-            regimen.condicion.includes(condicion)
-        );
+        return this.regimenes.filter(regimen => regimen.condicion.includes(condicion));
     }
 
-    reconstruirTabla() {
+    reconstruirTabla(): void {
         this.datatable.destroy();
         this.chRef.detectChanges();
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
     }
+
 }

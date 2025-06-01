@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols, JSUnusedGlobalSymbols -->
 <div class="card">
     <div class="card-header">
         <form class="md-float-material form-material m-t-10">
@@ -243,7 +244,7 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ row.regimen }}"
+                                value="{{ row.id }}"
                                 *ngFor="let row of regimenPorTamanioRFC()"
                             >
                                 {{ row.regimen }}
@@ -275,7 +276,7 @@
                             name="proveedoremail"
                             #proveedoremail="ngModel"
                             class="form-control"
-                            [(ngModel)]="proveedor.email"
+                            [(ngModel)]="proveedor.correo"
                             email
                         />
                         <span class="form-bar"></span>
@@ -343,34 +344,34 @@
                     <div class="form-group form-primary">
                         <input
                             type="text"
-                            id="proveedorcelular"
-                            name="proveedorcelular"
-                            #proveedorcelular="ngModel"
+                            #proveedortelefono_alt="ngModel"
+                            [(ngModel)]="proveedor.telefono_alt"
+                            id="proveedortelefono_alt"
                             class="form-control"
-                            [(ngModel)]="proveedor.celular"
+                            name="proveedortelefono_alt"
                             pattern="[^'&quot;]+$"
                             maxlength="20"
                         />
                         <span class="form-bar"></span>
                         <label class="float-label">Celular</label>
                         <small class="text-success float-right messages block"
-                            >{{ proveedor.celular.length }} / 20</small
+                        >{{ proveedor.telefono_alt.length }} / 20</small
                         >
                         <small
                             class="text-danger messages block"
                             *ngIf="
-                                proveedorcelular.errors?.required &&
-                                (proveedorcelular.dirty ||
-                                    proveedorcelular.touched)
+                                proveedortelefono_alt.errors?.required &&
+                                (proveedortelefono_alt.dirty ||
+                                    proveedortelefono_alt.touched)
                             "
                             >Este campo es requerido.</small
                         >
                         <small
                             class="text-danger messages block"
                             *ngIf="
-                                proveedorcelular.errors?.pattern &&
-                                (proveedorcelular.dirty ||
-                                    proveedorcelular.touched)
+                                proveedortelefono_alt.errors?.pattern &&
+                                (proveedortelefono_alt.dirty ||
+                                    proveedortelefono_alt.touched)
                             "
                             >No se permite el caracter ' ó "</small
                         >
@@ -388,7 +389,7 @@
                             name="codigo_postal_fiscal"
                             class="form-control"
                             #codigopostalfiscal="ngModel"
-                            [(ngModel)]="proveedor.cp"
+                            [(ngModel)]="proveedor.codigo_postal_fiscal"
                             pattern="^[0-9]+$"
                             maxlength="5"
                             minlength="5"
@@ -405,6 +406,19 @@
                             >No se permite el caracter ' ó "</small
                         >
                     </div>
+                </div>
+                <div class="col-md-6">
+                    <label style="display: block; font-size: 9pt"
+                    >Entidad Multiple</label
+                    >
+                    <ui-switch
+                        [(ngModel)]="proveedor.alt"
+                        class="js-single"
+                        color="#4680ff"
+                        name="entidadmultiple"
+                        size="medium"
+                        switchColor="#fff"
+                    ></ui-switch>
                 </div>
             </div>
 

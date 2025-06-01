@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { backend_url } from '@env/environment';
-import { Modelo } from '@models/Modelo.model';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {backend_url} from '@env/environment';
+import {Modelo} from '@models/Modelo.model';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable({
     providedIn: 'root',
@@ -9,12 +10,37 @@ import { Modelo } from '@models/Modelo.model';
 export class CompraService {
     constructor(private http: HttpClient) {}
 
-
     // Se Usa
-    searchProduct(search: string) {
+    searchProduct(search: string): Observable<any> {
         return this.http.get(`${backend_url}compra/producto/buscar/${search}`);
     }
 
+    getProveedoresViewData(): Observable<any> {
+        return this.http.get(`${backend_url}compra/proveedor/data`);
+    }
+
+    buscarCliente(busqueda: string, empresa: string): Observable<any> {
+        return this.http.get(`${backend_url}compra/cliente/data/${busqueda}/${empresa}`);
+    }
+
+    guardarCliente(cliente: any): Observable<any> {
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(cliente));
+        return this.http.post(`${backend_url}compra/cliente/guardar`, formData);
+    }
+
+    buscarProveedor(criterio: string): Observable<any> {
+        if (!criterio) {
+            return new Observable((observer) => observer.complete());
+        }
+        return this.http.get(`${backend_url}compra/proveedor/data/${criterio}`);
+    }
+
+    guardarProveedor(proveedor: any): Observable<any> {
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(proveedor));
+        return this.http.post(`${backend_url}compra/proveedor/guardar`, formData);
+    }
     // No se usa
 
     // undefined
@@ -82,8 +108,5 @@ export class CompraService {
         );
     }
 
-    /* Compra > Proveedores */
-    getProveedoresViewData() {
-        return this.http.get(`${backend_url}compra/proveedor/data`);
-    }
+
 }

@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols, JSUnusedGlobalSymbols -->
 <div class="card">
     <div class="card-header">
         <form class="md-float-material form-material m-t-10">
@@ -8,7 +9,7 @@
                         class="btn btn-info btn-sm btn-block"
                         placement="top"
                         ngbTooltip="Crear cliente"
-                        (click)="crearEditarCliente(0)"
+                        (click)="crearEditarCliente()"
                     >
                         <i class="fa fa-plus fa-2x"></i>
                     </button>
@@ -29,7 +30,7 @@
                         />
                         <span class="form-bar"></span>
                         <label class="float-label"
-                            >Criterio (Razon Social, RFC)</label
+                        >Criterio (Razon Social, RFC)</label
                         >
                         <small
                             class="text-danger messages block"
@@ -38,7 +39,7 @@
                                 (clientebusqueda.dirty ||
                                     clientebusqueda.touched)
                             "
-                            >No se permite el caracter ' ó "</small
+                        >No se permite el caracter ' ó "</small
                         >
                     </div>
                 </div>
@@ -63,34 +64,34 @@
             <div class="col-md-12 table-responsive">
                 <table class="table table-striped" id="venta_cliente">
                     <thead>
-                        <tr>
-                            <th>Razón Social</th>
-                            <th>RFC</th>
-                            <th>Correo electronico</th>
-                            <th>Telefono</th>
-                            <th>Celular</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>Razón Social</th>
+                        <th>RFC</th>
+                        <th>Correo electronico</th>
+                        <th>Telefono</th>
+                        <th>Celular</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let row of clientes">
-                            <td>{{ row.razon_social }}</td>
-                            <td>{{ row.rfc }}</td>
-                            <td>{{ row.correo }}</td>
-                            <td>{{ row.telefono }}</td>
-                            <td>{{ row.telefono_alt }}</td>
-                            <td>
-                                <button
-                                    type="button"
-                                    class="btn btn-danger btn-sm btn-block"
-                                    placement="top"
-                                    ngbTooltip="Editar cliente"
-                                    (click)="crearEditarCliente(row.id)"
-                                >
-                                    <i class="fa fa-edit fa-2x"></i>
-                                </button>
-                            </td>
-                        </tr>
+                    <tr *ngFor="let row of clientes">
+                        <td>{{ row.razon_social }}</td>
+                        <td>{{ row.rfc }}</td>
+                        <td>{{ row.correo }}</td>
+                        <td>{{ row.telefono }}</td>
+                        <td>{{ row.telefono_alt }}</td>
+                        <td>
+                            <button
+                                (click)="crearEditarCliente(row.id)"
+                                class="btn btn-danger btn-sm btn-block"
+                                ngbTooltip="Editar cliente"
+                                placement="top"
+                                type="button"
+                            >
+                                <i class="fa fa-edit fa-2x"></i>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -142,7 +143,7 @@
                                 clientepais.errors?.required &&
                                 (clientepais.dirty || clientepais.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                     </div>
                 </div>
@@ -165,7 +166,7 @@
                         <span class="form-bar"></span>
                         <label class="float-label">Razón social</label>
                         <small class="text-success float-right messages block"
-                            >{{ cliente.razon_social.length }} / 150</small
+                        >{{ cliente.razon_social.length }} / 150</small
                         >
                         <small
                             class="text-danger messages block"
@@ -174,7 +175,7 @@
                                 (clienterazonsocial.dirty ||
                                     clienterazonsocial.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                         <small
                             class="text-danger messages block"
@@ -183,7 +184,7 @@
                                 (clienterazonsocial.dirty ||
                                     clienterazonsocial.touched)
                             "
-                            >No se permite el caracter ' ó "</small
+                        >No se permite el caracter ' ó "</small
                         >
                     </div>
                 </div>
@@ -206,7 +207,7 @@
                         <span class="form-bar"></span>
                         <label class="float-label">RFC</label>
                         <small class="text-success float-right messages block"
-                            >{{ cliente.rfc.length }} / 13</small
+                        >{{ cliente.rfc.length }} / 13</small
                         >
                         <small
                             class="text-danger messages block"
@@ -214,7 +215,7 @@
                                 clienterfc.errors?.required &&
                                 (clienterfc.dirty || clienterfc.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                         <small
                             class="text-danger messages block"
@@ -222,7 +223,7 @@
                                 clienterfc.errors?.pattern &&
                                 (clienterfc.dirty || clienterfc.touched)
                             "
-                            >No se permite el caracter ' ó "</small
+                        >No se permite el caracter ' ó "</small
                         >
                     </div>
                 </div>
@@ -255,7 +256,7 @@
                                 clienteregimen.errors?.required &&
                                 (clienteregimen.dirty || clienteregimen.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                     </div>
                 </div>
@@ -289,7 +290,7 @@
                                 (clientecondicion.dirty ||
                                     clientecondicion.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                     </div>
                 </div>
@@ -313,7 +314,7 @@
                                 clientelimite.errors?.required &&
                                 (clientelimite.dirty || clientelimite.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                     </div>
                 </div>
@@ -330,7 +331,7 @@
                             name="clienteemail"
                             #clienteemail="ngModel"
                             class="form-control"
-                            [(ngModel)]="cliente.email"
+                            [(ngModel)]="cliente.correo"
                             email
                         />
                         <span class="form-bar"></span>
@@ -341,7 +342,7 @@
                                 clienteemail.errors?.required &&
                                 (clienteemail.dirty || clienteemail.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                         <small
                             class="text-danger messages block"
@@ -349,7 +350,7 @@
                                 clienteemail.errors?.pattern &&
                                 (clienteemail.dirty || clienteemail.touched)
                             "
-                            >No se permite el caracter ' ó "</small
+                        >No se permite el caracter ' ó "</small
                         >
                     </div>
                 </div>
@@ -371,7 +372,7 @@
                         <span class="form-bar"></span>
                         <label class="float-label">Télefono</label>
                         <small class="text-success float-right messages block"
-                            >{{ cliente.telefono.length }} / 20</small
+                        >{{ cliente.telefono.length }} / 20</small
                         >
                         <small
                             class="text-danger messages block"
@@ -380,7 +381,7 @@
                                 (clientetelefono.dirty ||
                                     clientetelefono.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                         <small
                             class="text-danger messages block"
@@ -389,7 +390,7 @@
                                 (clientetelefono.dirty ||
                                     clientetelefono.touched)
                             "
-                            >No se permite el caracter ' ó "</small
+                        >No se permite el caracter ' ó "</small
                         >
                     </div>
                 </div>
@@ -398,34 +399,34 @@
                     <div class="form-group form-primary">
                         <input
                             type="text"
-                            id="clientecelular"
-                            name="clientecelular"
-                            #clientecelular="ngModel"
+                            #clientetelefono_alt="ngModel"
+                            [(ngModel)]="cliente.telefono_alt"
+                            id="clientetelefono_alt"
                             class="form-control"
-                            [(ngModel)]="cliente.celular"
+                            name="clientetelefono_alt"
                             pattern="[^'&quot;]+$"
                             maxlength="20"
                         />
                         <span class="form-bar"></span>
                         <label class="float-label">Celular</label>
                         <small class="text-success float-right messages block"
-                            >{{ cliente.celular.length }} / 20</small
+                        >{{ cliente.telefono_alt.length }} / 20</small
                         >
                         <small
                             class="text-danger messages block"
                             *ngIf="
-                                clientecelular.errors?.required &&
-                                (clientecelular.dirty || clientecelular.touched)
+                                clientetelefono_alt.errors?.required &&
+                                (clientetelefono_alt.dirty || clientetelefono_alt.touched)
                             "
-                            >Este campo es requerido.</small
+                        >Este campo es requerido.</small
                         >
                         <small
                             class="text-danger messages block"
                             *ngIf="
-                                clientecelular.errors?.pattern &&
-                                (clientecelular.dirty || clientecelular.touched)
+                                clientetelefono_alt.errors?.pattern &&
+                                (clientetelefono_alt.dirty || clientetelefono_alt.touched)
                             "
-                            >No se permite el caracter ' ó "</small
+                        >No se permite el caracter ' ó "</small
                         >
                     </div>
                 </div>
@@ -441,7 +442,7 @@
                             name="codigo_postal_fiscal"
                             class="form-control"
                             #codigopostalfiscal="ngModel"
-                            [(ngModel)]="cliente.cp"
+                            [(ngModel)]="cliente.codigo_postal_fiscal"
                             pattern="^[0-9]+$"
                             maxlength="5"
                             minlength="5"
@@ -455,9 +456,22 @@
                                 (codigopostalfiscal.dirty ||
                                     codigopostalfiscal.touched)
                             "
-                            >No se permite el caracter ' ó "</small
+                        >No se permite el caracter ' ó "</small
                         >
                     </div>
+                </div>
+                <div class="col-md-6">
+                    <label style="display: block; font-size: 9pt"
+                    >Entidad Multiple</label
+                    >
+                    <ui-switch
+                        [(ngModel)]="cliente.alt"
+                        class="js-single"
+                        color="#4680ff"
+                        name="entidadmultiple"
+                        size="medium"
+                        switchColor="#fff"
+                    ></ui-switch>
                 </div>
             </div>
 
