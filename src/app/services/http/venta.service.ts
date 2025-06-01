@@ -1,16 +1,93 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { backend_url } from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {backend_url} from '@env/environment';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable({
     providedIn: 'root',
 })
 export class VentaService {
-    constructor(private http: HttpClient) {}
-    //! VENTA > Publicaciones
+    constructor(private http: HttpClient) {
+    }
+
+    // SE USA
+
+    /* Venta > Venta */
+    getCrearData(): Observable<any> {
+        return this.http.get(
+            `${backend_url}venta/venta/crear/data`
+        );
+    }
+
+    searchClients(search: string): Observable<any> {
+        return this.http.get(
+            `${backend_url}venta/venta/crear/buscar-cliente/${search}`
+        );
+    }
+
+    cambiarCliente(rfc: string): Observable<any> {
+        return this.http.get(
+            `${backend_url}venta/venta/crear/cliente/direccion/${$.trim(rfc)}`
+        );
+    }
+
+    existeVenta(venta, marketplace): Observable<any> {
+        return this.http.get(
+            `${backend_url}venta/venta/crear/existe/${venta}/${marketplace}`
+        );
+    }
+
+    buscarVenta(form_data: FormData): Observable<any> {
+        return this.http.post(
+            `${backend_url}venta/venta/crear/informacion`, form_data
+        );
+    }
+
+    async verificarExistenciaProducto(
+        codigo: string,
+        almacen: string,
+        cantidad: number,
+        proveedor?: string
+    ): Promise<any> {
+        const trimmedCodigo = codigo.trim();
+
+        const baseSegment = `${trimmedCodigo}/${almacen}/${cantidad}`;
+        const endpoint = proveedor ? 'proveedor/existencia' : 'existencia';
+
+        const url = proveedor
+            ? `${backend_url}venta/venta/crear/producto/${endpoint}/${baseSegment}/${proveedor}`
+            : `${backend_url}venta/venta/crear/producto/${endpoint}/${baseSegment}`;
+
+        return this.http.get(url).toPromise();
+    }
+
+
+    getDireccionPorCodigoPostal(codigo: string): Observable<any> {
+        const url = `http://201.7.208.53:11903/api/adminpro/Consultas/CP/${codigo}`;
+        return this.http.get<any>(url);
+    }
+
+    crearCuenta(data: any, rfcEntidad: string): Observable<any> {
+        const formData = new FormData();
+        formData.append('data', JSON.stringify(data));
+        formData.append('rfc_entidad', rfcEntidad);
+
+        return this.http.post(`${backend_url}contabilidad/ingreso/cuenta/crear`, formData);
+    }
+
+    crearVenta(form_data: FormData) {
+        return this.http.post(`${backend_url}venta/venta/crear`, form_data);
+    }
+
+    // NO SE USA
+
+    // Sin Clasificar
+
+    // VENTA > Publicaciones
     getMarketplacePublicaciones() {
         return this.http.get(`${backend_url}venta/publicaciones/data`);
     }
+
     saveMarketplacePublicaciones(data: Object, data_productos: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
@@ -22,21 +99,6 @@ export class VentaService {
     }
 
     /* Venta > Venta */
-    getProductStock(sku: string, warehouse: string, quantity: number) {
-        return this.http.get(
-            `${backend_url}venta/venta/crear/producto/existencia/${sku}/${warehouse}/${quantity}`
-        );
-    }
-
-    getVentaCrearData() {
-        return this.http.get(`${backend_url}venta/venta/crear/data`);
-    }
-
-    searchClients(search: string) {
-        return this.http.get(
-            `${backend_url}venta/venta/crear/buscar-cliente/${search}`
-        );
-    }
 
     /* Venta > Mercadolibre # Pregunta - Respuesta */
     getMarketplaceData() {
@@ -101,6 +163,7 @@ export class VentaService {
             form_data
         );
     }
+
     validateOrdersMercadolibre(data: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
@@ -206,7 +269,7 @@ export class VentaService {
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            //crear
+            // crear
             `${backend_url}venta/shopify/importar-ventas`,
             form_data
         );
@@ -228,7 +291,7 @@ export class VentaService {
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            //crear
+            // crear
             `${backend_url}venta/walmart/importar-ventas`,
             form_data
         );
@@ -239,7 +302,7 @@ export class VentaService {
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            //crear
+            // crear
             `${backend_url}venta/liverpool/importar-ventas`,
             form_data
         );
@@ -263,4 +326,6 @@ export class VentaService {
             `${backend_url}venta/claroshop/publicaciones/data`
         );
     }
+
+
 }

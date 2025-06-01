@@ -66,7 +66,7 @@ export class ImportarVentasShopifyComponent implements OnInit {
     }
     initData() {
         var areas = [];
-        this.ventaService.getVentaCrearData().subscribe(
+        this.ventaService.getCrearData().subscribe(
             (res: any) => {
                 this.areas = [...res.areas];
                 this.areas.forEach((element) => {

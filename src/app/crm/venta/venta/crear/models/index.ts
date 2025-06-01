@@ -163,7 +163,7 @@ export class Cliente {
     correo = '';
     credito_disponible = 0;
     regimen = '';
-    cp_fiscal = '';
+    codigo_postal_fiscal = '';
 
     constructor(init?: Partial<Cliente>) {
         Object.assign(this, init);
@@ -194,7 +194,6 @@ export class Data {
     terminar_producto = 1;
     terminar_producto_sku = '';
     desactivar_periodo_metodo = 0;
-    usuario_agro = 0;
 
     constructor(init?: Partial<Data>) {
         Object.assign(this, init);

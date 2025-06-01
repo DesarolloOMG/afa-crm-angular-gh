@@ -1,4 +1,4 @@
-<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols, JSUnusedLocalSymbols -->
+<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
 <div class="row">
     <div class="col-sm-12">
         <form class="md-float-material form-material" #f="ngForm">
@@ -357,7 +357,7 @@
                                 >
                                     <option value="" disabled></option>
                                     <option
-                                        value="{{ regimen.id }}"
+                                        value="{{ regimen.codigo }}"
                                         *ngFor="
                                             let regimen of regimenPorTamanioRFC()
                                         "
@@ -387,7 +387,7 @@
                                     name="codigo_postal_fiscal"
                                     class="form-control"
                                     #codigopostalfiscal="ngModel"
-                                    [(ngModel)]="data.cliente.cp_fiscal"
+                                    [(ngModel)]="data.cliente.codigo_postal_fiscal"
                                     pattern="^[0-9]+$"
                                     maxlength="5"
                                     minlength="5"
@@ -443,7 +443,6 @@
                                 >
                             </div>
                         </div>
-                        <!-- //! BUSQUEDA LIVERPOOL -->
 
                         <div class="col-md-1">
                             <button
@@ -482,7 +481,7 @@
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label class="float-label">Almacén</label>
+                                <label *ngIf="data.documento.proveedor != ''" class="float-label">Almacén</label>
                                 <small
                                     class="text-danger messages block"
                                     *ngIf="almacendocumento.errors?.required"
@@ -501,18 +500,18 @@
                                     class="form-control"
                                     [(ngModel)]="data.documento.periodo"
                                     (change)="cambiarPeriodo()"
-                                    [disabled]="Boolean(data.desactivar_periodo_metodo)"
+                                    [disabled]="Boolean(data.desactivar_periodo_metodo) || disablePeriodo"
                                 >
                                     <option value="" disabled></option>
                                     <option
-                                        value="{{ periodo.id }}"
+                                        [value]="periodo.id"
                                         *ngFor="let periodo of periodos"
                                     >
                                         {{ periodo.periodo }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label class="float-label">Periodo</label>
+                                <label *ngIf="!disablePeriodo" class="float-label">Periodo</label>
                                 <small
                                     class="text-danger messages block"
                                     *ngIf="periodo.errors?.required"
@@ -544,7 +543,7 @@
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label class="float-label"
+                                <label *ngIf="data.cliente.rfc == 'XEXX010101000'" class="float-label"
                                     >Uso de la venta</label
                                 >
                                 <small
@@ -743,7 +742,6 @@
                             data.documento.paqueteria == '9'
                         "
                     >
-                        <!-- Sí es sellcenter o recoge en sucursal se esconde la dirección de envío -->
                         <div class="col-md-6">
                             <div class="form-group form-primary">
                                 <input
@@ -1272,30 +1270,6 @@
                             </div>
                         </div>
 
-                        <div class="col-md-12" [hidden]="data.area != '2'">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="proaddenda"
-                                    class="form-control"
-                                    #proaddenda="ngModel"
-                                    [(ngModel)]="producto.addenda"
-                                    pattern="[^'&quot;]+$"
-                                    maxlength="200"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Addenda</label>
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        proaddenda.invalid &&
-                                        (proaddenda.dirty || proaddenda.touched)
-                                    "
-                                    >No se permite el caracter ' ó "</small
-                                >
-                            </div>
-                        </div>
-
                         <div class="col-md-12">
                             <button
                                 type="button"
@@ -1432,8 +1406,7 @@
                                     [(ngModel)]="
                                         data.documento.cobro.entidad_destino
                                     "
-                                    (change)="cambiarEntidadDestino()"
-                                >
+                               >
                                     <option value="" selected disabled></option>
                                     <option value="1">Cuenta bancaria</option>
                                     <option value="3">Caja chica</option>
@@ -1541,7 +1514,7 @@
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label class="float-label"
+                                <label *ngIf="data.desactivar_periodo_metodo" class="float-label"
                                     >Metodo de pago</label
                                 >
                             </div>
@@ -1851,7 +1824,6 @@
             </div>
         </form>
     </div>
-    <!-- end of col-sm-12 -->
 </div>
 
 <ng-template #modalcuenta let-c="close" let-d="dismiss">
