@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { backend_url } from '@env/environment';
+import {HttpClient} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {backend_url, printserver_url} from '@env/environment';
 
 @Injectable({
     providedIn: 'root',
@@ -8,17 +8,27 @@ import { backend_url } from '@env/environment';
 export class GeneralService {
     constructor(private http: HttpClient) {}
 
+    // Se usa
+
     /* General > Busqueda > serie */
     searchSerie(serie: string) {
         return this.http.get(`${backend_url}general/busqueda/serie/${serie}`);
     }
 
     printSerieLabel(data: any) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
         return this.http.post(
-            `${backend_url}general/busqueda/serie/imprimir`,
-            data
+            `${printserver_url}api/etiquetas/busqueda`,
+            form_data
         );
     }
+
+    // No se usa
+
+    // ?
+
 
     /* General > Busqueda > Productos */
     getGeneralSearchProductData() {

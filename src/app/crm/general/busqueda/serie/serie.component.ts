@@ -1,9 +1,6 @@
-import { backend_url } from './../../../../../environments/environment';
-import { DomSanitizer } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component } from '@angular/core';
-import swal from 'sweetalert2';
-import { GeneralService } from '@services/http/general.service';
+import {ChangeDetectorRef, Component, ElementRef, ViewChild} from '@angular/core';
+import {GeneralService} from '@services/http/general.service';
+import {swalErrorHttpResponse} from '@env/environment';
 
 @Component({
     selector: 'app-serie',
@@ -11,11 +8,13 @@ import { GeneralService } from '@services/http/general.service';
     styleUrls: ['./serie.component.scss'],
 })
 export class SerieComponent {
-    datatable: any;
-    datatable_name: string = '.movimientos';
+    @ViewChild('serieInput') serieInput!: ElementRef;
 
-    serie: string = '';
-    serie_buscada: string = '';
+    datatable: any;
+    datatable_name = '.movimientos';
+
+    serie = '';
+    serie_buscada = '';
     empresas: any[] = [];
 
     constructor(
@@ -26,100 +25,84 @@ export class SerieComponent {
         this.datatable = table.DataTable();
     }
 
+    get movimientosOrdenados(): any[] {
+        if (this.empresas.length === 0 || !this.empresas[0].movimientos) {
+            return [];
+        }
+
+        return [...this.empresas[0].movimientos].reverse();
+    }
+
+    get primeraSerie() {
+        if (
+            this.empresas.length > 0 &&
+            this.empresas[0] &&
+            this.empresas[0].serie &&
+            this.empresas[0].serie.length > 0
+        ) {
+            return this.empresas[0].serie[0];
+        }
+        return null;
+    }
+
     buscarSerie() {
         this.generalService.searchSerie(this.serie).subscribe({
             next: (res: any) => {
-                if (res.code != 200) {
-                    swal('', res.message, 'error');
-
+                console.log(res);
+                if (res.code !== 200) {
+                    swalErrorHttpResponse(res);
                     return;
                 }
 
-                this.empresas = [...res.empresas];
-
+                this.empresas = res.empresas || [];
                 this.serie_buscada = this.serie;
-
                 this.serie = '';
 
-                $('#serie').focus();
+                this.chRef.detectChanges();
 
-                setTimeout(() => {
-                    this.rebuildTable();
-                }, 1000);
+                this.serieInput.nativeElement.focus();
+                this.rebuildTable();
             },
             error: (err: any) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
+                swalErrorHttpResponse(err);
             },
         });
     }
 
     generarEtiqueta() {
-        if (this.empresas.length == 0) {
+        if (this.empresas.length === 0) {
             return;
         }
 
-        const codigo = this.empresas
-            .slice()
-            .reverse()[0]
-            .movimientos.slice()
-            .reverse()[0].sku;
-        const descripcion = this.empresas
-            .slice()
-            .reverse()[0]
-            .movimientos.slice()
-            .reverse()[0].descripcion;
+        const ultimaEmpresa = this.empresas[this.empresas.length - 1];
+        const movimientos = ultimaEmpresa.movimientos || [];
+
+        if (movimientos.length === 0) {
+            return;
+        }
+
+        const ultimoMovimiento = movimientos[movimientos.length - 1];
 
         const data = {
             serie: this.serie_buscada,
-            codigo: codigo,
-            descripcion: descripcion,
+            codigo: ultimoMovimiento.sku,
+            descripcion: ultimoMovimiento.descripcion,
         };
 
-        var form_data = new FormData();
-        form_data.append('data', JSON.stringify(data));
-
-        this.generalService.printSerieLabel(form_data).subscribe({
+        this.generalService.printSerieLabel(data).subscribe({
             next: () => {},
             error: (err: any) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
+                swalErrorHttpResponse(err);
             },
         });
     }
 
-    fechaActual() {
-        var date = new Date();
-        var yyyy = date.getFullYear().toString();
-        var mm = (date.getMonth() + 1).toString();
-        var dd = date.getDate().toString();
+    getEmpresasOrdenadas(): any[] {
+        return this.empresas.slice().reverse();
+    }
 
-        var mmChars = mm.split('');
-        var ddChars = dd.split('');
-
-        return (
-            (ddChars[1] ? dd : '0' + ddChars[0]) +
-            '/' +
-            (mmChars[1] ? mm : '0' + mmChars[0]) +
-            '/' +
-            yyyy
-        );
+    getMovimientosOrdenados(empresa: any): any[] {
+        return empresa.movimientos ? empresa.movimientos.slice().reverse() : [];
     }
 
     rebuildTable() {

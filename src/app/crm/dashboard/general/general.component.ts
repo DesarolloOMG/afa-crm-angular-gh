@@ -29,6 +29,7 @@ import {animate, state, style, transition, trigger} from '@angular/animations';
         ]),
     ],
 })
+
 export class GeneralComponent implements OnInit {
     ventas_totales = 0;
     ventas_pendientes_finalizar = 0;
@@ -42,14 +43,12 @@ export class GeneralComponent implements OnInit {
 
     ngOnInit() {
         this.http.get(`${backend_url}dashboard/venta/marketplace`).subscribe(
-            (res) => {
-                this.ventas_totales = res['ventas_totales'];
-                this.ventas_pendientes_finalizar =
-                    res['ventas_pendientes_finalizar'];
-                this.ventas_mes_actual = res['ventas_mes_actual'];
-                this.diferencia_ventas_mes = res['diferencia_ventas_mes'];
-
-                this.areas = res['ventas_area'];
+            (res: any) => {
+                this.ventas_totales = res.ventas_totales;
+                this.ventas_pendientes_finalizar = res.ventas_pendientes_finalizar;
+                this.ventas_mes_actual = res.ventas_mes_actual;
+                this.diferencia_ventas_mes = res.diferencia_ventas_mes;
+                this.areas = res.ventas_area;
             },
             (response) => {
                 swalErrorHttpResponse(response);

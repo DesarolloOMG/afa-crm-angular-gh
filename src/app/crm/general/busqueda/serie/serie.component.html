@@ -8,6 +8,7 @@
                             type="text"
                             name="serie"
                             id="serie"
+                            #serieInput
                             class="form-control"
                             [(ngModel)]="serie"
                             maxlength="100"
@@ -50,11 +51,8 @@
                             <th>Producto (s)</th>
                             <td>
                                 <p
-                                    *ngFor="
-                                        let movimiento of empresas[0].movimientos.reverse()
-                                            | slice : 0 : 5;
-                                        let index = index
-                                    "
+                                    *ngFor="let movimiento of movimientosOrdenados | slice : 0 : 5;
+                                    let index = index"
                                 >
                                     <b class="b-color">{{
                                         index == 0
@@ -69,30 +67,28 @@
                             </td>
                         </tr>
 
-                        <tr>
+                        <tr *ngIf="primeraSerie?.comentario">
                             <th>Comentario</th>
-                            <td>{{ empresas[0].serie[0].comentario }}</td>
+                            <td>{{ primeraSerie?.comentario }}</td>
                         </tr>
                         <tr>
                             <th>Almacén</th>
-                            <td>{{ empresas[0].serie[0].almacen }}</td>
+                            <td>{{ primeraSerie?.almacen }}</td>
                         </tr>
                         <tr>
                             <th>Estado</th>
                             <td>
                                 {{
-                                    empresas[0].serie[0].status
+                                    primeraSerie?.status
                                         ? "DISPONIBLE"
                                         : "NO DISPONIBLE"
                                 }}
                             </td>
                         </tr>
-                        <tr
-                            *ngIf="empresas[0].serie[0].fecha_caducidad != null"
-                        >
+                        <tr *ngIf="primeraSerie?.fecha_caducidad">
                             <th>Caducidad</th>
                             <td>
-                                {{ empresas[0].serie[0].fecha_caducidad }}
+                                {{ primeraSerie?.fecha_caducidad }}
                             </td>
                         </tr>
                     </tbody>
@@ -115,8 +111,8 @@
 
         <h4 class="sub-title m-t-20">Movimientos</h4>
 
-        <ng-container *ngFor="let row of empresas.slice().reverse()">
-            <h4 class="sub-title m-t-10" style="color: blue">
+        <ng-container *ngFor="let row of getEmpresasOrdenadas()">
+            <h4 class="sub-title m-t-10" style="color: #0000ff;">
                 {{ row.empresa }}
             </h4>
 
@@ -126,7 +122,6 @@
                         <thead>
                             <tr>
                                 <th>Doc CRM</th>
-                                <th>Doc Comercial</th>
                                 <th>Tipo</th>
                                 <th>Almacén</th>
                                 <th>Observacion</th>
@@ -138,14 +133,11 @@
                         <tbody>
                             <tr
                                 *ngFor="
-                                    let movimiento of row.movimientos.reverse()
+                                    let movimiento of getMovimientosOrdenados(row)
                                 "
-                                class="{{
-                                    !movimiento.status ? 'cancelado' : ''
-                                }}"
+                                [ngClass]="{ cancelado: !movimiento.status }"
                             >
                                 <td>{{ movimiento.id }}</td>
-                                <td>{{ movimiento.factura_folio }}</td>
                                 <td>{{ movimiento.tipo }}</td>
                                 <td [ngSwitch]="movimiento.id_tipo">
                                     <span *ngSwitchCase="4">{{
@@ -165,9 +157,7 @@
                                 <td>{{ movimiento.created_at }}</td>
                                 <td>
                                     {{
-                                        !movimiento.status
-                                            ? "Cancelado"
-                                            : "Activo"
+                                        movimiento.status ? "Activo" : "Cancelado"
                                     }}
                                 </td>
                             </tr>

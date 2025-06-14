@@ -245,10 +245,6 @@ export class EtiquetaComponent implements OnInit {
         if (!this.etiqueta_generar.codigo && !this.etiqueta_serie.codigo) {
             return;
         }
-
-        // let codigo = !this.etiqueta_generar.codigo
-        //     ? this.etiqueta_serie.codigo
-        //     : this.etiqueta_generar.codigo;
     }
 
     imprimirEtiqueta(tipo) {
