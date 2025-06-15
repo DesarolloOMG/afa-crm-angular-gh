@@ -574,24 +574,13 @@ export class ProductoComponent implements OnInit {
         this.imagenes = [...imagenes];
 
         this.imagenes.forEach((imagen) => {
-            const form_data = JSON.stringify({ path: imagen.dropbox });
-
-            const httpOptions = {
-                headers: new HttpHeaders({
-                    'Content-Type': 'application/json',
-                    Authorization:
-                        'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-                }),
-            };
-
             this.http
-                .post(
-                    'https://api.dropboxapi.com/2/files/get_temporary_link',
-                    form_data,
-                    httpOptions
+                .post<any>(
+                    `${backend_url}/dropbox/get-link`,
+                    { path: imagen.dropbox }
                 )
                 .subscribe(
-                    (res: any) => {
+                    (res) => {
                         imagen.url = res.link;
                     },
                     (response) => {
@@ -602,12 +591,13 @@ export class ProductoComponent implements OnInit {
                                 response.status == 0
                                     ? response.message
                                     : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
+                                        ? response.error.error_summary
+                                        : response.error,
                         });
                     }
                 );
         });
+
 
         this.modalReference = this.modalService.open(modal, {
             windowClass: 'bigger-modal',

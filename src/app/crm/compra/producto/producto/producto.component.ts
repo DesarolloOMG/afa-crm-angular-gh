@@ -207,24 +207,13 @@ export class ProductoComponent implements OnInit {
             this.producto.imagenes = [];
 
             this.producto.imagenes_anteriores.map((producto) => {
-                const form_data = JSON.stringify({ path: producto.dropbox });
-
-                const httpOptions = {
-                    headers: new HttpHeaders({
-                        'Content-Type': 'application/json',
-                        Authorization:
-                            'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-                    }),
-                };
-
                 this.http
-                    .post(
-                        'https://api.dropboxapi.com/2/files/get_temporary_link',
-                        form_data,
-                        httpOptions
+                    .post<any>(
+                        `${backend_url}/dropbox/get-link`, // Llama a tu backend, NO a Dropbox directo
+                        { path: producto.dropbox }
                     )
                     .subscribe(
-                        (res: any) => {
+                        (res) => {
                             producto.url = res.link;
                         },
                         (response) => {
@@ -235,12 +224,13 @@ export class ProductoComponent implements OnInit {
                                     response.status == 0
                                         ? response.message
                                         : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
+                                            ? response.error.error_summary
+                                            : response.error,
                             });
                         }
                     );
             });
+
 
             for (const proveedor of this.producto.proveedores) {
                 if (proveedor.producto) {
@@ -568,25 +558,14 @@ export class ProductoComponent implements OnInit {
     }
 
     descargarImagen(dropbox) {
-        const form_data = JSON.stringify({ path: dropbox });
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization:
-                    'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-            }),
-        };
-
         this.http
-            .post(
-                'https://api.dropboxapi.com/2/files/get_temporary_link',
-                form_data,
-                httpOptions
+            .post<any>(
+                `${backend_url}/dropbox/get-link`, // Llama a tu backend seguro
+                { path: dropbox }
             )
             .subscribe(
                 (res) => {
-                    window.open(res['link']);
+                    window.open(res.link);
                 },
                 (response) => {
                     swal({
@@ -596,8 +575,8 @@ export class ProductoComponent implements OnInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                                    ? response.error.error_summary
+                                    : response.error,
                     });
                 }
             );
@@ -614,37 +593,27 @@ export class ProductoComponent implements OnInit {
             html: '¿Estás seguro de borrar el archivo?',
         }).then((confirm) => {
             if (confirm.value) {
-                const form_data = JSON.stringify({ path: dropbox });
-
-                const httpOptions = {
-                    headers: new HttpHeaders({
-                        'Content-Type': 'application/json',
-                        Authorization:
-                            'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-                    }),
-                };
-
                 this.http
-                    .post(
-                        'https://api.dropboxapi.com/2/files/delete_v2',
-                        form_data,
-                        httpOptions
+                    .post<any>(
+                        `${backend_url}/dropbox/delete`, // Llama a tu backend seguro
+                        { path: dropbox }
                     )
                     .subscribe(
                         (res) => {
-                            const index =
-                                this.producto.imagenes_anteriores.find(
-                                    (archivo) => archivo.dropbox == dropbox
-                                );
+                            const index = this.producto.imagenes_anteriores.findIndex(
+                                (archivo) => archivo.dropbox == dropbox
+                            );
 
-                            this.producto.imagenes_anteriores.splice(index, 1);
+                            if (index > -1) {
+                                this.producto.imagenes_anteriores.splice(index, 1);
+                            }
 
                             this.http
-                                .get(
-                                    `${backend_url}compra/producto/gestion/imagen/${dropbox}`
+                                .get<any>(
+                                    `${backend_url}/compra/producto/gestion/imagen/${dropbox}`
                                 )
                                 .subscribe(
-                                    (res) => {},
+                                    (_res) => {},
                                     (response) => {
                                         swal({
                                             title: '',
@@ -652,11 +621,9 @@ export class ProductoComponent implements OnInit {
                                             html:
                                                 response.status == 0
                                                     ? response.message
-                                                    : typeof response.error ===
-                                                      'object'
-                                                    ? response.error
-                                                          .error_summary
-                                                    : response.error,
+                                                    : typeof response.error === 'object'
+                                                        ? response.error.error_summary
+                                                        : response.error,
                                         });
                                     }
                                 );
@@ -669,14 +636,15 @@ export class ProductoComponent implements OnInit {
                                     response.status == 0
                                         ? response.message
                                         : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
+                                            ? response.error.error_summary
+                                            : response.error,
                             });
                         }
                     );
             }
         });
     }
+
 
     borrarImagenAlAgregar(nombre) {
         const index = this.producto.imagenes.findIndex(

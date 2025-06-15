@@ -437,25 +437,14 @@ export class ModificacionComponent implements OnInit {
     }
 
     verArchivo(id_dropbox) {
-        var form_data = JSON.stringify({ path: id_dropbox });
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization:
-                    'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-            }),
-        };
-
         this.http
-            .post(
-                'https://api.dropboxapi.com/2/files/get_temporary_link',
-                form_data,
-                httpOptions
+            .post<any>(
+                `${backend_url}/dropbox/get-link`, // Usa tu endpoint backend seguro
+                { path: id_dropbox }
             )
             .subscribe(
                 (res) => {
-                    window.open(res['link']);
+                    window.open(res.link);
                 },
                 (response) => {
                     swal({
@@ -465,12 +454,13 @@ export class ModificacionComponent implements OnInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                                    ? response.error.error_summary
+                                    : response.error,
                     });
                 }
             );
     }
+
 
     borrarArchivo(id_dropbox) {
         swal({
@@ -483,35 +473,25 @@ export class ModificacionComponent implements OnInit {
             html: '¿Estás seguro de borrar el archivo?',
         }).then((confirm) => {
             if (confirm.value) {
-                var form_data = JSON.stringify({ path: id_dropbox });
-
-                const httpOptions = {
-                    headers: new HttpHeaders({
-                        'Content-Type': 'application/json',
-                        Authorization:
-                            'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-                    }),
-                };
-
                 this.http
-                    .post(
-                        'https://api.dropboxapi.com/2/files/delete_v2',
-                        form_data,
-                        httpOptions
+                    .post<any>(
+                        `${backend_url}/dropbox/delete`, // Llama a tu backend seguro
+                        { path: id_dropbox }
                     )
                     .subscribe(
                         (res) => {
                             this.http
                                 .get(
-                                    `${backend_url}general/busqueda/venta/borrar/${id_dropbox}`
+                                    `${backend_url}/general/busqueda/venta/borrar/${id_dropbox}`
                                 )
                                 .subscribe(
-                                    (res) => {
-                                        const index = this.data.archivos.find(
-                                            (archivo) =>
-                                                archivo.dropbox == id_dropbox
+                                    () => {
+                                        const index = this.data.archivos.findIndex(
+                                            (archivo) => archivo.dropbox == id_dropbox
                                         );
-                                        this.data.archivos.splice(index, 1);
+                                        if (index > -1) {
+                                            this.data.archivos.splice(index, 1);
+                                        }
                                     },
                                     (response) => {
                                         swal({
@@ -520,11 +500,9 @@ export class ModificacionComponent implements OnInit {
                                             html:
                                                 response.status == 0
                                                     ? response.message
-                                                    : typeof response.error ===
-                                                      'object'
-                                                    ? response.error
-                                                          .error_summary
-                                                    : response.error,
+                                                    : typeof response.error === 'object'
+                                                        ? response.error.error_summary
+                                                        : response.error,
                                         });
                                     }
                                 );
@@ -537,14 +515,15 @@ export class ModificacionComponent implements OnInit {
                                     response.status == 0
                                         ? response.message
                                         : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
+                                            ? response.error.error_summary
+                                            : response.error,
                             });
                         }
                     );
             }
         });
     }
+
 
     async cambiarEmpresa() {
         for (const producto of this.data.productos) {

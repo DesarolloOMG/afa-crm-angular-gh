@@ -1,6 +1,6 @@
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {commaNumber, dropbox_token, swalErrorHttpResponse} from '@env/environment';
+import {backend_url, commaNumber, dropbox_token, swalErrorHttpResponse} from '@env/environment';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AlmacenService} from '@services/http/almacen.service';
 import {GeneralService} from '@services/http/general.service';
@@ -369,24 +369,14 @@ export class PendienteComponent implements OnInit {
     }
 
     downloadFile(id_dropbox: string) {
-        const form_data = JSON.stringify({path: id_dropbox});
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${dropbox_token}`,
-            }),
-        };
-
         this.http
-            .post(
-                'https://api.dropboxapi.com/2/files/get_temporary_link',
-                form_data,
-                httpOptions
+            .post<any>(
+                `${backend_url}/dropbox/get-link`, // Tu endpoint backend seguro
+                { path: id_dropbox }
             )
             .subscribe(
                 (res) => {
-                    window.open(res['link']);
+                    window.open(res.link);
                 },
                 (response) => {
                     swalErrorHttpResponse(response);

@@ -376,31 +376,21 @@ export class PendienteComponent implements OnInit {
     }
 
     verArchivo(id_dropbox) {
-        const form_data = JSON.stringify({path: id_dropbox});
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization:
-                    'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-            }),
-        };
-
         this.http
-            .post(
-                'https://api.dropboxapi.com/2/files/get_temporary_link',
-                form_data,
-                httpOptions
+            .post<any>(
+                `${backend_url}/dropbox/get-link`, // Llama a tu backend
+                { path: id_dropbox }
             )
             .subscribe(
                 (res) => {
-                    window.open(res['link']);
+                    window.open(res.link);
                 },
                 (response) => {
                     swalErrorHttpResponse(response);
                 }
             );
     }
+
 
     rebuildTable() {
         this.datatable.destroy();

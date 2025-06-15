@@ -502,31 +502,21 @@ export class EnvioComponent implements OnInit {
     }
 
     verArchivo(idDropbox) {
-        const form_data = JSON.stringify({path: idDropbox});
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization:
-                    'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-            }),
-        };
-
         this.http
-            .post(
-                'https://api.dropboxapi.com/2/files/get_temporary_link',
-                form_data,
-                httpOptions
+            .post<any>(
+                `${backend_url}/dropbox/get-link`, // Tu endpoint backend seguro
+                { path: idDropbox }
             )
             .subscribe(
                 (res) => {
-                    window.open(res['link']);
+                    window.open(res.link);
                 },
                 (response) => {
                     swalErrorHttpResponse(response);
                 }
             );
     }
+
 
     imprimirEtiquetas(publicacionId, etiqueta) {
         etiqueta = etiqueta == 'N/A' ? 'na' : etiqueta;

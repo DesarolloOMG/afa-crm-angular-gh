@@ -145,26 +145,26 @@ export class ReclamoComponent implements OnInit {
     }
 
     verArchivo(id_dropbox) {
-        var form_data = JSON.stringify({ path: id_dropbox });
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO'
-            })
-        }
-
-        this.http.post("https://api.dropboxapi.com/2/files/get_temporary_link", form_data, httpOptions)
+        this.http.post<any>(
+            `${backend_url}/dropbox/get-link`, // Llama a tu backend, no directo a Dropbox
+            { path: id_dropbox }
+        )
             .subscribe(
                 res => {
-                    window.open(res['link']);
+                    window.open(res.link);
                 },
                 response => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html: response.status == 0
+                            ? response.message
+                            : typeof response.error === 'object'
+                                ? response.error.error_summary
+                                : response.error
                     });
-                });
+                }
+            );
     }
+
 }

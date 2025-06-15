@@ -260,26 +260,15 @@ export class VentaComponent implements OnInit {
     }
 
     async verArchivo(id_dropbox: string): Promise<void> {
-        const form_data = JSON.stringify({path: id_dropbox});
-
-        const httpOptions = {
-            headers: new HttpHeaders({
-                'Content-Type': 'application/json',
-                Authorization:
-                    'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-            }),
-        };
-
         try {
             const res: any = await this.http
                 .post(
-                    'https://api.dropboxapi.com/2/files/get_temporary_link',
-                    form_data,
-                    httpOptions
+                    `${backend_url}/dropbox/get-link`, // Tu endpoint backend
+                    { path: id_dropbox }
                 )
                 .toPromise();
 
-            if (res['link']) {
+            if (res.link) {
                 window.open(res.link, '_blank');
             } else {
                 await this.swalResponse(
@@ -293,6 +282,7 @@ export class VentaComponent implements OnInit {
         }
     }
 
+
     borrarArchivo(id_dropbox: string): void {
         swal({
             title: '',
@@ -304,32 +294,23 @@ export class VentaComponent implements OnInit {
             html: '¿Estás seguro de borrar el archivo?',
         }).then((confirm) => {
             if (confirm.value) {
-                const form_data = JSON.stringify({path: id_dropbox});
-
-                const httpOptions = {
-                    headers: new HttpHeaders({
-                        'Content-Type': 'application/json',
-                        Authorization:
-                            'Bearer AYQm6f0FyfAAAAAAAAAB2PDhM8sEsd6B6wMrny3TVE_P794Z1cfHCv16Qfgt3xpO',
-                    }),
-                };
-
                 this.http
-                    .post(
-                        'https://api.dropboxapi.com/2/files/delete_v2',
-                        form_data,
-                        httpOptions
+                    .post<any>(
+                        `${backend_url}/dropbox/delete`, // Llama a tu backend seguro
+                        { path: id_dropbox }
                     )
                     .subscribe(
                         (_res) => {
-                            const index = this.data.archivos.find(
+                            const index = this.data.archivos.findIndex(
                                 (archivo) => archivo.dropbox == id_dropbox
                             );
-                            this.data.archivos.splice(index, 1);
+                            if (index > -1) {
+                                this.data.archivos.splice(index, 1);
+                            }
 
                             this.http
-                                .get(
-                                    `${backend_url}general/busqueda/venta/borrar/${id_dropbox}`
+                                .get<any>(
+                                    `${backend_url}/general/busqueda/venta/borrar/${id_dropbox}`
                                 )
                                 .subscribe(
                                     (_resBack) => {
