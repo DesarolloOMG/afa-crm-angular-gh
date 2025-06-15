@@ -1,9 +1,9 @@
-import {backend_url, commaNumber, downloadExcelReport, swalErrorHttpResponse,} from '@env/environment';
+import {backend_url, commaNumber, downloadExcelReport, swalErrorHttpResponse} from '@env/environment';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {AuthService} from '@services/auth.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {GeneralService} from '@services/http/general.service';
 import swal from 'sweetalert2';
 
@@ -14,12 +14,12 @@ import swal from 'sweetalert2';
     animations: [
         trigger('fadeInOutTranslate', [
             transition(':enter', [
-                style({ opacity: 0 }),
-                animate('400ms ease-in-out', style({ opacity: 1 })),
+                style({opacity: 0}),
+                animate('400ms ease-in-out', style({opacity: 1})),
             ]),
             transition(':leave', [
-                style({ transform: 'translate(0)' }),
-                animate('400ms ease-in-out', style({ opacity: 0 })),
+                style({transform: 'translate(0)'}),
+                animate('400ms ease-in-out', style({opacity: 0})),
             ]),
         ]),
     ],
@@ -35,10 +35,7 @@ export class ProductoComponent implements OnInit {
     almacenes: any[] = [];
     documentos: any[] = [];
     productos: any[] = [];
-    historial_venta: any[] = [];
     marketplaces: any[] = [];
-    compras: any[] = [];
-    kardex: any[] = [];
     subniveles: any[] = [];
     imagenes: any[] = [];
     movimientos: any[] = [];
@@ -46,7 +43,6 @@ export class ProductoComponent implements OnInit {
     sinonimos: any[] = [];
 
     datatable_producto: any;
-    datatable_kardex_erp: any;
     datatable_kardex_crm: any;
     etiquetas: string[] = [];
 
@@ -65,11 +61,6 @@ export class ProductoComponent implements OnInit {
         fecha_inicio: '',
         fecha_final: '',
         sku: '',
-    };
-
-    kardex_data = {
-        producto: '',
-        excel: '',
     };
 
     grafica = {
@@ -93,44 +84,6 @@ export class ProductoComponent implements OnInit {
         },
     };
 
-    type = 'line';
-    chart_data_costo = {};
-    chart_data_precio = {};
-    options = {
-        scales: {
-            yAxes: [
-                {
-                    ticks: {
-                        beginAtZero: true,
-                        callback: function (value, index, values) {
-                            return '$ ' + commaNumber(value);
-                        },
-                    },
-                },
-            ],
-        },
-        tooltips: {
-            mode: 'x-axis',
-            callbacks: {
-                label: function (tooltipItem, data) {
-                    const prefijo = tooltipItem['datasetIndex'] ? '' : '$ ';
-
-                    return [
-                        prefijo +
-                            commaNumber(
-                                data['datasets'][tooltipItem['datasetIndex']][
-                                    'data'
-                                ][tooltipItem['index']]['y']
-                            ),
-                        data['datasets'][tooltipItem['datasetIndex']]['data'][
-                            tooltipItem['index']
-                        ]['label'],
-                    ];
-                },
-            },
-        },
-    };
-
     constructor(
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
@@ -139,15 +92,9 @@ export class ProductoComponent implements OnInit {
         private generalService: GeneralService
     ) {
         const table_producto: any = $('#general_busqueda_producto');
-        const table_kardex_erp: any = $(
-            '.general-busqueda-producto-kardex-erp'
-        );
-        const table_kardex_crm: any = $(
-            '.general-busqueda-producto-kardex-crm'
-        );
+        const table_kardex_crm: any = $('.general-busqueda-producto-kardex-crm');
 
         this.datatable_producto = table_producto.DataTable();
-        this.datatable_kardex_erp = table_kardex_erp.DataTable();
         this.datatable_kardex_crm = table_kardex_crm.DataTable();
 
         this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
@@ -164,7 +111,7 @@ export class ProductoComponent implements OnInit {
             swal({
                 type: 'error',
                 html: 'Favor de escribir un criterio o seleccionar un almacén para realizar la búsqueda',
-            });
+            }).then();
             return;
         }
 
@@ -184,7 +131,7 @@ export class ProductoComponent implements OnInit {
             .subscribe(
                 (res: any) => {
                     if (res.code !== 200) {
-                        swal('', res.message, 'error');
+                        swal('', res.message, 'error').then();
                         return;
                     }
 
@@ -204,16 +151,7 @@ export class ProductoComponent implements OnInit {
                     this.datatable_producto = table.DataTable();
                 },
                 (err) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            err.status === 0
-                                ? err.message
-                                : typeof err.error === 'object'
-                                    ? err.error.error_summary
-                                    : err.error,
-                    });
+                    swalErrorHttpResponse(err);
                 }
             );
     }
@@ -222,7 +160,7 @@ export class ProductoComponent implements OnInit {
         let windowClass = 'bigger-modal-lg';
 
         switch (tipo) {
-            case 1: // Kardex CRM
+            case 1:
                 this.kardex_crm_busqueda = {
                     empresa: this.data.empresa,
                     producto: producto,
@@ -251,29 +189,13 @@ export class ProductoComponent implements OnInit {
 
                 break;
 
-            case 2: // Kardex ERP
-                await this.verKardexERP(producto);
-                break;
-
-            case 3:
-                this.grafica.producto = producto;
-
-                await this.costoPromedio();
-                break;
-
-            case 4:
-                this.grafica.producto = producto;
-
-                await this.precioPromedio();
-                break;
-
-            case 5:
+            case 2:
                 this.grafica.producto = producto;
 
                 await this.verAlmacenesYMovimientos(producto);
                 break;
 
-            case 6:
+            case 3:
                 windowClass = '';
 
                 await this.verSinonimos(producto);
@@ -318,12 +240,10 @@ export class ProductoComponent implements OnInit {
             );
     }
 
-    async verKardexERP(producto) {
-        return new Promise((resolve, reject) => {});
-    }
 
     async verAlmacenesYMovimientos(producto) {
-        return new Promise((resolve, reject) => {});
+        return new Promise((resolve, reject) => {
+        });
     }
 
     async verSinonimos(producto) {
@@ -338,167 +258,26 @@ export class ProductoComponent implements OnInit {
                 )
                 .subscribe(
                     (res: any) => {
-                        const [producto] = res.productos;
+                        console.log(res);
+                        const [p] = res.productos;
 
-                        if (producto) {
-                            this.sinonimos = producto.sinonimos;
+                        if (p) {
+                            this.sinonimos = p.sinonimos;
                         }
 
                         resolve(1);
                     },
                     (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
+                        swalErrorHttpResponse(response);
                         reject();
                     }
                 );
         });
     }
-
-    async costoPromedio() {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url}general/busqueda/producto/costo/${this.grafica.producto}`
-                )
-                .subscribe(
-                    (res) => {
-                        const dates = res['compras'].map((compra) => {
-                            return compra.fecha;
-                        });
-                        const costos = res['compras'].map((compra) => {
-                            return {
-                                y: compra.costo,
-                                label:
-                                    compra.factura_serie +
-                                    ' ' +
-                                    compra.factura_folio,
-                            };
-                        });
-
-                        this.chart_data_costo = {
-                            labels: dates,
-                            datasets: [
-                                {
-                                    label: 'Costos del producto',
-                                    data: costos,
-                                    backgroundColor: [
-                                        'rgba(255, 99, 132, 0.2)',
-                                        'rgba(54, 162, 235, 0.2)',
-                                        'rgba(255, 206, 86, 0.2)',
-                                        'rgba(75, 192, 192, 0.2)',
-                                        'rgba(153, 102, 255, 0.2)',
-                                        'rgba(255, 159, 64, 0.2)',
-                                    ],
-                                    borderColor: [
-                                        'rgba(255, 99, 132, 1)',
-                                        'rgba(54, 162, 235, 1)',
-                                        'rgba(255, 206, 86, 1)',
-                                        'rgba(75, 192, 192, 1)',
-                                        'rgba(153, 102, 255, 1)',
-                                        'rgba(255, 159, 64, 1)',
-                                    ],
-                                    borderWidth: 1,
-                                },
-                            ],
-                        };
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        reject();
-                    }
-                );
-        });
-    }
-
-    async precioPromedio() {
-        return new Promise((resolve, reject) => {
-            this.http
-                .get(
-                    `${backend_url}general/busqueda/producto/precio/${this.grafica.producto}/${this.grafica.precio}`
-                )
-                .subscribe(
-                    (res) => {
-                        const dates = res['ventas'].map((venta) => {
-                            return venta.fecha;
-                        });
-                        const precios = res['ventas'].map((venta) => {
-                            return { y: venta.precio, label: 'Precio' };
-                        });
-                        const cantidades = res['ventas'].map((venta) => {
-                            return { y: venta.cantidad, label: 'Cantidad' };
-                        });
-
-                        this.chart_data_precio = {
-                            labels: dates,
-                            datasets: [
-                                {
-                                    label: 'Precios del producto',
-                                    data: precios,
-                                    backgroundColor: [
-                                        'rgba(255, 99, 132, 0.2)',
-                                    ],
-                                    borderColor: ['rgba(255, 99, 132, 1)'],
-                                    borderWidth: 1,
-                                },
-                                {
-                                    label: 'Cantidades del producto',
-                                    data: cantidades,
-                                    backgroundColor: [
-                                        'rgba(164, 211, 226, 0.2)',
-                                    ],
-                                    borderColor: ['rgba(164, 211, 226, 1)'],
-                                    borderWidth: 1,
-                                },
-                            ],
-                        };
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
-
-                        reject();
-                    }
-                );
-        });
-    }
-
-    recostearProducto(codigo) {}
 
     cambiarEmpresa() {
         const empresa = this.empresas.find(
-            (empresa) => empresa.id == this.data.empresa
+            (e) => e.id == this.data.empresa
         );
 
         this.almacenes = empresa.almacenes;
@@ -506,98 +285,44 @@ export class ProductoComponent implements OnInit {
 
     descargarReporte() {
         if (this.data.excel != '') {
-            let dataURI =
-                'data:application/vnd.ms-excel;base64, ' + this.data.excel;
-
-            let a = window.document.createElement('a');
-            let nombre_archivo = 'REPORTE DE EXISTENCIAS.xlsx';
-
-            a.href = dataURI;
-            a.download = nombre_archivo;
-            a.setAttribute('id', 'etiqueta_descargar');
-
-            a.click();
+            downloadExcelReport('REPORTE DE EXISTENCIAS.xlsx', this.data.excel);
         }
     }
 
-    cambiarTab(tipo) {
+    cambiarTab() {
         setTimeout(() => {
-            if (!tipo) {
-                const table: any = $('.general-busqueda-producto-kardex-crm');
-                this.datatable_kardex_crm = table.DataTable();
-            } else {
-                const table: any = $('.general-busqueda-producto-kardex-erp');
-                this.datatable_kardex_erp = table.DataTable();
-            }
+            const table: any = $('.general-busqueda-producto-kardex-crm');
+            this.datatable_kardex_crm = table.DataTable();
         }, 500);
     }
 
-    totalMarketplace() {
-        const form_data = new FormData();
+    obtenerURLImagenes(producto, modal) {
+        console.log(producto);
 
-        form_data.append('data', JSON.stringify(this.busqueda));
-
-        this.http
-            .post(
-                `${backend_url}general/busqueda/producto/marketplace`,
-                form_data
-            )
-            .subscribe(
-                (res) => {
-                    this.marketplaces = res['marketplace'];
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-
-                    this.modalReference.close();
-                }
-            );
-    }
-
-    obtenerURLImagenes(imagenes, modal) {
-        if (imagenes.length == 0) {
+        if (!producto.imagenes || producto.imagenes.length == 0) {
             return swal({
                 type: 'error',
                 html: 'El producto no cuenta con imagenes',
             });
         }
 
-        this.imagenes = [...imagenes];
+        this.imagenes = [...producto.imagenes];
 
         this.imagenes.forEach((imagen) => {
             this.http
                 .post<any>(
                     `${backend_url}/dropbox/get-link`,
-                    { path: imagen.dropbox }
+                    {path: imagen.dropbox}
                 )
                 .subscribe(
                     (res) => {
                         imagen.url = res.link;
                     },
                     (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                        });
+                        swalErrorHttpResponse(response);
                     }
                 );
         });
-
 
         this.modalReference = this.modalService.open(modal, {
             windowClass: 'bigger-modal',
@@ -608,9 +333,8 @@ export class ProductoComponent implements OnInit {
     esAdmin() {
         const niveles = Object.keys(this.subniveles);
 
-        if (niveles.indexOf('6') >= 0) return true;
+        return niveles.indexOf('6') >= 0;
 
-        return false;
     }
 
     initData() {

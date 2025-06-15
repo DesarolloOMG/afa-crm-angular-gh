@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols -->
 <div class="card">
     <div class="card-header">
         <form class="md-float-material form-material mt-10" autocomplete="off">
@@ -205,39 +206,45 @@
 
                         <!-- REPORTES DEL SISTEMA -->
                         <td>
-                            <button
-                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                (click)="abrirModal(modalkardexcrm, producto.codigo, 1)"
-                                placement="top"
-                                ngbTooltip="Kardex CRM"
-                            >
-                                <i class="fa fa-2x fa-clipboard-list"></i>
-                            </button>
-                            <button
-                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                (click)="obtenerURLImagenes(producto.imagenes, modalimagenes)"
-                                placement="top"
-                                ngbTooltip="Ver imagenes"
-                            >
-                                <i class="fa fa-2x fa-images"></i>
-                            </button>
-                            <button
-                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                (click)="abrirModal(modalmovimientos, producto.codigo, 5)"
-                                placement="top"
-                                ngbTooltip="Ultimos movimientos"
-                            >
-                                <i class="fa fa-2x fa-exchange"></i>
-                            </button>
-                            <button
-                                class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
-                                (click)="abrirModal(modalsinonimos, producto.codigo, 6)"
-                                placement="top"
-                                ngbTooltip="Sinonimos"
-                            >
-                                <i class="fa fa-2x fa-barcode"></i>
-                            </button>
+                            <div class="btn-grid">
+                                <button
+                                    (click)="abrirModal(modalkardexcrm, producto.codigo, 1)"
+                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                    ngbTooltip="Kardex CRM"
+                                    placement="top"
+                                >
+                                    <i class="fa fa-2x fa-clipboard-list"></i>
+                                </button>
+
+                                <button
+                                    (click)="obtenerURLImagenes(producto, modalimagenes)"
+                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                    ngbTooltip="Ver imagenes"
+                                    placement="top"
+                                >
+                                    <i class="fa fa-2x fa-images"></i>
+                                </button>
+
+                                <button
+                                    (click)="abrirModal(modalmovimientos, producto.codigo, 2)"
+                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                    ngbTooltip="Ultimos movimientos"
+                                    placement="top"
+                                >
+                                    <i class="fa fa-2x fa-exchange"></i>
+                                </button>
+
+                                <button
+                                    (click)="abrirModal(modalsinonimos, producto.codigo, 3)"
+                                    class="btn btn-sm btn-outline-info btn-margin-bottom http-disabled"
+                                    ngbTooltip="Sinonimos"
+                                    placement="top"
+                                >
+                                    <i class="fa fa-2x fa-barcode"></i>
+                                </button>
+                            </div>
                         </td>
+
                     </tr>
                     </tbody>
                 </table>
@@ -245,79 +252,6 @@
         </div>
     </div>
 </div>
-
-<ng-template #modalpreciopromedio let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Precios promedios</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body">
-        <div class="row">
-            <div class="col-md-12">
-                <form
-                    class="md-float-material form-material mt-10"
-                    autocomplete="off"
-                >
-                    <div class="form-group form-primary">
-                        <select
-                            name="tipo"
-                            id="tipo"
-                            class="form-control"
-                            [(ngModel)]="grafica.precio"
-                            (change)="precioPromedio()"
-                        >
-                            <option value="-30">30 días</option>
-                            <option value="-60">60 días</option>
-                            <option value="-90">90 días</option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Tiempo del reporte</label>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <chart
-                    [type]="type"
-                    [data]="chart_data_precio"
-                    [options]="options"
-                ></chart>
-            </div>
-        </div>
-    </div>
-</ng-template>
-
-<ng-template #modalcostopromedio let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Costos</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body">
-        <chart
-            [type]="type"
-            [data]="chart_data_costo"
-            [options]="options"
-        ></chart>
-    </div>
-</ng-template>
 
 <ng-template #modalkardexcrm let-c="close" let-d="dismiss">
     <div class="modal-header">
@@ -437,7 +371,7 @@
         <div class="row m-t-30">
             <div class="col-md-12">
                 <div class="md-tabs">
-                    <ngb-tabset (tabChange)="cambiarTab(0)">
+                    <ngb-tabset (tabChange)="cambiarTab()">
                         <ngb-tab
                             title="{{ tipo.almacen_nombre }}"
                             *ngFor="let tipo of kardex_crm_response.documentos"
@@ -453,8 +387,6 @@
                                         <thead>
                                             <tr>
                                                 <th>ID CRM</th>
-                                                <th>ID ERP</th>
-                                                <th>Folio</th>
                                                 <th>Tipo</th>
                                                 <th>Entidad</th>
                                                 <th
@@ -496,49 +428,9 @@
                                                 }}"
                                             >
                                                 <td>{{ documento.id }}</td>
-                                                <td>
-                                                    {{
-                                                        documento.tipo ==
-                                                        'RECEPCION' ? documento.recepcion_erp : documento.documento_extra
-                                                    }}
-                                                </td>
-                                                <td
-                                                    *ngIf="
-                                                        documento.tipo ==
-                                                        'COMPRA'
-                                                    "
-                                                >
-                                                    {{
-                                                        documento.factura_serie +
-                                                            " " +
-                                                            documento.factura_folio
-                                                    }}
-                                                </td>
-                                                <td
-                                                    *ngIf="
-                                                        documento.tipo ==
-                                                        'VENTA'
-                                                    "
-                                                >
-                                                    {{
-                                                        documento.serie_factura +
-                                                            " " +
-                                                            documento.id
-                                                    }}
-                                                </td>
-                                                <td
-                                                    *ngIf="
-                                                        documento.tipo !=
-                                                            'COMPRA' &&
-                                                        documento.tipo !=
-                                                            'VENTA'
-                                                    "
-                                                >
-                                                    N/A
-                                                </td>
                                                 <td>{{ documento.tipo }}</td>
                                                 <td>
-                                                    {{ documento.razon_social }}
+                                                    {{ documento.razon_social || 'N/A' }}
                                                 </td>
                                                 <td
                                                     *ngIf="tipo.tipo == 'VENTA'"
@@ -648,89 +540,6 @@
     </div>
 </ng-template>
 
-<ng-template #modalkardexerp let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Kardex del producto en el ERP</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body">
-        <div class="md-tabs">
-            <ngb-tabset (tabChange)="cambiarTab(1)">
-                <ngb-tab
-                    title="{{ almacen.almacen }}"
-                    *ngFor="let almacen of kardex"
-                >
-                    <ng-template ngbTabContent>
-                        <div [@fadeInOutTranslate] class="m-t-30">
-                            <p
-                                class="resumen-documento"
-                                *ngFor="let documento of almacen.tipo_documento"
-                            >
-                                <b>{{ documento.tipo }}:</b>
-                                {{ documento.cantidad }}
-                            </p>
-                            <div class="table-responsive m-t-30">
-                                <table
-                                    class="table table-striped general-busqueda-producto-kardex-erp"
-                                >
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Folio</th>
-                                            <th>Tipo documento</th>
-                                            <th>Titulo</th>
-                                            <th>Comentarios</th>
-                                            <th>Cantidad</th>
-                                            <th>Fecha</th>
-                                            <th>Por entregar</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr
-                                            *ngFor="
-                                                let producto of almacen.kardex
-                                            "
-                                        >
-                                            <td>{{ producto.documento }}</td>
-                                            <td>
-                                                {{
-                                                    producto.serie +
-                                                        " " +
-                                                        producto.folio
-                                                }}
-                                            </td>
-                                            <td>{{ producto.modulo }}</td>
-                                            <td>{{ producto.titulo }}</td>
-                                            <td>{{ producto.comentarios }}</td>
-                                            <td>{{ producto.cantidad }}</td>
-                                            <td>
-                                                {{ producto.documentofecha }}
-                                            </td>
-                                            <td>
-                                                {{
-                                                    producto.cantidadparaserentregado
-                                                }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </ng-template>
-                </ngb-tab>
-            </ngb-tabset>
-        </div>
-    </div>
-</ng-template>
-
 <ng-template #modalimagenes let-c="close" let-d="dismiss">
     <div class="modal-header">
         <h4 class="modal-title">Imagenes</h4>
@@ -747,7 +556,7 @@
     <div class="modal-body">
         <div class="row">
             <div class="col-md-4" *ngFor="let row of imagenes">
-                <img class="img-fluid producto-imagen" src="{{ row.url }}" />
+                <img alt="" class="img-fluid producto-imagen" src="{{ row.url }}"/>
             </div>
         </div>
     </div>
