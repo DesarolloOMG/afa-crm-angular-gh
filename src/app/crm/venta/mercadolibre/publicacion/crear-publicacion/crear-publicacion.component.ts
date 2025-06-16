@@ -426,11 +426,11 @@ export class CrearPublicacionComponent implements OnInit {
 
         if (marketplace && marketplace.pseudonimo) {
             this.mercadolibreService
-                .getUserDataByNickName(marketplace.pseudonimo, marketplace.id)
+                .getCurrentUserData(marketplace.id)
                 .subscribe(
                     (res: any) => {
                         this.mercadolibreService
-                            .getUserDataByID(res.seller.id, marketplace.id)
+                            .getUserDataByID(res.id, marketplace.id)
                             .subscribe(
                                 (resGudbi: any) => {
                                     this.user_data = { ...resGudbi };

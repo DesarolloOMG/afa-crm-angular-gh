@@ -946,7 +946,6 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         return options ? options.map((op, _i) => op.name) : [];
     }
 
-    // noinspection JSUnusedGlobalSymbols
     onChangeMarketplace() {
         const marketplace = this.marketplaces.find(
             (m) => m.id == this.search.marketplace
@@ -954,11 +953,11 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
 
         if (marketplace && marketplace.pseudonimo) {
             this.mercadolibreService
-                .getUserDataByNickName(marketplace.pseudonimo, marketplace.id)
+                .getCurrentUserData(marketplace.id)
                 .subscribe(
                     (res: any) => {
                         this.mercadolibreService
-                            .getUserDataByID(res.seller.id, marketplace.id)
+                            .getUserDataByID(res.id, marketplace.id)
                             .subscribe(
                                 (userData: any) => {
                                     this.user_data = {...userData};

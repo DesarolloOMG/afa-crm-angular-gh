@@ -54,50 +54,35 @@ export class MercadolibreService {
 
 
 
-    getUserDataByNickName(nickname: string, marketplace_id: string) {
-        return this.getMarketplacetoken(marketplace_id).pipe(
-            map((response: any) => response.token),
-            switchMap((token: string) => {
-                const headers = new HttpHeaders({
-                    'Authorization': `Bearer ${token}`
-                });
-                return this.http.get(`${mercadolibre_url}sites/MLM/search?nickname=${nickname}`, {headers});
-            })
-        );
-    }
-
-    getUserDataByID(user_id: string, marketplace_id: string) {
-        return this.getMarketplacetoken(marketplace_id).pipe(
-            map((response: any) => response.token),
-            switchMap((token: string) => {
-                const headers = new HttpHeaders({
-                    'Authorization': `Bearer ${token}`
-                });
-                return this.http.get(`${mercadolibre_url}users/${user_id}`, {headers});
-            })
-        );
-    }
 
     getBrandsByUser(user_id: number) {
         return this.http.get(`${mercadolibre_url}users/${user_id}/brands`);
-    }
-
-    getCurrentUserData(marketplace_id: string) {
-        return this.getMarketplacetoken(marketplace_id).pipe(
-            map((response: any) => response.token),
-            switchMap((token: string) => {
-                const headers = new HttpHeaders({
-                    'Authorization': `Bearer ${token}`
-                });
-                return this.http.get(`${mercadolibre_url}users/me`, {headers});
-            })
-        );
     }
 
     getMarketplacetoken(marketplace_id: string) {
         return this.http.get(
             `${backend_url}venta/mercadolibre/token/data/${marketplace_id}`
         );
+    }
+
+    // Este se usa como duplicado de me, es  lo mismo quitarlo
+    getUserDataByID(user_id: string, marketplace_id: string) {
+        const data = {
+            marketplace_id,
+            user_id
+        };
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+        return this.http.post(`${backend_url}venta/mercadolibre/api/userID`, form_data);
+    }
+
+    getCurrentUserData(marketplace_id: string) {
+        const data = {
+            marketplace_id
+        };
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+        return this.http.post(`${backend_url}venta/mercadolibre/api/usersMe`, form_data);
     }
 
     getItemCategoryVariants(category_id: string, marketplace_id: string) {

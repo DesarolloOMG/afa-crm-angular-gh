@@ -932,6 +932,47 @@ export class PublicacionComponent implements OnInit, DoCheck {
         };
     }
 
+    onChangeMarketplace() {
+        const marketplace = this.mercadolibre;
+
+        if (marketplace && marketplace.pseudonimo) {
+            this.mercadolibreService
+                .getCurrentUserData(marketplace.id)
+                .subscribe(
+                    (res: any) => {
+                        this.mercadolibreService
+                            .getUserDataByID(res.id, marketplace.id)
+                            .subscribe(
+                                (userData: any) => {
+                                    this.user_data = {...userData};
+
+                                    if (this.user_data.user_type === 'brand') {
+                                        this.mercadolibreService
+                                            .getBrandsByUser(this.user_data.id)
+                                            .subscribe(
+                                                (brandsUser: any) => {
+                                                    this.brands = [
+                                                        ...brandsUser.brands,
+                                                    ];
+                                                },
+                                                (err: any) => {
+                                                    swalErrorHttpResponse(err);
+                                                }
+                                            );
+                                    }
+                                },
+                                (err: any) => {
+                                    swalErrorHttpResponse(err);
+                                }
+                            );
+                    },
+                    (err: any) => {
+                        swalErrorHttpResponse(err);
+                    }
+                );
+        }
+    }
+
     async initData() {
         try {
             const res: any = await this.ventaService.getItemsData().toPromise();
@@ -943,7 +984,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
             const listing: any = await this.mercadolibreService
                 .getItemListingTypes(this.mercadolibre.id)
                 .toPromise();
-
+            this.onChangeMarketplace();
             this.listing_types = [...listing];
             console.log(listing);
         } catch (err) {
