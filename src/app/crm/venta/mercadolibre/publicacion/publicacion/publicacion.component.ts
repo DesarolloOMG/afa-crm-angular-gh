@@ -161,7 +161,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
 
     viewItemDataCRM(item_id) {
         const item = this.items.find((i) => i.id == item_id);
-
+        console.log(item);
         const marketplace = this.mercadolibre;
 
         this.ventaService.getItemData(item.id).subscribe(
@@ -251,7 +251,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
                             const item_data = itemData;
 
                             this.mercadolibreService
-                                .getItemCategoryVariants(res.category_id, marketplace.id)
+                                .getItemCategoryVariants(item_data.category_id, marketplace.id)
                                 .subscribe(
                                     (itemCat: any) => {
                                         this.variations = [
@@ -693,7 +693,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
     }
 
     getSaleTermsForCategory(category_id) {
-        this.mercadolibreService.getItemSaleTerms(category_id).subscribe(
+        this.mercadolibreService.getItemSaleTerms(this.mercadolibre.id, category_id).subscribe(
             (res: any) => {
                 const sale_terms = [...res];
 

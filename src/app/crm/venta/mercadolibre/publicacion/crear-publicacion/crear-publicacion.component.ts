@@ -200,7 +200,7 @@ export class CrearPublicacionComponent implements OnInit {
 
     getSaleTermsForCategory() {
         this.mercadolibreService
-            .getItemSaleTerms(this.data.item.category.category_id)
+            .getItemSaleTerms('1', this.data.item.category.category_id)
             .subscribe(
                 (res: any) => {
                     const sale_terms = [...res];

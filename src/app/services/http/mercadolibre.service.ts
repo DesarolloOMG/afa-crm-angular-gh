@@ -52,37 +52,7 @@ export class MercadolibreService {
         );
     }
 
-    getItemCategoryVariants(category_id: string, marketplace_id: string) {
-        return this.getMarketplacetoken(marketplace_id).pipe(
-            map((response: any) => response.token),
-            switchMap((token: string) => {
-                const headers = new HttpHeaders({
-                    'Authorization': `Bearer ${token}`
-                });
-                return this.http.get(
-                    `${mercadolibre_url}categories/${category_id}/attributes`, {headers}
-                );
-            })
-        );
-    }
 
-    getItemListingTypes(marketplace_id) {
-        return this.getMarketplacetoken(marketplace_id).pipe(
-            map((response: any) => response.token),
-            switchMap((token: string) => {
-                const headers = new HttpHeaders({
-                    'Authorization': `Bearer ${token}`
-                });
-                return this.http.get(`${mercadolibre_url}sites/MLM/listing_types`, {headers});
-            })
-        );
-    }
-
-    getItemSaleTerms(category_id: string) {
-        return this.http.get(
-            `${mercadolibre_url}categories/${category_id}/sale_terms`
-        );
-    }
 
     getUserDataByNickName(nickname: string, marketplace_id: string) {
         return this.getMarketplacetoken(marketplace_id).pipe(
@@ -128,6 +98,35 @@ export class MercadolibreService {
         return this.http.get(
             `${backend_url}venta/mercadolibre/token/data/${marketplace_id}`
         );
+    }
+
+    getItemCategoryVariants(category_id: string, marketplace_id: string) {
+        const data = {
+            marketplace_id,
+            category_id,
+        };
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+        return this.http.post(`${backend_url}venta/mercadolibre/api/category_variants`, form_data);
+    }
+
+    getItemListingTypes(marketplace_id) {
+        const data = {
+            marketplace_id,
+        };
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+        return this.http.post(`${backend_url}venta/mercadolibre/api/listing_types`, form_data);
+    }
+
+    getItemSaleTerms(marketplace_id: string, category_id: string) {
+        const data = {
+            marketplace_id,
+            category_id,
+        };
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+        return this.http.post(`${backend_url}venta/mercadolibre/api/sale_terms`, form_data);
     }
 
 }

@@ -1174,7 +1174,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
     }
 
     getSaleTermsForCategory(category_id) {
-        this.mercadolibreService.getItemSaleTerms(category_id).subscribe(
+        this.mercadolibreService.getItemSaleTerms('1', category_id).subscribe(
             (res: any) => {
                 const sale_terms = [...res];
 
@@ -1800,7 +1800,7 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
     }
 
     getSaleTermsForCategoryML(category_id) {
-        this.mercadolibreService.getItemSaleTerms(category_id).subscribe(
+        this.mercadolibreService.getItemSaleTerms('1', category_id).subscribe(
             (res: any) => {
                 const sale_terms = [...res];
 
