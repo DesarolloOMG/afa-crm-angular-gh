@@ -1,154 +1,74 @@
-<!--suppress XmlDuplicatedId -->
 <div class="card">
     <div class="card-header">
         <h5>Ventas encontradas</h5>
     </div>
-    <div [ngSwitch]="data.campo">
-        <div *ngSwitchCase="'nota'">
-            <div class="card-block table-responsive" *ngIf="nota_tabla">
-                <div class="row">
-                    <div class="col-md-12">
-                        <table
-                            class="table table-striped"
-                            id="general_busqueda_venta"
-                        >
-                            <thead>
-                                <tr>
-                                    <th>Nota</th>
-                                    <th>Documento</th>
-                                    <th>Marketplace</th>
-                                    <th>Fecha</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    *ngFor="let nota of nota_tabla"
-                                    class="{{
-                                        nota.estado == 'Cancelado'
-                                            ? 'cancelado'
-                                            : nota.estado == 'Por Aplicar'
-                                            ? 'xaplicar'
-                                            : ''
-                                    }}"
-                                >
-                                    <td>
-                                        <button
-                                            class="btn btn-info btn-sm"
-                                            (click)="detalleNota(modalnota)"
-                                        >
-                                            {{ nota.nota }}
-                                        </button>
-                                    </td>
-                                    <td *ngIf="nota.estado != 'Cancelado'">
-                                        <button
-                                            class="btn btn-info btn-sm"
-                                            (click)="
-                                                detalleVenta(modalventa,nota.documento,1)
-                                            "
-                                        >
-                                            {{
-                                                nota.documento == ""
-                                                    ? "N/A"
-                                                    : nota.documento
-                                            }}
-                                        </button>
-                                    </td>
-                                    <td *ngIf="nota.estado == 'Cancelado'">
-                                        <button class="btn btn-info btn-sm">
-                                            {{
-                                                nota.documento == ""
-                                                    ? "N/A"
-                                                    : nota.documento
-                                            }}
-                                        </button>
-                                    </td>
-                                    <td>
-                                        {{
-                                            nota.marketplace == ""
-                                                ? "N/A"
-                                                : nota.marketplace
-                                        }}
-                                    </td>
-                                    <td>{{ nota.fecha }}</td>
-                                    <td>{{ nota.estado }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div *ngSwitchDefault>
-            <div class="card-block table-responsive">
-                <div class="row">
-                    <div class="col-md-12">
-                        <table
-                            class="table table-striped"
-                            id="general_busqueda_venta"
-                        >
-                            <thead>
-                                <tr>
-                                    <th>Documento</th>
-                                    <th>Venta</th>
-                                    <th>Marketplace</th>
-                                    <th>Cliente</th>
-                                    <th>Paquetería</th>
-                                    <th>Vendedor</th>
-                                    <th>Fase</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    *ngFor="let venta of ventas"
-                                    class="{{
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="general_busqueda_venta"
+                >
+                    <thead>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Venta</th>
+                        <th>Marketplace</th>
+                        <th>Cliente</th>
+                        <th>Paquetería</th>
+                        <th>Vendedor</th>
+                        <th>Fase</th>
+                        <th>Fecha</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr
+                        *ngFor="let venta of ventas"
+                        class="{{
                                         venta.status == 0 ? 'cancelado' : ''
                                     }}"
-                                >
-                                    <td>
-                                        <button
-                                            class="btn btn-info btn-sm"
-                                            (click)="
+                    >
+                        <td>
+                            <button
+                                (click)="
                                                 detalleVenta(modalventa,venta.id)
                                             "
-                                        >
-                                            {{ venta.id }}
-                                        </button>
-                                    </td>
-                                    <td>{{ venta.no_venta }}</td>
-                                    <td>
-                                        {{
-                                            venta.marketplace +
-                                                " / " +
-                                                venta.area
-                                        }}
-                                    </td>
-                                    <td>{{ venta.cliente }}</td>
-                                    <td>{{ venta.paqueteria }}</td>
-                                    <td>{{ venta.usuario }}</td>
-                                    <td>
-                                        {{
-                                            venta.modificacion &&
-                                            venta.id_fase == 2
-                                                ? "Pendiente de revisión por Soporte"
-                                                : venta.id_fase == 6
-                                                ? venta.eliminada
-                                                    ? "Terminado / Eliminada"
-                                                    : venta.cancelado
-                                                    ? "Terminado / Cancelada"
-                                                    : venta.timbrado
+                                class="btn btn-info btn-sm"
+                            >
+                                {{ venta.id }}
+                            </button>
+                        </td>
+                        <td>{{ venta.no_venta }}</td>
+                        <td>
+                            {{
+                                venta.marketplace +
+                                " / " +
+                                venta.area
+                            }}
+                        </td>
+                        <td>{{ venta.cliente }}</td>
+                        <td>{{ venta.paqueteria }}</td>
+                        <td>{{ venta.usuario }}</td>
+                        <td>
+                            {{
+                                venta.modificacion &&
+                                venta.id_fase == 2
+                                    ? "Pendiente de revisión por Soporte"
+                                    : venta.id_fase == 6
+                                        ? venta.eliminada
+                                            ? "Terminado / Eliminada"
+                                            : venta.cancelado
+                                                ? "Terminado / Cancelada"
+                                                : venta.timbrado
                                                     ? "Terminado / Timbrada"
                                                     : "Terminado / No timbrada"
-                                                : venta.fase
-                                        }}
-                                    </td>
-                                    <td>{{ venta.created_at }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                                        : venta.fase
+                            }}
+                        </td>
+                        <td>{{ venta.created_at }}</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -315,7 +235,7 @@
                                             data.documento_extra
                                         )
                                     "
-                                    >Descargar XML</a
+                                >Descargar XML</a
                                 >
                             </div>
 
@@ -329,7 +249,7 @@
                                     (click)="
                                         descargarDocumento(1,data.documento_extra)
                                     "
-                                    >Descargar PDF</a
+                                >Descargar PDF</a
                                 >
                             </div>
                         </div>
@@ -342,7 +262,7 @@
                 [hidden]="data.id_fase < 6 || !data.timbrado"
             >
                 <label class="col-form-label col-sm-2"
-                    >Complemento de pago</label
+                >Complemento de pago</label
                 >
                 <div class="col-sm-10 inline-block">
                     <form class="md-float-material form-material m-t-20 m-b-20">
@@ -355,7 +275,7 @@
                                     "
                                     href="javascript:void(0);"
                                     (click)="descargarComplemento(0)"
-                                    >Descargar XML</a
+                                >Descargar XML</a
                                 >
                             </div>
 
@@ -367,7 +287,7 @@
                                     "
                                     href="javascript:void(0);"
                                     (click)="descargarComplemento(1)"
-                                    >Descargar PDF</a
+                                >Descargar PDF</a
                                 >
                             </div>
                         </div>
@@ -383,54 +303,54 @@
                     "
                 >
                     <label class="col-form-label col-sm-2"
-                        >Pagos relacionados</label
+                    >Pagos relacionados</label
                     >
                     <div class="col-sm-10 inline-block">
                         <table class="table table-striped m-t-10">
                             <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <td>Fecha</td>
-                                    <td>C.O</td>
-                                    <td>C.D</td>
-                                    <td>Total</td>
-                                    <td>Pagado</td>
-                                    <td>Saldo</td>
-                                    <td>T.C</td>
-                                </tr>
+                            <tr>
+                                <th>ID</th>
+                                <td>Fecha</td>
+                                <td>C.O</td>
+                                <td>C.D</td>
+                                <td>Total</td>
+                                <td>Pagado</td>
+                                <td>Saldo</td>
+                                <td>T.C</td>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let pago of pagos">
-                                    <td>{{ pago.operacion }}</td>
-                                    <td>
-                                        {{ pago.ingreso_informacion[0].fecha }}
-                                    </td>
-                                    <td>
-                                        {{ pago.ingreso_informacion[0].origen }}
-                                    </td>
-                                    <td>
-                                        {{
-                                            pago.ingreso_informacion[0].destino
-                                        }}
-                                    </td>
-                                    <td>
-                                        {{
-                                            pago.ingreso_informacion[0]
-                                                .monto_total | number : "1.2-2"
-                                        }}
-                                    </td>
-                                    <td>
-                                        {{ pago.monto | number : "1.2-2" }}
-                                    </td>
-                                    <td>
-                                        {{
-                                            pago.ingreso_informacion[0]
-                                                .monto_total - pago.monto
-                                                | number : "1.2-2"
-                                        }}
-                                    </td>
-                                    <td>{{ pago.tc }}</td>
-                                </tr>
+                            <tr *ngFor="let pago of pagos">
+                                <td>{{ pago.operacion }}</td>
+                                <td>
+                                    {{ pago.ingreso_informacion[0].fecha }}
+                                </td>
+                                <td>
+                                    {{ pago.ingreso_informacion[0].origen }}
+                                </td>
+                                <td>
+                                    {{
+                                        pago.ingreso_informacion[0].destino
+                                    }}
+                                </td>
+                                <td>
+                                    {{
+                                        pago.ingreso_informacion[0]
+                                            .monto_total | number : "1.2-2"
+                                    }}
+                                </td>
+                                <td>
+                                    {{ pago.monto | number : "1.2-2" }}
+                                </td>
+                                <td>
+                                    {{
+                                        pago.ingreso_informacion[0]
+                                            .monto_total - pago.monto
+                                            | number : "1.2-2"
+                                    }}
+                                </td>
+                                <td>{{ pago.tc }}</td>
+                            </tr>
                             </tbody>
                         </table>
                     </div>
@@ -459,7 +379,7 @@
                     "
                 >
                     <label class="col-form-label col-sm-2"
-                        >Metodo de pago</label
+                    >Metodo de pago</label
                     >
                     <div class="col-sm-10 inline-block">
                         <h5>{{ data.metodo_pago }}</h5>
@@ -475,59 +395,59 @@
                     "
                 >
                     <label class="col-form-label col-sm-2"
-                        >Notas de credito</label
+                    >Notas de credito</label
                     >
                     <div class="col-sm-10 inline-block">
                         <div class="row">
                             <div class="col-md-12 m-t-10">
                                 <table class="table table-striped">
                                     <thead>
-                                        <tr>
-                                            <th>ID Nota</th>
-                                            <th>PDF</th>
-                                            <th>XML</th>
-                                        </tr>
+                                    <tr>
+                                        <th>ID Nota</th>
+                                        <th>PDF</th>
+                                        <th>XML</th>
+                                    </tr>
                                     </thead>
 
                                     <tbody>
-                                        <tr *ngFor="let nota of data.notas">
-                                            <td>{{ nota.documento }}</td>
+                                    <tr *ngFor="let nota of data.notas">
+                                        <td>{{ nota.documento }}</td>
 
-                                            <td>
-                                                <button
-                                                    class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
-                                                    (click)="
+                                        <td>
+                                            <button
+                                                (click)="
                                                         descargarNotaCredito(
                                                             nota.documento,
                                                             2
                                                         )
                                                     "
-                                                    placement="top"
-                                                    ngbTooltip="Descargar PDF"
-                                                >
-                                                    <i
-                                                        class="fa fa-2x fa-file-pdf"
-                                                    ></i>
-                                                </button>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
-                                                    (click)="
+                                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
+                                                ngbTooltip="Descargar PDF"
+                                                placement="top"
+                                            >
+                                                <i
+                                                    class="fa fa-2x fa-file-pdf"
+                                                ></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button
+                                                (click)="
                                                         descargarNotaCredito(
                                                             nota.documento,
                                                             1
                                                         )
                                                     "
-                                                    placement="top"
-                                                    ngbTooltip="Descargar XML"
-                                                >
-                                                    <i
-                                                        class="fa fa-2x fa-file-code"
-                                                    ></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
+                                                ngbTooltip="Descargar XML"
+                                                placement="top"
+                                            >
+                                                <i
+                                                    class="fa fa-2x fa-file-code"
+                                                ></i>
+                                            </button>
+                                        </td>
+                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -579,9 +499,9 @@
                     <h5>
                         {{
                             data.empresa_externa_razon +
-                                " (" +
-                                data.empresa_externa +
-                                ")"
+                            " (" +
+                            data.empresa_externa +
+                            ")"
                         }}
                     </h5>
                 </div>
@@ -592,7 +512,7 @@
                 [hidden]="data.modelo_proveedor_id == 0"
             >
                 <label class="col-form-label col-sm-2"
-                    >Proveedor Dropshipping</label
+                >Proveedor Dropshipping</label
                 >
                 <div class="col-sm-10 inline-block">
                     <h5>{{ data.modelo_proveedor }}</h5>
@@ -604,7 +524,7 @@
                 [hidden]="data.modelo_proveedor_id == 0"
             >
                 <label class="col-form-label col-sm-2"
-                    >Venta Proveedor Dropshipping</label
+                >Venta Proveedor Dropshipping</label
                 >
                 <div class="col-sm-10 inline-block">
                     <h5>{{ data.modelo_proveedor_venta }}</h5>
@@ -623,24 +543,24 @@
             </div>
             <div class="form-group group-div">
                 <label class="col-form-label col-sm-2"
-                    >Dirección de envío</label
+                >Dirección de envío</label
                 >
                 <div class="col-sm-10 inline-block">
                     <h5 *ngIf="$any(data).direccion != 0">
                         {{
                             $any(data).direccion.calle +
-                                " " +
-                                $any(data).direccion.numero +
-                                " " +
-                                $any(data).direccion.numero_int +
-                                ", " +
-                                $any(data).direccion.colonia +
-                                ", " +
-                                $any(data).direccion.ciudad +
-                                ", " +
-                                $any(data).direccion.estado +
-                                ", " +
-                                $any(data).direccion.codigo_postal
+                            " " +
+                            $any(data).direccion.numero +
+                            " " +
+                            $any(data).direccion.numero_int +
+                            ", " +
+                            $any(data).direccion.colonia +
+                            ", " +
+                            $any(data).direccion.ciudad +
+                            ", " +
+                            $any(data).direccion.estado +
+                            ", " +
+                            $any(data).direccion.codigo_postal
                         }}
                     </h5>
                 </div>
@@ -683,16 +603,16 @@
                         {{
                             data.fecha_surtido != "0000-00-00 00:00:00"
                                 ? moment(data.fecha_surtido)
-                                      .format("LLLL")
-                                      .charAt(0)
-                                      .toUpperCase() +
-                                  moment(data.fecha_surtido)
-                                      .format("LLLL")
-                                      .slice(1)
+                                    .format("LLLL")
+                                    .charAt(0)
+                                    .toUpperCase() +
+                                moment(data.fecha_surtido)
+                                    .format("LLLL")
+                                    .slice(1)
                                 : data.no_venta.includes("F") &&
-                                  data.marketplace == "LINIO"
-                                ? "Fulfillment"
-                                : "SIN REGISTRO"
+                                data.marketplace == "LINIO"
+                                    ? "Fulfillment"
+                                    : "SIN REGISTRO"
                         }}
                     </h5>
                 </div>
@@ -706,9 +626,9 @@
                             data.empaquetador
                                 ? data.empaquetador
                                 : data.no_venta.includes("F") &&
-                                  data.marketplace == "LINIO"
-                                ? "Fulfillment"
-                                : "SIN REGISTRO"
+                                data.marketplace == "LINIO"
+                                    ? "Fulfillment"
+                                    : "SIN REGISTRO"
                         }}
                     </h5>
                 </div>
@@ -719,52 +639,52 @@
                 <div class="col-sm-10 inline-block">
                     <table class="table table-striped">
                         <thead>
-                            <tr>
-                                <th>Guía</th>
-                                <th>Manifiesto</th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>Guía</th>
+                            <th>Manifiesto</th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let guia of data.guias">
-                                <td>{{ guia.guia }}</td>
-                                <td>
-                                    {{
-                                        guia.manifiesto.length == 0
-                                            ? "Sin registro"
-                                            : guia.manifiesto[0].salida == 0
+                        <tr *ngFor="let guia of data.guias">
+                            <td>{{ guia.guia }}</td>
+                            <td>
+                                {{
+                                    guia.manifiesto.length == 0
+                                        ? "Sin registro"
+                                        : guia.manifiesto[0].salida == 0
                                             ? "Ingresado al manifiesto, sin movimientos"
                                             : guia.manifiesto[0].salida == 1 &&
-                                              guia.manifiesto[0].impreso == 1
-                                            ? "Entregado a paquetería"
-                                            : "Escaneado para su entrega a paquetería"
-                                    }}
-                                </td>
-                                <td>
-                                    <a
-                                        class="btn btn-outline-info btn-sm btn-block"
-                                        href="{{
+                                            guia.manifiesto[0].impreso == 1
+                                                ? "Entregado a paquetería"
+                                                : "Escaneado para su entrega a paquetería"
+                                }}
+                            </td>
+                            <td>
+                                <a
+                                    *ngIf="data.paqueteria_url != 'N/A'"
+                                    class="btn btn-outline-info btn-sm btn-block"
+                                    href="{{
                                             data.paqueteria_url + guia.guia
                                         }}"
-                                        *ngIf="data.paqueteria_url != 'N/A'"
-                                        target="_blank"
-                                        placement="top"
-                                        ngbTooltip="Rastrear guía"
-                                    >
-                                        <i
-                                            class="fa fa-map-marker-alt fa-2x"
-                                        ></i>
-                                    </a>
-                                    <a
-                                        href="#"
-                                        *ngIf="data.paqueteria_url == 'N/A'"
-                                        placement="top"
-                                        ngbTooltip="Sin url de rastreo"
-                                    >
-                                        <h5>{{ guia.guia }}</h5>
-                                    </a>
-                                </td>
-                            </tr>
+                                    ngbTooltip="Rastrear guía"
+                                    placement="top"
+                                    target="_blank"
+                                >
+                                    <i
+                                        class="fa fa-map-marker-alt fa-2x"
+                                    ></i>
+                                </a>
+                                <a
+                                    *ngIf="data.paqueteria_url == 'N/A'"
+                                    href="#"
+                                    ngbTooltip="Sin url de rastreo"
+                                    placement="top"
+                                >
+                                    <h5>{{ guia.guia }}</h5>
+                                </a>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -784,97 +704,97 @@
                 <div class="col-sm-10 inline-block table-responsive">
                     <table class="table table-striped">
                         <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Descripción</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let producto of data.productos">
-                                <td>{{ producto.sku }}</td>
-                                <td>
-                                    {{ producto.descripcion }} <br /><br />
+                        <tr *ngFor="let producto of data.productos">
+                            <td>{{ producto.sku }}</td>
+                            <td>
+                                {{ producto.descripcion }} <br/><br/>
 
-                                    Garantía:
-                                    <b
-                                        >{{
-                                            producto.garantia == "fabricante"
-                                                ? "Con fabricante"
-                                                : producto.garantia
-                                        }} </b
-                                    ><b
-                                        [hidden]="
+                                Garantía:
+                                <b
+                                >{{
+                                        producto.garantia == "fabricante"
+                                            ? "Con fabricante"
+                                            : producto.garantia
+                                    }} </b
+                                ><b
+                                [hidden]="
                                             producto.garantia == 'fabricante'
                                         "
-                                        >días</b
-                                    ><br />
-                                    Restan:
-                                    <b
-                                        [hidden]="
+                            >días</b
+                            ><br/>
+                                Restan:
+                                <b
+                                    [hidden]="
                                             producto.garantia == 'fabricante'
                                         "
-                                        >{{
-                                            producto.garantia -
-                                                diferenciaFechas(
-                                                    data.created_at
-                                                ) <
-                                            0
-                                                ? 0
-                                                : producto.garantia -
-                                                  diferenciaFechas(
-                                                      data.created_at
-                                                  )
-                                        }}
-                                        días</b
-                                    >
-                                </td>
-                                <td>{{ producto.cantidad }}</td>
-                                <td>$ {{ producto.precio }}</td>
-                                <td>
-                                    <button
-                                        class="btn btn-sm btn-info"
-                                        [disabled]="
-                                            producto.serie == 0 ||
-                                            producto.series.length == 0
-                                        "
-                                        (click)="
+                                >{{
+                                        producto.garantia -
+                                        diferenciaFechas(
+                                            data.created_at
+                                        ) <
+                                        0
+                                            ? 0
+                                            : producto.garantia -
+                                            diferenciaFechas(
+                                                data.created_at
+                                            )
+                                    }}
+                                    días</b
+                                >
+                            </td>
+                            <td>{{ producto.cantidad }}</td>
+                            <td>$ {{ producto.precio }}</td>
+                            <td>
+                                <button
+                                    (click)="
                                             verSeries(
                                                 producto.sku,
                                                 modalserierecibidas
                                             )
                                         "
-                                    >
-                                        Ver series
-                                    </button>
-                                </td>
-                            </tr>
+                                    [disabled]="
+                                            producto.serie == 0 ||
+                                            producto.series.length == 0
+                                        "
+                                    class="btn btn-sm btn-info"
+                                >
+                                    Ver series
+                                </button>
+                            </td>
+                        </tr>
                         </tbody>
                         <tfoot>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th></th>
-                                <th>$ {{ totalDocumento() }}</th>
-                                <th></th>
-                            </tr>
-                            <tr *ngIf="data.mkt_coupon && data.mkt_coupon >= 1">
-                                <th></th>
-                                <th class="text-danger messages">
-                                    Descuentos por aplicar al documento:
-                                </th>
-                                <th></th>
-                                <th class="text-danger messages">
-                                    $ {{ data.mkt_coupon }}
-                                </th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th>$ {{ totalDocumento() }}</th>
+                            <th></th>
+                        </tr>
+                        <tr *ngIf="data.mkt_coupon && data.mkt_coupon >= 1">
+                            <th></th>
+                            <th class="text-danger messages">
+                                Descuentos por aplicar al documento:
+                            </th>
+                            <th></th>
+                            <th class="text-danger messages">
+                                $ {{ data.mkt_coupon }}
+                            </th>
+                            <th></th>
+                        </tr>
                         </tfoot>
                     </table>
                     <small class="text-danger messages"
-                        >Los precios mostrados en la tabla son en pesos con IVA
+                    >Los precios mostrados en la tabla son en pesos con IVA
                         incluido.</small
                     >
                 </div>
@@ -898,8 +818,8 @@
                                     <p class="chat-cont">
                                         {{
                                             seguimiento.nombre +
-                                                " - " +
-                                                seguimiento.created_at
+                                            " - " +
+                                            seguimiento.created_at
                                         }}
                                     </p>
                                     <p
@@ -945,7 +865,7 @@
                                     </select>
                                     <span class="form-bar"></span>
                                     <label class="float-label"
-                                        >Tipo de archivo</label
+                                    >Tipo de archivo</label
                                     >
                                 </div>
                             </div>
@@ -965,14 +885,14 @@
                                         >
                                             {{
                                                 impresora.nombre +
-                                                    " - " +
-                                                    impresora.tamanio
+                                                " - " +
+                                                impresora.tamanio
                                             }}
                                         </option>
                                     </select>
                                     <span class="form-bar"></span>
                                     <label class="float-label"
-                                        >Tamaño de la hoja</label
+                                    >Tamaño de la hoja</label
                                     >
                                 </div>
                             </div>
@@ -995,43 +915,43 @@
                                     *ngIf="final_data.archivos.length > 0"
                                 >
                                     <thead>
-                                        <tr>
-                                            <th>Archivo</th>
-                                            <th>Tipo de archivo</th>
-                                            <th>Tamaño de la hoja</th>
-                                            <th></th>
-                                        </tr>
+                                    <tr>
+                                        <th>Archivo</th>
+                                        <th>Tipo de archivo</th>
+                                        <th>Tamaño de la hoja</th>
+                                        <th></th>
+                                    </tr>
                                     </thead>
                                     <tbody>
-                                        <tr
-                                            *ngFor="
+                                    <tr
+                                        *ngFor="
                                                 let archivo of final_data.archivos;
                                                 let index = index
                                             "
-                                        >
-                                            <td>{{ archivo.nombre }}</td>
-                                            <td>
-                                                {{
-                                                    archivo.guia == "1"
-                                                        ? "Archivo de información"
-                                                        : "Guía de embarque"
-                                                }}
-                                            </td>
-                                            <td>
-                                                {{
-                                                    nombreTamanioHoja(
-                                                        archivo.impresora
-                                                    )
-                                                }}
-                                            </td>
-                                            <td>
+                                    >
+                                        <td>{{ archivo.nombre }}</td>
+                                        <td>
+                                            {{
+                                                archivo.guia == "1"
+                                                    ? "Archivo de información"
+                                                    : "Guía de embarque"
+                                            }}
+                                        </td>
+                                        <td>
+                                            {{
+                                                nombreTamanioHoja(
+                                                    archivo.impresora
+                                                )
+                                            }}
+                                        </td>
+                                        <td>
                                                 <span
                                                     (click)="quitarArchivo(index)"
                                                     class="float-right cursor-pointer text-danger"
-                                                    >Quitar</span
+                                                >Quitar</span
                                                 >
-                                            </td>
-                                        </tr>
+                                        </td>
+                                    </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1073,7 +993,7 @@
                                                 verArchivo(archivo.dropbox)
                                             "
                                             style="cursor: pointer"
-                                            >&nbsp;&nbsp;{{
+                                        >&nbsp;&nbsp;{{
                                                 archivo.archivo
                                             }} </span
                                         ><i
@@ -1109,7 +1029,7 @@
                                                 verArchivo(archivo.dropbox)
                                             "
                                             style="cursor: pointer"
-                                            >&nbsp;&nbsp;{{
+                                        >&nbsp;&nbsp;{{
                                                 archivo.archivo
                                             }} </span
                                         ><i
@@ -1224,10 +1144,10 @@
                     <p class="no-margin">
                         Nombre:
                         <b>{{
-                            $any(data).extra_info.buyer.first_name +
+                                $any(data).extra_info.buyer.first_name +
                                 " " +
                                 $any(data).extra_info.buyer.last_name
-                        }}</b>
+                            }}</b>
                     </p>
                     <p class="no-margin">
                         Email: <b>{{ $any(data).extra_info.buyer.email }}</b>
@@ -1339,73 +1259,73 @@
                         <p class="no-margin">
                             Subestado:
                             <b>{{
-                                $any(data).extra_info.shipping.substatus
-                            }}</b>
+                                    $any(data).extra_info.shipping.substatus
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Logistica:
                             <b>{{
-                                $any(data).extra_info.shipping.tracking_method
-                            }}</b>
+                                    $any(data).extra_info.shipping.tracking_method
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Guía:
                             <b>{{
-                                $any(data).extra_info.shipping.tracking_number
-                            }}</b>
+                                    $any(data).extra_info.shipping.tracking_number
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Tipo de logistica:
                             <b>{{
-                                $any(data).extra_info.shipping.logistic_type
-                            }}</b>
+                                    $any(data).extra_info.shipping.logistic_type
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Fecha de creación:
                             <b>{{
-                                $any(data).extra_info.shipping.date_created
-                            }}</b>
+                                    $any(data).extra_info.shipping.date_created
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Fecha primera impresion:
                             <b>{{
-                                $any(data).extra_info.shipping
-                                    .date_first_printed
-                            }}</b>
+                                    $any(data).extra_info.shipping
+                                        .date_first_printed
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Fecha de envio listo:
                             <b>{{
-                                $any(data).extra_info.shipping.status_history
-                                    .date_ready_to_ship
-                            }}</b>
+                                    $any(data).extra_info.shipping.status_history
+                                        .date_ready_to_ship
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Fecha de envio:
                             <b>{{
-                                $any(data).extra_info.shipping.status_history
-                                    .date_shipped
-                            }}</b>
+                                    $any(data).extra_info.shipping.status_history
+                                        .date_shipped
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Fecha ult. actualización:
                             <b>{{
-                                $any(data).extra_info.shipping.last_updated
-                            }}</b>
+                                    $any(data).extra_info.shipping.last_updated
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Fecha de entrega:
                             <b>{{
-                                $any(data).extra_info.shipping.status_history
-                                    .date_delivered
-                            }}</b>
+                                    $any(data).extra_info.shipping.status_history
+                                        .date_delivered
+                                }}</b>
                         </p>
                         <p class="no-margin">
                             Fecha primera visita:
                             <b>{{
-                                $any(data).extra_info.shipping.status_history
-                                    .date_first_visit
-                            }}</b>
+                                    $any(data).extra_info.shipping.status_history
+                                        .date_first_visit
+                                }}</b>
                         </p>
                     </div>
                     <div *ngIf="$any(data).extra_info.status == 'cancelled'">
@@ -1444,334 +1364,3 @@
         </div>
     </div>
 </ng-template>
-
-<ng-template #modalnota let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Informacion de la nota</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal_nota"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-    <div class="modal-body table-responsive">
-        <div class="form-horizontal form-bordered">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="form-horizontal form-bordered">
-                        <div class="form-group group-div">
-                            <label class="col-form-label col-sm-2">ID</label>
-                            <div class="col-sm-10 inline-block">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5>{{ nota_data.documento }}</h5>
-                                    </div>
-
-                                    <div
-                                        class="col-md-3"
-                                        *ngIf="nota_data.estado != 'Cancelado'"
-                                    >
-                                        <button
-                                            class="btn btn-outline-info btn-sm btn-block m-b-10 http-disabled"
-                                            (click)="downloadXMLorPDF(true)"
-                                            style="float: right"
-                                            placement="top"
-                                            ngbTooltip="Descargar XML"
-                                        >
-                                            <i
-                                                class="fa fa-2x fa-file-code"
-                                            ></i>
-                                        </button>
-                                    </div>
-
-                                    <div
-                                        class="col-md-3"
-                                        *ngIf="nota_data.estado != 'Cancelado'"
-                                    >
-                                        <button
-                                            class="btn btn-outline-info btn-sm btn-block m-b-10 http-disabled"
-                                            style="float: right"
-                                            (click)="downloadXMLorPDF(false)"
-                                            placement="top"
-                                            ngbTooltip="Descargar PDF"
-                                        >
-                                            <i class="fa fa-2x fa-file-pdf"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">Titulo</label>
-                        <div class="col-sm-10 inline-block">
-                            <h5>
-                                {{ nota_data.titulo }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2"
-                            >Serie y Folio</label
-                        >
-                        <div class="col-sm-10 inline-block">
-                            <h5>
-                                {{ nota_data.serie + " " + nota_data.folio }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">UUID</label>
-                        <div class="col-sm-10 inline-block">
-                            <h5>{{ nota_data.uuid }}</h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2"
-                            >Marketplace</label
-                        >
-                        <div class="col-sm-10 inline-block">
-                            <h5>{{ nota_data.marketplace }}</h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">Estado</label>
-                        <div class="col-sm-10 inline-block">
-                            <h5>
-                                {{
-                                    nota_data.cancelado
-                                        ? "CANCELADO"
-                                        : nota_data.eliminado_por
-                                        ? "ELIMINADO"
-                                        : "ACTIVA"
-                                }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">Fecha</label>
-                        <div class="col-sm-10 inline-block">
-                            <h5>{{ nota_data.fecha }}</h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2"
-                            >Moneda y T.C</label
-                        >
-                        <div class="col-sm-10 inline-block">
-                            <h5>
-                                {{ nota_data.moneda }} | $
-                                {{ nota_data.tipo_cambio | number : "1.2-2" }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">Cliente</label>
-                        <div class="col-sm-10 inline-block">
-                            <h5>- {{ nota_data.cliente }}</h5>
-                            <h5>- {{ nota_data.rfc }}</h5>
-                        </div>
-                    </div>
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">Periodo</label>
-                        <div class="col-sm-10 inline-block">
-                            <h5>- {{ nota_data.periodo }}</h5>
-                        </div>
-                    </div>
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">Empresa</label>
-                        <div class="col-sm-10 inline-block">
-                            <h5>- {{ nota_data.empresa_name }}</h5>
-                            <h5>- {{ nota_data.almacen_name }}</h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2"
-                            >Método pago</label
-                        >
-                        <div class="col-sm-10 inline-block">
-                            <h5>
-                                {{ nota_data.metodo_pago }} -
-                                {{
-                                    nota_data.metodo_pago == "PUE"
-                                        ? "Pago en Una sola Exhibicion"
-                                        : "Pago en Parcialidades o Diferidos"
-                                }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2"
-                            >Forma de pago</label
-                        >
-                        <div class="col-sm-10 inline-block">
-                            <h5>
-                                {{ nota_data.formap }} -
-                                {{ nota_data.formapago }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2"
-                            >Uso CFDI Receptor</label
-                        >
-                        <div class="col-sm-10 inline-block">
-                            <h5>
-                                {{ nota_data.uso_cod }} -
-                                {{ nota_data.uso_desc }}
-                            </h5>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2">Productos</label>
-                        <div class="col-sm-10 inline-block">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Código</th>
-                                        <th>Descripción</th>
-                                        <th>Cantidad</th>
-                                        <th>Precio</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let row of nota_data.detalle">
-                                        <td>{{ row.cvearticulo }}</td>
-                                        <td>
-                                            {{ row.articulo }}
-                                        </td>
-                                        <td>{{ row.cantidad }}</td>
-                                        <td>
-                                            $
-                                            {{
-                                                addIVAtoNumber(row.precio)
-                                                    | number : "1.2-2"
-                                            }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="form-group group-div">
-                        <label class="col-form-label col-sm-2"
-                            >Documentos Relacionados</label
-                        >
-                        <div class="col-sm-10 inline-block">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Serie y Folio</th>
-                                        <th>Modulo</th>
-                                        <th>Titulo</th>
-                                        <th>Total Documento</th>
-                                        <th>Total Aplicado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        *ngFor="
-                                            let row of nota_data.documentos_pagos
-                                        "
-                                    >
-                                        <td>{{ row.documento_id }}</td>
-                                        <td>
-                                            {{ row.serie + " " + row.folio }}
-                                        </td>
-                                        <td>{{ row.modulo }}</td>
-                                        <td>{{ row.titulo }}</td>
-                                        <td>
-                                            $ {{ row.total | number : "1.2-2" }}
-                                        </td>
-                                        <td>
-                                            $ {{ row.monto | number : "1.2-2" }}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div
-                        class="form-group group-div"
-                        *ngIf="nota_data.estado != 'Cancelado'"
-                    >
-                        <label class="col-form-label col-sm-2">Totales</label>
-                        <div class="col-sm-10 inline-block table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <th style="width: 30%"></th>
-                                    <th style="width: 30%"></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                </thead>
-                                <tbody></tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td><h5>Sub Total</h5></td>
-                                        <td></td>
-                                        <td>
-                                            $
-                                            {{ nota_data.subtotal.toFixed(2) }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td><h5>Impuestos</h5></td>
-                                        <td></td>
-                                        <td>
-                                            $
-                                            {{ nota_data.impuesto }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td><h5>Total</h5></td>
-                                        <td></td>
-                                        <td>
-                                            $
-                                            {{ nota_data.total.toFixed(2) }}
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td><h5>Saldo</h5></td>
-                                        <td></td>
-                                        <td>
-                                            $
-                                            {{ nota_data.resta.toFixed(2) }}
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</ng-template>
-
-

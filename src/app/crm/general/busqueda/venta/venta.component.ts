@@ -1,22 +1,12 @@
 import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {NgbModal, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import swal, {SweetAlertResult, SweetAlertType} from 'sweetalert2';
 import * as moment from 'moment';
 import {AuthService} from '@services/auth.service';
-import {
-    createEmptyGBBArchivo,
-    createEmptyGBBData,
-    createEmptyGBBFinalData,
-    createEmptyGBBNotaData,
-    GBBArchivo,
-    GBBData,
-    GBBFinalData,
-    GBBNotaData,
-} from '@interfaces/GBB';
-import formapagoMapping from '../../../../Interfaces/GBB/formapagoMapping';
+import {createEmptyGBBArchivo, createEmptyGBBData, createEmptyGBBFinalData, GBBArchivo, GBBData, GBBFinalData} from '@interfaces/GBB';
 import {WhatsappService} from '@services/http/whatsapp.service';
 
 @Component({
@@ -41,7 +31,6 @@ export class VentaComponent implements OnInit {
 
     data: GBBData = createEmptyGBBData();
     final_data: GBBFinalData = createEmptyGBBFinalData();
-    nota_data: GBBNotaData = createEmptyGBBNotaData();
     archivo: GBBArchivo = createEmptyGBBArchivo();
 
     impresoras: any[] = [];
@@ -49,7 +38,6 @@ export class VentaComponent implements OnInit {
     pagos: any[] = [];
     notas: any[] = [];
     empresas: any[] = [];
-    nota_tabla: any[] = [];
 
     archivos_comun = [];
     archivos_guia = [];
@@ -84,57 +72,41 @@ export class VentaComponent implements OnInit {
     }
 
     async buscarVenta(): Promise<void | SweetAlertResult> {
-        switch (this.data.campo) {
-            case 'nota':
-                this.busqueda = 'nota';
-                this.nota_tabla = [];
-                this.nota_data = createEmptyGBBNotaData();
 
-                const empresa: string = await this.solicitarEmpresa();
-                if (!empresa) {
-                    return;
-                }
-                break;
+        this.busqueda = 'default';
+        const data = {
+            criterio: this.data.criterio,
+            campo: this.data.campo,
+        };
 
-            default:
-                this.busqueda = 'default';
-                const data = {
-                    criterio: this.data.criterio,
-                    campo: this.data.campo,
-                };
+        const form_data: FormData = new FormData();
+        form_data.append('data', JSON.stringify(data));
 
-                const form_data: FormData = new FormData();
-                form_data.append('data', JSON.stringify(data));
-
-                const resInfo = await this.http
-                    .post(
-                        `${backend_url}general/busqueda/venta/informacion`,
-                        form_data
-                    )
-                    .toPromise();
-                if (resInfo['code'] != 200) {
-                    return this.swalResponse(
-                        'error',
-                        'Error',
-                        resInfo['message']
-                    );
-                }
-                if (resInfo['redireccionar']) {
-                    await this.router.navigate([resInfo['url']]);
-                    return;
-                }
-                this.ventas = resInfo['ventas'];
-                this.rebuildTable();
-
-                const resNotaInfo = await this.http
-                    .get(`${backend_url}venta/venta/crear/data`)
-                    .toPromise();
-                this.impresoras = resNotaInfo['impresoras'];
-
-                await this.setVentaData();
-
-                break;
+        const resInfo = await this.http
+            .post(
+                `${backend_url}general/busqueda/venta/informacion`,
+                form_data
+            )
+            .toPromise();
+        if (resInfo['code'] != 200) {
+            return this.swalResponse(
+                'error',
+                'Error',
+                resInfo['message']
+            );
         }
+        if (resInfo['redireccionar']) {
+            await this.router.navigate([resInfo['url']]);
+            return;
+        }
+        this.ventas = resInfo['ventas'];
+        this.rebuildTable();
+
+        const resNotaInfo = await this.http
+            .get(`${backend_url}venta/venta/crear/data`)
+            .toPromise();
+        this.impresoras = resNotaInfo['impresoras'];
+
     }
 
     detalleVenta(modal: any, documento: string, nota?: number): void {
@@ -263,8 +235,8 @@ export class VentaComponent implements OnInit {
         try {
             const res: any = await this.http
                 .post(
-                    `${backend_url}/dropbox/get-link`, // Tu endpoint backend
-                    { path: id_dropbox }
+                    `${backend_url}/dropbox/get-link`,
+                    {path: id_dropbox}
                 )
                 .toPromise();
 
@@ -282,7 +254,6 @@ export class VentaComponent implements OnInit {
         }
     }
 
-
     borrarArchivo(id_dropbox: string): void {
         swal({
             title: '',
@@ -296,8 +267,8 @@ export class VentaComponent implements OnInit {
             if (confirm.value) {
                 this.http
                     .post<any>(
-                        `${backend_url}/dropbox/delete`, // Llama a tu backend seguro
-                        { path: id_dropbox }
+                        `${backend_url}/dropbox/delete`,
+                        {path: id_dropbox}
                     )
                     .subscribe(
                         (_res) => {
@@ -574,20 +545,6 @@ export class VentaComponent implements OnInit {
         this.datatable = table.DataTable();
     }
 
-    detalleNota(modal: any) {
-        this.modalReference = this.modalService.open(modal, {
-            windowClass: 'bigger-modal',
-            backdrop: 'static',
-        });
-    }
-
-    addIVAtoNumber(number: number): number {
-        return number * 1.16;
-    }
-
-    downloadXMLorPDF(_type: boolean): void {
-    }
-
     quitarArchivo(index: number): void {
         this.final_data.archivos.splice(index, 1);
     }
@@ -659,183 +616,5 @@ export class VentaComponent implements OnInit {
         return value;
     }
 
-    private async solicitarEmpresa(): Promise<string | null> {
-        try {
-            const {value} = await swal({
-                type: 'info',
-                html: 'Seleccione la empresa a la que pertenece la nota',
-                input: 'select',
-                inputOptions: {
-                    '7': 'OMG INTERNATIONAL SA DE CV',
-                    '6': 'E TRADE GOFE COMPANY SA DE CV',
-                    '2': 'WIMTECH SA DE CV',
-                    '8': 'COMERCIALIZADORA TESLA HR SA DE CV',
-                    '5': 'GRANOTECNICA APLICADA SA DE CV',
-                },
-                inputPlaceholder: 'Seleccione una empresa',
-                inputValidator: (selectedValue: string) => {
-                    return !selectedValue ? 'Seleccione una Empresa' : '';
-                },
-            });
 
-            return value ? value : null;
-        } catch (error) {
-            await this.swalResponse(
-                'error',
-                'Error',
-                'Error al solicitar empresa'
-            );
-            return null;
-        }
-    }
-
-    // noinspection JSUnusedLocalSymbols
-    private async setNotaData(
-        estado: string,
-        form_data_nota: FormData
-    ): Promise<void | null> {
-        try {
-            await new Promise(async (resolve) => {
-                const res = await this.http
-                    .post(
-                        `${backend_url}general/busqueda/venta/nota/informacion/pendientes`,
-                        form_data_nota
-                    )
-                    .toPromise();
-
-                if (res['por_aplicar'] == 1) {
-                    estado = 'Por Aplicar';
-                }
-                this.nota_data.estado = estado;
-                this.nota_data.titulo = res['titulo'];
-
-                const documento = res['documento'];
-                const marketplace = res['marketplace'];
-
-                this.nota_data.titulo = res['titulo'];
-                this.nota_data.marketplace = marketplace;
-                this.nota_data.periodo = res['periodo'];
-                this.nota_data.empresa_name = res['empresa'];
-                this.nota_data.almacen_name = res['almacen'];
-                this.nota_data.uso_cod = res['uso_cod'];
-                this.nota_data.uso_desc = res['uso_desc'];
-                this.nota_data.metodo_pago = res['metodopago'];
-                this.nota_data.formapago = res['formapago'];
-                this.nota_data.formap =
-                    formapagoMapping[this.nota_data.formapago] || '';
-
-                const nota_element = {
-                    nota: this.nota_data.documento,
-                    documento,
-                    marketplace,
-                    fecha: this.nota_data.fecha,
-                    estado,
-                };
-
-                this.nota_tabla.push(nota_element);
-
-                const data_venta = {
-                    criterio: documento,
-                    campo: 'id',
-                };
-
-                const form_data: FormData = new FormData();
-                form_data.append('data', JSON.stringify(data_venta));
-
-                if (estado != 'Cancelado' && estado != 'Eliminado') {
-                    const resInfo = await this.http
-                        .post(
-                            `${backend_url}general/busqueda/venta/informacion`,
-                            form_data
-                        )
-                        .toPromise();
-                    if (resInfo['code'] != 200) {
-                        return this.swalResponse(
-                            'error',
-                            'Error',
-                            resInfo['message']
-                        );
-                    }
-                    this.ventas = resInfo['ventas'];
-                    this.rebuildTable();
-
-                    const resNotaInfo = await this.http
-                        .get(`${backend_url}venta/venta/crear/data`)
-                        .toPromise();
-                    this.impresoras = resNotaInfo['impresoras'];
-
-                    await this.setVentaData();
-                }
-                resolve(1);
-            });
-        } catch (error) {
-            await this.swalResponse(
-                'error',
-                'Error',
-                'Error al asignar los datos de la Nota'
-            );
-        }
-    }
-
-    private async setVentaData(): Promise<void | null> {
-    }
-
-    // noinspection JSUnusedLocalSymbols
-    private async updateVentaFromFolio(_venta, _folio): Promise<void> {
-    }
-
-    // noinspection JSUnusedLocalSymbols
-    private assignFacturaData(venta, res): void {
-        if ($.isArray(res) && res.length > 0) {
-            const factura = Object.values(res).find(
-                (facturaFind) =>
-                    facturaFind.timbrado == 1 &&
-                    (facturaFind.cancelado == 0 ||
-                        facturaFind.cancelado == null) &&
-                    (facturaFind.eliminado == 0 ||
-                        facturaFind.eliminado == null)
-            );
-
-            venta.timbrado = factura.timbrado;
-            venta.pagos = factura.pagos;
-            venta.cancelado = factura.cancelado;
-            venta.eliminada = factura.eliminado;
-            venta.serie = factura.serie;
-            venta.forma_pago = venta.condicionpago;
-            venta.metodo_pago = venta.metodopago;
-
-            const pagosValidos = factura.pagos.filter(
-                (pago) => pago.operacion != 0
-            );
-            const notasValidas = factura.pagos.filter(
-                (pago) => pago.operacion == 0
-            );
-
-            this.pagos = pagosValidos;
-            this.notas = notasValidas;
-            venta.notas = notasValidas;
-            venta.pago = pagosValidos;
-        }
-        if (res['documentoid']) {
-            this.checkDocumentoId(venta, res);
-        }
-    }
-
-    private checkDocumentoId(venta, res): void {
-        venta.timbrado = res['timbrado'];
-        venta.pagos = res['pagos'];
-        venta.cancelado = res['cancelado'];
-        venta.eliminada = res['eliminado'];
-        venta.serie = res['serie'];
-        venta.forma_pago = res['condicionpago'];
-        venta.metodo_pago = res['metodopago'];
-
-        const pagosValidos = res['pagos'].filter((pago) => pago.operacion != 0);
-        const notasValidas = res['pagos'].filter((pago) => pago.operacion == 0);
-
-        this.pagos = pagosValidos;
-        this.notas = notasValidas;
-        venta.notas = notasValidas;
-        venta.pago = pagosValidos;
-    }
 }
