@@ -495,7 +495,7 @@ export class CrearPublicacionComponent implements OnInit {
             }
         );
 
-        this.mercadolibreService.getItemListingTypes().subscribe(
+        this.mercadolibreService.getItemListingTypes(1).subscribe(
             (res: any) => {
                 this.listing_types = [...res];
             },
