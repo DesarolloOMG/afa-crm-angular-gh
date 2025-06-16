@@ -1,11 +1,11 @@
-import {backend_url, commaNumber, downloadExcelReport, swalErrorHttpResponse} from '@env/environment';
+import {commaNumber, downloadExcelReport, swalErrorHttpResponse} from '@env/environment';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {AuthService} from '@services/auth.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {HttpClient} from '@angular/common/http';
 import {GeneralService} from '@services/http/general.service';
 import swal from 'sweetalert2';
+import {ExternalService} from '@services/http/external.service';
 
 @Component({
     selector: 'app-producto',
@@ -74,6 +74,7 @@ export class ProductoComponent implements OnInit {
         tipo_documento: '',
         fecha_inicial: '',
         fecha_final: '',
+        needs_excel: true,
     };
 
     kardex_crm_response = {
@@ -85,11 +86,11 @@ export class ProductoComponent implements OnInit {
     };
 
     constructor(
-        private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private auth: AuthService,
-        private generalService: GeneralService
+        private generalService: GeneralService,
+        private externalService: ExternalService,
     ) {
         const table_producto: any = $('#general_busqueda_producto');
         const table_kardex_crm: any = $('.general-busqueda-producto-kardex-crm');
@@ -123,37 +124,32 @@ export class ProductoComponent implements OnInit {
 
         this.data.etiquetas = this.etiquetas;
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.data));
-
-        this.http
-            .post(`${backend_url}general/busqueda/producto/existencia`, form_data)
-            .subscribe(
-                (res: any) => {
-                    if (res.code !== 200) {
-                        swal('', res.message, 'error').then();
-                        return;
-                    }
-
-                    // Guardamos el excel si viene en la respuesta
-                    this.data.excel = res.excel || '';
-
-                    // Reiniciamos el DataTable antes de asignar los nuevos datos
-                    this.datatable_producto.destroy();
-
-                    // Ahora "productos" ya viene agrupado por 'codigo' y tiene un subarreglo 'almacenes'
-                    this.productos = res.productos || [];
-
-                    // Forzamos la detección de cambios antes de reinicializar el DataTable
-                    this.chRef.detectChanges();
-
-                    const table: any = $('#general_busqueda_producto');
-                    this.datatable_producto = table.DataTable();
-                },
-                (err) => {
-                    swalErrorHttpResponse(err);
+        this.generalService.getProductoExistencia(this.data).subscribe(
+            (res: any) => {
+                if (res.code !== 200) {
+                    swal('', res.message, 'error').then();
+                    return;
                 }
-            );
+
+                // Guardamos el excel si viene en la respuesta
+                this.data.excel = res.excel || '';
+
+                // Reiniciamos el DataTable antes de asignar los nuevos datos
+                this.datatable_producto.destroy();
+
+                // Ahora "productos" ya viene agrupado por 'codigo' y tiene un subarreglo 'almacenes'
+                this.productos = res.productos || [];
+
+                // Forzamos la detección de cambios antes de reinicializar el DataTable
+                this.chRef.detectChanges();
+
+                const table: any = $('#general_busqueda_producto');
+                this.datatable_producto = table.DataTable();
+            },
+            (err) => {
+                swalErrorHttpResponse(err);
+            }
+        );
     }
 
     async abrirModal(modal, producto, tipo) {
@@ -167,6 +163,7 @@ export class ProductoComponent implements OnInit {
                     tipo_documento: '',
                     fecha_inicial: '',
                     fecha_final: '',
+                    needs_excel: true
                 };
 
                 this.kardex_crm_response = {
@@ -242,36 +239,103 @@ export class ProductoComponent implements OnInit {
 
 
     async verAlmacenesYMovimientos(producto) {
+        const kardex_crm_busqueda = {
+            empresa: '1',
+            producto,
+            tipo_documento: '',
+            fecha_inicial: '',
+            fecha_final: '',
+            needs_excel: false,
+        };
+
         return new Promise((resolve, reject) => {
+            this.generalService.getKardexCRMData(kardex_crm_busqueda).subscribe(
+                (res: any) => {
+                    this.movimientos = res.documentos.map((almacen) => {
+                        const documentos = almacen.documentos || [];
+
+                        const compra = documentos.find(doc => doc.tipo === 'COMPRA');
+
+                        const entrada_o_traspaso = documentos.find(doc =>
+                            doc.tipo === 'ENTRADA' || doc.tipo === 'TRASPASO'
+                        );
+
+                        const calcularDias = (fecha: string) => {
+                            const hoy = new Date();
+                            const fechaDoc = new Date(fecha);
+                            return Math.floor(
+                                (hoy.getTime() - fechaDoc.getTime()) / (1000 * 60 * 60 * 24)
+                            );
+                        };
+
+                        return {
+                            almacen: almacen.almacen_nombre,
+                            DT: {
+                                recepcion: compra
+                                    ? {
+                                        cantidad: compra.cantidad,
+                                        fecha: compra.created_at,
+                                        dias_transcurridos: calcularDias(compra.created_at),
+                                    }
+                                    : {
+                                        cantidad: null,
+                                        fecha: null,
+                                        dias_transcurridos: null,
+                                    },
+
+                                entrada_o_traspaso: entrada_o_traspaso
+                                    ? {
+                                        tipo: entrada_o_traspaso.tipo,
+                                        cantidad: entrada_o_traspaso.cantidad,
+                                        fecha: entrada_o_traspaso.created_at,
+                                        dias_transcurridos: calcularDias(entrada_o_traspaso.created_at),
+                                    }
+                                    : {
+                                        tipo: null,
+                                        cantidad: null,
+                                        fecha: null,
+                                        dias_transcurridos: null,
+                                    },
+
+                            },
+                        };
+                    });
+                    resolve(1);
+                },
+                (err: any) => {
+                    swalErrorHttpResponse(err);
+                    reject();
+                }
+            );
         });
     }
 
+
     async verSinonimos(producto) {
         return new Promise((resolve, reject) => {
-            const form_data = new FormData();
-            form_data.append('data', producto);
 
-            this.http
-                .post(
-                    `${backend_url}compra/producto/sinonimo/producto`,
-                    form_data
-                )
-                .subscribe(
-                    (res: any) => {
-                        console.log(res);
-                        const [p] = res.productos;
-
-                        if (p) {
-                            this.sinonimos = p.sinonimos;
-                        }
-
-                        resolve(1);
-                    },
-                    (response) => {
-                        swalErrorHttpResponse(response);
+            this.generalService.getSinonimos(producto).subscribe(
+                (res: any) => {
+                    if (!res.productos.length) {
+                        swal({
+                            type: 'info',
+                            html: 'El producto no cuenta con sinonimos',
+                        });
                         reject();
                     }
-                );
+
+                    const [p] = res.productos;
+                    if (p) {
+                        this.sinonimos = p.sinonimos;
+                    }
+
+                    resolve(1);
+                },
+                (response) => {
+                    swalErrorHttpResponse(response);
+                    reject();
+                }
+            );
         });
     }
 
@@ -297,11 +361,10 @@ export class ProductoComponent implements OnInit {
     }
 
     obtenerURLImagenes(producto, modal) {
-        console.log(producto);
 
         if (!producto.imagenes || producto.imagenes.length == 0) {
             return swal({
-                type: 'error',
+                type: 'info',
                 html: 'El producto no cuenta con imagenes',
             });
         }
@@ -309,19 +372,14 @@ export class ProductoComponent implements OnInit {
         this.imagenes = [...producto.imagenes];
 
         this.imagenes.forEach((imagen) => {
-            this.http
-                .post<any>(
-                    `${backend_url}/dropbox/get-link`,
-                    {path: imagen.dropbox}
-                )
-                .subscribe(
-                    (res) => {
-                        imagen.url = res.link;
-                    },
-                    (response) => {
-                        swalErrorHttpResponse(response);
-                    }
-                );
+            this.externalService.getUrlForDropbox(imagen.dropbox).subscribe(
+                (res) => {
+                    imagen.url = res.link;
+                },
+                (response) => {
+                    swalErrorHttpResponse(response);
+                }
+            );
         });
 
         this.modalReference = this.modalService.open(modal, {

@@ -29,7 +29,7 @@
                                 <small
                                     class="text-danger messages block"
                                     *ngIf="empresa.errors?.required"
-                                    >Campo requerido</small
+                                >Campo requerido</small
                                 >
                             </div>
                         </div>
@@ -78,7 +78,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label style="font-size: 11px"
-                                >Con existencia</label
+                            >Con existencia</label
                             >
                             <ui-switch
                                 class="js-single"
@@ -146,7 +146,7 @@
                     <!-- Ahora 'producto' ya contiene un array 'almacenes' -->
                     <tr *ngFor="let producto of productos">
                         <td>
-                            {{ producto.codigo }}<br />
+                            {{ producto.codigo }}<br/>
                             <!-- Ejemplo de np -->
                             {{ producto.np === 'N/A' ? '' : producto.np }}
                         </td>
@@ -290,7 +290,7 @@
                                 </select>
                                 <span class="form-bar"></span>
                                 <label class="float-label"
-                                    >Tipo de documento</label
+                                >Tipo de documento</label
                                 >
                             </div>
                         </div>
@@ -385,149 +385,149 @@
                                         class="table table-striped general-busqueda-producto-kardex-crm m-t-20"
                                     >
                                         <thead>
-                                            <tr>
-                                                <th>ID CRM</th>
-                                                <th>Tipo</th>
-                                                <th>Entidad</th>
-                                                <th
-                                                    *ngIf="tipo.tipo == 'VENTA'"
-                                                >
-                                                    Marketplace
-                                                </th>
-                                                <th>Almacenes</th>
-                                                <th>Cantidad</th>
-                                                <th
-                                                    *ngIf="
+                                        <tr>
+                                            <th>ID CRM</th>
+                                            <th>Tipo</th>
+                                            <th>Entidad</th>
+                                            <th
+                                                *ngIf="tipo.tipo == 'VENTA'"
+                                            >
+                                                Marketplace
+                                            </th>
+                                            <th>Almacenes</th>
+                                            <th>Cantidad</th>
+                                            <th
+                                                *ngIf="
                                                         tipo.tipo == 'COMPRA'
                                                     "
-                                                >
-                                                    Costo
-                                                </th>
-                                                <th
-                                                    *ngIf="
+                                            >
+                                                Costo
+                                            </th>
+                                            <th
+                                                *ngIf="
                                                         tipo.tipo != 'COMPRA'
                                                     "
-                                                >
-                                                    Precio
-                                                </th>
-                                                <th>Observación</th>
-                                                <th>Fase</th>
-                                                <th>Fecha</th>
-                                                <th>Estado</th>
-                                            </tr>
+                                            >
+                                                Precio
+                                            </th>
+                                            <th>Observación</th>
+                                            <th>Fase</th>
+                                            <th>Fecha</th>
+                                            <th>Estado</th>
+                                        </tr>
                                         </thead>
                                         <tbody>
-                                            <tr
-                                                *ngFor="
+                                        <tr
+                                            *ngFor="
                                                     let documento of tipo.documentos
                                                 "
-                                                class="{{
+                                            class="{{
                                                     !documento.status
                                                         ? 'cancelado'
                                                         : ''
                                                 }}"
+                                        >
+                                            <td>{{ documento.id }}</td>
+                                            <td>{{ documento.tipo }}</td>
+                                            <td>
+                                                {{ documento.razon_social || 'N/A' }}
+                                            </td>
+                                            <td
+                                                *ngIf="tipo.tipo == 'VENTA'"
                                             >
-                                                <td>{{ documento.id }}</td>
-                                                <td>{{ documento.tipo }}</td>
-                                                <td>
-                                                    {{ documento.razon_social || 'N/A' }}
-                                                </td>
+                                                {{
+                                                    documento.area +
+                                                    " / " +
+                                                    documento.marketplace
+                                                }}
+                                            </td>
+                                            <ng-container
+                                                [ngSwitch]="documento.tipo"
+                                            >
                                                 <td
-                                                    *ngIf="tipo.tipo == 'VENTA'"
-                                                >
-                                                    {{
-                                                        documento.area +
-                                                            " / " +
-                                                            documento.marketplace
-                                                    }}
-                                                </td>
-                                                <ng-container
-                                                    [ngSwitch]="documento.tipo"
-                                                >
-                                                    <td
-                                                        *ngSwitchCase="
+                                                    *ngSwitchCase="
                                                             'TRASPASO'
                                                         "
-                                                    >
-                                                        <p class="no-margin">
-                                                            <b>DE: </b
-                                                            >{{
-                                                                documento.almacen_alterno
-                                                            }}
-                                                        </p>
-                                                        <p class="no-margin">
-                                                            <b>A: </b
-                                                            >{{
-                                                                documento.almacen_principal
-                                                            }}
-                                                        </p>
-                                                    </td>
-                                                    <td
-                                                        *ngSwitchCase="
-                                                            'PRETRANSFERENCIA'
-                                                        "
-                                                    >
-                                                        <p class="no-margin">
-                                                            <b>DE: </b
-                                                            >{{
-                                                                documento.almacen_alterno
-                                                            }}
-                                                        </p>
-                                                        <p class="no-margin">
-                                                            <b>A: </b
-                                                            >{{
-                                                                documento.almacen_principal
-                                                            }}
-                                                        </p>
-                                                    </td>
-                                                    <td
-                                                        *ngSwitchCase="'SALIDA'"
-                                                    >
-                                                        {{
+                                                >
+                                                    <p class="no-margin">
+                                                        <b>DE: </b
+                                                        >{{
                                                             documento.almacen_alterno
                                                         }}
-                                                    </td>
-                                                    <td *ngSwitchDefault>
-                                                        {{
+                                                    </p>
+                                                    <p class="no-margin">
+                                                        <b>A: </b
+                                                        >{{
                                                             documento.almacen_principal
                                                         }}
-                                                    </td>
-                                                </ng-container>
-                                                <td>
+                                                    </p>
+                                                </td>
+                                                <td
+                                                    *ngSwitchCase="
+                                                            'PRETRANSFERENCIA'
+                                                        "
+                                                >
+                                                    <p class="no-margin">
+                                                        <b>DE: </b
+                                                        >{{
+                                                            documento.almacen_alterno
+                                                        }}
+                                                    </p>
+                                                    <p class="no-margin">
+                                                        <b>A: </b
+                                                        >{{
+                                                            documento.almacen_principal
+                                                        }}
+                                                    </p>
+                                                </td>
+                                                <td
+                                                    *ngSwitchCase="'SALIDA'"
+                                                >
                                                     {{
-                                                        documento.tipo ==
-                                                        'RECEPCION' ? documento.cantidad_recepcion : documento.cantidad
+                                                        documento.almacen_alterno
                                                     }}
                                                 </td>
-                                                <td class="no-wrap">
-                                                    $
+                                                <td *ngSwitchDefault>
                                                     {{
-                                                        commaNumber(
-                                                            documento.precio
-                                                        ) +
-                                                            " | " +
-                                                            documento.moneda +
-                                                            " | $ " +
-                                                            commaNumber(
-                                                                documento.tipo_cambio
-                                                            )
+                                                        documento.almacen_principal
                                                     }}
                                                 </td>
-                                                <td>
-                                                    {{ documento.observacion }}
-                                                </td>
-                                                <td>{{ documento.fase }}</td>
-                                                <td>
-                                                    {{ documento.created_at }}
-                                                </td>
-                                                <td>
-                                                    {{
-                                                        documento.status
-                                                            ? "ACTIVA"
-                                                            : "CANCELADA"
-                                                    }}
-                                                </td>
-                                            </tr>
+                                            </ng-container>
+                                            <td>
+                                                {{
+                                                    documento.tipo ==
+                                                    'RECEPCION' ? documento.cantidad_recepcion : documento.cantidad
+                                                }}
+                                            </td>
+                                            <td class="no-wrap">
+                                                $
+                                                {{
+                                                    commaNumber(
+                                                        documento.precio
+                                                    ) +
+                                                    " | " +
+                                                    documento.moneda +
+                                                    " | $ " +
+                                                    commaNumber(
+                                                        documento.tipo_cambio
+                                                    )
+                                                }}
+                                            </td>
+                                            <td>
+                                                {{ documento.observacion }}
+                                            </td>
+                                            <td>{{ documento.fase }}</td>
+                                            <td>
+                                                {{ documento.created_at }}
+                                            </td>
+                                            <td>
+                                                {{
+                                                    documento.status
+                                                        ? "ACTIVA"
+                                                        : "CANCELADA"
+                                                }}
+                                            </td>
+                                        </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -578,57 +578,45 @@
     <div class="modal-body">
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th>Almacén</th>
-                    <th>Movimientos</th>
-                </tr>
+            <tr>
+                <th>Almacén</th>
+                <th>Movimientos</th>
+            </tr>
             </thead>
 
             <tbody>
-                <tr *ngFor="let row of movimientos">
-                    <td>{{ row.almacen }}</td>
-                    <td>
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Tipo</th>
-                                    <th>Cantidad</th>
-                                    <th>Fecha</th>
-                                    <th>Días Transcurridos</th>
-                                </tr>
-                            </thead>
+            <tr *ngFor="let row of movimientos">
+                <td>{{ row.almacen }}</td>
+                <td>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Fecha</th>
+                            <th>Días Transcurridos</th>
+                        </tr>
+                        </thead>
 
-                            <tbody>
-                                <tr>
-                                    <td>Compra</td>
-                                    <td>{{ row.DT.recepcion.cantidad }}</td>
-                                    <td>{{ row.DT.recepcion.fecha }}</td>
-                                    <td>
-                                        {{
-                                            row.DT.recepcion.dias_transcurridos
-                                        }}
-                                    </td>
-                                </tr>
+                        <tbody>
+                        <tr>
+                            <td>COMPRA</td>
+                            <td>{{ row.DT.recepcion.cantidad }}</td>
+                            <td>{{ row.DT.recepcion.fecha }}</td>
+                            <td>{{ row.DT.recepcion.dias_transcurridos }}</td>
+                        </tr>
 
-                                <tr>
-                                    <td>Entrada / Traspaso</td>
-                                    <td>
-                                        {{ row.DT.entrada_o_traspaso.cantidad }}
-                                    </td>
-                                    <td>
-                                        {{ row.DT.entrada_o_traspaso.fecha }}
-                                    </td>
-                                    <td>
-                                        {{
-                                            row.DT.entrada_o_traspaso
-                                                .dias_transcurridos
-                                        }}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
+                        <tr>
+                            <td>{{ row.DT.entrada_o_traspaso.tipo || 'Entrada / Traspaso' }}</td>
+                            <td>{{ row.DT.entrada_o_traspaso.cantidad }}</td>
+                            <td>{{ row.DT.entrada_o_traspaso.fecha }}</td>
+                            <td>{{ row.DT.entrada_o_traspaso.dias_transcurridos }}</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>

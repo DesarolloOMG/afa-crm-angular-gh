@@ -6,7 +6,8 @@ import {backend_url, printserver_url} from '@env/environment';
     providedIn: 'root',
 })
 export class GeneralService {
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient) {
+    }
 
     // Se usa
 
@@ -25,12 +26,21 @@ export class GeneralService {
         );
     }
 
-    // No se usa
-
-    // ?
-
-
     /* General > Busqueda > Productos */
+    getProductoExistencia(data: any) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(`${backend_url}general/busqueda/producto/existencia`, form_data);
+    }
+
+    getSinonimos(data: any) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(`${backend_url}compra/producto/sinonimo/producto`, form_data);
+    }
+
     getGeneralSearchProductData() {
         return this.http.get(`${backend_url}general/busqueda/producto/data`);
     }
@@ -39,11 +49,13 @@ export class GeneralService {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
 
-        return this.http.post(
-            `${backend_url}general/busqueda/producto/kardex-crm`,
-            form_data
-        );
+        return this.http.post(`${backend_url}general/busqueda/producto/kardex-crm`, form_data);
     }
+
+    // No se usa
+
+    // ?
+
 
     /* General > Reporte > Contabilidad */
     getReporteContabilidadCostoSobreVenta(data: object) {
@@ -65,6 +77,7 @@ export class GeneralService {
             form_data
         );
     }
+
     getReporteProductoCaducidad(disponibles) {
         return this.http.get(
             `${backend_url}general/reporte/producto/caducidad/${disponibles}`
