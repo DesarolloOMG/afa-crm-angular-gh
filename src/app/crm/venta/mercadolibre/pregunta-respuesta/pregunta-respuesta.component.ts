@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { VentaService } from './../../../../services/http/venta.service';
-import { MercadolibreService } from './../../../../services/http/mercadolibre.service';
+import {Component, OnInit} from '@angular/core';
+import {VentaService} from './../../../../services/http/venta.service';
+import {MercadolibreService} from './../../../../services/http/mercadolibre.service';
 import swal from 'sweetalert2';
 
 @Component({
@@ -47,7 +47,7 @@ export class PreguntaRespuestaComponent implements OnInit {
 
                     preguntas.map((pregunta) => {
                         this.mercadolibreService
-                            .getUserPublicData(pregunta.from.id, marketplace.id)
+                            .getUserDataByID(pregunta.from.id, marketplace.id)
                             .subscribe(
                                 (res: any) => {
                                     pregunta.user_data = res;
