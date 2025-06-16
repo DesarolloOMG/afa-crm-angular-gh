@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols -->
 <div class="card">
     <div class="card-header">
         <h5 class="float-left">Requisiciones</h5>
@@ -21,7 +22,7 @@
                         <tr *ngFor="let row of documentos; let index = index">
                             <td>
                                 <button
-                                    class="btn btn-info btn-sm btn-block"
+                                    class="btn btn-info btn-sm btn-block {{index}}"
                                     (click)="abrirModal(row.id, modalautorizar)"
                                 >
                                     {{ row.id }}
@@ -156,7 +157,7 @@
                 <div class="col-sm-10 inline-block">
                     <button
                         class="btn btn-sm btn-block btn-danger http-disabled"
-                        style="margin: 10px"
+                        style="margin: 10px;"
                         (click)="cancelarRequisicion($event)"
                         [disabled]="!data.seguimiento"
                     >
@@ -170,7 +171,7 @@
                 <div class="col-sm-10 inline-block">
                     <button
                         class="btn btn-sm btn-block btn-info http-disabled"
-                        style="margin: 10px"
+                        style="margin: 10px;"
                         (click)="autorizarRequisicion($event)"
                         [disabled]="!data.seguimiento"
                     >

@@ -2071,13 +2071,13 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
             }
         );
 
-        this.mercadolibreService.getItemListingTypes().subscribe(
-            (res: any) => {
-                this.listing_typesML = [...res];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
+        // this.mercadolibreService.getItemListingTypes().subscribe(
+        //     (res: any) => {
+        //         this.listing_typesML = [...res];
+        //     },
+        //     (err: any) => {
+        //         swalErrorHttpResponse(err);
+        //     }
+        // );
     }
 }

@@ -18,7 +18,12 @@
             "@env/*": ["environments/*"],
             "@services/*": ["app/services/*"],
             "@models/*": ["app/models/*"],
-            "@interfaces/*": ["app/Interfaces/*"]
+            "@interfaces/*": [
+                "app/Interfaces/*"
+            ],
+            "@sharedUtils/*": [
+                "app/utils/functions/*"
+            ]
         }
     }
 }

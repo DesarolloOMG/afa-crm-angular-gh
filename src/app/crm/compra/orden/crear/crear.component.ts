@@ -1,9 +1,8 @@
-/* tslint:disable:triple-equals */
-import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {commaNumber, swalErrorHttpResponse} from '@env/environment';
 import {Component, OnInit} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
 import {Marketplace, Producto, RequisicionData} from './Interfaces';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-crear',
@@ -29,11 +28,11 @@ export class CrearComponent implements OnInit {
         productos: [],
     };
 
-    constructor(private http: HttpClient) {
+    constructor(private compraService: CompraService) {
     }
 
     ngOnInit() {
-        this.http.get(`${backend_url}compra/orden/requisicion/data`).subscribe(
+        this.compraService.getRequisisionData().subscribe(
             (res) => {
                 this.marketplaces = res['marketplaces'];
             },
@@ -67,18 +66,14 @@ export class CrearComponent implements OnInit {
         if (!this.data.productos.length) {
             return swal({
                 type: 'error',
-                html: 'Tienes que agregar al menos 1 productos para crear la requisión',
+                html: 'Tienes que agregar al menos 1 producto para crear la requisión',
             });
         }
 
         this.data.marketplace_area = this.marketplaces.find(m => m.marketplace == this.data.productos[0].marketplace).id;
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.data));
 
-        this.http
-            .post(`${backend_url}compra/orden/requisicion`, form_data)
-            .subscribe(
+        this.compraService.crearRequisision(this.data).subscribe(
                 (res: any) => {
                     swal({
                         title: '',

@@ -1,12 +1,9 @@
-import {
-    backend_url,
-    commaNumber,
-} from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import {commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
+import {CompraService} from '@services/http/compra.service';
+import {swalSuccessError} from '@sharedUtils/shared';
 
 @Component({
     selector: 'app-autorizacion-requisicion',
@@ -14,8 +11,6 @@ import swal from 'sweetalert2';
     styleUrls: ['./autorizacion-requisicion.component.scss'],
 })
 export class AutorizacionRequisicionComponent implements OnInit {
-    @ViewChild('modalordencompra') modalordencompra: NgbModal;
-
     commaNumber = commaNumber;
 
     modalReference: any;
@@ -30,10 +25,9 @@ export class AutorizacionRequisicionComponent implements OnInit {
     };
 
     constructor(
-        private http: HttpClient,
-        private router: Router,
         private chRef: ChangeDetectorRef,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private compraService: CompraService
     ) {
         const table: any = $('#compra_orden_autorizacion_requisicion');
 
@@ -41,25 +35,10 @@ export class AutorizacionRequisicionComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http
-            .get(`${backend_url}compra/orden/autorizacion-requisicion/data`)
-            .subscribe(
-                (res) => {
-                    this.reconstruirTabla(res['documentos']);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
+        this.compraService.obtenerRequisiciones().subscribe(
+            (res) => this.reconstruirTabla(res['documentos']),
+            (err) => swalErrorHttpResponse(err)
+        );
     }
 
     autorizarRequisicion(event) {
@@ -77,50 +56,25 @@ export class AutorizacionRequisicionComponent implements OnInit {
             confirmButtonText: 'Sí, autorizar',
             confirmButtonColor: '#1ABC28',
         }).then((value) => {
-            if (value.dismiss) return;
+            if (value.dismiss) {
+                return;
+            }
+            this.compraService.autorizarRequisicion({
+                documento: this.data.id,
+                seguimiento: this.data.seguimiento
+            }).subscribe(
+                (res) => {
+                    swalSuccessError(res);
 
-            const form_data = new FormData();
-            form_data.append('documento', String(this.data.id));
-            form_data.append('seguimiento', this.data.seguimiento);
-
-            this.http
-                .post(
-                    `${backend_url}compra/orden/autorizacion-requisicion/guardar`,
-                    form_data
-                )
-                .subscribe(
-                    (res) => {
-                        swal({
-                            title: '',
-                            type: res['code'] == 200 ? 'success' : 'error',
-                            html: res['message'],
-                        });
-
-                        if (res['code'] == 200) {
-                            const index = this.documentos.findIndex(
-                                (documento_a) => documento_a.id == this.data.id
-                            );
-
-                            this.documentos.splice(index, 1);
-
-                            this.reconstruirTabla(this.documentos);
-
-                            this.modalReference.close();
-                        }
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
+                    if (res['code'] === 200) {
+                        const index = this.documentos.findIndex(d => d.id === this.data.id);
+                        this.documentos.splice(index, 1);
+                        this.reconstruirTabla(this.documentos);
+                        this.modalReference.close();
                     }
-                );
+                },
+                (err) => swalErrorHttpResponse(err)
+            );
         });
     }
 
@@ -139,50 +93,26 @@ export class AutorizacionRequisicionComponent implements OnInit {
             confirmButtonText: 'Sí, cancelar',
             confirmButtonColor: '#E35656',
         }).then((value) => {
-            if (value.dismiss) return;
+            if (value.dismiss) {
+                return;
+            }
 
-            const form_data = new FormData();
-            form_data.append('seguimiento', this.data.seguimiento);
-            form_data.append('documento', String(this.data.id));
+            this.compraService.cancelarRequisicion({
+                documento: this.data.id,
+                seguimiento: this.data.seguimiento
+            }).subscribe(
+                (res) => {
+                    swalSuccessError(res);
 
-            this.http
-                .post(
-                    `${backend_url}compra/orden/autorizacion-requisicion/cancelar`,
-                    form_data
-                )
-                .subscribe(
-                    (res) => {
-                        swal({
-                            title: '',
-                            type: res['code'] == 200 ? 'success' : 'error',
-                            html: res['message'],
-                        });
-
-                        if (res['code'] == 200) {
-                            const index = this.documentos.findIndex(
-                                (documento) => documento.id == this.data.id
-                            );
-
-                            this.documentos.splice(index, 1);
-
-                            this.reconstruirTabla(this.documentos);
-
-                            this.modalReference.close();
-                        }
-                    },
-                    (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                        });
+                    if (res['code'] === 200) {
+                        const index = this.documentos.findIndex(d => d.id === this.data.id);
+                        this.documentos.splice(index, 1);
+                        this.reconstruirTabla(this.documentos);
+                        this.modalReference.close();
                     }
-                );
+                },
+                (err) => swalErrorHttpResponse(err)
+            );
         });
     }
 

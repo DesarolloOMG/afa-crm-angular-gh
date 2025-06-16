@@ -66,8 +66,16 @@ export class MercadolibreService {
         );
     }
 
-    getItemListingTypes() {
-        return this.http.get(`${mercadolibre_url}sites/MLM/listing_types`);
+    getItemListingTypes(marketplace_id) {
+        return this.getMarketplacetoken(marketplace_id).pipe(
+            map((response: any) => response.token),
+            switchMap((token: string) => {
+                const headers = new HttpHeaders({
+                    'Authorization': `Bearer ${token}`
+                });
+                return this.http.get(`${mercadolibre_url}sites/MLM/listing_types`, {headers});
+            })
+        );
     }
 
     getItemSaleTerms(category_id: string) {

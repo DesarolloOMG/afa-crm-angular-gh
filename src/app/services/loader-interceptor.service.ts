@@ -1,8 +1,8 @@
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse } from '@angular/common/http';
-import { LoaderService } from '../services/loader.service';
-import { Injectable } from '@angular/core';
-import { tap } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse} from '@angular/common/http';
+import {LoaderService} from '../services/loader.service';
+import {Injectable} from '@angular/core';
+import {tap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -10,17 +10,21 @@ import { Observable } from 'rxjs';
 
 export class LoaderInterceptorService implements HttpInterceptor {
 
-    constructor(private loaderService: LoaderService) { }
+    constructor(private loaderService: LoaderService) {
+    }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
         const is_notificacion = req.url.includes('general/notificacion/data');
         const is_dropbox = req.url.includes('dropboxapi.com');
+        const is_mercadolibre = req.url.includes('api.mercadolibre.com');
 
-        if (!is_notificacion)
+
+        if (!is_notificacion) {
             this.showLoader();
+        }
 
-        if (!is_dropbox) {
+        if (!is_dropbox && !is_mercadolibre) {
             req = req.clone({
                 setParams: {
                     token: window.localStorage.getItem('crm_access_token')
@@ -29,14 +33,16 @@ export class LoaderInterceptorService implements HttpInterceptor {
         }
 
         return next.handle(req).pipe(tap((event: HttpEvent<any>) => {
-            if (event instanceof HttpResponse) {
-                if (!is_notificacion)
-                    this.onEnd();
-            }
-        },
+                if (event instanceof HttpResponse) {
+                    if (!is_notificacion) {
+                        this.onEnd();
+                    }
+                }
+            },
             (err: any) => {
-                if (!is_notificacion)
+                if (!is_notificacion) {
                     this.onEnd();
+                }
             }));
     }
 
@@ -45,9 +51,9 @@ export class LoaderInterceptorService implements HttpInterceptor {
     }
 
     private showLoader(): void {
-        const elems = document.getElementsByClassName("http-disabled");
+        const elems = document.getElementsByClassName('http-disabled');
 
-        for (var i = 0; i < elems.length; i++) {
+        for (let i = 0; i < elems.length; i++) {
             elems[i]['disabled'] = true;
         }
 
@@ -55,9 +61,9 @@ export class LoaderInterceptorService implements HttpInterceptor {
     }
 
     private hideLoader(): void {
-        const elems = document.getElementsByClassName("http-disabled");
+        const elems = document.getElementsByClassName('http-disabled');
 
-        for (var i = 0; i < elems.length; i++) {
+        for (let i = 0; i < elems.length; i++) {
             elems[i]['disabled'] = false;
         }
 

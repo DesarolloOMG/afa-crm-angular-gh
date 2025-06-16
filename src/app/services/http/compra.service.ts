@@ -41,6 +41,37 @@ export class CompraService {
         formData.append('data', JSON.stringify(proveedor));
         return this.http.post(`${backend_url}compra/proveedor/guardar`, formData);
     }
+
+    getRequisisionData() {
+        return this.http.get(`${backend_url}compra/orden/requisicion/data`);
+    }
+
+    crearRequisision(data: any) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+        return this.http.post(`${backend_url}compra/orden/requisicion`, form_data);
+    }
+
+    obtenerRequisiciones() {
+        return this.http.get(`${backend_url}compra/orden/autorizacion-requisicion/data`);
+    }
+
+    autorizarRequisicion(data: { documento: number; seguimiento: string }) {
+        const form_data = new FormData();
+        form_data.append('documento', String(data.documento));
+        form_data.append('seguimiento', data.seguimiento);
+
+        return this.http.post(`${backend_url}compra/orden/autorizacion-requisicion/guardar`, form_data);
+    }
+
+    cancelarRequisicion(data: { documento: number; seguimiento: string }) {
+        const form_data = new FormData();
+        form_data.append('documento', String(data.documento));
+        form_data.append('seguimiento', data.seguimiento);
+
+        return this.http.post(`${backend_url}compra/orden/autorizacion-requisicion/cancelar`, form_data);
+    }
+
     // No se usa
 
     // undefined

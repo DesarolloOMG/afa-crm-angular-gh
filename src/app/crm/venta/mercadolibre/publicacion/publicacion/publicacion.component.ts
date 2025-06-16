@@ -1,4 +1,3 @@
-// noinspection InconsistentLineSeparators
 import {commaNumber, swalErrorHttpResponse} from '@env/environment';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {ChangeDetectorRef, Component, DoCheck, IterableDiffers, OnInit, ViewChild} from '@angular/core';
@@ -46,8 +45,8 @@ export class PublicacionComponent implements OnInit, DoCheck {
     };
 
     search = {
-        area: '',
-        marketplace: '',
+        area: '1',
+        marketplace: '1',
         provider: '',
         brand: '',
         status: '',
@@ -102,7 +101,6 @@ export class PublicacionComponent implements OnInit, DoCheck {
     };
 
     areas: any[] = [];
-    marketplaces: any[] = [];
     btob_providers: any[] = [];
     brands: any[] = [];
     items: any[] = [];
@@ -113,6 +111,8 @@ export class PublicacionComponent implements OnInit, DoCheck {
     products: any[] = [];
     variations: any[] = [];
     sale_terms: any[] = [];
+
+    mercadolibre: any;
 
     commaNumber = commaNumber;
     constructor(
@@ -162,9 +162,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
     viewItemDataCRM(item_id) {
         const item = this.items.find((i) => i.id == item_id);
 
-        const marketplace = this.marketplaces.find(
-            (m) => m.id == this.search.marketplace
-        );
+        const marketplace = this.mercadolibre;
 
         this.ventaService.getItemData(item.id).subscribe(
             (res: any) => {
@@ -308,9 +306,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
     viewItemDataMarketplace(item_id) {
         const item = this.items.find((i) => i.id == item_id);
 
-        const marketplace = this.marketplaces.find(
-            (m) => m.id == this.search.marketplace
-        );
+        const marketplace = this.mercadolibre;
 
         this.mercadolibreService.getItemData(item.publicacion_id, marketplace.id).subscribe(
             (res: any) => {
@@ -468,56 +464,6 @@ export class PublicacionComponent implements OnInit, DoCheck {
             windowClass: 'bigger-modal-lg',
             backdrop: 'static',
         });
-    }
-
-    onChangeArea() {
-        const area = this.areas.find((a) => a.id == this.search.area);
-
-        this.search.marketplace = '';
-        this.marketplaces = area.marketplaces;
-    }
-
-    onChangeMarketplace() {
-        const marketplace = this.marketplaces.find(
-            (m) => m.id == this.search.marketplace
-        );
-
-        if (marketplace && marketplace.pseudonimo) {
-            this.mercadolibreService
-                .getUserDataByNickName(marketplace.pseudonimo, marketplace.id)
-                .subscribe(
-                    (res: any) => {
-                        this.mercadolibreService
-                            .getUserDataByID(res.seller.id, marketplace.id)
-                            .subscribe(
-                                (userData: any) => {
-                                    this.user_data = {...userData};
-
-                                    if (this.user_data.user_type === 'brand') {
-                                        this.mercadolibreService
-                                            .getBrandsByUser(this.user_data.id)
-                                            .subscribe(
-                                                (brandsUser: any) => {
-                                                    this.brands = [
-                                                        ...brandsUser.brands,
-                                                    ];
-                                                },
-                                                (err: any) => {
-                                                    swalErrorHttpResponse(err);
-                                                }
-                                            );
-                                    }
-                                },
-                                (err: any) => {
-                                    swalErrorHttpResponse(err);
-                                }
-                            );
-                    },
-                    (err: any) => {
-                        swalErrorHttpResponse(err);
-                    }
-                );
-        }
     }
 
     onChangeCompany() {
@@ -761,14 +707,6 @@ export class PublicacionComponent implements OnInit, DoCheck {
         );
     }
 
-    getSelectedMarketplaceName() {
-        const marketplace = this.marketplaces.find(
-            (m) => m.id == this.search.marketplace
-        );
-
-        return marketplace && marketplace.marketplace;
-    }
-
     getWarrantyTypeValues() {
         return this.sale_terms.length > 0
             ? this.sale_terms.find((st) => st.id === 'WARRANTY_TYPE').values
@@ -994,26 +932,24 @@ export class PublicacionComponent implements OnInit, DoCheck {
         };
     }
 
-    initData() {
-        this.ventaService.getItemsData().subscribe(
-            (res: any) => {
-                this.areas = [...res.areas];
-                this.btob_providers = [...res.proveedores];
-                this.logistic_types = [...res.logistica];
-                this.companies = [...res.empresas];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
+    async initData() {
+        try {
+            const res: any = await this.ventaService.getItemsData().toPromise();
+            this.btob_providers = [...res.proveedores];
+            this.logistic_types = [...res.logistica];
+            this.companies = [...res.empresas];
+            this.mercadolibre = res.areas[0].marketplaces[0];
 
-        this.mercadolibreService.getItemListingTypes().subscribe(
-            (res: any) => {
-                this.listing_types = [...res];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
+            const listing: any = await this.mercadolibreService
+                .getItemListingTypes(this.mercadolibre.id)
+                .toPromise();
+
+            this.listing_types = [...listing];
+            console.log(listing);
+        } catch (err) {
+            swalErrorHttpResponse(err);
+        }
     }
+
+
 }
