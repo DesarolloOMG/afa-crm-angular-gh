@@ -8,6 +8,7 @@ import {debounceTime, distinctUntilChanged, map} from 'rxjs/operators';
 import {Observable} from 'rxjs';
 import swal from 'sweetalert2';
 import {WhatsappService} from '@services/http/whatsapp.service';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-publicacion',
@@ -121,6 +122,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
         private modalService: NgbModal,
         private chRef: ChangeDetectorRef,
         private iterableDiffers: IterableDiffers,
+        private compraService: CompraService,
         private whatsappService: WhatsappService,
     ) {
         this.iterableDiffer = this.iterableDiffers.find([]).create(null);
@@ -161,7 +163,6 @@ export class PublicacionComponent implements OnInit, DoCheck {
 
     viewItemDataCRM(item_id) {
         const item = this.items.find((i) => i.id == item_id);
-        console.log(item);
         const marketplace = this.mercadolibre;
 
         this.ventaService.getItemData(item.id).subscribe(
@@ -190,13 +191,14 @@ export class PublicacionComponent implements OnInit, DoCheck {
                     principal_warehouse: item.id_almacen_empresa,
                     secondary_warehouse: item.id_almacen_empresa_fulfillment,
                 };
-
+                console.log(item);
                 this.mercadolibreService
                     .getItemData(item.publicacion_id, marketplace.id)
                     .subscribe(
                         (itemData: any) => {
                             this.getSaleTermsForCategory(itemData.category_id);
 
+                            console.log(itemData);
                             this.marketplace = {
                                 id: item.id,
                                 title: this.marketplace.title,
@@ -588,12 +590,14 @@ export class PublicacionComponent implements OnInit, DoCheck {
             });
         }
 
-        if (!this.product.search) {
-            return swal({
-                type: 'error',
-                html: `Escribe algo para inicia la bÃºsqueda`,
-            });
-        }
+        this.compraService.searchProduct(this.product.search).subscribe({
+            next: (res: any) => {
+                this.products = [...res.data];
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
+        });
 
         if (this.products.length) {
             this.products = [];

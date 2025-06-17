@@ -1,6 +1,4 @@
-// noinspection JSDeprecatedSymbols
-
-import {AfterViewInit, Component, ElementRef, HostListener, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {backend_url, downloadPDF, swalErrorHttpResponse} from '@env/environment';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
@@ -86,29 +84,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
             }
         }
         this.usuario_id = usuario.id;
-    }
-
-    @HostListener('window:keydown', ['$event'])
-    onKeyPress($event: KeyboardEvent) {
-        if (this.allowActions) {
-            return;
-        }
-
-        if (($event.ctrlKey || $event.metaKey) && $event.keyCode == 67) {
-            $event.preventDefault();
-        }
-        if (($event.ctrlKey || $event.metaKey) && $event.keyCode == 86) {
-            $event.preventDefault();
-        }
-    }
-
-    @HostListener('contextmenu', ['$event'])
-    onRightClick($event) {
-        if (this.allowActions) {
-            return;
-        }
-
-        $event.preventDefault();
     }
 
     ngOnInit() {
@@ -585,6 +560,7 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                 }
             );
     }
+
     onCloseModalSeries() {
         this.modal_reference.close();
 

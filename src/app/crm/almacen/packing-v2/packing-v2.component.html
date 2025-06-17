@@ -40,7 +40,7 @@
                                                             ></span>
                                                             <label
                                                                 class="float-label"
-                                                                >Pedido</label
+                                                            >Pedido</label
                                                             >
                                                         </div>
                                                     </div>
@@ -102,7 +102,7 @@
                                                                 <label
                                                                     for=""
                                                                     class="col-form-label col-sm-2"
-                                                                    >Empresa</label
+                                                                >Empresa</label
                                                                 >
                                                                 <div
                                                                     class="col-sm-10 inline-block"
@@ -121,7 +121,7 @@
                                                                 <label
                                                                     for=""
                                                                     class="col-form-label col-sm-2"
-                                                                    >Almacén</label
+                                                                >Almacén</label
                                                                 >
                                                                 <div
                                                                     class="col-sm-10 inline-block"
@@ -140,7 +140,7 @@
                                                                 <label
                                                                     for=""
                                                                     class="col-form-label col-sm-2"
-                                                                    >Paquetería</label
+                                                                >Paquetería</label
                                                                 >
                                                                 <div
                                                                     class="col-sm-10 inline-block"
@@ -159,7 +159,7 @@
                                                                 <label
                                                                     for=""
                                                                     class="col-form-label col-sm-2"
-                                                                    >Marketplace</label
+                                                                >Marketplace</label
                                                                 >
                                                                 <div
                                                                     class="col-sm-10 inline-block"
@@ -167,8 +167,8 @@
                                                                     <h2>
                                                                         {{
                                                                             informacion.area +
-                                                                                " / " +
-                                                                                informacion.marketplace
+                                                                            " / " +
+                                                                            informacion.marketplace
                                                                         }}
                                                                     </h2>
                                                                 </div>
@@ -200,7 +200,7 @@
                                                             ></span>
                                                             <label
                                                                 class="float-label"
-                                                                >Escanear
+                                                            >Escanear
                                                                 codigo</label
                                                             >
                                                         </div>
@@ -215,38 +215,38 @@
                                                             class="table table-striped disable-text-selection"
                                                         >
                                                             <tbody>
-                                                                <tr
-                                                                    *ngFor="
+                                                            <tr
+                                                                *ngFor="
                                                                         let row of data.productos
                                                                     "
+                                                            >
+                                                                <th
+                                                                    *ngIf="
+                                                                            row.cantidad_escaneada >
+                                                                            0
+                                                                        "
                                                                 >
-                                                                    <th
-                                                                        *ngIf="
+                                                                    <h2>
+                                                                        {{
+                                                                            row.sku
+                                                                        }}
+                                                                    </h2>
+                                                                </th>
+                                                                <td
+                                                                    *ngIf="
                                                                             row.cantidad_escaneada >
                                                                             0
                                                                         "
+                                                                >
+                                                                    <h2
+                                                                        class="text-success"
                                                                     >
-                                                                        <h2>
-                                                                            {{
-                                                                                row.sku
-                                                                            }}
-                                                                        </h2>
-                                                                    </th>
-                                                                    <td
-                                                                        *ngIf="
-                                                                            row.cantidad_escaneada >
-                                                                            0
-                                                                        "
-                                                                    >
-                                                                        <h2
-                                                                            class="text-success"
-                                                                        >
-                                                                            {{
-                                                                                row.cantidad_escaneada
-                                                                            }}
-                                                                        </h2>
-                                                                    </td>
-                                                                </tr>
+                                                                        {{
+                                                                            row.cantidad_escaneada
+                                                                        }}
+                                                                    </h2>
+                                                                </td>
+                                                            </tr>
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -276,8 +276,8 @@
                                                                         >
                                                                             {{
                                                                                 seguimiento.nombre +
-                                                                                    " - " +
-                                                                                    seguimiento.created_at
+                                                                                " - " +
+                                                                                seguimiento.created_at
                                                                             }}
                                                                         </p>
                                                                         <p
@@ -335,7 +335,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Número de pedido</label
+                                                    >Número de pedido</label
                                                     >
                                                 </div>
                                             </div>
@@ -369,7 +369,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Impresora</label
+                                                    >Impresora</label
                                                     >
                                                 </div>
                                             </div>
@@ -435,7 +435,7 @@
                             <span
                                 (click)="eliminarSerie(serie)"
                                 class="float-right cursor-pointer text-danger"
-                                >Quitar</span
+                            >Quitar</span
                             >
                         </li>
                     </ul>
