@@ -1037,6 +1037,16 @@ const MENUITEMS = [
             },
             {
                 main_state: 'configuracion',
+                state: 'dev',
+                short_label: 'DEV',
+                name: 'DEV',
+                type: 'link',
+                icon: 'fa fa-rebel',
+                level: [6],
+                sublevel: 1,
+            },
+            {
+                main_state: 'configuracion',
                 state: 'logout',
                 short_label: 'LO',
                 name: 'Cerrar sesiones',
