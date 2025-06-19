@@ -58,7 +58,7 @@ export class ImportacionComponent implements OnInit {
                     swal({
                         title: '',
                         type: 'success',
-                        html: 'Ventas importadas correctamente. Hubo errores',
+                        html: 'Ventas importadas correctamente.',
                     }).then();
                 }
             );
