@@ -481,7 +481,7 @@
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label *ngIf="data.documento.proveedor != ''" class="float-label">Almacén</label>
+                                <label class="float-label-read-only">Almacén</label>
                                 <small
                                     class="text-danger messages block"
                                     *ngIf="almacendocumento.errors?.required"
@@ -511,7 +511,7 @@
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label *ngIf="!disablePeriodo" class="float-label">Periodo</label>
+                                <label class="float-label-read-only">Periodo</label>
                                 <small
                                     class="text-danger messages block"
                                     *ngIf="periodo.errors?.required"
@@ -543,8 +543,8 @@
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label *ngIf="data.cliente.rfc == 'XEXX010101000'" class="float-label"
-                                    >Uso de la venta</label
+                                <label class="float-label-read-only"
+                                >Uso del CFDI</label
                                 >
                                 <small
                                     class="text-danger messages block"
