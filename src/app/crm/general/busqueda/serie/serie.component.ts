@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component, ElementRef, ViewChild} from '@angular/core';
 import {GeneralService} from '@services/http/general.service';
 import {swalErrorHttpResponse} from '@env/environment';
+import {PrintService} from '@services/http/print.service';
 
 @Component({
     selector: 'app-serie',
@@ -19,6 +20,7 @@ export class SerieComponent {
 
     constructor(
         private generalService: GeneralService,
+        private printService: PrintService,
         private chRef: ChangeDetectorRef
     ) {
         const table: any = $(this.datatable);
@@ -89,7 +91,7 @@ export class SerieComponent {
             descripcion: ultimoMovimiento.descripcion,
         };
 
-        this.generalService.printSerieLabel(data).subscribe({
+        this.printService.printSerieLabel(data).subscribe({
             next: () => {},
             error: (err: any) => {
                 swalErrorHttpResponse(err);

@@ -1,11 +1,11 @@
-/* tslint:disable:triple-equals */
-import {backend_url, printserver_url, swalErrorHttpResponse} from '@env/environment';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
 import {Component, OnInit} from '@angular/core';
 import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 import {AuthService} from '@services/auth.service';
+import {PrintService} from '@services/http/print.service';
 
 @Component({
     selector: 'app-etiqueta',
@@ -15,7 +15,7 @@ import {AuthService} from '@services/auth.service';
 export class EtiquetaComponent implements OnInit {
     modalReference: any;
 
-    empresa = '7';
+    empresa = '1';
 
     etiqueta_archivo = {
         archivo: '',
@@ -52,6 +52,7 @@ export class EtiquetaComponent implements OnInit {
 
     constructor(
         private modalService: NgbModal,
+        private printService: PrintService,
         private http: HttpClient,
         private auth: AuthService
     ) {
@@ -73,22 +74,13 @@ export class EtiquetaComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http.get(`${printserver_url}api/etiquetas/data`).subscribe(
+        this.printService.printEriquetasData().subscribe(
             (res: any) => {
                 this.impresoras = [...res.impresoras];
                 this.empresas = [...res.empresas];
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                }).then();
+                swalErrorHttpResponse(response);
             }
         );
     }
@@ -280,22 +272,13 @@ export class EtiquetaComponent implements OnInit {
                 : JSON.stringify(this.etiqueta_archivo)
         );
 
-        this.http.post(`${printserver_url}api/etiquetas`, form_data)
+        this.printService.printEtiquetas(form_data)
             .subscribe(
             (res) => {
                 console.log(res);
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                }).then();
+                swalErrorHttpResponse(response);
             }
         );
     }
@@ -322,26 +305,13 @@ export class EtiquetaComponent implements OnInit {
             });
         }
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.etiqueta_serie));
-
-        this.http
-            .post(`${printserver_url}api/etiquetas/serie`, form_data)
+        this.printService.printEtiquetasSerie(this.etiqueta_serie)
             .subscribe(
                 (res) => {
                     console.log(res);
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -389,16 +359,7 @@ export class EtiquetaComponent implements OnInit {
                 () => {
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    }).then();
+                    swalErrorHttpResponse(response);
                 }
             );
     }
