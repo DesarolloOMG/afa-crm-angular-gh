@@ -361,19 +361,6 @@ export class PackingV2Component implements OnInit, AfterViewInit {
             form_data.append('serie', serie);
             form_data.append('almacen', this.informacion.almacen_id.toString());
 
-            const res = await this.http
-                .post(`${backend_url}developer/busquedaSerieVsSku`, form_data)
-                .toPromise();
-
-            if (!res['valido']) {
-                this.serie = '';
-                await swal({
-                    type: 'error',
-                    html: `La serie es un SKU`,
-                    customClass: 'red-border-top',
-                });
-                return;
-            }
             const repetida = this.data.productos.find((p) =>
                 p.series.find(
                     (serie_repetida) => serie_repetida == serie
