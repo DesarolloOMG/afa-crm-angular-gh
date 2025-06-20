@@ -63,7 +63,7 @@ export class VentaService {
 
 
     getDireccionPorCodigoPostal(codigo: string): Observable<any> {
-        const url = `http://201.7.208.53:11903/api/adminpro/Consultas/CP/${codigo}`;
+        const url = `${backend_url}catalogo/buscar/cp/${codigo}`;
         return this.http.get<any>(url);
     }
 

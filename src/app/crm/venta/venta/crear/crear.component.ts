@@ -1437,9 +1437,9 @@ export class CrearComponent implements OnInit {
         this.ventaService.getDireccionPorCodigoPostal(codigo).subscribe(
             (res) => {
                 if (res.code === 200) {
-                    this.data.documento.direccion_envio.estado = res.estado[0].estado;
-                    this.data.documento.direccion_envio.ciudad = res.municipio[0].municipio;
-                    this.colonias_e = res.colonia;
+                    this.data.documento.direccion_envio.estado = res.estado || '';
+                    this.data.documento.direccion_envio.ciudad = res.ciudades && res.ciudades.length > 0 ? res.ciudades[0] : '';
+                    this.colonias_e = res.colonias || [];
                 }
             },
             (response) => {

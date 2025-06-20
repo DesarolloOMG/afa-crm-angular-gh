@@ -2130,17 +2130,15 @@ export class CrearComponent implements OnInit {
 
         this.http
             .get(
-                'http://201.7.208.53:11903/api/adminpro/Consultas/CP/' + codigo
+                `${backend_url}catalogo/buscar/cp/${codigo}`
             )
             .subscribe(
-                (res) => {
+                (res: any) => {
+                    console.log(res);
                     if (res['code'] == 200) {
-                        this.data.documento.direccion_envio.estado =
-                            res['estado'][0]['estado'];
-                        this.data.documento.direccion_envio.ciudad =
-                            res['municipio'][0]['municipio'];
-
-                        this.colonias_e = res['colonia'];
+                        this.data.documento.direccion_envio.estado    = res.estado || '';
+                        this.data.documento.direccion_envio.ciudad    = res.ciudades && res.ciudades.length > 0 ? res.ciudades[0] : '';
+                        this.colonias_e = res.colonias || [];
                     }
                 },
                 (response) => {

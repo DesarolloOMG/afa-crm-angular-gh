@@ -912,10 +912,10 @@
                                 >
                                     <option value="" disabled selected></option>
                                     <option
-                                        value="{{ colonia.codigo }}"
                                         *ngFor="let colonia of colonias_e"
+                                        [value]="colonia"
                                     >
-                                        {{ colonia.colonia }}
+                                        {{ colonia }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
