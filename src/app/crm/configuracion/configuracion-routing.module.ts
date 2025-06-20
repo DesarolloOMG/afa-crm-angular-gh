@@ -1,7 +1,8 @@
-import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
 
-import { LogoutComponent } from './logout/logout.component';
+import {LogoutComponent} from './logout/logout.component';
+import {DevComponent} from './dev/dev.component';
 
 const routes: Routes = [
     {
@@ -14,6 +15,13 @@ const routes: Routes = [
             {
                 path: 'usuario',
                 loadChildren: './usuario/usuario.module#UsuarioModule',
+            },
+            {
+                path: 'dev',
+                component: DevComponent,
+                data: {
+                    title: 'DevZone',
+                },
             },
             {
                 path: 'logout',

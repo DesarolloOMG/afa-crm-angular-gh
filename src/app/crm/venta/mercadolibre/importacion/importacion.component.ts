@@ -1,7 +1,7 @@
-import { backend_url } from '@env/environment';
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {Component, OnInit} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
+import {backend_url} from '@env/environment';
 
 @Component({
     selector: 'app-importacion',
@@ -9,60 +9,25 @@ import swal from 'sweetalert2';
     styleUrls: ['./importacion.component.scss'],
 })
 export class ImportacionComponent implements OnInit {
-    areas: any[] = [];
-    marketplaces: any[] = [];
 
     data = {
-        area: 0,
-        marketplace: 0,
+        area: 1,
+        marketplace: 1,
         publicacion: '',
         fecha_inicial: '',
         fecha_final: '',
+        dropOrFull: false, // 0 drop , 1 full
     };
 
-    constructor(private http: HttpClient) {}
-
-    ngOnInit() {
-        this.http.get(`${backend_url}venta/venta/crear/data`).subscribe(
-            (res) => {
-                this.areas = res['areas'];
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
+    constructor(private http: HttpClient) {
     }
 
-    cambiarArea() {
-        this.areas.forEach((area) => {
-            if (this.data.area == area.id) {
-                var marketplaces = [];
+    ngOnInit() {
 
-                area.marketplaces.forEach((marketplace) => {
-                    if (
-                        marketplace.marketplace
-                            .toLowerCase()
-                            .includes('mercadolibre')
-                    ) {
-                        marketplaces.push(marketplace);
-                    }
-                });
-
-                this.marketplaces = marketplaces;
-            }
-        });
     }
 
     importarVentas() {
+
         if (!this.data.fecha_inicial || !this.data.fecha_final) {
             return swal({
                 type: 'error',
@@ -80,18 +45,21 @@ export class ImportacionComponent implements OnInit {
             )
             .subscribe(
                 (res) => {
+                    console.log(res);
+
                     swal({
                         title: '',
                         type: 'success',
                         html: 'Ventas importadas correctamente',
-                    });
+                    }).then();
                 },
                 (response) => {
+                    console.log(response);
                     swal({
                         title: '',
                         type: 'success',
                         html: 'Ventas importadas correctamente.',
-                    });
+                    }).then();
                 }
             );
     }

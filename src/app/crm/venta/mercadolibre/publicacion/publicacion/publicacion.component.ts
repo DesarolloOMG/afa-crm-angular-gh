@@ -590,6 +590,18 @@ export class PublicacionComponent implements OnInit, DoCheck {
             });
         }
 
+        if (this.products.length) {
+            this.products = [];
+
+            this.initProductObject();
+
+            return;
+        }
+
+        if (!this.product.search) {
+            return;
+        }
+
         this.compraService.searchProduct(this.product.search).subscribe({
             next: (res: any) => {
                 this.products = [...res.data];
@@ -599,13 +611,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
             },
         });
 
-        if (this.products.length) {
-            this.products = [];
 
-            this.initProductObject();
-
-            return;
-        }
     }
 
     addProduct() {
@@ -641,7 +647,7 @@ export class PublicacionComponent implements OnInit, DoCheck {
         this.product.description = product.producto;
 
         this.data.products.push(this.product);
-        this.searchProduct().then();
+        this.searchProduct();
     }
 
     addVariation() {
