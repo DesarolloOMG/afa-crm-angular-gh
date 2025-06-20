@@ -10,7 +10,7 @@ export const environment = {
 };
 
 export const backend_url = 'https://rest.afainnova.com/';
-export const printserver_url = 'https://psafa-test.ddns.net:2221/';
+export const printserver_url = 'http://psafa-test.ddns.net:2221/';
 export const backend_url_password =
     '$2y$10$zUFltp9AVApnk7BN22Nu9ueCvBihctYkDFJLvN0HlVaBr4KYtRnfy';
 // export const pusher_key = 'd2163e9e88304df4c43e';
