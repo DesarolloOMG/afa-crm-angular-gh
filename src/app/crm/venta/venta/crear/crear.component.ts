@@ -140,10 +140,21 @@ export class CrearComponent implements OnInit {
         return new Promise((resolve) => {
             const input = this.data.cliente.input;
 
+            if (!input) {
+                resolve(1);
+            }
+
             if (this.clientes.length > 0) {
                 this.clientes = [];
                 this.data.cliente.input = '';
                 this.data.cliente.select = '';
+                this.restartObjects();
+                this.cambiarEmpresa();
+
+                if (this.areas.length == 1) {
+                    this.data.area = this.areas[0].id;
+                    this.cambiarArea();
+                }
                 resolve(1);
                 return;
             }
@@ -154,8 +165,8 @@ export class CrearComponent implements OnInit {
                     resolve(1);
                 },
                 error: (err: any) => {
-                    swalErrorHttpResponse(err);
                     resolve(1);
+                    swalErrorHttpResponse(err);
                 },
             });
         });
@@ -171,9 +182,13 @@ export class CrearComponent implements OnInit {
             return;
         }
 
+        const select = this.data.cliente.select; // 👈 Guardamos el valor del select
+        const input = this.data.cliente.input;   // (opcional) si quieres también preservar el input
+
         const {rfc, razon_social, credito_disponible} = cliente;
         this.data.cliente = {
             ...cliente,
+            select, input,
             rfc,
             razon_social,
             credito_disponible,
@@ -232,6 +247,18 @@ export class CrearComponent implements OnInit {
             if (razon_social === 'PUBLICO GENERAL') {
                 this.data.cliente.rfc = 'XAXX010101000';
             }
+        }
+
+        if (
+            this.data.cliente.rfc == 'XEXX010101000' ||
+            this.data.cliente.rfc == 'XAXX010101000'
+        ) {
+            this.data.documento.uso_venta = '23';
+        }
+
+        if (this.data.cliente.razon_social == 'PUBLICO GENERAL') {
+            this.data.documento.uso_venta = '23';
+            this.data.cliente.rfc = 'XAXX010101000';
         }
     }
 
