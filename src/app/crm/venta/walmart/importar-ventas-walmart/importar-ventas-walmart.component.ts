@@ -1,9 +1,8 @@
-/* tslint:disable:triple-equals */
 // noinspection SpellCheckingInspection
 
-import { Component, OnInit } from '@angular/core';
-import { swalErrorHttpResponse } from '@env/environment';
-import { VentaService } from '@services/http/venta.service';
+import {Component, OnInit} from '@angular/core';
+import {swalErrorHttpResponse} from '@env/environment';
+import {VentaService} from '@services/http/venta.service';
 import swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
 
@@ -13,8 +12,6 @@ import * as XLSX from 'xlsx';
     styleUrls: ['./importar-ventas-walmart.component.scss'],
 })
 export class ImportarVentasWalmartComponent implements OnInit {
-    constructor(private ventaService: VentaService) {}
-
     data = {
         area: 0,
         marketplace: '5',
@@ -25,10 +22,13 @@ export class ImportarVentasWalmartComponent implements OnInit {
         fulfillment: 0,
         codeFilter: ''
     };
-
     ventas: any[] = [];
 
-    ngOnInit() {}
+    constructor(private ventaService: VentaService) {
+    }
+
+    ngOnInit() {
+    }
 
     importOrders() {
         if (!this.data.area) {
@@ -49,7 +49,9 @@ export class ImportarVentasWalmartComponent implements OnInit {
                 confirmButtonText: 'Sí, importar',
                 cancelButtonText: 'No, cancelar',
             }).then((confirm) => {
-                if (!confirm.value) { return; }
+                if (!confirm.value) {
+                    return;
+                }
 
                 this.ventaService.importOrdersFromWalmart(this.data).subscribe(
                     (res: any) => {
@@ -77,7 +79,9 @@ export class ImportarVentasWalmartComponent implements OnInit {
                 confirmButtonText: 'Sí, importar',
                 cancelButtonText: 'No, cancelar',
             }).then((confirm) => {
-                if (!confirm.value) { return; }
+                if (!confirm.value) {
+                    return;
+                }
 
                 this.ventaService.importOrdersFromWalmart(this.data).subscribe(
                     (res: any) => {

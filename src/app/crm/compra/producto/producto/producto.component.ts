@@ -1,10 +1,9 @@
-/* tslint:disable:triple-equals */
 import {backend_url} from '@env/environment';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '@services/auth.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import * as XLSX from 'xlsx';
 import swal from 'sweetalert2';
@@ -16,12 +15,12 @@ import swal from 'sweetalert2';
     animations: [
         trigger('fadeInOutTranslate', [
             transition(':enter', [
-                style({ opacity: 0 }),
-                animate('400ms ease-in-out', style({ opacity: 1 })),
+                style({opacity: 0}),
+                animate('400ms ease-in-out', style({opacity: 1})),
             ]),
             transition(':leave', [
-                style({ transform: 'translate(0)' }),
-                animate('400ms ease-in-out', style({ opacity: 0 })),
+                style({transform: 'translate(0)'}),
+                animate('400ms ease-in-out', style({opacity: 0})),
             ]),
         ]),
     ],
@@ -122,8 +121,8 @@ export class ProductoComponent implements OnInit {
                         response.status == 0
                             ? response.message
                             : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
+                                ? response.error.error_summary
+                                : response.error,
                 });
             }
         );
@@ -210,7 +209,7 @@ export class ProductoComponent implements OnInit {
                 this.http
                     .post<any>(
                         `${backend_url}/dropbox/get-link`, // Llama a tu backend, NO a Dropbox directo
-                        { path: producto.dropbox }
+                        {path: producto.dropbox}
                     )
                     .subscribe(
                         (res) => {
@@ -283,8 +282,8 @@ export class ProductoComponent implements OnInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                                    ? response.error.error_summary
+                                    : response.error,
                     });
                 }
             );
@@ -332,8 +331,8 @@ export class ProductoComponent implements OnInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                                    ? response.error.error_summary
+                                    : response.error,
                     });
                 }
             );
@@ -396,8 +395,8 @@ export class ProductoComponent implements OnInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                                    ? response.error.error_summary
+                                    : response.error,
                     });
                 }
             );
@@ -421,7 +420,7 @@ export class ProductoComponent implements OnInit {
             )
             .subscribe(
                 (res: any) => {
-                    this.codigos_sat = Array.isArray(res.data) ? res.data : [ res.data ];
+                    this.codigos_sat = Array.isArray(res.data) ? res.data : [res.data];
                 },
                 (response) => {
                     swal({
@@ -513,7 +512,7 @@ export class ProductoComponent implements OnInit {
                     const wsname: string = wb.SheetNames[0];
                     const ws: XLSX.WorkSheet = wb.Sheets[wsname];
 
-                    const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+                    const rows = XLSX.utils.sheet_to_json(ws, {header: 1});
                     rows.shift();
 
                     rows.forEach((row) => {
@@ -561,7 +560,7 @@ export class ProductoComponent implements OnInit {
         this.http
             .post<any>(
                 `${backend_url}/dropbox/get-link`, // Llama a tu backend seguro
-                { path: dropbox }
+                {path: dropbox}
             )
             .subscribe(
                 (res) => {
@@ -596,7 +595,7 @@ export class ProductoComponent implements OnInit {
                 this.http
                     .post<any>(
                         `${backend_url}/dropbox/delete`, // Llama a tu backend seguro
-                        { path: dropbox }
+                        {path: dropbox}
                     )
                     .subscribe(
                         (res) => {
@@ -613,7 +612,8 @@ export class ProductoComponent implements OnInit {
                                     `${backend_url}/compra/producto/gestion/imagen/${dropbox}`
                                 )
                                 .subscribe(
-                                    (_res) => {},
+                                    (_res) => {
+                                    },
                                     (response) => {
                                         swal({
                                             title: '',

@@ -1,7 +1,4 @@
-/* tslint:disable:triple-equals */
-// noinspection JSIgnoredPromiseFromCall
-
-import {backend_url, commaNumber, swalErrorHttpResponse,} from '@env/environment';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {AuthService} from '@services/auth.service';
 import {HttpClient} from '@angular/common/http';
@@ -77,9 +74,11 @@ export class DessaldarComponent implements OnInit {
             );
     }
 
-    dessaldar(): void {}
+    dessaldar(): void {
+    }
 
-    desaplicarDocumento(id_pago): void {}
+    desaplicarDocumento(id_pago): void {
+    }
 
     reconstruirTabla(pagos = null): void {
         this.datatable.destroy();

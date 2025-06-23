@@ -1,4 +1,3 @@
-/* tslint:disable:triple-equals */
 // noinspection JSUnusedLocalSymbols
 
 import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';

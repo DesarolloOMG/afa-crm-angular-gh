@@ -1,4 +1,3 @@
-/* tslint:disable:triple-equals */
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {VentaService} from '@services/http/venta.service';
 import {MercadolibreService} from '@services/http/mercadolibre.service';
@@ -71,7 +70,8 @@ export class CrearPublicacionComponent implements OnInit {
         private mercadolibreService: MercadolibreService,
         private modalService: NgbModal,
         private whatsappService: WhatsappService
-    ) {}
+    ) {
+    }
 
     ngOnInit() {
         this.initData();
@@ -224,7 +224,7 @@ export class CrearPublicacionComponent implements OnInit {
     getWarrantyTimeUnits() {
         return this.sale_terms.length > 0
             ? this.sale_terms.find((st) => st.id === 'WARRANTY_TIME')
-                  .allowed_units
+                .allowed_units
             : [];
     }
 
@@ -433,7 +433,7 @@ export class CrearPublicacionComponent implements OnInit {
                             .getUserDataByID(res.id, marketplace.id)
                             .subscribe(
                                 (resGudbi: any) => {
-                                    this.user_data = { ...resGudbi };
+                                    this.user_data = {...resGudbi};
 
                                     if (this.user_data.user_type === 'brand') {
                                         this.mercadolibreService
@@ -474,13 +474,13 @@ export class CrearPublicacionComponent implements OnInit {
                     term.length < 2
                         ? []
                         : data
-                              .filter(
-                                  (v) =>
-                                      v
-                                          .toLowerCase()
-                                          .indexOf(term.toLowerCase()) > -1
-                              )
-                              .slice(0, 10)
+                            .filter(
+                                (v) =>
+                                    v
+                                        .toLowerCase()
+                                        .indexOf(term.toLowerCase()) > -1
+                            )
+                            .slice(0, 10)
                 )
             );
     }

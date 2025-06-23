@@ -1,9 +1,8 @@
-/* tslint:disable:triple-equals */
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {backend_url, commaNumber, dropbox_token, swalErrorHttpResponse} from '@env/environment';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
 import {AlmacenService} from '@services/http/almacen.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
 import * as moment from 'moment';
 import {WhatsappService} from '@services/http/whatsapp.service';
@@ -226,7 +225,7 @@ export class FinalizarComponent implements OnInit {
         this.http
             .post<any>(
                 `${backend_url}/dropbox/get-link`, // Tu endpoint backend seguro
-                { path: idDropbox }
+                {path: idDropbox}
             )
             .subscribe(
                 (res) => {

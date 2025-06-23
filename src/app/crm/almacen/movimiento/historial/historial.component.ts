@@ -1,4 +1,3 @@
-/* tslint:disable:triple-equals */
 import {ChangeDetectorRef, Component, OnInit, Renderer2, ViewChild} from '@angular/core';
 import {backend_url, downloadPDF, swalErrorHttpResponse} from '@env/environment';
 import {AlmacenService} from '@services/http/almacen.service';

@@ -1,4 +1,4 @@
-/* tslint:disable:triple-equals */
+
 import {
     backend_url,
     swalErrorHttpResponse,
@@ -178,7 +178,7 @@ export class SolicitudComponent implements OnInit {
                             swal({
                                 type: 'error',
                                 html: res.message,
-                            });
+                            }).then();
                         }
                     },
                     (err: any) => {
@@ -473,7 +473,7 @@ export class SolicitudComponent implements OnInit {
                                     swal({
                                         type: 'error',
                                         html: res.message
-                                    });
+                                    }).then();
                                     reject(res);
                                 }
                                 resolve(res);

@@ -1,4 +1,4 @@
-/* tslint:disable:triple-equals */
+
 // noinspection DuplicatedCode
 
 import {

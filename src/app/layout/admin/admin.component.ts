@@ -6,12 +6,12 @@ import {
     transition,
     trigger,
 } from '@angular/animations';
-import { backend_url } from './../../../environments/environment';
-import { Component, OnInit, Renderer2 } from '@angular/core';
-import { AuthService } from './../../services/auth.service';
-import { HttpClient } from '@angular/common/http';
-import { MenuItems } from '../menu-items';
-import { Router } from '@angular/router';
+import {backend_url} from './../../../environments/environment';
+import {Component, OnInit, Renderer2} from '@angular/core';
+import {AuthService} from './../../services/auth.service';
+import {HttpClient} from '@angular/common/http';
+import {MenuItems} from '../menu-items';
+import {Router} from '@angular/router';
 import * as Pusher from 'pusher-js';
 import swal from 'sweetalert2';
 
@@ -73,12 +73,12 @@ import swal from 'sweetalert2';
         ]),
         trigger('fadeInOutTranslate', [
             transition(':enter', [
-                style({ opacity: 0 }),
-                animate('400ms ease-in-out', style({ opacity: 1 })),
+                style({opacity: 0}),
+                animate('400ms ease-in-out', style({opacity: 1})),
             ]),
             transition(':leave', [
-                style({ transform: 'translate(0)' }),
-                animate('400ms ease-in-out', style({ opacity: 0 })),
+                style({transform: 'translate(0)'}),
+                animate('400ms ease-in-out', style({opacity: 0})),
             ]),
         ]),
         trigger('mobileMenuTop', [
@@ -163,22 +163,6 @@ export class AdminComponent implements OnInit {
 
     public config: any;
     public ipAddress: any;
-
-    scroll = (): void => {
-        const scrollPosition = window.pageYOffset;
-        if (scrollPosition > 56) {
-            if (this.isSidebarChecked === true) {
-                this.pcodedSidebarPosition = 'fixed';
-            }
-            this.headerFixedTop = '0';
-            this.sidebarFixedNavHeight = '100%';
-        } else {
-            this.headerFixedTop = 'auto';
-            this.pcodedSidebarPosition = 'absolute';
-            this.sidebarFixedNavHeight = '';
-        }
-    };
-
     notificaciones: any[] = [];
     showbtn = false;
     user = {
@@ -187,7 +171,6 @@ export class AdminComponent implements OnInit {
         subnivel: 0,
         imagen: '',
     };
-
     theme = {
         layoutType: 'light',
         headerTheme: 'theme1',
@@ -230,12 +213,10 @@ export class AdminComponent implements OnInit {
         backgroundPattern: 'theme1',
         snowEffect: false,
     };
-
     busqueda = {
         criterio: '',
         campo: 'id',
     };
-
     sessionTime: any = '';
 
     constructor(
@@ -392,6 +373,21 @@ export class AdminComponent implements OnInit {
         });
     }
 
+    scroll = (): void => {
+        const scrollPosition = window.pageYOffset;
+        if (scrollPosition > 56) {
+            if (this.isSidebarChecked === true) {
+                this.pcodedSidebarPosition = 'fixed';
+            }
+            this.headerFixedTop = '0';
+            this.sidebarFixedNavHeight = '100%';
+        } else {
+            this.headerFixedTop = 'auto';
+            this.pcodedSidebarPosition = 'absolute';
+            this.sidebarFixedNavHeight = '';
+        }
+    };
+
     ngOnInit() {
         this.sessionTimeLeft();
         this.setBackgroundPattern(this.theme.backgroundPattern);
@@ -415,8 +411,8 @@ export class AdminComponent implements OnInit {
                         response.status == 0
                             ? response.message
                             : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
+                                ? response.error.error_summary
+                                : response.error,
                 });
             }
         );
@@ -845,8 +841,8 @@ export class AdminComponent implements OnInit {
                             response.status == 0
                                 ? response.message
                                 : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
+                                    ? response.error.error_summary
+                                    : response.error,
                     });
 
                     $('#loading-spinner').fadeOut();
@@ -883,8 +879,8 @@ export class AdminComponent implements OnInit {
                                 response.status == 0
                                     ? response.message
                                     : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
+                                        ? response.error.error_summary
+                                        : response.error,
                         });
                     }
                 );
@@ -940,7 +936,7 @@ export class AdminComponent implements OnInit {
                     html:
                         'Su sesión ha expirado<br/>' +
                         `recargue la página o haga click en el siguiente enlace:<br/>` +
-                        `<h1> <a href='http://afa.spaxium.com:11227/#/auth/login'>http://afa.spaxium.com:11227/#/auth/login</a></h1>`,
+                        `<h1> <a href='https://afainnova.com/#/auth/login'>https://afainnova.com/#/auth/login</a></h1>`,
                 });
                 localStorage.removeItem('crm_user');
                 localStorage.removeItem('crm_date');

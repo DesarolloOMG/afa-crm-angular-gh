@@ -1,7 +1,6 @@
-/* tslint:disable:triple-equals */
 import {backend_url, swalErrorHttpResponse} from '@env/environment';
 import {ChangeDetectorRef, Component, OnInit, Renderer2, ViewChild} from '@angular/core';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
 import {WhatsappService} from '@services/http/whatsapp.service';
@@ -505,7 +504,7 @@ export class EnvioComponent implements OnInit {
         this.http
             .post<any>(
                 `${backend_url}/dropbox/get-link`, // Tu endpoint backend seguro
-                { path: idDropbox }
+                {path: idDropbox}
             )
             .subscribe(
                 (res) => {
