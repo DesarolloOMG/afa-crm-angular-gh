@@ -15,7 +15,7 @@ import {PrintService} from '@services/http/print.service';
 export class EtiquetaComponent implements OnInit {
     modalReference: any;
 
-    empresa = '1';
+    empresa = 1;
 
     etiqueta_archivo = {
         archivo: '',
@@ -78,6 +78,7 @@ export class EtiquetaComponent implements OnInit {
             (res: any) => {
                 this.impresoras = [...res.impresoras];
                 this.empresas = [...res.empresas];
+                console.log(this.empresas);
             },
             (response) => {
                 swalErrorHttpResponse(response);
@@ -143,13 +144,17 @@ export class EtiquetaComponent implements OnInit {
                     }
 
                     $this.etiqueta_archivo.archivo = e.target.result;
+                    console.log(e.target.result);
                 };
             })(file);
 
-            // noinspection JSUnusedLocalSymbols
             reader.onerror = (function (f) {
-                // noinspection JSUnusedLocalSymbols
                 return function (e) {
+                    console.error(`Error al leer el archivo: ${f.name}`, e);
+                    swal({
+                        type: 'error',
+                        html: `Ocurrió un error al leer el archivo ${f.name}`,
+                    }).then();
                 };
             })(file);
 
@@ -171,7 +176,6 @@ export class EtiquetaComponent implements OnInit {
 
             reader.onload = (function (f: any) {
                 return function (e: any) {
-                    // noinspection DuplicatedCode
                     const extension =
                         f.name.split('.')[f.name.split('.').length - 1];
 
@@ -221,11 +225,13 @@ export class EtiquetaComponent implements OnInit {
                 };
             })(file);
 
-            // noinspection JSUnusedLocalSymbols
             reader.onerror = (function (f) {
-                // noinspection JSUnusedLocalSymbols
                 return function (e) {
-                    swal('', 'Ocurrió un error al leer el archivo', 'error').then();
+                    console.error(`Error al leer el archivo: ${f.name}`, e);
+                    swal({
+                        type: 'error',
+                        html: `Ocurrió un error al leer el archivo ${f.name}`,
+                    }).then();
                 };
             })(file);
 
@@ -237,6 +243,32 @@ export class EtiquetaComponent implements OnInit {
         if (!this.etiqueta_generar.codigo && !this.etiqueta_serie.codigo) {
             return;
         }
+
+        const codigo = this.etiqueta_generar.codigo ? this.etiqueta_generar.codigo : this.etiqueta_serie.codigo;
+
+        const form_data = new FormData();
+        form_data.append('criterio', codigo);
+
+        this.http
+            .post(`${backend_url}catalogo/busqueda/producto`, form_data)
+            .subscribe(
+                (res: any) => {
+                    if (res.code !== 200) {
+                        swal('', res.message, 'error').then();
+                        return;
+                    }
+                    const producto = res.data[0];
+
+                    this.etiqueta_generar.descripcion =
+                        producto.descripcion;
+
+                    this.etiqueta_serie.descripcion =
+                        producto.descripcion;
+                },
+                (err) => {
+                    swalErrorHttpResponse(err);
+                }
+            );
     }
 
     imprimirEtiqueta(tipo) {
@@ -252,15 +284,12 @@ export class EtiquetaComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
-
-        if (
-            $('.ng-invalid').length > 0 &&
-            this.etiqueta_generar.etiquetas.length === 0
-        ) {
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
         const form_data = new FormData();

@@ -206,31 +206,31 @@ const MENUITEMS = [
         label: 'Ventas',
         levels: [8, 11, 16],
         main: [
-            {
-                main_state: 'venta',
-                state: 'pedido',
-                name: 'Pedidos de venta',
-                short_label: 'PDV',
-                type: 'sub',
-                icon: 'icon-bag',
-                level: [8],
-                except: [13],
-                sublevel: 0,
-                children: [
-                    {
-                        state: 'crear',
-                        name: 'Crear Pedido',
-                        level: [8],
-                        sublevel: 0,
-                    },
-                    {
-                        state: 'pendiente',
-                        name: 'Pendientes',
-                        level: [8],
-                        sublevel: 0,
-                    },
-                ],
-            },
+            // {
+            //     main_state: 'venta',
+            //     state: 'pedido',
+            //     name: 'Pedidos de venta',
+            //     short_label: 'PDV',
+            //     type: 'sub',
+            //     icon: 'icon-bag',
+            //     level: [8],
+            //     except: [13],
+            //     sublevel: 0,
+            //     children: [
+            //         {
+            //             state: 'crear',
+            //             name: 'Crear Pedido',
+            //             level: [8],
+            //             sublevel: 0,
+            //         },
+            //         {
+            //             state: 'pendiente',
+            //             name: 'Pendientes',
+            //             level: [8],
+            //             sublevel: 0,
+            //         },
+            //     ],
+            // },
             {
                 main_state: 'venta',
                 state: 'venta',
@@ -268,6 +268,12 @@ const MENUITEMS = [
                     {
                         state: 'problema',
                         name: 'En problemas',
+                        level: [8],
+                        sublevel: 0,
+                    },
+                    {
+                        state: 'pendiente',
+                        name: 'Pendientes',
                         level: [8],
                         sublevel: 0,
                     },

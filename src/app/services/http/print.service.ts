@@ -25,7 +25,7 @@ export class PrintService {
 
     printEtiquetas(form_data: any) {
         return this.http.post(
-            `${backend_url}print/etiquetas/busqueda`,
+            `${backend_url}print/etiquetas`,
             form_data
         );
     }
@@ -35,7 +35,7 @@ export class PrintService {
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            `${backend_url}print/etiquetas/busqueda`,
+            `${backend_url}print/etiquetas/serie`,
             form_data
         );
     }
