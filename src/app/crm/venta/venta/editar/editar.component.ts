@@ -1,16 +1,13 @@
-import {
-    backend_url,
-    swalErrorHttpResponse
-} from '@env/environment';
-import { Component, OnInit, ViewChild, Renderer2 } from '@angular/core';
-import { VentaService } from '@services/http/venta.service';
-import { AuthService } from '@services/auth.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { NgForm } from '@angular/forms';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {Component, OnInit, Renderer2, ViewChild} from '@angular/core';
+import {VentaService} from '@services/http/venta.service';
+import {AuthService} from '@services/auth.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {NgForm} from '@angular/forms';
 import swal from 'sweetalert2';
-import { CompraService } from '@services/http/compra.service';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-editar',
@@ -444,18 +441,12 @@ export class EditarComponent implements OnInit {
         this.compraService.searchProduct(this.producto.codigo_text).subscribe({
             next: (res: any) => {
                 this.productos = [...res.data];
+                if (this.productos.length == 1) {
+                    this.producto.id = this.productos[0].id;
+                }
             },
             error: (err: any) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        err.status == 0
-                            ? err.message
-                            : typeof err.error === 'object'
-                            ? err.error.error_summary
-                            : err.error,
-                });
+                swalErrorHttpResponse(err);
             },
         });
     }

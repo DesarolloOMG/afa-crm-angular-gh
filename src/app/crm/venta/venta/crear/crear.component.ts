@@ -1321,6 +1321,9 @@ export class CrearComponent implements OnInit {
         this.compraService.searchProduct(this.producto.codigo_text).subscribe({
             next: (res: any) => {
                 this.productos = [...res.data];
+                if (this.productos.length == 1) {
+                    this.producto.id = this.productos[0].id;
+                }
             },
             error: (err: any) => {
                 swalErrorHttpResponse(err);

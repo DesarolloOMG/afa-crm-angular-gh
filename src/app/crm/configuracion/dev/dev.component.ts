@@ -12,6 +12,10 @@ export class DevComponent implements OnInit {
     }
 
     ngOnInit() {
+
+    }
+
+    test() {
         this.developerService.test().subscribe({
             next: (data) => {
                 console.log(data);

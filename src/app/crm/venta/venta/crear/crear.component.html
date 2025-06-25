@@ -5,7 +5,7 @@
             <div class="auth-box card">
                 <div class="card-block">
                     <div class="row m-t-20">
-                        <div class="col-md-3">
+                        <div class="col-md-3" hidden>
                             <div class="form-group form-primary">
                                 <select
                                     name="area"
@@ -34,7 +34,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-6">
                             <div class="form-group form-primary">
                                 <select
                                     name="marketplace"
@@ -1132,7 +1132,7 @@
                                     class="form-control"
                                     [(ngModel)]="producto.id"
                                 >
-                                    <option value="" selected disabled></option>
+                                    <option disabled selected value="0">Seleccione un producto</option>
                                     <option
                                         value="{{ producto.id }}"
                                         *ngFor="let producto of productos"

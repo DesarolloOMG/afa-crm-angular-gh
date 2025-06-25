@@ -92,6 +92,10 @@ export class PackingV2Component implements OnInit, AfterViewInit {
                 this.problemas = res['problemas'];
                 this.usuarios = res['usuarios'];
                 this.impresoras = res['impresoras'];
+
+                if (res['impresoras'].length == 1) {
+                    this.reimpresion.impresora = res['impresoras'][0].id;
+                }
             },
             (response) => {
                 swalErrorHttpResponse(response);

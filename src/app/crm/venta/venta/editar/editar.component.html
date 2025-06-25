@@ -44,6 +44,7 @@
                                     class="form-control"
                                     #inputdocumento="ngModel"
                                     [(ngModel)]="data.documento.documento"
+                                    (keyup.enter)="buscarDocumento()"
                                     pattern="[^'&quot;]+$"
                                 />
                                 <span class="form-bar"></span>
@@ -1127,7 +1128,7 @@
                                     class="form-control"
                                     [(ngModel)]="producto.id"
                                 >
-                                    <option value="" disabled selected></option>
+                                    <option disabled selected value="0">Seleccione un producto</option>
                                     <option
                                         value="{{ producto.id }}"
                                         *ngFor="let producto of productos"
