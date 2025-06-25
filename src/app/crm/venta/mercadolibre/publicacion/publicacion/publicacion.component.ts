@@ -605,6 +605,9 @@ export class PublicacionComponent implements OnInit, DoCheck {
         this.compraService.searchProduct(this.product.search).subscribe({
             next: (res: any) => {
                 this.products = [...res.data];
+                if (this.products.length == 1) {
+                    this.product.sku = this.products[0].sku;
+                }
             },
             error: (err: any) => {
                 swalErrorHttpResponse(err);
