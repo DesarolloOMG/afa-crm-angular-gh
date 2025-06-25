@@ -1,20 +1,12 @@
-import {
-    Component,
-    OnInit,
-    ChangeDetectorRef,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import {
-    backend_url,
-    commaNumber
-} from '@env/environment';
-import { AuthService } from './../../../../services/auth.service';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { NgForm } from '@angular/forms';
+import {ChangeDetectorRef, Component, OnInit, Renderer2, ViewChild,} from '@angular/core';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {AuthService} from './../../../../services/auth.service';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
+import {NgForm} from '@angular/forms';
 import swal from 'sweetalert2';
+import {PrintService} from '@services/http/print.service';
 
 @Component({
     selector: 'app-pendiente',
@@ -84,7 +76,8 @@ export class PendienteComponent implements OnInit {
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
         private renderer: Renderer2,
-        private auth: AuthService
+        private auth: AuthService,
+        private printService: PrintService
     ) {
         const table_producto: any = $('#compra_compra_pendiente');
 
@@ -538,34 +531,23 @@ export class PendienteComponent implements OnInit {
                     });
 
                 const producto = this.data.productos.find(
-                    (producto) => producto.sku == codigo
+                    (p) => p.sku == codigo
                 );
 
                 const etiqueta_serie = {
-                    codigo: producto.sku,
+                    codigo: producto.codigo,
                     descripcion: producto.descripcion,
                     cantidad: Number(confirm.value),
-                    impresora: '6',
+                    impresora: '1',
                 };
 
-                const form_data = new FormData();
-                form_data.append('data', JSON.stringify(etiqueta_serie));
-
-                this.http
-                    .post(`${backend_url}almacen/etiqueta/serie`, form_data)
+                this.printService.printEtiquetasSerie(etiqueta_serie)
                     .subscribe(
-                        (res) => {},
+                        (res) => {
+                            console.log(res);
+                        },
                         (response) => {
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             }

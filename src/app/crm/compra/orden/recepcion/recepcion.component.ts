@@ -5,6 +5,7 @@ import swal from 'sweetalert2';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AuthService} from '@services/auth.service';
 import {WhatsappService} from '@services/http/whatsapp.service';
+import {PrintService} from '@services/http/print.service';
 
 @Component({
     selector: 'app-recepcion',
@@ -103,6 +104,7 @@ export class RecepcionComponent implements OnInit {
         private renderer: Renderer2,
         private auth: AuthService,
         private whatsappService: WhatsappService,
+        private printService: PrintService
     ) {
         const usuario = JSON.parse(this.auth.userData().sub);
 
@@ -704,18 +706,14 @@ export class RecepcionComponent implements OnInit {
                 const etiqueta_serie = {
                     codigo: producto.codigo,
                     descripcion: producto.descripcion,
-                    cantidad: confirm.value,
-                    impresora: '37',
-                    extra: this.series.extra,
+                    cantidad: Number(confirm.value),
+                    impresora: '1',
                 };
 
-                const form_data = new FormData();
-                form_data.append('data', JSON.stringify(etiqueta_serie));
-
-                this.http
-                    .post(`${backend_url}almacen/etiqueta/serie`, form_data)
+                this.printService.printEtiquetasSerie(etiqueta_serie)
                     .subscribe(
-                        () => {
+                        (res) => {
+                            console.log(res);
                         },
                         (response) => {
                             swalErrorHttpResponse(response);
