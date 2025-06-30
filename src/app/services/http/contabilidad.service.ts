@@ -20,6 +20,26 @@ export class ContabilidadService {
         );
     }
 
+    /* Desaldar */
+
+    buscarDesaldar(data) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(
+            `${backend_url}contabilidad/dessaldar/data`, form_data
+        );
+    }
+
+    guardarDesaldar(data) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(
+            `${backend_url}contabilidad/dessaldar/guardar`, form_data
+        );
+    }
+
     /* Contabildiad > Flujo */
     changeMovementClient(data: object) {
         const form_data = new FormData();

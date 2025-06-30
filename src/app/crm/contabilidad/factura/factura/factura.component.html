@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols -->
 <div class="card">
     <div class="card-header">
         <h5>Facturas pendientes</h5>
@@ -10,35 +11,35 @@
                     id="contabilidad_factura_pendiente"
                 >
                     <thead>
-                        <tr>
-                            <th>Documento</th>
-                            <th>Marketplace</th>
-                            <th>Cliente</th>
-                            <th>RFC</th>
-                            <th>Paquetería</th>
-                            <th>Vendedor</th>
-                            <th>Fecha</th>
-                        </tr>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Marketplace</th>
+                        <th>Cliente</th>
+                        <th>RFC</th>
+                        <th>Paquetería</th>
+                        <th>Vendedor</th>
+                        <th>Fecha</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let venta of ventas">
-                            <td>
-                                <button
-                                    class="btn btn-info btn-sm"
-                                    (click)="detalleVenta(modalventa, venta.id)"
-                                >
-                                    {{ venta.id }}
-                                </button>
-                            </td>
-                            <td>
-                                {{ venta.marketplace + " / " + venta.area }}
-                            </td>
-                            <td>{{ venta.cliente }}</td>
-                            <td>{{ venta.rfc }}</td>
-                            <td>{{ venta.paqueteria }}</td>
-                            <td>{{ venta.usuario }}</td>
-                            <td>{{ venta.created_at }}</td>
-                        </tr>
+                    <tr *ngFor="let venta of ventas">
+                        <td>
+                            <button
+                                class="btn btn-info btn-sm"
+                                (click)="detalleVenta(modalventa, venta.id)"
+                            >
+                                {{ venta.id }}
+                            </button>
+                        </td>
+                        <td>
+                            {{ venta.marketplace + " / " + venta.area }}
+                        </td>
+                        <td>{{ venta.cliente }}</td>
+                        <td>{{ venta.rfc }}</td>
+                        <td>{{ venta.paqueteria }}</td>
+                        <td>{{ venta.usuario }}</td>
+                        <td>{{ venta.created_at }}</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -94,20 +95,20 @@
                 <div class="col-sm-10 inline-block table-responsive">
                     <table class="table table-striped">
                         <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Descripción</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                            </tr>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let producto of data.productos">
-                                <td>{{ producto.sku }}</td>
-                                <td>{{ producto.descripcion }}</td>
-                                <td>{{ producto.cantidad }}</td>
-                                <td>$ {{ producto.precio }}</td>
-                            </tr>
+                        <tr *ngFor="let producto of data.productos">
+                            <td>{{ producto.sku }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>{{ producto.cantidad }}</td>
+                            <td>$ {{ producto.precio }}</td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>
@@ -132,8 +133,8 @@
                                     <p class="chat-cont">
                                         {{
                                             seguimiento.nombre +
-                                                " - " +
-                                                seguimiento.created_at
+                                            " - " +
+                                            seguimiento.created_at
                                         }}
                                     </p>
                                     <p
@@ -165,7 +166,7 @@
                 <div class="col-sm-10 inline-block">
                     <button
                         class="btn btn-sm btn-block btn-info http-disabled"
-                        style="margin: 10px"
+                        style="margin: 10px;"
                         (click)="guardarDocumento()"
                         id="guardar_documento"
                         [disabled]="final_data.seguimiento == ''"

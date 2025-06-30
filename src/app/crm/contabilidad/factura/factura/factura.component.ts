@@ -1,8 +1,7 @@
-import { backend_url } from '@env/environment';
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { HttpClient } from '@angular/common/http';
-import { NgForm } from '@angular/forms';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
 import swal from 'sweetalert2';
 
 @Component({
@@ -11,43 +10,38 @@ import swal from 'sweetalert2';
     styleUrls: ['./factura.component.scss']
 })
 export class FacturaComponent implements OnInit {
-    @ViewChild('f') registerForm: NgForm;
 
     modalReference: any;
     datatable: any;
 
     ventas: any[] = [];
-    productos: any[] = [];
-
-    vales: any[] = [];
-
 
     data = {
-        documento: "",
-        marketplace: "",
-        area: "",
-        paqueteria: "",
+        documento: '',
+        marketplace: '',
+        area: '',
+        paqueteria: '',
         productos: [],
         seguimiento_anterior: [],
         puede_terminar: 0,
-        cliente: "",
-        rfc: "",
-        correo: "",
-        telefono: "",
-        telefono_alt: ""
-    }
+        cliente: '',
+        rfc: '',
+        correo: '',
+        telefono: '',
+        telefono_alt: ''
+    };
 
     final_data = {
-        documento: "",
-        seguimiento: "",
+        documento: '',
+        seguimiento: '',
         terminar: 1
     };
 
     constructor(private http: HttpClient, private chRef: ChangeDetectorRef, private modalService: NgbModal) {
-        const table_producto: any = $("#contabilidad_factura_pendiente");
+        const table_producto: any = $('#contabilidad_factura_pendiente');
 
         this.datatable = table_producto.DataTable({
-            "order": [[3, 'asc']]
+            'order': [[3, 'asc']]
         });
     }
 
@@ -59,20 +53,16 @@ export class FacturaComponent implements OnInit {
                     this.reconstruirTabla(this.ventas);
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
 
-                    $("#loading-spinner").fadeOut();
+                    $('#loading-spinner').fadeOut();
                 });
     }
 
     detalleVenta(modal, documento) {
         this.clearData();
 
-        const venta = this.ventas.find(venta => venta.id == documento);
+        const venta = this.ventas.find(v => v.id == documento);
 
         this.data.documento = documento;
         this.final_data.documento = documento;
@@ -95,17 +85,17 @@ export class FacturaComponent implements OnInit {
     }
 
     guardarDocumento() {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
 
         this.http.post(`${backend_url}contabilidad/facturas/pendiente/guardar`, form_data)
             .subscribe(
                 res => {
                     swal({
-                        title: "",
+                        title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message']
-                    });
+                    }).then();
 
                     if (this.final_data.terminar) {
                         const index = this.ventas.findIndex(venta => venta.id == this.final_data.documento);
@@ -117,11 +107,7 @@ export class FacturaComponent implements OnInit {
                     this.modalReference.close();
                 },
                 response => {
-                    swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
-                    });
+                    swalErrorHttpResponse(response);
                 });
     }
 
@@ -130,29 +116,29 @@ export class FacturaComponent implements OnInit {
         this.ventas = ventas;
         this.chRef.detectChanges();
 
-        const table: any = $("#contabilidad_factura_pendiente");
+        const table: any = $('#contabilidad_factura_pendiente');
         this.datatable = table.DataTable();
     }
 
     clearData() {
         this.data = {
-            documento: "",
-            marketplace: "",
-            area: "",
-            paqueteria: "",
+            documento: '',
+            marketplace: '',
+            area: '',
+            paqueteria: '',
             productos: [],
             seguimiento_anterior: [],
-            cliente: "",
-            rfc: "",
-            correo: "",
-            telefono: "",
-            telefono_alt: "",
+            cliente: '',
+            rfc: '',
+            correo: '',
+            telefono: '',
+            telefono_alt: '',
             puede_terminar: 0
-        }
+        };
 
         this.final_data = {
-            documento: "",
-            seguimiento: "",
+            documento: '',
+            seguimiento: '',
             terminar: 1
         };
     }

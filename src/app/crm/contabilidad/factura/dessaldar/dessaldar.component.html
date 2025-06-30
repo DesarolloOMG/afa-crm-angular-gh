@@ -5,35 +5,6 @@
             autocomplete="off"
             #f="ngForm"
         >
-            <div class="row" [hidden]="empresas_usuario.length < 2">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select
-                            name="empresa"
-                            id="empresa"
-                            required
-                            #empresa="ngModel"
-                            class="form-control"
-                            [(ngModel)]="documento.empresa"
-                        >
-                            <option value="" disabled></option>
-                            <option
-                                value="{{ empresa.id }}"
-                                *ngFor="let empresa of empresas"
-                            >
-                                {{ empresa.empresa }}
-                            </option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Empresa</label>
-                        <small
-                            class="text-danger messages block"
-                            *ngIf="empresa.errors?.required"
-                            >Campo requerido</small
-                        >
-                    </div>
-                </div>
-            </div>
 
             <div class="row">
                 <div class="col-md-10">
@@ -63,7 +34,7 @@
                     <button
                         class="btn btn-primary btn-sm btn-block http-disabled"
                         id="button_buscar"
-                        (click)="dessaldar()"
+                        (click)="buscar()"
                         [disabled]="!f.valid"
                     >
                         Buscar

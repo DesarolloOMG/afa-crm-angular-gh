@@ -14,7 +14,7 @@ export class GlobalizarComponent {
     loadingTitle = '';
 
     data = {
-        'uuid': '',
+        uuid: '',
         documentos: []
     };
 
