@@ -2,10 +2,10 @@ table.dataTable {
     tbody {
         td.select-checkbox {
             position: relative;
+            //noinspection DuplicatedCode
             &:before {
                 display: block;
                 position: absolute;
-                top: 1.2em;
                 width: 16px;
                 height: 16px;
                 top: 50%;
@@ -20,7 +20,6 @@ table.dataTable {
             &:after {
                 display: block;
                 position: absolute;
-                top: 1.2em;
                 left: 50%;
                 width: 16px;
                 height: 16px;

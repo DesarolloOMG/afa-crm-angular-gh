@@ -1,411 +1,55 @@
-<ng-template #tabla>
-    <div [@fadeInOutTranslate] class="m-t-50">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group form-primary">
-                    <select
-                        name="contabilidad-globalizar-empresa"
-                        class="form-control"
-                        [(ngModel)]="empresa"
-                    >
-                        <option
-                            value="{{ row.bd }}"
-                            *ngFor="let row of empresas"
-                        >
-                            {{ row.empresa }}
-                        </option>
-                    </select>
-                    <span class="form-bar"></span>
-                    <label class="float-label">Empresa</label>
-                </div>
-            </div>
-            <div class="col-md-3" style="margin-top: -20px">
-                <label style="font-size: 11px; display: block"
-                    >Ver Eliminados / Cancelados</label
-                >
-                <ui-switch
-                    class="js-single"
-                    color="#4680ff"
-                    switchColor="#fff"
-                    size="medium"
-                    name="eliminados"
-                    id="eliminados"
-                    [(ngModel)]="eliminado"
-                    (change)="cambio_eliminados()"
-                ></ui-switch>
-            </div>
-            <div
-                *ngIf="cancelados.length > 1"
-                class="col-md-3"
-                style="margin-top: 10px"
-            >
-                <label style="font-size: 14px; display: block; color: red"
-                    >{{ cancelados.length }} Eliminados / Cancelados</label
-                >
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group form-primary">
-                    <input
-                        type="date"
-                        name="busquedainicio"
-                        class="form-control"
-                        #busquedainicio="ngModel"
-                        [(ngModel)]="busqueda.fecha_inicial"
-                        required
-                    />
-                    <span class="form-bar"></span>
-                    <label class="float-label">Fecha de inicio</label>
-                    <small
-                        class="text-danger messages block"
-                        *ngIf="
-                            busquedainicio.invalid &&
-                            (busquedainicio.dirty || busquedainicio.touched)
-                        "
-                        >Favor de escoger una fecha valida.</small
-                    >
-                    <small
-                        class="text-danger messages block"
-                        *ngIf="
-                            busquedainicio.errors?.required &&
-                            (busquedainicio.dirty || busquedainicio.touched)
-                        "
-                        >Este campo es requerido.</small
-                    >
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="form-group form-primary">
-                    <input
-                        type="date"
-                        name="busquedafin"
-                        class="form-control"
-                        #busquedafin="ngModel"
-                        [(ngModel)]="busqueda.fecha_final"
-                        required
-                    />
-                    <span class="form-bar"></span>
-                    <label class="float-label">Fecha de terminación</label>
-                    <small
-                        class="text-danger messages block"
-                        *ngIf="
-                            busquedafin.invalid &&
-                            (busquedafin.dirty || busquedafin.touched)
-                        "
-                        >Favor de escoger una fecha valida.</small
-                    >
-                    <small
-                        class="text-danger messages block"
-                        *ngIf="
-                            busquedafin.errors?.required &&
-                            (busquedafin.dirty || busquedafin.touched)
-                        "
-                        >Este campo es requerido.</small
-                    >
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <button
-                    type="button"
-                    class="btn btn-info btn-sm btn-block"
-                    placement="top"
-                    ngbTooltip="Buscar facturas"
-                    (click)="cargarFacturas()"
-                >
-                    <i class="fa fa-search fa-2x"></i>
-                </button>
-            </div>
-            <div class="col-md-6">
-                <button
-                    [disabled]="entidades.length < 1"
-                    type="button"
-                    class="btn btn-info btn-sm btn-block"
-                    placement="top"
-                    ngbTooltip="Descargar Excel"
-                    (click)="excelGlobalizar()"
-                >
-                    <i class="fa fa-file-excel fa-2x"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="row m-t-50">
-            <div class="col-md-12 table-responsive">
-                <table class="table table-striped" id="globalizar_amazon">
-                    <thead>
-                        <tr>
-                            <th style="text-align: center">
-                                <input
-                                    type="checkbox"
-                                    id="select_all"
-                                    (click)="select_all()"
-                                />
-                            </th>
-                            <th>Documento</th>
-                            <th>ID Comercial</th>
-                            <th>Venta</th>
-                            <th>Fecha</th>
-                            <th>Factura</th>
-                            <th>Total</th>
-                            <th>Moneda</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            *ngFor="let row of entidades"
-                            [ngClass]="
-                                row.eliminado_por == 1
-                                    ? 'cancelado'
-                                    : row.cancelado_por == 1
-                                    ? 'cancelado'
-                                    : ''
-                            "
-                        >
-                            <td></td>
-                            <td>{{ row.folio }}</td>
-                            <td>
-                                {{ row.id }}
-                            </td>
-                            <td>{{ row.no_venta }}</td>
-                            <td>
-                                {{ row.fecha | date : "dd/MM/yyyy" }}
-                            </td>
-                            <td>{{ row.factura }}</td>
-                            <td>${{ row.total }}</td>
-                            <td>{{ row.moneda }}</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th>Total seleccionado:</th>
-                            <th>$ {{ commaNumber(totalVendido()) }}</th>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
-    <button
-        class="btn btn-block btn-outline-info m-t-10"
-        (click)="get_selected_data()"
-    >
-        Globalizar!
-    </button>
-</ng-template>
-
-<ng-template #title let-name="name">
-    <h5>{{ name }}</h5>
-</ng-template>
-
 <div class="card">
     <div class="card-body">
-        <form class="md-float-material form-material m-t-10">
-            <div class="md-tabs">
-                <ngb-tabset (tabChange)="onChangeTab($event.nextId)" #tabs>
-                    <ngb-tab id="tab-amazon">
-                        <ng-template ngbTabTitle>
-                            <ng-container
-                                [ngTemplateOutlet]="title"
-                                [ngTemplateOutletContext]="{
-                                    name: 'Amazon'
-                                }"
-                            ></ng-container>
-                        </ng-template>
-                        <ng-template ngbTabContent>
-                            <ng-container
-                                [ngTemplateOutlet]="tabla"
-                            ></ng-container>
-                        </ng-template>
-                    </ngb-tab>
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            class="form-control"
+                            [(ngModel)]="data.uuid"
+                            name="uuid"
+                            placeholder="UUID de factura global"
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">UUID</label>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-group form-primary">
+                        <input
+                            type="file"
+                            class="form-control"
+                            id="cargar_archivo"
+                            name="cargar_archivo"
+                            (change)="cargarArchivoExcel()"
+                            multiple
+                        />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Excel</label>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <a
+                        href="assets/files/GlobalizarExcel.xlsx"
+                        class="btn btn-outline-info btn-sm btn-block"
+                        placement="top"
+                        ngbTooltip="Descargar template"
+                        download
+                    >
+                        Plantilla <i class="fa fa-download"></i>
+                    </a>
+                </div>
 
-                    <ngb-tab id="tab-mercadolibre">
-                        <ng-template ngbTabTitle>
-                            <ng-container
-                                [ngTemplateOutlet]="title"
-                                [ngTemplateOutletContext]="{
-                                    name: 'MercadoLibre'
-                                }"
-                            ></ng-container>
-                        </ng-template>
-                        <ng-template ngbTabContent>
-                            <ng-container
-                                [ngTemplateOutlet]="tabla"
-                            ></ng-container>
-                        </ng-template>
-                    </ngb-tab>
-
-                    <ngb-tab id="tab-walmart">
-                        <ng-template ngbTabTitle>
-                            <ng-container
-                                [ngTemplateOutlet]="title"
-                                [ngTemplateOutletContext]="{
-                                    name: 'Walmart'
-                                }"
-                            ></ng-container>
-                        </ng-template>
-                        <ng-template ngbTabContent>
-                            <ng-container
-                                [ngTemplateOutlet]="tabla"
-                            ></ng-container>
-                        </ng-template>
-                    </ngb-tab>
-
-                    <ngb-tab id="tab-claroshop">
-                        <ng-template ngbTabTitle>
-                            <ng-container
-                                [ngTemplateOutlet]="title"
-                                [ngTemplateOutletContext]="{
-                                    name: 'ClaroShop'
-                                }"
-                            ></ng-container>
-                        </ng-template>
-                        <ng-template ngbTabContent>
-                            <ng-container
-                                [ngTemplateOutlet]="tabla"
-                            ></ng-container>
-                        </ng-template>
-                    </ngb-tab>
-
-                    <ngb-tab id="tab-sears">
-                        <ng-template ngbTabTitle>
-                            <ng-container
-                                [ngTemplateOutlet]="title"
-                                [ngTemplateOutletContext]="{
-                                    name: 'Sears'
-                                }"
-                            ></ng-container>
-                        </ng-template>
-                        <ng-template ngbTabContent>
-                            <ng-container
-                                [ngTemplateOutlet]="tabla"
-                            ></ng-container>
-                        </ng-template>
-                    </ngb-tab>
-
-                    <!-- LINIO -->
-                    <ngb-tab id="tab-linio">
-                        <ng-template ngbTabTitle>
-                            <h5>Linio</h5>
-                        </ng-template>
-                        <ng-template ngbTabContent>
-                            <div [@fadeInOutTranslate] class="m-t-50">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <form
-                                            class="md-float-material form-material mt-10"
-                                        >
-                                            <div class="row col-sm-12">
-                                                <div class="col-md-6">
-                                                    <div
-                                                        class="form-group form-primary"
-                                                    >
-                                                        <select
-                                                            name="contabilidad-linio-empresa"
-                                                            class="form-control"
-                                                            [(ngModel)]="
-                                                                linio.empresa
-                                                            "
-                                                        >
-                                                            <option
-                                                                value="{{
-                                                                    row.id
-                                                                }}"
-                                                                *ngFor="
-                                                                    let row of empresas_linio
-                                                                "
-                                                            >
-                                                                {{
-                                                                    row.empresa
-                                                                }}
-                                                            </option>
-                                                        </select>
-                                                        <span
-                                                            class="form-bar"
-                                                        ></span>
-                                                        <label
-                                                            class="float-label"
-                                                            >Empresa</label
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row col-sm-12 m-t-20">
-                                                <div class="col-md-6">
-                                                    <div
-                                                        class="form-group form-primary"
-                                                    >
-                                                        <input
-                                                            type="file"
-                                                            class="form-control"
-                                                            id="cargar_archivo_xml"
-                                                            name="cargar_archivo_xml"
-                                                            (change)="
-                                                                cargarArchivoXML()
-                                                            "
-                                                            multiple
-                                                        />
-                                                        <span
-                                                            class="form-bar"
-                                                        ></span>
-                                                        <label
-                                                            class="float-label"
-                                                            >Cargar XML de Linio
-                                                            <small
-                                                                >(Máximo 10
-                                                                archivos)</small
-                                                            ></label
-                                                        >
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-md-6">
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <button
-                                                                class="btn btn-outline-info btn-sm btn-block http-disabled"
-                                                                placement="top"
-                                                                ngbTooltip="Globalizar facturas"
-                                                                (click)="
-                                                                    importar(
-                                                                        $event
-                                                                    )
-                                                                "
-                                                            >
-                                                                <i
-                                                                    class="fa fa-2x fa-file-import"
-                                                                ></i>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </ng-template>
-                    </ngb-tab>
-                </ngb-tabset>
             </div>
+
+            <button
+                class="btn btn-outline-info btn-block m-t-10"
+                type="button"
+                (click)="procesar()"
+            >
+                Procesar
+            </button>
         </form>
     </div>
 </div>
-<ngx-spinner
-    bdColor="rgba(51,51,51,0.8)"
-    size="medium"
-    color="#fff"
-    type="ball-scale-multiple"
->
-    <p style="font-size: 20px; color: white">Procesando {{ loadingTitle }}</p>
-</ngx-spinner>
