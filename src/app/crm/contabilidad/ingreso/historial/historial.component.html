@@ -1,519 +1,228 @@
-<div class="card">
-    <div class="card-header">
-        <form class="md-float-material form-material mt-10">
-            <div class="row">
-                <div class="col-md-6">
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="cuenta"
-                                    id="cuenta"
-                                    #cuenta="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="data.cuenta"
-                                >
-                                    <option value=""></option>
-                                    <option
-                                        value="{{ cuenta.id }}"
-                                        *ngFor="let cuenta of entidades_financieras"
-                                    >
-                                        {{ cuenta.nombre }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Cuenta</label>
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="cuenta.errors?.required"
-                                    >Campo requerido</small
-                                >
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="afectaciones"
-                                    id="afectaciones"
-                                    #afectacion="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="data.tipo_afectacion"
-                                >
-                                    <option value="" disabled></option>
-                                    <option
-                                        value="{{ afectacion.id }}"
-                                        *ngFor="let afectacion of tipos_afectacion"
-                                    >
-                                        {{ afectacion.nombre }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Tipo de Afectación</label>
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="afectacion.errors?.required"
-                                >Campo requerido</small
-                                >
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="date"
-                                    name="fecha_inicio"
-                                    class="form-control"
-                                    [(ngModel)]="data.fecha_inicio"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Fecha de inicio</label
-                                >
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="date"
-                                    name="fecha_final"
-                                    class="form-control"
-                                    [(ngModel)]="data.fecha_final"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Fecha final</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="folio"
-                                    class="form-control"
-                                    [(ngModel)]="data.folio"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Folio</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button
-                                class="btn btn-sm btn-outline-info btn-block http-disabled"
-                                (click)="buscarFacturas()"
-                                placement="top"
-                                ngbTooltip="Generar reporte"
-                            >
-                                <i class="fa fa-file-alt fa-2x"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button
-                                class="btn btn-outline-info btn-sm btn-block m-t-10 http-disabled"
-                                (click)="descargarExcel()"
-                                [disabled]="excel.data == ''"
-                                placement="top"
-                                ngbTooltip="Descargar excel"
-                            >
-                                <i class="fa fa-file-download fa-2x"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-        </form>
+<div class="card border shadow-sm rounded-4">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold text-dark">
+            Historial de Ingresos / Egresos
+        </h5>
+        <button class="btn btn-primary btn-sm shadow-sm" (click)="buscarMovimientos()">
+            <i class="fas fa-search me-1"></i> Buscar
+        </button>
     </div>
-    <div class="card-block table-responsive">
-        <div class="row">
-            <div class="col-md-12">
-                <table
-                    class="table table-striped"
-                    id="contabilidad_ingreso_historial"
-                >
-                    <thead>
-                        <tr>
-                            <th>Folio</th>
-                            <th>Origen</th>
-                            <th>Destino</th>
-                            <th>Cuenta</th>
-                            <th>Monto</th>
-                            <th>Referencia</th>
-                            <th>PI/E</th>
-                            <!--
-                            <th>Traspaso</th>
-                            -->
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            *ngFor="
-                                let documento of documentos;
-                                let index = index
-                            "
-                            class="{{ documento.eliminado ? 'cancelado' : '' }}"
-                        >
-                            <td>
-                                <button
-                                    class="btn btn-info btn-sm"
-                                    (click)="verDetalle(documento, content)"
-                                    [disabled]="documento.eliminado"
-                                >
-                                    {{ documento.folio }}
-                                </button>
-                            </td>
-                            <td>{{ documento.entidad_origen }}</td>
-                            <td>{{ documento.entidad_destino }}</td>
-                            <td>{{ documento.cuenta }}</td>
-                            <td>
-                                $
-                                {{
-                                    commaNumber(
-                                        documento.origen_importe == 0
-                                            ? documento.destino_importe
-                                            : documento.origen_importe
-                                    )
-                                }}
-                            </td>
-                            <td>{{ documento.referencia }}</td>
-                            <td
-                                class="text-center"
-                                *ngIf="!documento.poliza; else hayPoliza"
-                            >
-                                <button
-                                    class="btn btn-sm"
-                                    (click)="
-                                        generarPolizaModal(
-                                            documento.id,
-                                            modalpoliza
-                                        )
-                                    "
-                                >
-                                    <i
-                                        class="fa fa-2x fa-times text-danger cursor-pointer"
-                                    ></i>
-                                </button>
-                                <!-- <i
-                                    class="fa fa-2x fa-{{
-                                        !documento.poliza
-                                            ? 'times text-danger cursor-pointer'
-                                            : 'check text-success'
-                                    }}"
-                                    (click)="
-                                        !documento.poliza &&
-                                            generarPolizaModal(
-                                                documento.id,
-                                                modalpoliza
-                                            )
-                                    "
-                                ></i> -->
-                            </td>
-                            <ng-template #hayPoliza>
-                                <td class="text-center">
-                                    <i
-                                        *ngIf="documento.poliza"
-                                        class="fa fa-2x fa-check text-success"
-                                    ></i>
-                                </td>
-                            </ng-template>
 
-                            <!--
-                            <td>
-                                <ui-switch
-                                    class="js-single"
-                                    color="#4680ff"
-                                    switchColor="#fff"
-                                    size="medium"
-                                    name="traspaso_{{ index }}"
-                                    [disabled]="documento.traspasado == 1"
-                                    [(ngModel)]="documento.traspaso"
-                                ></ui-switch>
-                            </td>
-                            -->
-                            <td>
-                                <button
-                                    class="btn btn-info btn-sm"
-                                    (click)="eliminar(documento.id)"
-                                >
-                                    Eliminar
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <div class="card-body">
+        <!-- Filtros -->
+        <div class="row g-3 mb-3 align-items-end">
+
+            <div class="col-md-3">
+                <div class="form-group form-primary">
+                    <select
+                        name="cuenta"
+                        id="cuenta"
+                        #cuenta="ngModel"
+                        class="form-control"
+                        [(ngModel)]="filtros.cuenta"
+                    >
+                        <option value=""></option>
+                        <option
+                            *ngFor="let cuenta of entidades_financieras"
+                            [value]="cuenta.id"
+                        >
+                            {{ cuenta.nombre }}
+                        </option>
+                    </select>
+                    <span class="form-bar"></span>
+                    <label class="float-label">Cuenta</label>
+                    <small
+                        class="text-danger messages block"
+                        *ngIf="cuenta.errors?.required"
+                    >Campo requerido</small>
+                </div>
             </div>
+
+            <div class="col-md-3">
+                <div class="form-group form-primary">
+                    <select
+                        name="afectaciones"
+                        id="afectaciones"
+                        #afectacion="ngModel"
+                        class="form-control"
+                        [(ngModel)]="filtros.tipo_afectacion"
+                    >
+                        <option value="" disabled></option>
+                        <option
+                            *ngFor="let afectacion of tipos_afectacion"
+                            [value]="afectacion.id"
+                        >
+                            {{ afectacion.nombre }}
+                        </option>
+                    </select>
+                    <span class="form-bar"></span>
+                    <label class="float-label">Tipo de Afectación</label>
+                    <small
+                        class="text-danger messages block"
+                        *ngIf="afectacion.errors?.required"
+                    >Campo requerido</small>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group form-primary">
+                    <input
+                        type="text"
+                        name="folio"
+                        id="folio"
+                        class="form-control"
+                        [(ngModel)]="filtros.folio"
+                    />
+                    <span class="form-bar"></span>
+                    <label class="float-label">Folio</label>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group form-primary">
+                    <input
+                        type="date"
+                        name="fecha_inicio"
+                        id="fecha_inicio"
+                        class="form-control"
+                        [(ngModel)]="filtros.fecha_inicio"
+                    />
+                    <span class="form-bar"></span>
+                    <label class="float-label">Desde</label>
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <div class="form-group form-primary">
+                    <input
+                        type="date"
+                        name="fecha_final"
+                        id="fecha_final"
+                        class="form-control"
+                        [(ngModel)]="filtros.fecha_final"
+                    />
+                    <span class="form-bar"></span>
+                    <label class="float-label">Hasta</label>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead style="background:#0d6efd; color:#fff;">
+                <tr>
+                    <th>Folio</th>
+                    <th>Fecha</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Monto</th>
+                    <th>Saldo disp.</th>
+                    <th>Forma pago</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let mov of movimientos">
+                    <td>{{ mov.folio }}</td>
+                    <td>{{ mov.fecha_operacion | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td>{{ mov.nombre_origen }}</td>
+                    <td>{{ mov.nombre_destino }}</td>
+                    <td>${{ commaNumber(mov.monto) }}</td>
+                    <td>${{ commaNumber(mov.saldo_disponible) }}</td>
+                    <td>{{ mov.forma_pago }}</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm" (click)="abrirModalDetalle(mov, modalDetalle)">
+                            <i class="fas fa-eye"></i> Ver
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="movimientos.length === 0">
+                    <td colspan="8" class="text-center text-muted fst-italic">No hay resultados</td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<ng-template #content let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Detalle del documento</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
+<!-- MODAL -->
+<ng-template #modalDetalle>
+    <div class="modal-header bg-primary text-white rounded-top d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-file-invoice-dollar fs-5"></i>
+            <h5 class="modal-title mb-0">
+                Detalle de Movimiento #{{ movimientoSeleccionado?.folio }}
+            </h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" aria-label="Cerrar" (click)="modalRef.close()"></button>
     </div>
-    <div class="modal-body">
-        <form class="md-float-material form-material">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="vertical"
-                            [value]="documento.vertical"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Vertical</label>
+
+    <div class="modal-body" style="max-width:100vw;">
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="bg-white border rounded shadow-sm p-3 h-100">
+                    <div class="small text-secondary">Monto</div>
+                    <div class="fw-bold text-success fs-4">
+                        ${{ commaNumber(movimientoSeleccionado?.monto) }}
                     </div>
                 </div>
             </div>
-
-            <div class="row" [hidden]="data.tipo != 0">
-                <div class="col-md-3">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="categoria"
-                            [value]="documento.categoria"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Categoria</label>
+            <div class="col-md-4">
+                <div class="bg-white border rounded shadow-sm p-3 h-100">
+                    <div class="small text-secondary">Saldo disponible</div>
+                    <div class="fw-bold text-primary fs-4">
+                        ${{ commaNumber(movimientoSeleccionado?.saldo_disponible) }}
                     </div>
                 </div>
             </div>
-
-            <div class="row m-t-30">
-                <div class="col-md-6">
-                    <h4 class="sub-title">Origen</h4>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="date"
-                                    name="origen_fecha_operacion"
-                                    class="form-control"
-                                    [value]="documento.origen_fecha_operacion"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Fecha de operación</label
-                                >
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="origen_monto"
-                                    class="form-control"
-                                    [value]="documento.origen_importe"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Monto</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="origen_entidad"
-                                    [value]="documento.entidad_origen"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Tipo Entidad</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="origen_cuenta"
-                                    [value]="documento.origen_entidad"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Entidad</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <h4 class="sub-title">Destino</h4>
-
-                    <div class="row">
-                        <div class="col-md-12" [hidden]="data.tipo != 2">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="date"
-                                    name="destino_fecha_operacion"
-                                    class="form-control"
-                                    [value]="documento.destino_fecha_operacion"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Fecha de operación</label
-                                >
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="destino_entidad"
-                                    [value]="documento.entidad_destino"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Entidad</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    name="destino_entidad_cuenta"
-                                    [value]="documento.destino_entidad"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Entidad</label>
-                            </div>
-                        </div>
-                    </div>
+            <div class="col-md-4">
+                <div class="bg-white border rounded shadow-sm p-3 h-100">
+                    <div class="small text-secondary">Forma de pago</div>
+                    <div class="fw-bold text-dark">{{ movimientoSeleccionado?.forma_pago }}</div>
                 </div>
             </div>
+        </div>
 
-            <h4 class="sub-title m-t-30">Método de pago y referencia</h4>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="metodo_pago"
-                            [value]="documento.metodo_pago"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Metodo de pago</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            name="referencia"
-                            class="form-control"
-                            [value]="documento.referencia"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Referencia</label>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="cuenta_cliente"
-                            [value]="documento.cuenta_cliente"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Cuenta bancaria</label>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            name="clave_rastreo"
-                            class="form-control"
-                            [value]="documento.clave_rastreo"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label">Clave de rastreo</label>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="form-group form-primary">
-                        <input
-                            type="text"
-                            name="autorizacion"
-                            class="form-control"
-                            [value]="documento.autorizacion"
-                        />
-                        <span class="form-bar"></span>
-                        <label class="float-label"
-                            >No. de autorización / Cheque</label
-                        >
-                    </div>
-                </div>
+        <div class="border rounded bg-white shadow-sm p-3">
+            <div class="fw-bold text-primary mb-3 d-flex align-items-center gap-1">
+                <i class="fas fa-list-alt"></i> Documentos aplicados
             </div>
+            <div class="row g-2">
+                <ng-container *ngIf="movimientoSeleccionado?.documentos_aplicados?.length > 0; else sinDocs">
+                    <div class="col-md-6 col-xl-4" *ngFor="let doc of movimientoSeleccionado?.documentos_aplicados">
+                        <div class="border rounded shadow-sm p-2 bg-light h-100">
+                            <div class="small text-secondary mb-1">ID Documento</div>
+                            <div class="fw-bold mb-2">{{ doc.id_documento }}</div>
 
-            <h4 class="sub-title m-t-30">Documentos relacionados</h4>
+                            <div class="small text-secondary">Total</div>
+                            <div class="fw-bold text-success mb-2">${{ commaNumber(doc.total) }}</div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Folio</th>
-                                <th>Monto</th>
-                                <th>T.C</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let factura of documento.facturas">
-                                <td>
-                                    {{ factura.serie + " " + factura.folio }}
-                                </td>
-                                <td>$ {{ commaNumber(factura.monto) }}</td>
-                                <td>$ {{ commaNumber(factura.tc) }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                            <div class="small text-secondary">Saldo</div>
+                            <div class="fw-bold text-primary mb-2">${{ commaNumber(doc.saldo) }}</div>
+
+                            <div class="small text-secondary">Monto aplicado</div>
+                            <div class="fw-bold mb-2">${{ commaNumber(doc.monto_aplicado) }}</div>
+
+                            <div class="small text-secondary">Moneda</div>
+                            <div class="fw-bold mb-2">{{ doc.moneda }}</div>
+
+                            <div class="small text-secondary" *ngIf="doc.moneda !== 'MXN'">Tipo de cambio</div>
+                            <div class="fw-bold" *ngIf="doc.moneda !== 'MXN'">
+                                {{ doc.tipo_cambio }}
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+                <ng-template #sinDocs>
+                    <div class="text-center text-muted fst-italic py-2">
+                        Sin documentos aplicados
+                    </div>
+                </ng-template>
             </div>
-        </form>
+        </div>
     </div>
 </ng-template>
+
 

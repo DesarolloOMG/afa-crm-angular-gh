@@ -1,8 +1,7 @@
-import {commaNumber, swalErrorHttpResponse} from '@env/environment';
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import swal from 'sweetalert2';
-import * as moment from 'moment';
-import {ContabilidadService} from '@services/http/contabilidad.service';
+import { Component, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ContabilidadService } from '@services/http/contabilidad.service';
+import { commaNumber, swalErrorHttpResponse } from '@env/environment';
 
 @Component({
     selector: 'app-historial',
@@ -10,114 +9,58 @@ import {ContabilidadService} from '@services/http/contabilidad.service';
     styleUrls: ['./historial.component.scss'],
 })
 export class HistorialComponent implements OnInit {
-    moment = moment;
-    commaNumber = commaNumber;
-
-    datatable_name = '#contabilidad_ingreso_historial';
-    datatable: any;
-
-    data = {
-        folio: '',
+    filtros = {
         cuenta: '',
-        fecha_inicio: this.currentDate(),
-        fecha_final: this.currentDate(),
         tipo_afectacion: '',
+        folio: '',
+        fecha_inicio: '',
+        fecha_final: '',
     };
 
-    excel = {
-        nombre: '',
-        data: '',
-    };
+    movimientos: any[] = [];
+    movimientoSeleccionado: any = null;
+    modalRef: any;
 
-    entidades_financieras = [];
-    tipos_afectacion = [];
+    entidades_financieras: any[] = [];
+    tipos_afectacion: any[] = [];
+    commaNumber = commaNumber;
 
     constructor(
         private contabilidadService: ContabilidadService,
-        private chRef: ChangeDetectorRef,
-    ) {
-        const table: any = $(this.datatable_name);
-        this.datatable = table.DataTable();
-    }
+        private modalService: NgbModal
+    ) {}
 
     ngOnInit() {
         this.contabilidadService.historialData().subscribe({
             next: (result: any) => {
-                console.log(result);
                 this.entidades_financieras = result.entidades_financieras;
                 this.tipos_afectacion = result.tipos_afectacion;
             },
-            error: (err) => swalErrorHttpResponse(err)
+            error: (err) => swalErrorHttpResponse(err),
         });
     }
 
-    currentDate() {
-        const today = new Date();
-        const dd = today.getDate();
-        const mm = today.getMonth() + 1;
-        const yyyy = today.getFullYear();
+    buscarMovimientos() {
+        const filtros = {
+            cuenta: this.filtros.cuenta || null,
+            tipo_afectacion: this.filtros.tipo_afectacion || null,
+            folio: this.filtros.folio || null,
+            fecha_inicio: this.filtros.fecha_inicio || null,
+            fecha_final: this.filtros.fecha_final
+                ? this.filtros.fecha_final + ' 23:59:59'
+                : null,
+        };
 
-        let d: string;
-        let m: string;
-
-        if (dd < 10) {
-            d = '0' + dd;
-        } else {
-            d = String(dd);
-        }
-
-        if (mm < 10) {
-            m = '0' + mm;
-        } else {
-            m = String(mm);
-        }
-
-        return yyyy + '-' + m + '-' + d;
-    }
-
-    async buscarFacturas() {
-
-        if (this.data.tipo_afectacion == '') {
-            return swal({
-                type: 'error',
-                html: 'Favor de seleccionar un tipo de documento para generar el reporte',
-            });
-        }
-
-        if (
-            moment(this.data.fecha_final).isBefore(
-                moment(this.data.fecha_inicio)
-            )
-        ) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona un rango de fechas valido',
-            });
-        }
-
-        this.contabilidadService.historialDataFiltrado(this.data).subscribe({
-            next: (result: any) => {
-                console.log(result)
+        this.contabilidadService.historialDataFiltrado(filtros).subscribe({
+            next: (res: any) => {
+                this.movimientos = res.movimientos;
             },
-            error: (err) => {
-                swalErrorHttpResponse(err);
-            },
-            complete: () => {
-                this.buscarFacturas();
-            }
+            error: (err) => swalErrorHttpResponse(err),
         });
-
     }
 
-
-    reconstruirTabla() {
-        this.datatable.destroy();
-        this.chRef.detectChanges();
-        const table: any = $(this.datatable_name);
-        this.datatable = table.DataTable();
-    }
-
-    descargarExcel() {
-
+    abrirModalDetalle(mov: any, modal: any) {
+        this.movimientoSeleccionado = mov;
+        this.modalRef = this.modalService.open(modal, { size: 'lg' });
     }
 }
