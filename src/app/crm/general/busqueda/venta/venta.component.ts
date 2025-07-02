@@ -136,6 +136,8 @@ export class VentaComponent implements OnInit {
             productos: venta.productos,
             direccion: venta.direccion,
             no_venta: venta.no_venta,
+            comentario: venta.comentario,
+            movimientos_contables: venta.movimientos_contables || [],
             cliente: venta.cliente,
             rfc: venta.rfc,
             correo: venta.correo == 0 ? '' : venta.correo,
@@ -187,6 +189,8 @@ export class VentaComponent implements OnInit {
             };
             return icons[ext] || 'file text-warning';
         };
+
+        console.log(venta.archivos);
 
         venta.archivos.forEach((archivo) => {
             const ext = archivo.archivo.split('.').pop();

@@ -5,8 +5,10 @@ export interface GBBData {
     id_fase: number;
     modelo_proveedor_venta: string;
     no_venta: string;
+    comentario: string;
     archivos: any[];
     correo: string;
+    movimientos_contables: any[];
     api: { marketplace: string; id_marketplace_area: number; id: number; publico: number };
     mkt_total: number;
     telefono: string;

@@ -75,992 +75,385 @@
 </div>
 
 <ng-template #modalventa let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Informacion de la venta</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal_venta"
-        >
-            <span aria-hidden="true">&times;</span>
+    <!-- CABECERA -->
+    <div class="modal-header d-flex align-items-center justify-content-between" style="background:#3f51b5; color:#fff;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-file-invoice-dollar" style="font-size:1.4rem;"></i>
+            <h5 class="modal-title fw-bold mb-0">Información de la venta #{{ final_data.documento }}</h5>
+        </div>
+        <button type="button" class="btn p-0 text-white" aria-label="Close" (click)="d('Cross click')" style="font-size:1.4rem;">
+            <i class="fas fa-times"></i>
         </button>
     </div>
-    <div class="modal-body table-responsive">
-        <div class="form-horizontal form-bordered">
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Documento</label>
-                <div class="col-sm-10 inline-block">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <h5>{{ final_data.documento }}</h5>
+
+    <!-- CUERPO -->
+    <div class="modal-body" style="background:#f8fafc;">
+        <div class="container-fluid py-2">
+
+            <!-- CARDS SUPERIORES -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <div class="card rounded-4 shadow-sm border h-100">
+                        <div class="card-body py-3">
+                            <div class="d-flex align-items-center gap-2 py-1">
+                                <i class="fas fa-hashtag text-primary"></i>
+                                <span class="fw-bold text-secondary">N° de venta</span>
+                            </div>
+                            <div class="fw-semibold text-dark fs-5">{{ data.no_venta }}</div>
+                            <div *ngIf="data.marketplace == 'MERCADOLIBRE' && data.comentario">
+                                <div class="d-flex align-items-center gap-2 py-1 mt-2">
+                                    <i class="fas fa-box text-primary"></i>
+                                    <span class="fw-bold text-secondary">Pack ID</span>
+                                </div>
+                                <div class="fw-semibold text-dark fs-5">{{ data.comentario }}</div>
+                            </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div
-                            class="col-md-3"
-                            *ngIf="
-                                niveles.indexOf(11) >= 0 ||
-                                niveles.indexOf(6) >= 0
-                            "
-                        >
-                            <button
-                                class="btn btn-info btn-sm btn-block m-b-10 http-disabled"
-                                (click)="crearRefacturacion(0)"
-                                [hidden]="
-                                    data.refacturado == 1 || data.id_fase != 6
-                                "
-                                [disabled]="
-                                    data.rfc == 'XAXX010101000' ||
-                                    !data.timbrado ||
-                                    data.refacturacion_pendiente
-                                "
-                                style="float: right"
-                            >
-                                {{
-                                    data.refacturacion_pendiente
-                                        ? "Pendiente"
-                                        : "Refacturar"
-                                }}
-                            </button>
+                <div class="col-md-4">
+                    <div class="card rounded-4 shadow-sm border h-100">
+                        <div class="card-body py-3">
+                            <div class="d-flex align-items-center gap-2 py-1">
+                                <i class="fas fa-store text-success"></i>
+                                <span class="fw-bold text-secondary">Marketplace / Área</span>
+                            </div>
+                            <div class="fw-semibold text-dark fs-5">{{ data.marketplace }} / {{ data.area }}</div>
+                            <div class="text-end mt-2" *ngIf="data.marketplace == 'MERCADOLIBRE'">
+                                <button class="btn btn-outline-primary btn-sm" (click)="informacionExtraMercadolibre(modalinformacionmercadolibre)">
+                                    Más información
+                                </button>
+                            </div>
                         </div>
-
-                        <div
-                            class="col-md-3"
-                            *ngIf="
-                                niveles.indexOf(6) >= 0 ||
-                                desGlobalizarAutorizados.includes(id_usuario)
-                            "
-                        >
-                            <button
-                                class="btn btn-info btn-sm btn-block m-b-10 http-disabled"
-                                (click)="crearRefacturacion(1)"
-                                [hidden]="
-                                    data.refacturado == 1 || data.id_fase != 6
-                                "
-                                [disabled]="
-                                    !data.timbrado ||
-                                    data.refacturacion_pendiente
-                                "
-                                style="float: right"
-                            >
-                                {{
-                                    data.refacturacion_pendiente
-                                        ? "Pendiente"
-                                        : "Des-Globalizar"
-                                }}
-                            </button>
-                        </div>
-
-                        <div
-                            class="col-md-3"
-                            *ngIf="
-                                niveles.indexOf(11) >= 0 ||
-                                niveles.indexOf(6) >= 0
-                            "
-                        >
-
-                            <button
-                                class="btn btn-info btn-sm btn-block m-b-10 http-disabled"
-                                (click)="crearNotaCredito(data.refacturado)"
-                                [hidden]="data.id_fase != 6"
-                                [disabled]="
-                                    !data.timbrado ||
-                                    data.nota != 'N/A' ||
-                                    data.nota_pendiente ||
-                                    data.refacturado == 1
-                                "
-                                style="float: right"
-                            >
-                                {{
-                                    data.nota == "N/A"
-                                        ? data.nota_pendiente
-                                            ? "NC Pendiente Autorizar"
-                                            : "Generar NC"
-                                        : "NC " + data.nota
-                                }}
-                            </button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card rounded-4 shadow-sm border h-100">
+                        <div class="card-body py-3">
+                            <div class="d-flex align-items-center gap-2 py-1">
+                                <i class="fas fa-warehouse text-warning"></i>
+                                <span class="fw-bold text-secondary">Empresa / Almacén</span>
+                            </div>
+                            <div class="fw-semibold text-dark fs-5">{{ data.empresa_razon }} / {{ data.almacen }}</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">N° de venta</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.no_venta }}</h5>
+            <!-- CLIENTE Y DIRECCIÓN -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex align-items-center gap-2 py-1">
+                            <i class="fas fa-user text-success"></i>
+                            <span class="fw-bold text-secondary">Cliente</span>
+                        </div>
+                        <div class="fw-semibold">{{ data.cliente }}</div>
+                        <div class="text-muted small">{{ data.rfc }}</div>
+                        <div class="text-muted small">{{ data.correo }}</div>
+                        <div class="text-muted small">{{ data.telefono }}</div>
+                        <div class="text-muted small">{{ data.telefono_alt }}</div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="d-flex align-items-center gap-2 py-1">
+                            <i class="fas fa-map-marker-alt text-danger"></i>
+                            <span class="fw-bold text-secondary">Dirección de envío</span>
+                        </div>
+                        <div class="fw-semibold text-dark">
+                            {{ $any(data).direccion?.calle }} {{ $any(data).direccion?.numero }} {{ $any(data).direccion?.numero_int }}
+                        </div>
+                        <div class="text-muted small">
+                            {{ $any(data).direccion?.colonia }}, {{ $any(data).direccion?.ciudad }}, {{ $any(data).direccion?.estado }}, CP {{ $any(data).direccion?.codigo_postal }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Factura</label>
-                <div class="col-sm-10 inline-block">
-                    <form class="md-float-material form-material m-t-20 m-b-20">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group form-primary">
-                                    <input
-                                        type="email"
-                                        name="correo"
-                                        class="form-control"
-                                        [(ngModel)]="data.correo"
-                                    />
-                                    <span class="form-bar"></span>
-                                    <label class="float-label">Email</label>
+            <!-- Sección exclusiva para la guía -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-barcode text-primary"></i>
+                    <span class="fw-bold text-secondary">Guía de envío</span>
+                </div>
+                <div *ngIf="data.guias && data.guias.length > 0; else noGuia">
+                    <div class="fw-semibold fs-5">{{ data.guias[0].guia }}</div>
+                </div>
+                <ng-template #noGuia>
+                    <div class="text-muted fst-italic">Sin guía registrada</div>
+                </ng-template>
+            </div>
+
+            <!-- DATOS ADICIONALES -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="small fw-bold text-secondary">Referencia</div>
+                        <div class="fw-semibold text-dark">{{ data.referencia }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small fw-bold text-secondary">Periodo de pago</div>
+                        <div class="fw-semibold text-dark">{{ data.periodo }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small fw-bold text-secondary">Moneda | T.C</div>
+                        <div class="fw-semibold text-dark">{{ data.moneda }} | $ {{ data.tipo_cambio }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small fw-bold text-secondary">Paquetería</div>
+                        <div class="fw-semibold text-dark">{{ data.paqueteria }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small fw-bold text-secondary">Fecha de surtido</div>
+                        <div class="fw-semibold text-dark">
+                            {{
+                                data.fecha_surtido != "0000-00-00 00:00:00"
+                                    ? moment(data.fecha_surtido).format("LLLL")
+                                    : "SIN REGISTRO"
+                            }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="small fw-bold text-secondary">Surtido por</div>
+                        <div class="fw-semibold text-dark">{{ data.empaquetador || 'SIN REGISTRO' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTOS -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fas fa-boxes text-primary"></i>
+                    <span class="fw-bold text-secondary">Productos</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0 border-top">
+                        <thead class="bg-light text-secondary text-uppercase small">
+                        <tr>
+                            <th class="text-start">Código</th>
+                            <th class="text-start">Descripción</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">Precio</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr *ngFor="let prod of data.productos">
+                            <td>{{ prod.sku }}</td>
+                            <td>{{ prod.descripcion }}</td>
+                            <td class="text-center">{{ prod.cantidad }}</td>
+                            <td class="text-end">
+                                {{ prod.precio | currency:'MXN':'symbol':'1.2-2' }}
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot class="fw-bold">
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td class="text-end">Total:</td>
+                            <td class="text-end text-success">{{ totalDocumento() | currency:'MXN':'symbol':'1.2-2' }}</td>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="text-muted small mt-1">
+                    Precios en pesos con IVA incluido.
+                </div>
+            </div>
+
+            <!-- PAGOS -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-money-check-alt text-success"></i>
+                    <span class="fw-bold text-secondary">Pagos registrados</span>
+                </div>
+
+                <div *ngIf="data.movimientos_contables && data.movimientos_contables.length > 0; else noPagos">
+                    <div class="row g-3">
+                        <div class="col-md-4" *ngFor="let mov of data.movimientos_contables">
+                            <div *ngIf="mov" class="card border shadow-sm rounded-4 h-100 p-0">
+                                <div
+                                    class="d-flex justify-content-between align-items-center p-2 rounded-top-4"
+                                    [ngStyle]="{
+                                              'background-color': mov.activo == 1 ? 'rgba(25, 135, 84, 0.15)' : 'rgba(220, 53, 69, 0.15)'
+                                          }"
+                                    >
+                                    <div class="fw-bold text-dark" style="font-size: 1rem;">
+                                        <i class="fas fa-file-invoice-dollar me-1 text-secondary"></i> {{ mov.folio }}
+                                    </div>
+
+                                    <div class="fw-bold"
+                                         [ngClass]="mov.activo == 1 ? 'text-success' : 'text-danger'"
+                                         style="font-size: 1rem;">
+                                        {{ mov.activo == 1 ? 'Activo' : 'Inactivo' }}
+                                    </div>
+                                </div>
+
+                                <div class="card-body p-2">
+                                    <div class="row">
+                                        <div class="col-6 mb-2">
+                                            <span class="text-muted">Monto</span><br>
+                                            <span class="fw-semibold text-success">
+                                    {{ mov.monto_aplicado | currency:mov.moneda_aplicada:'symbol':'1.2-2' }}
+                                </span>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <span class="text-muted">Moneda</span><br>
+                                            <span class="fw-semibold">{{ mov.moneda_aplicada }}</span>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <span class="text-muted">Forma pago</span><br>
+                                            <span class="fw-semibold">{{ mov.forma_pago || 'N/A' }}</span>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <span class="text-muted">Fecha</span><br>
+                                            <span class="fw-semibold">{{ mov.fecha_movimiento | date:'yyyy-MM-dd HH:mm' }}</span>
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <span class="text-muted">Origen</span><br>
+                                            <span class="fw-semibold">{{ mov.origen_nombre || 'N/A' }}</span>
+                                        </div>
+                                        <div class="col-12">
+                                            <span class="text-muted">Destino</span><br>
+                                            <span class="fw-semibold">{{ mov.destino_nombre || 'N/A' }}</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="col-md-4">
-                                <button
-                                    class="btn btn-sm btn-info btn-block http-disabled"
-                                    [hidden]="
-                                        data.id_fase < 6 || !data.timbrado
-                                    "
-                                    (click)="enviarFactura()"
-                                >
-                                    Enviar factura
-                                </button>
-                            </div>
-
-                            <div class="col-md-4">
-                                <a
-                                    class="btn btn-sm btn-info btn-block http-disabled"
-                                    [hidden]="
-                                        data.id_fase < 6 || !data.timbrado
-                                    "
-                                    href="javascript:void(0);"
-                                    (click)="
-                                        descargarDocumento(
-                                            0,
-                                            data.documento_extra
-                                        )
-                                    "
-                                >Descargar XML</a
-                                >
-                            </div>
-
-                            <div class="col-md-4">
-                                <a
-                                    class="btn btn-sm btn-info btn-block http-disabled"
-                                    [hidden]="
-                                        data.id_fase < 6 || !data.timbrado
-                                    "
-                                    href="javascript:void(0);"
-                                    (click)="
-                                        descargarDocumento(1,data.documento_extra)
-                                    "
-                                >Descargar PDF</a
-                                >
-                            </div>
                         </div>
-                    </form>
+                    </div>
+                </div>
+
+                <ng-template #noPagos>
+                    <div class="text-center text-muted fst-italic py-3">
+                        <i class="fas fa-money-bill-wave fa-2x mb-2"></i><br>
+                        No hay pagos registrados
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- SEGUIMIENTO -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-comments text-secondary"></i>
+                    <span class="fw-bold text-secondary">Seguimiento</span>
+                </div>
+                <app-new-editor [(ngModel)]="final_data.seguimiento"></app-new-editor>
+                <div *ngFor="let seguimiento of data.seguimiento_anterior" class="border rounded p-2 mb-2 bg-light">
+                    <div class="fw-bold small mb-1">{{ seguimiento.nombre }} - {{ seguimiento.created_at }}</div>
+                    <div [innerHTML]="seguimiento.seguimiento"></div>
                 </div>
             </div>
 
-            <div
-                class="form-group group-div"
-                [hidden]="data.id_fase < 6 || !data.timbrado"
-            >
-                <label class="col-form-label col-sm-2"
-                >Complemento de pago</label
-                >
-                <div class="col-sm-10 inline-block">
-                    <form class="md-float-material form-material m-t-20 m-b-20">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <a
-                                    class="btn btn-sm btn-info btn-block http-disabled"
-                                    [hidden]="
-                                        data.id_fase < 6 || !data.timbrado
-                                    "
-                                    href="javascript:void(0);"
-                                    (click)="descargarComplemento(0)"
-                                >Descargar XML</a
-                                >
-                            </div>
-
-                            <div class="col-md-4">
-                                <a
-                                    class="btn btn-sm btn-info btn-block http-disabled"
-                                    [hidden]="
-                                        data.id_fase < 6 || !data.timbrado
-                                    "
-                                    href="javascript:void(0);"
-                                    (click)="descargarComplemento(1)"
-                                >Descargar PDF</a
-                                >
-                            </div>
-                        </div>
-                    </form>
+            <!-- ARCHIVOS -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-paperclip text-secondary"></i>
+                    <span class="fw-bold text-secondary">Archivos</span>
                 </div>
-            </div>
-            <div *ngIf="data.pago != undefined">
-                <div
-                    class="form-group group-div"
-                    *ngIf="
-                        (niveles.indexOf(11) >= 0 || niveles.indexOf(6) >= 0) &&
-                        data.pago.length > 0
-                    "
-                >
-                    <label class="col-form-label col-sm-2"
-                    >Pagos relacionados</label
-                    >
-                    <div class="col-sm-10 inline-block">
-                        <table class="table table-striped m-t-10">
-                            <thead>
+
+                <!-- CARGA DE NUEVOS ARCHIVOS -->
+                <div class="mb-2">
+                    <input type="file" class="form-control mb-2" id="archivos">
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Tipo de archivo</label>
+                            <select class="form-control" [(ngModel)]="archivo.guia">
+                                <option value="">Seleccione</option>
+                                <option value="1">Archivo de información</option>
+                                <option value="2">Guía de embarque</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold">Tamaño de hoja</label>
+                            <select class="form-control" [(ngModel)]="archivo.impresora">
+                                <option value="">Seleccione</option>
+                                <option *ngFor="let impresora of impresoras" [value]="impresora.id">
+                                    {{ impresora.nombre }} - {{ impresora.tamanio }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <button class="btn btn-primary btn-sm w-100 fw-bold" (click)="agregarArchivo()">
+                                <i class="fas fa-plus me-1"></i> Agregar archivo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ARCHIVOS NUEVOS A SUBIR -->
+                <div class="mt-3" *ngIf="final_data.archivos.length > 0">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle border mb-0 rounded-4 overflow-hidden">
+                            <thead class="bg-light text-secondary small text-uppercase">
                             <tr>
-                                <th>ID</th>
-                                <td>Fecha</td>
-                                <td>C.O</td>
-                                <td>C.D</td>
-                                <td>Total</td>
-                                <td>Pagado</td>
-                                <td>Saldo</td>
-                                <td>T.C</td>
+                                <th>Archivo</th>
+                                <th>Tipo</th>
+                                <th>Tamaño hoja</th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
-                            <tr *ngFor="let pago of pagos">
-                                <td>{{ pago.operacion }}</td>
+                            <tr *ngFor="let archivo of final_data.archivos; let i = index">
                                 <td>
-                                    {{ pago.ingreso_informacion[0].fecha }}
+                                    <i class="fas fa-file-alt text-primary me-1"></i> {{ archivo.nombre || archivo.archivo }}
                                 </td>
                                 <td>
-                                    {{ pago.ingreso_informacion[0].origen }}
+                                    {{ archivo.guia == '1' ? 'Información' : 'Guía de embarque' }}
                                 </td>
                                 <td>
-                                    {{
-                                        pago.ingreso_informacion[0].destino
-                                    }}
+                                    {{ nombreTamanioHoja(archivo.impresora) }}
                                 </td>
                                 <td>
-                                    {{
-                                        pago.ingreso_informacion[0]
-                                            .monto_total | number : "1.2-2"
-                                    }}
+                        <span class="text-danger fw-bold" style="cursor:pointer;" (click)="quitarArchivo(i)">
+                            <i class="fas fa-trash-alt me-1"></i> Quitar
+                        </span>
                                 </td>
-                                <td>
-                                    {{ pago.monto | number : "1.2-2" }}
-                                </td>
-                                <td>
-                                    {{
-                                        pago.ingreso_informacion[0]
-                                            .monto_total - pago.monto
-                                            | number : "1.2-2"
-                                    }}
-                                </td>
-                                <td>{{ pago.tc }}</td>
                             </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>
-            <div *ngIf="data.pago != undefined">
-                <div
-                    class="form-group group-div"
-                    *ngIf="
-                        (niveles.indexOf(11) >= 0 || niveles.indexOf(6) >= 0) &&
-                        data.pago.length > 0
-                    "
-                >
-                    <label class="col-form-label col-sm-2">Forma de pago</label>
-                    <div class="col-sm-10 inline-block">
-                        <h5>{{ data.forma_pago }}</h5>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="data.pago != undefined">
-                <div
-                    class="form-group group-div"
-                    *ngIf="
-                        (niveles.indexOf(11) >= 0 || niveles.indexOf(6) >= 0) &&
-                        data.pago.length > 0
-                    "
-                >
-                    <label class="col-form-label col-sm-2"
-                    >Metodo de pago</label
-                    >
-                    <div class="col-sm-10 inline-block">
-                        <h5>{{ data.metodo_pago }}</h5>
-                    </div>
-                </div>
-            </div>
-            <div *ngIf="data.notas !== undefined">
-                <div
-                    class="form-group group-div"
-                    *ngIf="
-                        (niveles.indexOf(11) >= 0 || niveles.indexOf(6) >= 0) &&
-                        data.notas.length > 0
-                    "
-                >
-                    <label class="col-form-label col-sm-2"
-                    >Notas de credito</label
-                    >
-                    <div class="col-sm-10 inline-block">
-                        <div class="row">
-                            <div class="col-md-12 m-t-10">
-                                <table class="table table-striped">
-                                    <thead>
-                                    <tr>
-                                        <th>ID Nota</th>
-                                        <th>PDF</th>
-                                        <th>XML</th>
-                                    </tr>
-                                    </thead>
 
-                                    <tbody>
-                                    <tr *ngFor="let nota of data.notas">
-                                        <td>{{ nota.documento }}</td>
-
-                                        <td>
-                                            <button
-                                                (click)="
-                                                        descargarNotaCredito(
-                                                            nota.documento,
-                                                            2
-                                                        )
-                                                    "
-                                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
-                                                ngbTooltip="Descargar PDF"
-                                                placement="top"
-                                            >
-                                                <i
-                                                    class="fa fa-2x fa-file-pdf"
-                                                ></i>
-                                            </button>
-                                        </td>
-                                        <td>
-                                            <button
-                                                (click)="
-                                                        descargarNotaCredito(
-                                                            nota.documento,
-                                                            1
-                                                        )
-                                                    "
-                                                class="btn btn-sm btn-outline-info btn-block http-disabled m-t-10 m-b-10"
-                                                ngbTooltip="Descargar XML"
-                                                placement="top"
-                                            >
-                                                <i
-                                                    class="fa fa-2x fa-file-code"
-                                                ></i>
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                <!-- ARCHIVOS YA EXISTENTES -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h5 class="sub-title">Archivos Información</h5>
+                        <ul class="list-group" *ngIf="archivos_comun.length > 0">
+                            <li *ngFor="let archivo of archivos_comun" class="list-group-item">
+                                <i class="fa fa-{{archivo.icon}} fa-lg"></i>
+                                <span style="cursor:pointer" (click)="verArchivo(archivo.dropbox)">
+                        {{ archivo.archivo }}
+                    </span>
+                                <i class="fa fa-times text-danger float-end" (click)="borrarArchivo(archivo.dropbox)"></i>
+                            </li>
+                        </ul>
+                        <div *ngIf="archivos_comun.length == 0" class="text-muted small">Sin archivos</div>
                     </div>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Marketplace</label>
-                <div class="col-sm-10 inline-block">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h5>{{ data.marketplace + " / " + data.area }}</h5>
-                        </div>
-                        <div
-                            class="col-md-4"
-                            [hidden]="data.marketplace != 'MERCADOLIBRE'"
-                        >
-                            <button
-                                class="btn btn-info btn-sm m-b-10 http-disabled"
-                                (click)="
-                                    informacionExtraMercadolibre(
-                                        modalinformacionmercadolibre
-                                    )
-                                "
-                                style="float: right"
-                            >
-                                Más información
-                            </button>
-                        </div>
+
+                    <div class="col-md-6">
+                        <h5 class="sub-title">Archivos Guía</h5>
+                        <ul class="list-group" *ngIf="archivos_guia.length > 0">
+                            <li *ngFor="let archivo of archivos_guia" class="list-group-item">
+                                <i class="fa fa-{{archivo.icon}} fa-lg"></i>
+                                <span style="cursor:pointer" (click)="verArchivo(archivo.dropbox)">
+                        {{ archivo.archivo }}
+                    </span>
+                                <i class="fa fa-times text-danger float-end" (click)="borrarArchivo(archivo.dropbox)"></i>
+                            </li>
+                        </ul>
+                        <div *ngIf="archivos_guia.length == 0" class="text-muted small">Sin archivos</div>
                     </div>
                 </div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Almacén</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.empresa_razon }}</h5>
-                    <h5>{{ data.almacen }}</h5>
-                </div>
+            <!-- BOTÓN GUARDAR -->
+            <div class="mt-3">
+                <button class="btn btn-primary btn-sm w-100 fw-bold" [disabled]="final_data.seguimiento==''" (click)="guardarDocumento()">
+                    Guardar
+                </button>
             </div>
 
-            <div
-                class="form-group group-div"
-                *ngIf="data.empresa_externa != '0'"
-            >
-                <label class="col-form-label col-sm-2">Empresa externa</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>
-                        {{
-                            data.empresa_externa_razon +
-                            " (" +
-                            data.empresa_externa +
-                            ")"
-                        }}
-                    </h5>
-                </div>
-            </div>
-
-            <div
-                class="form-group group-div"
-                [hidden]="data.modelo_proveedor_id == 0"
-            >
-                <label class="col-form-label col-sm-2"
-                >Proveedor Dropshipping</label
-                >
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.modelo_proveedor }}</h5>
-                </div>
-            </div>
-
-            <div
-                class="form-group group-div"
-                [hidden]="data.modelo_proveedor_id == 0"
-            >
-                <label class="col-form-label col-sm-2"
-                >Venta Proveedor Dropshipping</label
-                >
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.modelo_proveedor_venta }}</h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Cliente</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>- {{ data.cliente }}</h5>
-                    <h5>- {{ data.rfc }}</h5>
-                    <h5>- {{ data.correo }}</h5>
-                    <h5>- {{ data.telefono }}</h5>
-                    <h5>- {{ data.telefono_alt }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2"
-                >Dirección de envío</label
-                >
-                <div class="col-sm-10 inline-block">
-                    <h5 *ngIf="$any(data).direccion != 0">
-                        {{
-                            $any(data).direccion.calle +
-                            " " +
-                            $any(data).direccion.numero +
-                            " " +
-                            $any(data).direccion.numero_int +
-                            ", " +
-                            $any(data).direccion.colonia +
-                            ", " +
-                            $any(data).direccion.ciudad +
-                            ", " +
-                            $any(data).direccion.estado +
-                            ", " +
-                            $any(data).direccion.codigo_postal
-                        }}
-                    </h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Observación</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.observacion }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Referencia</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.referencia }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Periodo de pago</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.periodo }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Moneda | T.C</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.moneda + " | $ " + data.tipo_cambio }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Paquetería</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.paqueteria }}</h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Fecha de surtido</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>
-                        {{
-                            data.fecha_surtido != "0000-00-00 00:00:00"
-                                ? moment(data.fecha_surtido)
-                                    .format("LLLL")
-                                    .charAt(0)
-                                    .toUpperCase() +
-                                moment(data.fecha_surtido)
-                                    .format("LLLL")
-                                    .slice(1)
-                                : data.no_venta.includes("F") &&
-                                data.marketplace == "LINIO"
-                                    ? "Fulfillment"
-                                    : "SIN REGISTRO"
-                        }}
-                    </h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Surtido por</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>
-                        {{
-                            data.empaquetador
-                                ? data.empaquetador
-                                : data.no_venta.includes("F") &&
-                                data.marketplace == "LINIO"
-                                    ? "Fulfillment"
-                                    : "SIN REGISTRO"
-                        }}
-                    </h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div" *ngIf="data.guias.length > 0">
-                <label class="col-form-label col-sm-2">Guías</label>
-                <div class="col-sm-10 inline-block">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>Guía</th>
-                            <th>Manifiesto</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let guia of data.guias">
-                            <td>{{ guia.guia }}</td>
-                            <td>
-                                {{
-                                    guia.manifiesto.length == 0
-                                        ? "Sin registro"
-                                        : guia.manifiesto[0].salida == 0
-                                            ? "Ingresado al manifiesto, sin movimientos"
-                                            : guia.manifiesto[0].salida == 1 &&
-                                            guia.manifiesto[0].impreso == 1
-                                                ? "Entregado a paquetería"
-                                                : "Escaneado para su entrega a paquetería"
-                                }}
-                            </td>
-                            <td>
-                                <a
-                                    *ngIf="data.paqueteria_url != 'N/A'"
-                                    class="btn btn-outline-info btn-sm btn-block"
-                                    href="{{
-                                            data.paqueteria_url + guia.guia
-                                        }}"
-                                    ngbTooltip="Rastrear guía"
-                                    placement="top"
-                                    target="_blank"
-                                >
-                                    <i
-                                        class="fa fa-map-marker-alt fa-2x"
-                                    ></i>
-                                </a>
-                                <a
-                                    *ngIf="data.paqueteria_url == 'N/A'"
-                                    href="#"
-                                    ngbTooltip="Sin url de rastreo"
-                                    placement="top"
-                                >
-                                    <h5>{{ guia.guia }}</h5>
-                                </a>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="form-group group-div" *ngIf="data.usuario_agro">
-                <label class="col-form-label col-sm-2">Solicitado por</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>
-                        {{ data.usuario_agro }}
-                    </h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Productos</label>
-                <div class="col-sm-10 inline-block table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Descripción</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let producto of data.productos">
-                            <td>{{ producto.sku }}</td>
-                            <td>
-                                {{ producto.descripcion }} <br/><br/>
-
-                                Garantía:
-                                <b
-                                >{{
-                                        producto.garantia == "fabricante"
-                                            ? "Con fabricante"
-                                            : producto.garantia
-                                    }} </b
-                                ><b
-                                [hidden]="
-                                            producto.garantia == 'fabricante'
-                                        "
-                            >días</b
-                            ><br/>
-                                Restan:
-                                <b
-                                    [hidden]="
-                                            producto.garantia == 'fabricante'
-                                        "
-                                >{{
-                                        producto.garantia -
-                                        diferenciaFechas(
-                                            data.created_at
-                                        ) <
-                                        0
-                                            ? 0
-                                            : producto.garantia -
-                                            diferenciaFechas(
-                                                data.created_at
-                                            )
-                                    }}
-                                    días</b
-                                >
-                            </td>
-                            <td>{{ producto.cantidad }}</td>
-                            <td>$ {{ producto.precio }}</td>
-                            <td>
-                                <button
-                                    (click)="
-                                            verSeries(
-                                                producto.sku,
-                                                modalserierecibidas
-                                            )
-                                        "
-                                    [disabled]="
-                                            producto.serie == 0 ||
-                                            producto.series.length == 0
-                                        "
-                                    class="btn btn-sm btn-info"
-                                >
-                                    Ver series
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
-                        <tfoot>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th>$ {{ totalDocumento() }}</th>
-                            <th></th>
-                        </tr>
-                        <tr *ngIf="data.mkt_coupon && data.mkt_coupon >= 1">
-                            <th></th>
-                            <th class="text-danger messages">
-                                Descuentos por aplicar al documento:
-                            </th>
-                            <th></th>
-                            <th class="text-danger messages">
-                                $ {{ data.mkt_coupon }}
-                            </th>
-                            <th></th>
-                        </tr>
-                        </tfoot>
-                    </table>
-                    <small class="text-danger messages"
-                    >Los precios mostrados en la tabla son en pesos con IVA
-                        incluido.</small
-                    >
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Seguimiento</label>
-                <div class="col-sm-10 inline-block">
-                    <app-new-editor
-                        class="m-t-20"
-                        name="seguimiento"
-                        [(ngModel)]="final_data.seguimiento"
-                    >
-                    </app-new-editor>
-                    <div
-                        *ngFor="let seguimiento of data.seguimiento_anterior"
-                        class="m-t-20 m-b-20"
-                    >
-                        <div class="media chat-messages">
-                            <div class="media-body chat-menu-content">
-                                <div class="">
-                                    <p class="chat-cont">
-                                        {{
-                                            seguimiento.nombre +
-                                            " - " +
-                                            seguimiento.created_at
-                                        }}
-                                    </p>
-                                    <p
-                                        class="chat-cont"
-                                        [innerHTML]="seguimiento.seguimiento"
-                                    ></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Archivos</label>
-                <div class="col-sm-10 inline-block">
-                    <form class="md-float-material form-material mt-10">
-                        <h4 class="sub-title m-t-20">Subir archivos</h4>
-
-                        <div class="row m-t-20">
-                            <div class="col-md-12">
-                                <input
-                                    type="file"
-                                    class="form-control ngb-drop-zone text-center ripple light"
-                                    id="archivos"
-                                />
-                            </div>
-
-                            <div class="col-md-6 m-t-20">
-                                <div class="form-group form-primary">
-                                    <select
-                                        name="archivo_tipo"
-                                        id="archivo_tipo"
-                                        class="form-control"
-                                        [(ngModel)]="archivo.guia"
-                                    >
-                                        <option value="" disabled></option>
-                                        <option value="1">
-                                            Archivo de información
-                                        </option>
-                                        <option value="2">
-                                            Guía de embarque
-                                        </option>
-                                    </select>
-                                    <span class="form-bar"></span>
-                                    <label class="float-label"
-                                    >Tipo de archivo</label
-                                    >
-                                </div>
-                            </div>
-
-                            <div class="col-md-6 m-t-20">
-                                <div class="form-group form-primary">
-                                    <select
-                                        name="archivo_impresora"
-                                        id="archivo_impresora"
-                                        class="form-control"
-                                        [(ngModel)]="archivo.impresora"
-                                    >
-                                        <option value="" disabled></option>
-                                        <option
-                                            value="{{ impresora.id }}"
-                                            *ngFor="let impresora of impresoras"
-                                        >
-                                            {{
-                                                impresora.nombre +
-                                                " - " +
-                                                impresora.tamanio
-                                            }}
-                                        </option>
-                                    </select>
-                                    <span class="form-bar"></span>
-                                    <label class="float-label"
-                                    >Tamaño de la hoja</label
-                                    >
-                                </div>
-                            </div>
-
-                            <div class="col-md-12">
-                                <button
-                                    type="button"
-                                    class="btn btn-info btn-sm btn-block"
-                                    (click)="agregarArchivo()"
-                                >
-                                    Agregar archivo
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="row m-t-20">
-                            <div class="col-md-12">
-                                <table
-                                    class="table table-bordered table-striped m-t-20"
-                                    *ngIf="final_data.archivos.length > 0"
-                                >
-                                    <thead>
-                                    <tr>
-                                        <th>Archivo</th>
-                                        <th>Tipo de archivo</th>
-                                        <th>Tamaño de la hoja</th>
-                                        <th></th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr
-                                        *ngFor="
-                                                let archivo of final_data.archivos;
-                                                let index = index
-                                            "
-                                    >
-                                        <td>{{ archivo.nombre }}</td>
-                                        <td>
-                                            {{
-                                                archivo.guia == "1"
-                                                    ? "Archivo de información"
-                                                    : "Guía de embarque"
-                                            }}
-                                        </td>
-                                        <td>
-                                            {{
-                                                nombreTamanioHoja(
-                                                    archivo.impresora
-                                                )
-                                            }}
-                                        </td>
-                                        <td>
-                                                <span
-                                                    (click)="quitarArchivo(index)"
-                                                    class="float-right cursor-pointer text-danger"
-                                                >Quitar</span
-                                                >
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <h4 class="sub-title m-t-20">
-                            {{
-                                data.archivos.length <= 0
-                                    ? "Sin Archivos"
-                                    : "Archivos Subidos"
-                            }}
-                        </h4>
-
-                        <div
-                            class="row"
-                            *ngIf="
-                                archivos_comun.length > 0 ||
-                                archivos_guia.length > 0
-                            "
-                        >
-                            <div class="col-md-6 m-b-20">
-                                <h5 class="sub-title">Archivos Información</h5>
-                                <ul
-                                    class="list-group"
-                                    *ngIf="archivos_comun.length > 0"
-                                >
-                                    <li
-                                        class="list-group-item"
-                                        *ngFor="let archivo of archivos_comun"
-                                    >
-                                        <i
-                                            class="fa fa-{{
-                                                archivo.icon
-                                            }} fa-lg"
-                                        ></i>
-                                        <span
-                                            class="text-muted"
-                                            (click)="
-                                                verArchivo(archivo.dropbox)
-                                            "
-                                            style="cursor: pointer"
-                                        >&nbsp;&nbsp;{{
-                                                archivo.archivo
-                                            }} </span
-                                        ><i
-                                        (click)="borrarArchivo(archivo.dropbox)"
-                                        class="fa fa-times fa-lg"
-                                        style="color: red"
-                                    ></i>
-                                    </li>
-                                </ul>
-
-                                <h5 *ngIf="archivos_comun.length == 0">
-                                    Sin archivos
-                                </h5>
-                            </div>
-                            <div class="col-md-6 m-b-20">
-                                <h5 class="sub-title">Archivos Guía</h5>
-                                <ul
-                                    class="list-group"
-                                    *ngIf="archivos_guia.length > 0"
-                                >
-                                    <li
-                                        class="list-group-item"
-                                        *ngFor="let archivo of archivos_guia"
-                                    >
-                                        <i
-                                            class="fa fa-{{
-                                                archivo.icon
-                                            }} fa-lg"
-                                        ></i>
-                                        <span
-                                            class="text-muted"
-                                            (click)="
-                                                verArchivo(archivo.dropbox)
-                                            "
-                                            style="cursor: pointer"
-                                        >&nbsp;&nbsp;{{
-                                                archivo.archivo
-                                            }} </span
-                                        ><i
-                                        (click)="borrarArchivo(archivo.dropbox)"
-                                        class="fa fa-times fa-lg"
-                                        style="color: red"
-                                    ></i>
-                                    </li>
-                                </ul>
-
-                                <h5 *ngIf="archivos_guia.length == 0">
-                                    Sin archivos
-                                </h5>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">&nbsp;</label>
-                <div class="col-sm-10 inline-block">
-                    <button
-                        class="btn btn-sm btn-block btn-info http-disabled"
-                        style="margin: 10px"
-                        (click)="guardarDocumento()"
-                        [disabled]="final_data.seguimiento == ''"
-                    >
-                        Guardar
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 </ng-template>
@@ -1098,268 +491,288 @@
 </ng-template>
 
 <ng-template #modalinformacionmercadolibre let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Informacion de la venta</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal_ml"
-        >
-            <span aria-hidden="true">&times;</span>
+    <!-- CABECERA -->
+    <div class="modal-header d-flex align-items-center justify-content-between" style="background:#3f51b5; color:#fff;">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-store"></i>
+            <h5 class="modal-title mb-0">Información de la venta MercadoLibre</h5>
+        </div>
+        <button type="button" class="btn p-0 text-white" aria-label="Close" (click)="d('Cross click')">
+            <i class="fas fa-times"></i>
         </button>
     </div>
-    <div class="modal-body table-responsive">
-        <div class="form-horizontal form-bordered">
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Venta</label>
-                <div class="col-sm-10 inline-block">
-                    <p class="no-margin">
-                        Venta: <b>{{ $any(data).extra_info.id }}</b>
-                    </p>
-                    <p class="no-margin">
-                        Fecha de creación:
-                        <b>{{ $any(data).extra_info.date_created }}</b>
-                    </p>
-                    <p class="no-margin">
-                        Fecha de cierre:
-                        <b>{{ $any(data).extra_info.date_closed }}</b>
-                    </p>
-                    <p class="no-margin">
-                        Estado: <b>{{ $any(data).extra_info.status }}</b>
-                    </p>
-                    <p class="no-margin">
-                        Total: <b>{{ $any(data).extra_info.total_amount }}</b>
-                    </p>
+
+    <!-- CUERPO -->
+    <div class="modal-body" style="background:#f8fafc;">
+        <div class="container-fluid py-2">
+
+            <!-- Información general -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-file-invoice-dollar text-primary"></i>
+                    <span class="fw-bold text-secondary fs-6">Venta</span>
                 </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Cliente</label>
-                <div class="col-sm-10 inline-block">
-                    <p class="no-margin">
-                        Pseudonimo:
-                        <b>{{ $any(data).extra_info.buyer.nickname }}</b>
-                    </p>
-                    <p class="no-margin">
-                        Nombre:
-                        <b>{{
-                                $any(data).extra_info.buyer.first_name +
-                                " " +
-                                $any(data).extra_info.buyer.last_name
-                            }}</b>
-                    </p>
-                    <p class="no-margin">
-                        Email: <b>{{ $any(data).extra_info.buyer.email }}</b>
-                    </p>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Cobros</label>
-                <div class="col-sm-10 inline-block">
-                    <div *ngFor="let cobro of $any(data).extra_info.payments">
-                        <p class="no-margin">
-                            Cobro: <b>{{ cobro.id }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha de creación: <b>{{ cobro.date_created }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha ult. modificación:
-                            <b>{{ cobro.date_last_modified }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Estado: <b>{{ cobro.status }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Detalle: <b>{{ cobro.status_detail }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Total de la transacción:
-                            <b>{{ cobro.transaction_amount }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Costo del envio: <b>{{ cobro.shipping_cost }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Cupon: <b>{{ cobro.coupon_amount }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Comisión: <b>{{ cobro.marketplace_fee }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Tipo de pago: <b>{{ cobro.payment_type }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Metodo de pago: <b>{{ cobro.payment_method_id }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Total del pago a plazos:
-                            <b>{{ cobro.installment_amount }}</b>
-                        </p>
-                        <p></p>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">ID venta:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.id }}</span>
+                        </div>
+                        <div *ngIf="$any(data).extra_info.pack_id">
+                            <span class="fs-6 text-secondary fw-bold">Pack ID:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.pack_id }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Fecha de creación:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.date_created }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Fecha de cierre:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.date_closed }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Estado:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.status }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Total:</span>
+                            <span class="fw-semibold fs-6 text-dark">${{ $any(data).extra_info.total_amount }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Productos</label>
-                <div class="col-sm-10 inline-block">
-                    <div
-                        *ngFor="
-                            let producto of $any(data).extra_info.order_items
-                        "
-                    >
-                        <p class="no-margin">
-                            Producto: <b>{{ producto.item.title }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Seller SKU: <b>{{ producto.item.seller_sku }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Garantía: <b>{{ producto.warranty }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Cantidad: <b>{{ producto.quantity }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Precio: <b>{{ producto.unit_price }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Comisión: <b>{{ producto.sale_fee }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Tipo de prodcto:
-                            <b>{{ producto.listing_type_id }}</b>
-                        </p>
-                        <p *ngIf="producto.item.variation_attributes">
-                            Variaciónes:
-                        </p>
-                        <ul *ngIf="producto.item.variation_attributes">
-                            <li
-                                *ngFor="
-                                    let variacion of producto.item
-                                        .variation_attributes
-                                "
-                            >
-                                <b>{{ variacion.name }}</b
-                                >: {{ variacion.value_name }}
+
+            <!-- Cliente -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-user text-success"></i>
+                    <span class="fw-bold text-secondary fs-6">Cliente</span>
+                </div>
+                <div>
+                    <span class="fs-6 text-secondary fw-bold">Pseudónimo:</span>
+                    <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.buyer.nickname }}</span>
+                </div>
+                <div>
+                    <span class="fs-6 text-secondary fw-bold">Nombre:</span>
+                    <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.buyer.first_name }} {{ $any(data).extra_info.buyer.last_name }}</span>
+                </div>
+                <div>
+                    <span class="fs-6 text-secondary fw-bold">Email:</span>
+                    <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.buyer.email }}</span>
+                </div>
+            </div>
+
+            <!-- Cobros -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-money-bill-wave text-primary"></i>
+                    <span class="fw-bold text-secondary fs-6">Cobros</span>
+                </div>
+                <div *ngIf="$any(data).extra_info.payments.length > 0; else noPagos">
+                    <div *ngFor="let cobro of $any(data).extra_info.payments" class="border rounded p-2 mb-2">
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">ID:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ cobro.id }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Fecha creación:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ cobro.date_created }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Última modificación:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ cobro.date_last_modified }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Estado:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ cobro.status }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Detalle:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ cobro.status_detail }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Total transacción:</span>
+                            <span class="fw-semibold fs-6 text-dark">${{ cobro.transaction_amount }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Costo envío:</span>
+                            <span class="fw-semibold fs-6 text-dark">${{ cobro.shipping_cost }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Cupon:</span>
+                            <span class="fw-semibold fs-6 text-dark">${{ cobro.coupon_amount }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Comisión:</span>
+                            <span class="fw-semibold fs-6 text-dark">${{ cobro.marketplace_fee }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Tipo de pago:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ cobro.payment_type }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Método de pago:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ cobro.payment_method_id }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Total a plazos:</span>
+                            <span class="fw-semibold fs-6 text-dark">${{ cobro.installment_amount }}</span>
+                        </div>
+                    </div>
+                </div>
+                <ng-template #noPagos>
+                    <div class="text-center text-muted fst-italic py-2">
+                        <i class="fas fa-money-check fa-2x mb-2"></i><br>
+                        Sin cobros registrados
+                    </div>
+                </ng-template>
+            </div>
+
+            <!-- Productos -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-box-open text-success"></i>
+                    <span class="fw-bold text-secondary fs-6">Productos</span>
+                </div>
+                <div *ngFor="let producto of $any(data).extra_info.order_items" class="border rounded p-2 mb-2">
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Producto:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ producto.item.title }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Seller SKU:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ producto.item.seller_sku }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Garantía:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ producto.warranty }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Cantidad:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ producto.quantity }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Precio:</span>
+                        <span class="fw-semibold fs-6 text-dark">${{ producto.unit_price }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Comisión:</span>
+                        <span class="fw-semibold fs-6 text-dark">${{ producto.sale_fee }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Tipo producto:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ producto.listing_type_id }}</span>
+                    </div>
+                    <div *ngIf="producto.item.variation_attributes?.length">
+                        <span class="fs-6 text-secondary fw-bold">Variaciones:</span>
+                        <ul class="mb-0">
+                            <li *ngFor="let variacion of producto.item.variation_attributes">
+                                <span class="fs-6 text-secondary fw-bold">{{ variacion.name }}:</span>
+                                <span class="fw-semibold fs-6 text-dark">{{ variacion.value_name }}</span>
                             </li>
                         </ul>
                     </div>
                 </div>
             </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Envio</label>
-                <div class="col-sm-10 inline-block">
-                    <div *ngIf="$any(data).extra_info.status != 'cancelled'">
-                        <p class="no-margin">
-                            Estado:
-                            <b>{{ $any(data).extra_info.shipping.status }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Subestado:
-                            <b>{{
-                                    $any(data).extra_info.shipping.substatus
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Logistica:
-                            <b>{{
-                                    $any(data).extra_info.shipping.tracking_method
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Guía:
-                            <b>{{
-                                    $any(data).extra_info.shipping.tracking_number
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Tipo de logistica:
-                            <b>{{
-                                    $any(data).extra_info.shipping.logistic_type
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha de creación:
-                            <b>{{
-                                    $any(data).extra_info.shipping.date_created
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha primera impresion:
-                            <b>{{
-                                    $any(data).extra_info.shipping
-                                        .date_first_printed
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha de envio listo:
-                            <b>{{
-                                    $any(data).extra_info.shipping.status_history
-                                        .date_ready_to_ship
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha de envio:
-                            <b>{{
-                                    $any(data).extra_info.shipping.status_history
-                                        .date_shipped
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha ult. actualización:
-                            <b>{{
-                                    $any(data).extra_info.shipping.last_updated
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha de entrega:
-                            <b>{{
-                                    $any(data).extra_info.shipping.status_history
-                                        .date_delivered
-                                }}</b>
-                        </p>
-                        <p class="no-margin">
-                            Fecha primera visita:
-                            <b>{{
-                                    $any(data).extra_info.shipping.status_history
-                                        .date_first_visit
-                                }}</b>
-                        </p>
+
+            <!-- Envío -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-truck text-warning"></i>
+                    <span class="fw-bold text-secondary fs-6">Envío</span>
+                </div>
+                <div *ngIf="$any(data).extra_info.status != 'cancelled'; else cancelado">
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Estado:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status }}</span>
                     </div>
-                    <div *ngIf="$any(data).extra_info.status == 'cancelled'">
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Subestado:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.substatus }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Logística:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.tracking_method }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Guía:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.tracking_number }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Tipo logística:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.logistic_type }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Fecha creación:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.date_created }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Fecha primera impresión:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.date_first_printed }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Fecha envío listo:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_ready_to_ship }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Fecha envío:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_shipped }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Última actualización:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.last_updated }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Fecha entrega:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_delivered }}</span>
+                    </div>
+                    <div>
+                        <span class="fs-6 text-secondary fw-bold">Fecha primera visita:</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_first_visit }}</span>
+                    </div>
+                </div>
+                <ng-template #cancelado>
+                    <div class="text-center text-muted fst-italic py-2">
+                        <i class="fas fa-ban fa-2x mb-2"></i><br>
                         Venta cancelada
                     </div>
-                </div>
+                </ng-template>
             </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Reclamos</label>
-                <div class="col-sm-10 inline-block">
-                    <div *ngIf="$any(data).extra_info.mediations?.length > 0">
-                        <div
-                            *ngFor="
-                                let reclamo of $any(data).extra_info.mediations
-                            "
-                        >
-                            <p class="no-margin">
-                                Reclamo: <b>{{ reclamo.id }}</b>
-                            </p>
-                            <p class="no-margin">
-                                Tipo: <b>{{ reclamo.type }}</b>
-                            </p>
-                            <p class="no-margin">
-                                Escenario: <b>{{ reclamo.stage }}</b>
-                            </p>
-                            <p class="no-margin">
-                                Estado: <b>{{ reclamo.status }}</b>
-                            </p>
+
+            <!-- Reclamos -->
+            <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
+                <div class="d-flex align-items-center gap-2 py-1 mb-2">
+                    <i class="fas fa-exclamation-circle text-danger"></i>
+                    <span class="fw-bold text-secondary fs-6">Reclamos</span>
+                </div>
+                <div *ngIf="$any(data).extra_info.mediations?.length > 0; else noReclamos">
+                    <div *ngFor="let reclamo of $any(data).extra_info.mediations" class="border rounded p-2 mb-2">
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">ID:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ reclamo.id }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Tipo:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ reclamo.type }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Escenario:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ reclamo.stage }}</span>
+                        </div>
+                        <div>
+                            <span class="fs-6 text-secondary fw-bold">Estado:</span>
+                            <span class="fw-semibold fs-6 text-dark">{{ reclamo.status }}</span>
                         </div>
                     </div>
-                    <div *ngIf="$any(data).extra_info.mediations?.length == 0">
+                </div>
+                <ng-template #noReclamos>
+                    <div class="text-center text-muted fst-italic py-2">
+                        <i class="fas fa-check-circle fa-2x mb-2"></i><br>
                         Sin reclamos
                     </div>
-                </div>
+                </ng-template>
             </div>
         </div>
     </div>
