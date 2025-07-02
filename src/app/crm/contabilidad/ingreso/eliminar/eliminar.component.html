@@ -4,85 +4,49 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="empresa"
-                                    id="empresa"
-                                    class="form-control"
-                                    [(ngModel)]="data.empresa"
-                                >
-                                    <option value="" disabled>
-                                        Selecciona una opción
-                                    </option>
-                                    <option
-                                        value="{{ empresa.id }}"
-                                        *ngFor="let empresa of empresas"
-                                    >
-                                        {{ empresa.empresa }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Empresa</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group form-primary">
                                 <select
-                                    name="tipodocumento"
-                                    id="tipodocumento"
+                                    name="afectaciones"
+                                    id="afectaciones"
+                                    #afectacion="ngModel"
                                     class="form-control"
-                                    [(ngModel)]="data.tipo"
+                                    [(ngModel)]="data.id_tipo_afectacion"
                                 >
-                                    <option value="">
-                                        Selecciona una opción
+                                    <option value="" disabled></option>
+                                    <option
+                                        value="{{ afectacion.id }}"
+                                        *ngFor="let afectacion of afectaciones"
+                                    >
+                                        {{ afectacion.nombre }}
                                     </option>
-                                    <option value="1">Ingreso</option>
-                                    <option value="0" disabled>Egreso</option>
                                 </select>
                                 <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Tipo de documento a eliminar</label
+                                <label class="float-label">Tipo de Afectación</label>
+                                <small
+                                    class="text-danger messages block"
+                                    *ngIf="afectacion.errors?.required"
+                                >Campo requerido</small
                                 >
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-10" [hidden]="entidades.length > 0">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="entidadbusqueda"
-                                    class="form-control"
-                                    [(ngModel)]="busqueda"
-                                    (keyup.enter)="buscarEntidad()"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Busca una entidad</label
-                                >
-                            </div>
-                        </div>
-
-                        <div class="col-md-10" [hidden]="entidades.length == 0">
+                        <div class="col-md-10">
                             <div class="form-group form-primary">
                                 <select
                                     name="entidad"
                                     id="entidad"
                                     class="form-control"
-                                    [(ngModel)]="data.entidad"
-                                    (change)="cambiarEntidad()"
+                                    [(ngModel)]="data.id_entidad"
                                 >
                                     <option value=""></option>
                                     <option
-                                        value="{{ entidad.rfc }}"
-                                        *ngFor="let entidad of entidades"
+                                        value="{{ entidad.id }}"
+                                        *ngFor="let entidad of entidades_financieras"
                                     >
-                                        {{ entidad.razon }}
+                                        {{ entidad.nombre }}
                                     </option>
                                 </select>
                                 <span class="form-bar"></span>
@@ -97,7 +61,7 @@
                                     btn btn-primary btn-sm btn-block
                                     http-disabled
                                 "
-                                (click)="buscarEntidad()"
+                                (click)="cambiarEntidad()"
                                 placement="top"
                                 ngbTooltip="Buscar entidad"
                             >
@@ -117,41 +81,43 @@
                         id="contabilidad_ingreso_eliminar"
                     >
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Modulo</th>
-                                <th>Descripción</th>
-                                <th>Moneda</th>
-                                <th>T.C</th>
-                                <th>Total</th>
-                                <th>Fecha</th>
-                                <th></th>
-                            </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Descripción</th>
+                            <th>Origen</th>
+                            <th>Destino</th>
+                            <th>Moneda</th>
+                            <th>T.C</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                            <th></th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let row of movimientos">
-                                <td>{{ row.id }}</td>
-                                <td>{{ row.modulo }}</td>
-                                <td>{{ row.descripcion }}</td>
-                                <td>{{ row.moneda }}</td>
-                                <td>$ {{ commaNumber(row.tc) }}</td>
-                                <td>$ {{ commaNumber(row.monto) }}</td>
-                                <td>{{ row.fecha_operacion }}</td>
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="
+                        <tr *ngFor="let row of movimientos">
+                            <td>{{ row.id }}</td>
+                            <td>{{ row.descripcion_pago }}</td>
+                            <td>{{ row.nombre_entidad_origen }}</td>
+                            <td>{{ row.nombre_entidad_destino }}</td>
+                            <td>{{ row.moneda }}</td>
+                            <td>$ {{ row.tipo_cambio }}</td>
+                            <td>$ {{ commaNumber(row.monto) }}</td>
+                            <td>{{ row.fecha_operacion }}</td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="
                                             btn btn-outline-danger btn-block
                                             http-disabled
                                         "
-                                        placement="top"
-                                        ngbTooltip="Eliminar movimiento"
-                                        (click)="eliminarMovimiento(row.id)"
-                                    >
-                                        <i class="fa fa-2x fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                                    placement="top"
+                                    ngbTooltip="Eliminar movimiento"
+                                    (click)="eliminarMovimiento(row.id)"
+                                >
+                                    <i class="fa fa-2x fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
                 </div>

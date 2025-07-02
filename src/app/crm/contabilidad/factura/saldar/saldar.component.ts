@@ -1,8 +1,5 @@
 import {commaNumber} from '@env/environment';
 import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {AuthService} from '@services/auth.service';
-import {HttpClient} from '@angular/common/http';
-import {Router} from '@angular/router';
 
 @Component({
     selector: 'app-saldar',
@@ -28,15 +25,11 @@ export class SaldarComponent implements OnInit {
     };
 
     constructor(
-        private http: HttpClient,
         private chRef: ChangeDetectorRef,
-        private router: Router,
-        private auth: AuthService
     ) {
         const table: any = $('#contabilidad_factura_saldar');
 
         this.datatable = table.DataTable();
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
     }
 
     ngOnInit() {

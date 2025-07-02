@@ -1,0 +1,50 @@
+<div class="form-group form-primary">
+    <ng-container [ngSwitch]="type">
+        <select
+            *ngSwitchCase="'select'"
+            class="form-control"
+            [name]="name"
+            [disabled]="disabled"
+            [required]="required"
+            [ngModel]="model"
+            (ngModelChange)="onModelChange($event)"
+        >
+            <option value="" disabled></option>
+            <option
+                *ngFor="let option of options"
+                [value]="option[optionValue]"
+            >
+                {{ option[optionLabel] }}
+            </option>
+        </select>
+
+        <input
+            *ngSwitchDefault
+            class="form-control"
+            [type]="type"
+            [name]="name"
+            [required]="required"
+            [pattern]="pattern"
+            [disabled]="disabled"
+            [ngModel]="model"
+            (ngModelChange)="onModelChange($event)"
+        />
+    </ng-container>
+
+    <span class="form-bar"></span>
+    <label class="float-label">{{ label }}</label>
+
+    <small
+        class="text-danger messages block"
+        *ngIf="required && model === ''"
+    >
+        Campo requerido
+    </small>
+
+    <small
+        class="text-danger messages block"
+        *ngIf="isPatternInvalid()"
+    >
+        No se permite el caracter ' ó "
+    </small>
+</div>

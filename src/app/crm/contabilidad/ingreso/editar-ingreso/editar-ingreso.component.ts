@@ -1,58 +1,38 @@
-import {Component, OnInit} from '@angular/core';
-import {swalErrorHttpResponse, swalSuccessHttpResponse,} from '@env/environment';
-import {Empresa} from '@models/Empresa.model';
+import {Component} from '@angular/core';
+import {swalErrorHttpResponse, swalSuccessHttpResponse} from '@env/environment';
 import {ContabilidadService} from '@services/http/contabilidad.service';
-import {VentaService} from '@services/http/venta.service';
-import swal from 'sweetalert2';
 
 @Component({
     selector: 'app-editar-ingreso',
     templateUrl: './editar-ingreso.component.html',
     styleUrls: ['./editar-ingreso.component.scss'],
 })
-export class EditarIngresoComponent implements OnInit {
+export class EditarIngresoComponent {
     data = {
-        empresa: '1',
         movimiento: '',
-        cliente: '',
+        cliente: {
+            rfc: ''
+        },
     };
 
-    empresas: Empresa[];
-
-    constructor(
-        private ventaService: VentaService,
-        private contabilidadService: ContabilidadService
-    ) {}
-
-    ngOnInit() {
-        this.initData();
+    constructor(private contabilidadService: ContabilidadService) {
     }
 
     editarIngreso() {
-        if (!this.data.empresa || !this.data.movimiento || !this.data.cliente)
-            return swal({
-                type: 'error',
-                html: 'Favor de llenar todos los datos necesarios para editar el ingreso',
-            });
-
-        this.contabilidadService.changeMovementClient(this.data).subscribe(
-            (res: any) => {
-                swalSuccessHttpResponse(res);
+        this.contabilidadService.guardareditarIngreso(this.data).subscribe({
+            next: (data) => {
+                swalSuccessHttpResponse(data);
+                this.data = {
+                    movimiento: '',
+                    cliente: {
+                        rfc: ''
+                    },
+                };
             },
-            (err: any) => {
-                swalErrorHttpResponse(err);
+            error: (error) => {
+                swalErrorHttpResponse(error);
             }
-        );
+        });
     }
 
-    initData() {
-        this.ventaService.getNCInitialData().subscribe(
-            (res: any) => {
-                this.empresas = [...res.empresas];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
-    }
 }

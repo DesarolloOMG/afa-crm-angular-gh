@@ -1,8 +1,7 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
-import {backend_url, backend_url_password, commaNumber,} from '@env/environment';
-import {HttpClient} from '@angular/common/http';
-import {AuthService} from '@services/auth.service';
+import {Component, OnInit} from '@angular/core';
+import {commaNumber, swalErrorHttpResponse, swalSuccessHttpResponse} from '@env/environment';
 import swal from 'sweetalert2';
+import {ContabilidadService} from '@services/http/contabilidad.service';
 
 @Component({
     selector: 'app-eliminar',
@@ -13,101 +12,63 @@ export class EliminarComponent implements OnInit {
     commaNumber = commaNumber;
 
     datatable: any;
-    tablename: string = '#contabilidad_ingreso_eliminar';
+    tablename = '#contabilidad_ingreso_eliminar';
 
-    busqueda: string = '';
+    busqueda = '';
 
     data = {
-        empresa: '1',
-        tipo: '',
-        entidad: '',
+        id_tipo_afectacion: 0,
+        id_entidad: 0,
     };
 
-    user: any;
-    empresas: any[] = [];
     entidades: any[] = [];
+    entidades_financieras: any[] = [];
     movimientos: any[] = [];
 
+    afectaciones: any[] = [];
+
     constructor(
-        private http: HttpClient,
-        private chRef: ChangeDetectorRef,
-        private auth: AuthService
+        private contabilidadService: ContabilidadService,
     ) {
         const table: any = $(this.tablename);
         this.datatable = table.DataTable();
 
-        this.user = JSON.parse(this.auth.userData().sub);
     }
 
     ngOnInit() {
-        this.http
-            .get(`${backend_url}contabilidad/ingreso/eliminar/data`)
+        this.contabilidadService.generarData()
             .subscribe(
-                (res) => {
-                    this.empresas = res['data'];
+                (res: any) => {
+                    console.log(res);
+                    this.afectaciones = res.afectaciones;
+                    this.entidades = res.entidades;
+                    this.entidades_financieras = res.entidades_financieras;
+
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
 
-    buscarEntidad() {
-        if (this.entidades.length) {
-            this.entidades = [];
-            this.data.entidad = '';
-            this.busqueda = '';
-
-            return;
-        }
-
-        if (!this.data.empresa) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona una empresa para continuar.',
-            });
-        }
-
-        if (!this.data.tipo) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona un tipo de documento para eliminar',
-            });
-        }
-
-        const tipo_busqueda =
-            this.data.tipo == '1' ? 'Clientes' : 'Proveedores';
-    }
 
     cambiarEntidad() {
-        if (!this.data.empresa) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona una empresa para continuar.',
-            });
-        }
-
-        if (!this.data.entidad) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona una entidad para continuar.',
-            });
-        }
+        this.contabilidadService.eliminarData(this.data)
+            .subscribe(
+                (res: any) => {
+                    console.log(res);
+                    this.movimientos = res.movimientos;
+                },
+                (response) => {
+                    swalErrorHttpResponse(response);
+                }
+            );
     }
 
     async eliminarMovimiento(movimiento_id) {
         const eliminar = await swal({
             type: 'error',
-            html: '¿Deseas eliminar el ingreso?',
+            html: '¿Deseas eliminar el ingreso? con el id ' + movimiento_id,
             showConfirmButton: true,
             showCancelButton: true,
             confirmButtonText: 'Sí, eliminar',
@@ -119,21 +80,15 @@ export class EliminarComponent implements OnInit {
         });
 
         if (eliminar) {
-            const form_data = new FormData();
-
-            form_data.append('bd', this.data.empresa);
-            form_data.append('password', backend_url_password);
-            form_data.append('operacion', movimiento_id);
-            form_data.append('ventacrm', '');
-            form_data.append('eliminado_por', this.user.nombre);
+            this.contabilidadService.eliminarEliminar(movimiento_id).subscribe({
+                next: (res) => {
+                    swalSuccessHttpResponse(res);
+                },
+                error: (err) => {
+                    swalErrorHttpResponse(err);
+                },
+                complete: () => this.cambiarEntidad()
+            });
         }
-    }
-
-    rebuildTable() {
-        this.datatable.destroy();
-        this.chRef.detectChanges();
-
-        const table: any = $(this.tablename);
-        this.datatable = table.DataTable();
     }
 }
