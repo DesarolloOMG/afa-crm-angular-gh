@@ -22,9 +22,12 @@ export class FacturaComponent implements OnInit {
         area: '',
         paqueteria: '',
         productos: [],
+        pagos: [],
+        archivos: [],
         seguimiento_anterior: [],
         puede_terminar: 0,
         cliente: '',
+        vendedor: '',
         rfc: '',
         correo: '',
         telefono: '',
@@ -75,6 +78,9 @@ export class FacturaComponent implements OnInit {
         this.data.telefono = venta.telefono;
         this.data.telefono_alt = venta.telefono_alt;
         this.data.productos = venta.productos;
+        this.data.pagos = venta.pagos;
+        this.data.archivos = venta.archivos;
+        this.data.vendedor = venta.usuario;
 
         this.data.seguimiento_anterior = venta.seguimiento;
 
@@ -82,33 +88,6 @@ export class FacturaComponent implements OnInit {
             windowClass: 'bigger-modal',
             backdrop: 'static'
         });
-    }
-
-    guardarDocumento() {
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.final_data));
-
-        this.http.post(`${backend_url}contabilidad/facturas/pendiente/guardar`, form_data)
-            .subscribe(
-                res => {
-                    swal({
-                        title: '',
-                        type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message']
-                    }).then();
-
-                    if (this.final_data.terminar) {
-                        const index = this.ventas.findIndex(venta => venta.id == this.final_data.documento);
-                        this.ventas.splice(index, 1);
-
-                        this.reconstruirTabla(this.ventas);
-                    }
-
-                    this.modalReference.close();
-                },
-                response => {
-                    swalErrorHttpResponse(response);
-                });
     }
 
     reconstruirTabla(ventas) {
@@ -127,8 +106,11 @@ export class FacturaComponent implements OnInit {
             area: '',
             paqueteria: '',
             productos: [],
+            pagos: [],
+            archivos: [],
             seguimiento_anterior: [],
             cliente: '',
+            vendedor: '',
             rfc: '',
             correo: '',
             telefono: '',

@@ -1,112 +1,147 @@
 <div class="card">
     <div class="card-header">
-        <form class="md-float-material form-material mt-10" autocomplete="off" #f="ngForm">
-            <div class="row" [hidden]="empresas_usuario.length < 2">
-                <div class="col-md-12">
-                    <div class="form-group form-primary">
-                        <select name="empresa" id="empresa" required #empresa="ngModel" class="form-control"
-                                [(ngModel)]="documento.empresa">
-                            <option value="" disabled></option>
-                            <option *ngFor="let empresa of empresas" value="{{ empresa.id }}">{{ empresa.empresa }}
+        <h2 class="m-0">Saldar documentos con un ingreso o nota de crédito</h2>
+    </div>
+    <div class="card-block">
+        <div class="row mb-3">
+            <div class="col-auto">
+                <label for="tipo">Tipo</label>
+                <select id="tipo" class="form-control form-select-sm" style="width:130px;" [(ngModel)]="tipoAplicacion" (change)="onTipoChange()">
+                    <option value="ingreso">Ingreso</option>
+                    <option value="nota_credito">Nota de Crédito</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <label for="ingreso" class="ms-2">{{ tipoAplicacion === 'ingreso' ? 'Ingreso disponible' : 'Nota de crédito disponible' }}</label>
+                <select id="ingreso" class="form-control" style="min-width:260px;" [(ngModel)]="ingresoSeleccionado" (change)="seleccionarIngreso(ingresoSeleccionado)">
+                    <option *ngFor="let ingreso of ingresos_filtrados" [ngValue]="ingreso">
+                        {{ ingreso.folio }} - {{ ingreso.monto | currency: ingreso.moneda:'symbol':'1.2-2' }} (Saldo: {{ ingreso.saldo_disponible | currency: ingreso.moneda:'symbol':'1.2-2' }})
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div *ngIf="ingresoSeleccionado" class="bg-white px-4 py-3 mb-4 border border-primary border-2 rounded-4 shadow-sm">
+            <div class="row align-items-center g-3">
+                <!-- ICONO + FOLIO CARD (AZUL) -->
+                <div class="col-auto d-flex flex-column align-items-center justify-content-center" style="min-width:110px;">
+                    <div
+                        style="
+                          background: #e8f0fe;
+                          border-radius:1rem;
+                          box-shadow:0 2px 10px #88a9ea33;
+                          border: 1px solid #e3eafd;
+                          padding:14px 14px 6px 14px;
+                          display:flex; flex-direction:column; align-items:center;">
+                        <div style="width:38px; height:38px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:6px;">
+                            <i class="fas fa-money-bill-wave" style="color:#377dff; font-size:1.5rem;"></i>
+                        </div>
+                        <span class="fw-bold" style="font-size:1.02rem; color:#377dff; letter-spacing:0.5px;">
+                          {{ ingresoSeleccionado.folio }}
+                        </span>
+                    </div>
+                </div>
+                <!-- DATOS PRINCIPALES AGRUPADOS Y PEQUEÑOS -->
+                <div class="col">
+                    <div class="row text-center align-items-center">
+                        <div class="col-md-4 mb-2 mb-md-0">
+                            <div class="d-flex flex-column align-items-center" style="font-size:0.97rem;">
+                                <span style="color:#858b98; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">Fecha</span>
+                                <span style="color:#232b37; font-size:0.97rem;">
+                                  {{ ingresoSeleccionado.fecha_operacion | date:'yyyy-MM-dd HH:mm' }}
+                                </span>
+                                <span style="color:#858b98; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px; margin-top:3px;">Descripción pago</span>
+                                <span style="color:#232b37; font-size:0.97rem;">
+                                  {{ ingresoSeleccionado.descripcion_pago }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2 mb-md-0">
+                            <div class="d-flex flex-column align-items-center" style="font-size:0.97rem;">
+                                <span style="color:#858b98; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px;">Moneda</span>
+                                <span style="color:#232b37; font-size:0.97rem;">
+                                    {{ ingresoSeleccionado.moneda }}
+                                    <span *ngIf="ingresoSeleccionado.moneda !== 'MXN'" class="ms-1" style="font-size:0.93rem; color:#888;">
+                                        | TC: {{ ingresoSeleccionado.tipo_cambio }}
+                                    </span>
+                                </span>
+                                <span style="color:#858b98; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.5px; margin-top:3px;">Forma de pago</span>
+                                <span style="color:#232b37; font-size:0.97rem;">
+                                  {{ ingresoSeleccionado.forma_pago }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <span style="color:#858b98; font-size:0.92rem; text-transform:uppercase; letter-spacing:0.5px;">Saldo utilizado</span>
+                            <div class="fw-bold" style="color:#377dff; font-size:1.08rem;">
+                                {{
+                                    (ingresoSeleccionado.monto - ingresoSeleccionado.saldo_disponible)
+                                        | currency: ingresoSeleccionado.moneda:'symbol':'1.2-2'
+                                }}
+                            </div>
+                        </div>
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <span style="color:#858b98; font-size:0.92rem; text-transform:uppercase; letter-spacing:0.5px;">Disponible</span>
+                            <div class="fw-bold" style="color:#18c964; font-size:1.08rem;">
+                                {{ ingresoSeleccionado.saldo_disponible | currency: ingresoSeleccionado.moneda:'symbol':'1.2-2' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive" *ngIf="ingresoSeleccionado">
+            <table class="table table-striped" id="contabilidad_factura_saldar">
+                <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Saldo</th>
+                    <th>Monto a aplicar</th>
+                    <th>Moneda</th>
+                    <th>Tipo de cambio</th>
+                    <th>Seleccionar</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let doc of documentos; let i = index">
+                    <td>{{ doc.id }}</td>
+                    <td>{{ doc.cliente }}</td>
+                    <td>{{ doc.total | number:'1.2-2' }}</td>
+                    <td>{{ doc.saldo | number:'1.2-2' }}</td>
+                    <td>
+                        <input type="number" class="form-control" min="0.01" [max]="doc.saldo"
+                               [(ngModel)]="aplicaciones[i].monto" />
+                    </td>
+                    <td>
+                        <select class="form-control" [(ngModel)]="aplicaciones[i].moneda">
+                            <option *ngFor="let moneda of monedas" [value]="moneda.id">
+                                {{ moneda.moneda }}
                             </option>
                         </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Empresa</label>
-                        <small class="text-danger messages block" *ngIf="empresa.errors?.required">Campo
-                            requerido</small>
-                    </div>
-                </div>
-            </div>
+                    </td>
+                    <td>
+                        <input type="number" step="0.0001" class="form-control"
+                               [(ngModel)]="aplicaciones[i].tipo_cambio_aplicado" (change)="cambiarTipoCambio(i, aplicaciones[i].tipo_cambio_aplicado)" />
+                    </td>
+                    <td class="text-center">
+                        <ui-switch
+                            color="#4680ff"
+                            switchColor="#fff"
+                            size="small"
+                            [(ngModel)]="aplicaciones[i].seleccionado"
+                            (change)="toggleSeleccionAplicacion(i)">
+                        </ui-switch>
+                    </td>
 
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group form-primary">
-                        <select name="tipo_documento" id="tipo_documento" class="form-control"
-                                [(ngModel)]="documento.tipo" required>
-                            <option value="" disabled></option>
-                            <option value="1">Ingreso</option>
-                            <option value="2">Nota de credito</option>
-                        </select>
-                        <span class="form-bar"></span>
-                        <label class="float-label">Tipo documento</label>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group form-primary">
-                        <input type="text" name="folio" class="form-control" #folio="ngModel" required
-                               [(ngModel)]="documento.ingreso" pattern="[^'&quot;]+$">
-                        <span class="form-bar"></span>
-                        <label class="float-label">ID del documento</label>
-                        <small class="text-danger messages block"
-                               *ngIf="(folio.invalid && (folio.dirty || folio.touched))">No se permite el caracter ' ó
-                            "</small>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="form-group form-primary">
-                        <input type="text" name="factura" class="form-control" #factura="ngModel"
-                               [(ngModel)]="documento.factura" pattern="[^'&quot;]+$">
-                        <span class="form-bar"></span>
-                        <label class="float-label">Factura (Folio)</label>
-                        <small class="text-danger messages block"
-                               *ngIf="(factura.invalid && (factura.dirty || factura.touched))">No se permite el caracter
-                            '
-                            ó
-                            "</small>
-                    </div>
-                </div>
-
-                <div class="col-md-2">
-                    <button class="btn btn-primary btn-sm btn-block http-disabled" id="button_buscar"
-                            (click)="buscarIngreso()"
-                            [disabled]="!f.valid">{{ documento.factura ? 'Aplicar' : 'Buscar' }}
-                    </button>
-                </div>
-
-
-            </div>
-        </form>
-    </div>
-    <div class="card-block table-responsive">
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table table-striped" id="contabilidad_factura_saldar">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Folio</th>
-                        <th>Almacén</th>
-                        <th>Total</th>
-                        <th>Saldo</th>
-                        <th>Moneda</th>
-                        <th>T.C</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr *ngFor="let factura of facturas | slice:(documento.rango_de):(documento.rango_a)">
-                        <td>{{ factura.id }}</td>
-                        <td>{{ factura.factura }}</td>
-                        <td>{{ factura.almacen }}</td>
-                        <td>$ {{ commaNumber(factura.total) }}</td>
-                        <td>$ {{ commaNumber(factura.resta) }}</td>
-                        <td>{{ factura.moneda }}</td>
-                        <td>{{ factura.tipo_cambio }}</td>
-                        <td>{{ factura.fecha }}</td>
-                        <td>{{ ((factura.cancelado != 0 && factura.cancelado != null) || (factura.eliminado != 0 && factura.eliminado != null)) ? 'Cancelada' : 'Activa' }}
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-info btn-block http-disabled"
-                                    [disabled]="(factura.cancelado != 0 && factura.cancelado != null) || (factura.eliminado != 0 && factura.eliminado != null)"
-                                    (click)="aplicarIngreso(factura.id)">Aplicar
-                            </button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div *ngIf="ingresoSeleccionado" class="mt-3 text-end">
+            <button class="btn btn-primary" (click)="aplicarIngreso()">Aplicar ingreso</button>
         </div>
     </div>
 </div>

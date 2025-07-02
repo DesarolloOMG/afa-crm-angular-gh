@@ -48,133 +48,203 @@
 </div>
 
 <ng-template #modalventa let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Informacion de la venta</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
+    <!-- MODAL HEADER -->
+    <div class="modal-header d-flex align-items-center justify-content-between" style="background:#3f51b5; color:#fff;">
+        <div class="d-flex align-items-center" style="gap:8px;">
+            <i class="fas fa-file-invoice-dollar" style="font-size:1.3rem;"></i>
+            <h5 class="modal-title fw-bold mb-0">
+                Detalle de factura <span class="fw-bold">#{{ data.documento }}</span>
+            </h5>
+        </div>
+        <button type="button" class="btn p-0 m-0 text-white" (click)="modalReference.close()" aria-label="Close" style="font-size:1.3rem;">
+            <i class="fas fa-times"></i>
         </button>
     </div>
-    <div class="modal-body table-responsive">
-        <div class="form-horizontal form-bordered">
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Documento</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.documento }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Marketplace</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.marketplace + " / " + data.area }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Paquetería</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ data.paqueteria }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Cliente</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>- {{ data.cliente }}</h5>
-                    <h5>- {{ data.rfc }}</h5>
-                    <h5>- {{ data.correo }}</h5>
-                    <h5>- {{ data.telefono }}</h5>
-                    <h5>- {{ data.telefono_alt }}</h5>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Productos</label>
-                <div class="col-sm-10 inline-block table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Descripción</th>
-                            <th>Cantidad</th>
-                            <th>Precio</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr *ngFor="let producto of data.productos">
-                            <td>{{ producto.sku }}</td>
-                            <td>{{ producto.descripcion }}</td>
-                            <td>{{ producto.cantidad }}</td>
-                            <td>$ {{ producto.precio }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Seguimiento</label>
-                <div class="col-sm-10 inline-block">
-                    <app-new-editor
-                        class="m-t-20"
-                        name="seguimiento"
-                        [(ngModel)]="final_data.seguimiento"
-                    >
-                    </app-new-editor>
 
-                    <div
-                        *ngFor="let seguimiento of data.seguimiento_anterior"
-                        class="m-t-20 m-b-20"
-                    >
-                        <div class="media chat-messages">
-                            <div class="media-body chat-menu-content">
-                                <div class="">
-                                    <p class="chat-cont">
-                                        {{
-                                            seguimiento.nombre +
-                                            " - " +
-                                            seguimiento.created_at
-                                        }}
-                                    </p>
-                                    <p
-                                        class="chat-cont"
-                                        [innerHTML]="seguimiento.seguimiento"
-                                    ></p>
-                                </div>
-                            </div>
+
+
+    <div class="modal-body pt-3 pb-1" style="background:#f8fafc;">
+        <!-- Tarjetas superiores -->
+        <div class="row g-4 mb-3">
+            <div class="col-md-4">
+                <div class="card border shadow-sm rounded-4 h-100">
+                    <div class="card-body d-flex align-items-center py-3">
+                        <span style="display:inline-flex; align-items:center; justify-content:center; background:#eaf4ff; border-radius:10px; width:44px; height:44px;">
+                          <i class="fas fa-store text-primary" style="font-size:1.2rem;"></i>
+                        </span>
+                        <div class="ms-3 ps-2" style="margin-left: 15px;">
+                            <div class="text-uppercase small fw-bold text-secondary mb-1">Marketplace / Área</div>
+                            <div class="fw-semibold text-dark">{{ data.marketplace }} / {{ data.area }}</div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Terminar</label>
-                <div class="col-sm-10 inline-block">
-                    <ui-switch
-                        class="js-single"
-                        color="#4680ff"
-                        switchColor="#fff"
-                        size="medium"
-                        name="terminar"
-                        id="terminar"
-                        [(ngModel)]="final_data.terminar"
-                    ></ui-switch>
+            <div class="col-md-4">
+                <div class="card border shadow-sm rounded-4 h-100">
+                    <div class="card-body d-flex align-items-center py-3">
+                        <span style="display:inline-flex; align-items:center; justify-content:center; background:#eaf4ff; border-radius:10px; width:44px; height:44px;">
+                          <i class="fas fa-user-tie text-info" style="font-size:1.2rem;"></i>
+                        </span>
+                        <div class="ms-3 ps-2" style="margin-left: 15px;">
+                            <div class="text-uppercase small fw-bold text-secondary mb-1">Vendedor</div>
+                            <div class="fw-semibold text-dark">{{ data.vendedor || '-' }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">&nbsp;</label>
-                <div class="col-sm-10 inline-block">
-                    <button
-                        class="btn btn-sm btn-block btn-info http-disabled"
-                        style="margin: 10px;"
-                        (click)="guardarDocumento()"
-                        id="guardar_documento"
-                        [disabled]="final_data.seguimiento == ''"
-                    >
-                        Guardar
-                    </button>
+            <div class="col-md-4">
+                <div class="card border shadow-sm rounded-4 h-100">
+                    <div class="card-body d-flex align-items-center py-3">
+                        <span style="display:inline-flex; align-items:center; justify-content:center; background:#eaf4ff; border-radius:10px; width:44px; height:44px;">
+                          <i class="fas fa-truck text-success" style="font-size:1.2rem;"></i>
+                        </span>
+                        <div class="ms-3 ps-2" style="margin-left: 15px;">
+                            <div class="text-uppercase small fw-bold text-secondary mb-1">Paquetería</div>
+                            <div class="fw-semibold text-dark">{{ data.paqueteria || '-' }}</div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Cliente -->
+        <div class="mb-3">
+            <div class="bg-white border rounded-4 px-3 pt-3 pb-2 shadow-sm mb-3">
+                <div class="row g-2 align-items-center">
+                    <!-- Icono -->
+                    <div class="col-md-2 d-flex justify-content-center">
+                        <i class="fas fa-user text-success" style="font-size:1.8rem;"></i>
+                    </div>
+
+                    <!-- Columna Cliente -->
+                    <div class="col-md-5">
+                        <div class="fw-bold text-secondary mb-1">Cliente</div>
+                        <div class="fw-semibold" style="font-size:1rem;">{{ data.cliente }}</div>
+                        <div class="text-secondary small">{{ data.rfc }}</div>
+                    </div>
+
+                    <!-- Columna Contacto -->
+                    <div class="col-md-5">
+                        <div class="fw-bold text-secondary mb-1">Contacto</div>
+                        <div class="d-flex flex-column gap-1 small text-muted mb-2">
+                            <span *ngIf="data.correo"><i class="fas fa-envelope me-1"></i>{{ data.correo }}</span>
+                            <span *ngIf="data.telefono"><i class="fas fa-phone me-1"></i>{{ data.telefono }}</span>
+                            <span *ngIf="data.telefono_alt"><i class="fas fa-phone-alt me-1"></i>{{ data.telefono_alt }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Productos -->
+        <div class="mb-3">
+            <div class="bg-white border rounded-4 shadow-sm px-3 pt-3 pb-2">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-boxes text-success me-2" style="font-size:1.1rem;"></i>
+                    <span class="fw-bold text-secondary" style="margin-left: 5px">Productos</span>
+                </div>
+                <div *ngIf="data.productos && data.productos.length > 0; else noProductos">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0 border-top">
+                            <thead style="background:#f5f5f5;">
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let prod of data.productos">
+                                <td>{{ prod.sku }}</td>
+                                <td>{{ prod.descripcion }}</td>
+                                <td>{{ prod.cantidad }}</td>
+                                <td>{{ prod.precio | currency:'MXN':'symbol':'1.2-2' }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <ng-template #noProductos>
+                    <div class="text-center text-muted fst-italic pb-2">
+                        <i class="fas fa-box-open fa-2x mb-2"></i><br>
+                        No hay productos registrados
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Pagos registrados -->
+        <div class="mb-3">
+            <div class="bg-white border rounded-4 shadow-sm px-3 pt-3 pb-2">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-money-check-alt me-2 text-primary" style="font-size:1.1rem;"></i>
+                    <span class="fw-bold text-secondary" style="margin-left: 5px">Pagos registrados</span>
+                </div>
+                <div *ngIf="data.pagos && data.pagos.length > 0; else noPagos">
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0 border-top">
+                            <thead style="background:#f5f5f5;">
+                            <tr>
+                                <th>Folio</th>
+                                <th>Monto</th>
+                                <th>Moneda</th>
+                                <th>Fecha</th>
+                                <th>Parcialidad</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let pago of data.pagos">
+                                <td class="text-primary fw-semibold">{{ pago.folio }}</td>
+                                <td class="text-success fw-semibold">{{ pago.monto | currency:(pago.moneda || 'MXN'):'symbol':'1.2-2' }}</td>
+                                <td>{{ pago.moneda || 'MXN' }}</td>
+                                <td>{{ pago.fecha_operacion | date:'yyyy-MM-dd' }}</td>
+                                <td>{{ pago.parcialidad }}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <ng-template #noPagos>
+                    <div class="text-center text-muted fst-italic pb-2">
+                        <i class="fas fa-money-bill-wave fa-2x mb-2"></i><br>
+                        No hay pagos registrados
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Archivos -->
+        <div>
+            <div class="bg-white border rounded-4 shadow-sm px-3 pt-3 pb-2">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-paperclip me-2 text-secondary" style="font-size:1.1rem;"></i>
+                    <span class="fw-bold text-secondary" style="margin-left: 15px">Archivos</span>
+                </div>
+                <div *ngIf="data.archivos && data.archivos.length > 0; else noArchivos">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" *ngFor="let archivo of data.archivos">
+                            <span class="fw-semibold">{{ archivo.archivo }}</span>
+                            <span class="text-muted small ms-2">Subido por: {{ archivo.usuario }}</span>
+                            <span *ngIf="archivo.dropbox" class="ms-3">
+                <a [href]="archivo.dropbox" target="_blank" class="text-primary">
+                  <i class="fab fa-dropbox"></i> Ver archivo
+                </a>
+              </span>
+                        </li>
+                    </ul>
+                </div>
+                <ng-template #noArchivos>
+                    <div class="text-center text-muted fst-italic pb-2">
+                        <i class="fas fa-paperclip fa-2x mb-2"></i><br>
+                        No hay archivos adjuntos
+                    </div>
+                </ng-template>
             </div>
         </div>
     </div>
 </ng-template>
+
+
+

@@ -1,70 +1,120 @@
-import {commaNumber, swalErrorHttpResponse} from '@env/environment';
-import {ChangeDetectorRef, Component} from '@angular/core';
-import {ContabilidadService} from '@services/http/contabilidad.service';
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { backend_url } from '@env/environment';
+import swal from 'sweetalert2';
+
+declare var $: any;
 
 @Component({
     selector: 'app-dessaldar',
     templateUrl: './dessaldar.component.html',
-    styleUrls: ['./dessaldar.component.scss'],
+    styleUrls: ['./dessaldar.component.scss']
 })
-export class DessaldarComponent {
+export class DessaldarComponent implements OnInit {
+
+    folioBusqueda: string = '';
+    ingreso: any = null;
+    documentos: any[] = [];
     datatable: any;
 
-    commaNumber = commaNumber;
+    constructor(private http: HttpClient) {}
 
-    documento = {
-        id: 0,
-        folio: '',
-        pagos: [],
-    };
-
-    constructor(
-        private chRef: ChangeDetectorRef,
-        private contabilidadService: ContabilidadService,
-    ) {
-        const table: any = $('#contabilidad_factura_dessaldar');
-
-        this.datatable = table.DataTable();
+    ngOnInit(): void {
+        this.ingreso = null;
+        this.documentos = [];
     }
 
-    buscar(): void {
-        this.contabilidadService.buscarDesaldar(this.documento).subscribe({
-            next: (res) => {
-                console.log(res);
+    buscarIngreso() {
+        if (!this.folioBusqueda.trim()) {
+            swal('Campo vacío', 'Escribe el folio del ingreso', 'warning');
+            return;
+        }
+        this.ingreso = null;
+        this.documentos = [];
+
+        this.http.post(`${backend_url}contabilidad/facturas/dessaldar/data`, { folio: this.folioBusqueda.trim() }).subscribe(
+            (res: any) => {
+                if (res.code === 200 && res.ingreso) {
+                    this.ingreso = res.ingreso;
+                    // Mapear seleccionados para el switch
+                    this.documentos = (res.documentos || []).map(doc => ({ ...doc, seleccionado: false }));
+                    setTimeout(() => this.reconstruirTabla(), 100); // Integración de datatable
+                } else {
+                    swal('No encontrado', res.msg || 'No se encontró el ingreso.', 'info');
+                }
             },
-            error: (err) => {
-                swalErrorHttpResponse(err);
+            err => {
+                swal('Error', 'Error de conexión', 'error');
             }
-        });
+        );
     }
 
-    desaplicarDocumento(id_pago): void {
-        this.documento.id = id_pago;
-        this.contabilidadService.guardarDesaldar(this.documento).subscribe({
-            next: (res) => {
-                console.log(res);
-            },
-            error: (err) => {
-                swalErrorHttpResponse(err);
-            }
-        });
+    reconstruirTabla() {
+        // Destruye e inicializa datatable
+        if (this.datatable) {
+            this.datatable.destroy();
+        }
+        setTimeout(() => {
+            this.datatable = $('#contabilidad_factura_dessaldar').DataTable({
+                order: [],
+                pageLength: 10,
+                searching: false,
+                info: false
+            });
+        }, 100);
     }
 
-    reconstruirTabla(pagos = null): void {
-        this.datatable.destroy();
+    toggleSeleccionDessaldar(i: number) {
+        this.documentos[i].seleccionado = !this.documentos[i].seleccionado;
+    }
 
-        if (pagos) {
-            this.documento.pagos = pagos;
-        } else {
-            this.documento = {
-                id: 0,
-                folio: '',
-                pagos: [],
-            };
+    get hayDocumentosSeleccionados(): boolean {
+        return this.documentos.some(d => d.seleccionado);
+    }
+
+    dessaldarSeleccionados() {
+        const docsSeleccionados = this.documentos.filter(d => d.seleccionado);
+
+        if (docsSeleccionados.length === 0) {
+            swal('Advertencia', 'Selecciona al menos un documento.', 'warning');
+            return;
         }
 
-        this.chRef.detectChanges();
-        const table: any = $('#contabilidad_factura_dessaldar');
-        this.datatable = table.DataTable();
+        swal({
+            title: '¿Deseas dessaldar los documentos seleccionados?',
+            text: `Esta acción revertirá el saldo aplicado en los documentos seleccionados.`,
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, dessaldar',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.value) {
+                const payload = {
+                    id_ingreso: this.ingreso.id,
+                    documentos: docsSeleccionados.map(doc => doc.id_documento)
+                };
+                this.http.post(`${backend_url}contabilidad/facturas/dessaldar/guardar`, payload)
+                    .subscribe((res: any) => {
+                        if (res.code === 200) {
+                            swal('¡Listo!', res.msg || 'Documentos dessaldados correctamente', 'success')
+                                .then(() => {
+                                    this.ingreso = null;
+                                    this.documentos = [];
+                                    this.folioBusqueda = '';
+                                    // Destruye el DataTable si existe
+                                    if (this.datatable) {
+                                        this.datatable.destroy();
+                                        this.datatable = null;
+                                    }
+                                });
+                        } else {
+                            swal('Error', res.msg, 'error');
+                        }
+                    }, () => {
+                        swal('Error', 'Error de conexión al dessaldar.', 'error');
+                    });
+            }
+        });
+
     }
 }
