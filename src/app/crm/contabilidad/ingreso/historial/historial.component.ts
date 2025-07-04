@@ -3,6 +3,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ContabilidadService } from '@services/http/contabilidad.service';
 import { commaNumber, swalErrorHttpResponse } from '@env/environment';
 
+declare var $: any;
+
 @Component({
     selector: 'app-historial',
     templateUrl: './historial.component.html',
@@ -20,6 +22,7 @@ export class HistorialComponent implements OnInit {
     movimientos: any[] = [];
     movimientoSeleccionado: any = null;
     modalRef: any;
+    datatable: any;
 
     entidades_financieras: any[] = [];
     tipos_afectacion: any[] = [];
@@ -46,14 +49,22 @@ export class HistorialComponent implements OnInit {
             tipo_afectacion: this.filtros.tipo_afectacion || null,
             folio: this.filtros.folio || null,
             fecha_inicio: this.filtros.fecha_inicio || null,
-            fecha_final: this.filtros.fecha_final
-                ? this.filtros.fecha_final + ' 23:59:59'
-                : null,
+            fecha_final: this.filtros.fecha_final ? this.filtros.fecha_final + ' 23:59:59' : null,
         };
 
         this.contabilidadService.historialDataFiltrado(filtros).subscribe({
             next: (res: any) => {
                 this.movimientos = res.movimientos;
+
+                setTimeout(() => {
+                    if (this.datatable) this.datatable.destroy();
+                    this.datatable = ($('#tabla_movimientos') as any).DataTable({
+                        pageLength: 10,
+                        lengthChange: false,
+                        order: [[1, 'desc']],
+                        searching: true
+                    });
+                }, 100);
             },
             error: (err) => swalErrorHttpResponse(err),
         });
@@ -61,6 +72,31 @@ export class HistorialComponent implements OnInit {
 
     abrirModalDetalle(mov: any, modal: any) {
         this.movimientoSeleccionado = mov;
-        this.modalRef = this.modalService.open(modal, { size: 'lg' });
+
+        this.modalRef = this.modalService.open(modal, {
+            size: 'lg',
+            windowClass: 'mi-modal-amplio'
+        });
+
+        // reconstruir tabla SOLO si hay documentos
+        if (mov.documentos_aplicados && mov.documentos_aplicados.length > 0) {
+            setTimeout(() => {
+                const table: any = $('#tabla_docs_aplicados');
+                if ($.fn.DataTable.isDataTable(table)) {
+                    table.DataTable().destroy();
+                }
+                table.DataTable({
+                    order: [],
+                    pageLength: 5
+                });
+            }, 200);
+        }
+
+        // limpiar la variable al cerrar el modal
+        this.modalRef.result.finally(() => {
+            this.movimientoSeleccionado = null;
+        });
     }
+
+
 }

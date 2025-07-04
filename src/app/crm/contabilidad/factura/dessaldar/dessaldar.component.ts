@@ -12,10 +12,13 @@ declare var $: any;
 })
 export class DessaldarComponent implements OnInit {
 
-    folioBusqueda: string = '';
+    folioBusqueda = '';
+    documentoBusqueda: number | null = null;
     ingreso: any = null;
     documentos: any[] = [];
     datatable: any;
+    documento: any = null;
+    movimientos: any[] = [];
 
     constructor(private http: HttpClient) {}
 
@@ -24,11 +27,49 @@ export class DessaldarComponent implements OnInit {
         this.documentos = [];
     }
 
+    buscarDocumento() {
+        if (!this.documentoBusqueda) {
+            swal('', 'Escribe el ID del documento para buscar.', 'warning');
+            return;
+        }
+
+        // limpiar datos del otro buscador
+        this.folioBusqueda = '';
+        this.ingreso = null;
+        this.documentos = [];
+        if (this.datatable) {
+            this.datatable.destroy();
+            this.datatable = null;
+        }
+
+        this.http.get(`${backend_url}contabilidad/facturas/dessaldar/documento/${this.documentoBusqueda}`)
+            .subscribe(
+                (res: any) => {
+                    if (res.code === 200 && res.documento) {
+                        this.documento = res.documento;
+                        this.movimientos = res.movimientos || [];
+                    } else {
+                        swal('Aviso', 'No se encontró el documento.', 'info');
+                    }
+                },
+                (error) => {
+                    console.error(error);
+                    swal('Error', 'Error al buscar documento.', 'error');
+                }
+            );
+    }
+
     buscarIngreso() {
         if (!this.folioBusqueda.trim()) {
             swal('Campo vacío', 'Escribe el folio del ingreso', 'warning');
             return;
         }
+
+        // limpiar datos del otro buscador
+        this.documentoBusqueda = null;
+        this.documento = null;  // limpia el bloque del documento si estaba cargado
+        this.movimientos = [];  // limpia la tabla de movimientos del documento
+
         this.ingreso = null;
         this.documentos = [];
 
@@ -36,9 +77,8 @@ export class DessaldarComponent implements OnInit {
             (res: any) => {
                 if (res.code === 200 && res.ingreso) {
                     this.ingreso = res.ingreso;
-                    // Mapear seleccionados para el switch
                     this.documentos = (res.documentos || []).map(doc => ({ ...doc, seleccionado: false }));
-                    setTimeout(() => this.reconstruirTabla(), 100); // Integración de datatable
+                    setTimeout(() => this.reconstruirTabla(), 100);
                 } else {
                     swal('No encontrado', res.msg || 'No se encontró el ingreso.', 'info');
                 }
@@ -116,5 +156,53 @@ export class DessaldarComponent implements OnInit {
             }
         });
 
+    }
+
+    get hayMovimientosSeleccionados(): boolean {
+        return this.movimientos.some(m => m.seleccionado);
+    }
+
+    dessaldarMovimientosSeleccionados() {
+        const seleccionados = this.movimientos.filter(m => m.seleccionado);
+
+        if (seleccionados.length === 0) {
+            swal('Advertencia', 'Selecciona al menos un movimiento.', 'warning');
+            return;
+        }
+
+        swal({
+            title: '¿Deseas dessaldar los movimientos seleccionados?',
+            text: `Esta acción revertirá el saldo aplicado en los movimientos seleccionados.`,
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, dessaldar',
+            cancelButtonText: 'Cancelar'
+        }).then(result => {
+            if (result.value) {
+                const payload = {
+                    id_documento: this.documento.id,
+                    ingresos: seleccionados.map(m => m.id)
+                };
+
+                this.http.post(`${backend_url}contabilidad/facturas/dessaldar/guardar-movimientos`, payload)
+                    .subscribe(
+                        (res: any) => {
+                            if (res.code === 200) {
+                                swal('¡Listo!', res.msg || 'Movimientos dessaldados correctamente', 'success')
+                                    .then(() => {
+                                        this.documento = null;
+                                        this.movimientos = [];
+                                        this.documentoBusqueda = null;
+                                    });
+                            } else {
+                                swal('Error', res.msg || 'No se pudo dessaldar los movimientos.', 'error');
+                            }
+                        },
+                        () => {
+                            swal('Error', 'Error de conexión al dessaldar movimientos.', 'error');
+                        }
+                    );
+            }
+        });
     }
 }

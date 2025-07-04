@@ -110,8 +110,8 @@
 
         <!-- Tabla -->
         <div class="table-responsive">
-            <table class="table table-striped align-middle">
-                <thead style="background:#0d6efd; color:#fff;">
+            <table class="table table-striped align-middle" id="tabla_movimientos">
+            <thead style="background:#0d6efd; color:#fff;">
                 <tr>
                     <th>Folio</th>
                     <th>Fecha</th>
@@ -149,14 +149,14 @@
 
 <!-- MODAL -->
 <ng-template #modalDetalle>
-    <div class="modal-header bg-primary text-white rounded-top d-flex justify-content-between align-items-center">
+    <div class="modal-header d-flex align-items-center justify-content-between" style="background:#3f51b5; color:#fff;">
         <div class="d-flex align-items-center gap-2">
-            <i class="fas fa-file-invoice-dollar fs-5"></i>
-            <h5 class="modal-title mb-0">
-                Detalle de Movimiento #{{ movimientoSeleccionado?.folio }}
-            </h5>
+            <i class="fas fa-file-invoice-dollar" style="font-size:1.4rem;"></i>
+            <h5 class="modal-title fw-bold mb-0">Detalle de Movimiento #{{ movimientoSeleccionado?.folio }}</h5>
         </div>
-        <button type="button" class="btn-close btn-close-white" aria-label="Cerrar" (click)="modalRef.close()"></button>
+        <button type="button" class="btn p-0 text-white" aria-label="Close" (click)="modalRef?.close()" style="font-size:1.4rem;">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 
     <div class="modal-body" style="max-width:100vw;">
@@ -165,7 +165,7 @@
                 <div class="bg-white border rounded shadow-sm p-3 h-100">
                     <div class="small text-secondary">Monto</div>
                     <div class="fw-bold text-success fs-4">
-                        ${{ commaNumber(movimientoSeleccionado?.monto) }}
+                        ${{ commaNumber(movimientoSeleccionado?.monto || 0) }}
                     </div>
                 </div>
             </div>
@@ -173,7 +173,7 @@
                 <div class="bg-white border rounded shadow-sm p-3 h-100">
                     <div class="small text-secondary">Saldo disponible</div>
                     <div class="fw-bold text-primary fs-4">
-                        ${{ commaNumber(movimientoSeleccionado?.saldo_disponible) }}
+                        ${{ commaNumber(movimientoSeleccionado?.saldo_disponible || 0) }}
                     </div>
                 </div>
             </div>
@@ -184,43 +184,61 @@
                 </div>
             </div>
         </div>
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="bg-white border rounded shadow-sm p-3 h-100">
+                    <div class="small text-secondary">Cuenta Origen</div>
+                    <div class="fw-bold text-dark">{{ movimientoSeleccionado?.nombre_origen }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-white border rounded shadow-sm p-3 h-100">
+                    <div class="small text-secondary">Cuenta Destino</div>
+                    <div class="fw-bold text-dark">{{ movimientoSeleccionado?.nombre_destino }}</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bg-white border rounded shadow-sm p-3 h-100">
+                    <div class="small text-secondary">Tipo de afectación</div>
+                    <div class="fw-bold text-dark">{{ movimientoSeleccionado?.tipo_afectacion }}</div>
+                </div>
+            </div>
+        </div>
 
         <div class="border rounded bg-white shadow-sm p-3">
             <div class="fw-bold text-primary mb-3 d-flex align-items-center gap-1">
                 <i class="fas fa-list-alt"></i> Documentos aplicados
             </div>
-            <div class="row g-2">
-                <ng-container *ngIf="movimientoSeleccionado?.documentos_aplicados?.length > 0; else sinDocs">
-                    <div class="col-md-6 col-xl-4" *ngFor="let doc of movimientoSeleccionado?.documentos_aplicados">
-                        <div class="border rounded shadow-sm p-2 bg-light h-100">
-                            <div class="small text-secondary mb-1">ID Documento</div>
-                            <div class="fw-bold mb-2">{{ doc.id_documento }}</div>
 
-                            <div class="small text-secondary">Total</div>
-                            <div class="fw-bold text-success mb-2">${{ commaNumber(doc.total) }}</div>
-
-                            <div class="small text-secondary">Saldo</div>
-                            <div class="fw-bold text-primary mb-2">${{ commaNumber(doc.saldo) }}</div>
-
-                            <div class="small text-secondary">Monto aplicado</div>
-                            <div class="fw-bold mb-2">${{ commaNumber(doc.monto_aplicado) }}</div>
-
-                            <div class="small text-secondary">Moneda</div>
-                            <div class="fw-bold mb-2">{{ doc.moneda }}</div>
-
-                            <div class="small text-secondary" *ngIf="doc.moneda !== 'MXN'">Tipo de cambio</div>
-                            <div class="fw-bold" *ngIf="doc.moneda !== 'MXN'">
-                                {{ doc.tipo_cambio }}
-                            </div>
-                        </div>
-                    </div>
-                </ng-container>
-                <ng-template #sinDocs>
-                    <div class="text-center text-muted fst-italic py-2">
-                        Sin documentos aplicados
-                    </div>
-                </ng-template>
+            <div class="table-responsive" *ngIf="movimientoSeleccionado?.documentos_aplicados?.length > 0">
+                <table id="tabla_docs_aplicados" class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th style="width: 80px;">ID Documento</th>
+                        <th>Total</th>
+                        <th>Saldo</th>
+                        <th>Monto aplicado</th>
+                        <th>Moneda</th>
+                        <th>Tipo de cambio</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let doc of movimientoSeleccionado?.documentos_aplicados">
+                        <td>{{ doc.id_documento }}</td>
+                        <td>${{ commaNumber(doc.total || 0) }}</td>
+                        <td>${{ commaNumber(doc.saldo || 0) }}</td>
+                        <td>${{ commaNumber(doc.monto_aplicado || 0) }}</td>
+                        <td>{{ doc.moneda }}</td>
+                        <td>{{ doc.tipo_cambio ? doc.tipo_cambio : '-' }}</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
+
+            <div *ngIf="!movimientoSeleccionado?.documentos_aplicados?.length" class="text-center text-muted py-2">
+                <i class="fas fa-info-circle me-1"></i> Sin documentos aplicados.
+            </div>
+
         </div>
     </div>
 </ng-template>
