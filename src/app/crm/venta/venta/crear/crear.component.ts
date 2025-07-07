@@ -51,7 +51,6 @@ export class CrearComponent implements OnInit {
     cuentas: any[] = [];
     cuentas_cliente: any[] = [];
     promociones: any[] = [];
-    razones: any[] = [];
 
     producto = new Producto();
     data = new Data();
@@ -1337,11 +1336,11 @@ export class CrearComponent implements OnInit {
                 const producto = this.productos.find(p => p.id == this.producto.id);
                 if (producto) {
                     this.producto.codigo = $.trim(producto.sku);
-                    this.producto.alto = producto.alto != null ? producto.alto : 0;
-                    this.producto.ancho = producto.ancho != null ? producto.ancho : 0;
-                    this.producto.largo = producto.largo != null ? producto.largo : 0;
-                    this.producto.peso = producto.peso != null ? producto.peso : 0;
-                    this.producto.costo = producto.ultimo_costo != null ? producto.ultimo_costo : 0;
+                    this.producto.alto = producto.alto == null ? 0 : producto.alto;
+                    this.producto.ancho = producto.ancho == null ? 0 : producto.ancho;
+                    this.producto.largo = producto.largo == null ? 0 : producto.largo;
+                    this.producto.peso = producto.peso == null ? 0 : producto.peso;
+                    this.producto.costo = producto.ultimo_costo == null ? 0 : producto.ultimo_costo;
                     this.producto.tipo = producto.tipo;
                 }
             }
@@ -1577,7 +1576,7 @@ export class CrearComponent implements OnInit {
 
     cambiarPeriodo() {
         this.data.documento.cobro.generar_ingreso =
-            this.data.documento.periodo != '1' ? 0 : 1;
+            this.data.documento.periodo == '1' ? 1 : 0;
     }
 
     async verificarExistencia() {
@@ -1599,11 +1598,9 @@ export class CrearComponent implements OnInit {
 
                         this.data.terminar_producto = 0;
                         this.data.terminar_producto_sku = producto.codigo;
-                        break;
                     }
                 } catch (error) {
                     swalErrorHttpResponse(error);
-                    break;
                 }
             }
         }
@@ -1624,7 +1621,6 @@ export class CrearComponent implements OnInit {
                 if (res.code !== 200) {
                     await swal('', res.message, 'error');
                     correcto = false;
-                    break;
                 }
 
                 const agregados = this.data.documento.productos.reduce(
@@ -1645,12 +1641,10 @@ export class CrearComponent implements OnInit {
                     });
 
                     correcto = false;
-                    break;
                 }
             } catch (error) {
                 swalErrorHttpResponse(error);
                 correcto = false;
-                break;
             }
         }
 

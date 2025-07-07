@@ -1,14 +1,7 @@
-import {
-    animate,
-    AUTO_STYLE,
-    state,
-    style,
-    transition,
-    trigger,
-} from '@angular/animations';
-import {backend_url} from './../../../environments/environment';
+import {animate, AUTO_STYLE, state, style, transition, trigger,} from '@angular/animations';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
 import {Component, OnInit, Renderer2} from '@angular/core';
-import {AuthService} from './../../services/auth.service';
+import {AuthService} from '@services/auth.service';
 import {HttpClient} from '@angular/common/http';
 import {MenuItems} from '../menu-items';
 import {Router} from '@angular/router';
@@ -240,7 +233,7 @@ export class AdminComponent implements OnInit {
         ).toUpperCase();
         this.user.imagen = user.imagen;
 
-        var user_theme = JSON.parse(localStorage.getItem('crm_theme'));
+        const user_theme = JSON.parse(localStorage.getItem('crm_theme'));
 
         if (user_theme != undefined) {
             this.theme = user_theme;
@@ -303,19 +296,19 @@ export class AdminComponent implements OnInit {
         this.setMenuAttributes(this.windowWidth);
         this.setHeaderAttributes(this.windowWidth);
 
-        var pusher = new Pusher('d2163e9e88304df4c43e', {
+        const pusher = new Pusher('d2163e9e88304df4c43e', {
             wsHost: 'ws.pusherapp.com',
             httpHost: 'sockjs.pusher.com',
             encrypted: true,
         });
 
-        var channel = pusher.subscribe('crm-angular');
-        var $this = this;
+        const channel = pusher.subscribe('crm-angular');
+        const $this = this;
 
         channel.bind('crm-angular-notificacion', function (data) {
-            var mensaje = JSON.parse(data.message);
+            const mensaje = JSON.parse(data.message);
 
-            var notificaciones = [];
+            const notificaciones = [];
             if (mensaje.usuario != undefined) {
                 if ($.isArray(mensaje.usuario)) {
                     mensaje.usuario.forEach((usuario) => {
@@ -335,7 +328,7 @@ export class AdminComponent implements OnInit {
                                     title: mensaje.titulo,
                                     text: mensaje.message,
                                     type: 'info',
-                                });
+                                }).then();
                             }
                         }
                     });
@@ -386,7 +379,7 @@ export class AdminComponent implements OnInit {
             this.pcodedSidebarPosition = 'absolute';
             this.sidebarFixedNavHeight = '';
         }
-    };
+    }
 
     ngOnInit() {
         this.sessionTimeLeft();
@@ -418,7 +411,7 @@ export class AdminComponent implements OnInit {
         );
 
         this.http
-            .get(`http://api.ipify.org/?format=json`)
+            .get(`https://api.ipify.org/?format=json`)
             .subscribe((res: any) => {
                 this.ipAddress = res.ip;
             });
@@ -433,14 +426,13 @@ export class AdminComponent implements OnInit {
     }
 
     sublevelInArray(sublevel, user_sublevels, section_levels) {
-        var sublevels = [];
+        let sublevels = [];
 
         section_levels.forEach((level) => {
-            var concat = sublevels.concat(user_sublevels[level]);
-            sublevels = concat;
+            sublevels = sublevels.concat(user_sublevels[level]);
         });
 
-        return sublevels.indexOf(sublevel) >= 0 ? true : false;
+        return sublevels.indexOf(sublevel) >= 0;
     }
 
     agregarNotificacion(notificaciones) {
@@ -579,10 +571,10 @@ export class AdminComponent implements OnInit {
                 clearInterval(searchInterval);
                 return false;
             }
-            this.searchWidth = this.searchWidth + 25;
+            this.searchWidth += 25;
             this.searchWidthString = this.searchWidth + 'px';
 
-            let inputElement = this.renderer.selectRootElement('#searchInput');
+            const inputElement = this.renderer.selectRootElement('#searchInput');
             inputElement.focus();
         }, 35);
 
@@ -596,7 +588,7 @@ export class AdminComponent implements OnInit {
                 clearInterval(searchInterval);
                 return false;
             }
-            this.searchWidth = this.searchWidth - 25;
+            this.searchWidth -= 25;
             this.searchWidthString = this.searchWidth + 'px';
         }, 35);
 
@@ -784,7 +776,7 @@ export class AdminComponent implements OnInit {
         localStorage.removeItem('crm_date');
         localStorage.removeItem('crm_access_token');
 
-        this.router.navigate(['auth/login']);
+        this.router.navigate(['auth/login']).then();
     }
 
     updateTheme() {
@@ -806,11 +798,11 @@ export class AdminComponent implements OnInit {
     itsTimeForSnow() {
         const its_christmas_time = new Date();
 
-        return its_christmas_time.getMonth() == 11 ? true : false;
+        return its_christmas_time.getMonth() == 11;
     }
 
     limpiarNotificacion(id_notificacion, link) {
-        var form_data = new FormData();
+        const form_data = new FormData();
         form_data.append('notificacion', id_notificacion);
 
         this.http
@@ -856,7 +848,7 @@ export class AdminComponent implements OnInit {
 
     limpiarTodas() {
         this.notificaciones.forEach((notificacion) => {
-            var form_data = new FormData();
+            const form_data = new FormData();
             form_data.append('notificacion', notificacion.id);
 
             this.http
@@ -872,16 +864,7 @@ export class AdminComponent implements OnInit {
                         }
                     },
                     (response) => {
-                        swal({
-                            title: '',
-                            type: 'error',
-                            html:
-                                response.status == 0
-                                    ? response.message
-                                    : typeof response.error === 'object'
-                                        ? response.error.error_summary
-                                        : response.error,
-                        });
+                       swalErrorHttpResponse(response);
                     }
                 );
         });
@@ -890,33 +873,33 @@ export class AdminComponent implements OnInit {
     }
 
     playSoundNotification() {
-        let audio = new Audio();
+        const audio = new Audio();
         audio.src = '../../../assets/sounds/definite.mp3';
         audio.load();
         audio.play();
     }
 
     sessionTimeLeft() {
-        var $this = this;
+        const $this = this;
         // Set the date we're counting down to
-        var countDownDate = new Date(this.auth.expirationDate()).getTime();
+        const countDownDate = new Date(this.auth.expirationDate()).getTime();
 
         // Update the count down every 1 second
-        var x = setInterval(function () {
+        const x = setInterval(function () {
             // Get today's date and time
-            var now = new Date().getTime();
+            const now = new Date().getTime();
 
             // Find the distance between now and the count down date
-            var distance = countDownDate - now;
+            const distance = countDownDate - now;
 
             // Time calculations for days, hours, minutes and seconds
-            var hours = Math.floor(
+            const hours = Math.floor(
                 (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
             );
-            var minutes = Math.floor(
+            const minutes = Math.floor(
                 (distance % (1000 * 60 * 60)) / (1000 * 60)
             );
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
             // Display the result in the element with id="demo"
             $this.sessionTime = hours + 'h ' + minutes + 'm ' + seconds + 's ';
