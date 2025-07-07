@@ -238,6 +238,7 @@ export class EditarComponent implements OnInit {
             )
             .subscribe(
                 (res) => {
+                    console.log(res);
                     if (
                         this.fullfillment_allowed.includes(
                             res['informacion'].id_marketplace_area
@@ -333,8 +334,7 @@ export class EditarComponent implements OnInit {
                             telefono: res['informacion'].telefono,
                             telefono_alt: res['informacion'].telefono_alt,
                             correo: res['informacion'].correo,
-                            credito_disponible:
-                                this.data.cliente.credito_disponible,
+                            credito_disponible: res['informacion'].limite,
                             regimen: res['informacion'].regimen_id,
                             cp_fiscal: res['informacion'].codigo_postal_fiscal,
                         },
