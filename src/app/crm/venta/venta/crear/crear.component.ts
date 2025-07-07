@@ -1351,10 +1351,8 @@ export class CrearComponent implements OnInit {
                     const codigo = this.producto.codigo;
                     const almacen = this.data.documento.almacen;
                     const cantidad = this.producto.cantidad;
-                    const proveedor = this.data.documento.proveedor;
-                    console.log(proveedor);
 
-                    const res = await this.ventaService.verificarExistenciaProducto(codigo, almacen, cantidad, proveedor);
+                    const res = await this.ventaService.verificarExistenciaProducto(codigo, almacen, cantidad);
 
                     if (res['code'] != 200) {
                         await swal('', res['message'], 'error');
