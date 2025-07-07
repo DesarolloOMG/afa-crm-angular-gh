@@ -1,8 +1,9 @@
-import { backend_url } from '@env/environment';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import swal from 'sweetalert2';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-autorizacion',
@@ -59,6 +60,7 @@ export class AutorizacionComponent implements OnInit {
     constructor(
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
+        private compraService: CompraService,
         private modalService: NgbModal
     ) {
         const table: any = $('#almacen_pretransferencia_autorizacion');
@@ -222,6 +224,19 @@ export class AutorizacionComponent implements OnInit {
 
             return;
         }
+
+        this.compraService.searchProduct(this.producto.codigo_text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+                // tslint:disable-next-line:triple-equals
+                if (this.productos.length == 1) {
+                    this.producto.id = this.productos[0].id;
+                }
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
+        });
     }
 
     eliminarProducto(codigo) {

@@ -279,6 +279,19 @@ export class CrearComponent implements OnInit {
         if (!this.producto.codigo_text) {
             return;
         }
+
+        this.compraService.searchProduct(this.producto.codigo_text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+                // tslint:disable-next-line:triple-equals
+                if (this.productos.length == 1) {
+                    this.producto.codigo = this.productos[0].sku;
+                }
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
+        });
     }
 
     cambiarProveedor() {
