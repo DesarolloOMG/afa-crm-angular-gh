@@ -85,15 +85,6 @@ export class MovimientoComponent implements OnInit {
             return;
         }
 
-        const company = this.empresas.find((e) => e.id == this.data.empresa);
-
-        if (!company) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona una empresa para buscar los productos',
-            });
-        }
-
         this.almacenService
             .getAlmacenMovimientoProductoData(this.search_product)
             .subscribe(
@@ -169,7 +160,7 @@ export class MovimientoComponent implements OnInit {
 
                     this.data.productos.push(this.producto);
 
-                    this.searchProduct().then();
+                    this.searchProduct();
                 },
                 (err: any) => {
                     this.producto.serie = false;
@@ -451,14 +442,6 @@ export class MovimientoComponent implements OnInit {
         this.producto.costo = producto.ultimo_costo ? producto.ultimo_costo : 0;
     }
 
-    onChangeCompany() {
-        const empresa = this.empresas.find(
-            (e) => e.id == this.data.empresa
-        );
-
-        this.almacenes = [...empresa.almacenes];
-    }
-
     onChangeDocumentType() {
         this.data.almacen_entrada = null;
         this.data.almacen_salida = null;
@@ -590,14 +573,6 @@ export class MovimientoComponent implements OnInit {
             (res: any) => {
                 this.empresas = [...res.empresas];
                 this.tipos = [...res.tipos];
-
-                if (this.empresas.length) {
-                    const [empresa] = this.empresas;
-
-                    this.data.empresa = empresa.id;
-
-                    this.onChangeCompany();
-                }
             },
             (err: any) => {
                 swalErrorHttpResponse(err);
