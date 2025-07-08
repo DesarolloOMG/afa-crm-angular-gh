@@ -376,9 +376,34 @@ export class PedidoComponent implements OnInit {
             return;
         }
 
-        const bd = this.empresas.find(
-            (empresa) => empresa.id == this.data.empresa
-        ).bd;
+        var form_data = new FormData();
+        form_data.append('data', JSON.stringify(this.producto.codigo_text));
+
+        this.http
+            .post(`${backend_url}compra/producto/gestion/producto`, form_data)
+            .subscribe(
+                (res: any) => {
+                    if (res['code'] != 200) {
+                        swal('', res['message'], 'error');
+
+                        return;
+                    }
+
+                    this.productos = res.productos;
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                    ? response.error.error_summary
+                                    : response.error,
+                    });
+                }
+            );
     }
 
     agregarProducto() {

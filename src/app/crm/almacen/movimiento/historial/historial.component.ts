@@ -352,7 +352,15 @@ export class HistorialComponent implements OnInit {
                     this.almacenService
                         .affectMovimientoHistorialDocumento(data)
                         .subscribe(
-                            () => {
+                            (res) => {
+                                // tslint:disable-next-line:triple-equals
+                                if (res['code'] == 200) {
+                                    swal(
+                                        '',
+                                        `El documento ha sido afectado correctamente`,
+                                        'success'
+                                    );
+                                }
                                 document.autorizado = 1;
                                 document.autorizado_by = 1;
                             },

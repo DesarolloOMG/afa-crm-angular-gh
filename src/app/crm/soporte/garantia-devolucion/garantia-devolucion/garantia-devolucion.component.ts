@@ -114,9 +114,9 @@ export class GarantiaDevolucionComponent implements OnInit {
                 },
                 response => {
                     swal({
-                        title: "",
-                        type: "error",
-                        html: response.status == 0 ? response.message : typeof response.error === 'object' ? response.error.error_summary : response.error
+                        title: '',
+                        type: 'error',
+                        html: (response.error && response.error.message) || 'Ocurrió un error inesperado'
                     });
                 });
     }

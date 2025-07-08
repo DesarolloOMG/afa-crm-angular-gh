@@ -379,10 +379,14 @@ export class HistorialComponent implements OnInit {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.fecha));
 
+        console.log(form_data);
+        console.log(this.fecha);
+
         this.http
             .post(`${backend_url}compra/compra/historial/data`, form_data)
             .subscribe(
                 (res) => {
+                    console.log(res);
                     this.datatable_pago.destroy();
                     this.ordenes = res['ordenes'];
                     this.fecha.excel = res['excel'];

@@ -331,12 +331,6 @@ export class ModificacionComponent implements OnInit {
     }
 
     buscarProducto() {
-        if (!this.data.empresa)
-            return swal({
-                type: 'error',
-                html: 'Selecciona una empresa para poder crear la requisición',
-            });
-
         if (this.productos.length > 0) {
             this.productos = [];
 
@@ -353,6 +347,35 @@ export class ModificacionComponent implements OnInit {
         }
 
         if (!this.producto.text) return;
+
+        var form_data = new FormData();
+        form_data.append('data', JSON.stringify(this.producto.text));
+
+        this.http
+            .post(`${backend_url}compra/producto/gestion/producto`, form_data)
+            .subscribe(
+                (res: any) => {
+                    if (res['code'] != 200) {
+                        swal('', res['message'], 'error');
+
+                        return;
+                    }
+
+                    this.productos = res.productos;
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                    ? response.error.error_summary
+                                    : response.error,
+                    });
+                }
+            );
     }
 
     agregarProducto() {
