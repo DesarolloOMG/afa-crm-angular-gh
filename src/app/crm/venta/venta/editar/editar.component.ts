@@ -766,6 +766,33 @@ export class EditarComponent implements OnInit {
         if (!codigo || codigo == null) {
             return;
         }
+
+        this.http
+            .get(
+                `${backend_url}catalogo/buscar/cp/${codigo}`
+            )
+            .subscribe(
+                (res: any) => {
+                    console.log(res);
+                    if (res['code'] == 200) {
+                        this.data.documento.direccion_envio.estado    = res.estado || '';
+                        this.data.documento.direccion_envio.ciudad    = res.ciudades && res.ciudades.length > 0 ? res.ciudades[0] : '';
+                        this.colonias_e = res.colonias || [];
+                    }
+                },
+                (response) => {
+                    swal({
+                        title: '',
+                        type: 'error',
+                        html:
+                            response.status == 0
+                                ? response.message
+                                : typeof response.error === 'object'
+                                    ? response.error.error_summary
+                                    : response.error,
+                    });
+                }
+            );
     }
 
     agregarArchivo() {
