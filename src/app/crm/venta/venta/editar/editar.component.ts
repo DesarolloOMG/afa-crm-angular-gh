@@ -1036,7 +1036,7 @@ export class EditarComponent implements OnInit {
 
         if (this.data.documento.productos.length > 0) {
             this.data.documento.productos.forEach((producto) => {
-                total += producto.precio * 1.16 * producto.cantidad;
+                total += producto.precio * producto.cantidad; // Precio con IVA
             });
         }
 
@@ -1048,11 +1048,11 @@ export class EditarComponent implements OnInit {
 
         if (this.data.documento.productos.length > 0) {
             this.data.documento.productos.forEach((producto) => {
-                total += producto.costo * 1.16 * producto.cantidad;
+                total += producto.costo * producto.cantidad; // Costo con IVA
             });
         }
 
-        return Math.round(total);
+        return total;
     }
 
     YmdHis() {

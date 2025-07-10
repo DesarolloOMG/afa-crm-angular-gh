@@ -1435,7 +1435,7 @@ export class CrearComponent implements OnInit {
     totalDocumento() {
         return this.data.documento.productos.reduce(
             (total, producto) =>
-                total + Number(producto.precio) * 1.16 * Number(producto.cantidad),
+                total + Number(producto.precio) * Number(producto.cantidad),
             0
         );
     }
