@@ -1,5 +1,107 @@
-.link {
-    color: -webkit-link;
-    cursor: pointer;
-    text-decoration: underline;
+// MÉTRICAS
+.metric-card {
+    border-radius: 1rem;
+    border: 3px solid transparent;
+    box-shadow: 0 0.07rem 0.45rem rgba(44, 62, 80, 0.11);
+    transition: border 0.25s;
+    margin-bottom: 1rem;
+
+    .card-header {
+        border-bottom: none;
+        background: #f8f9fa;
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        display: flex;
+        align-items: center;
+        padding: 0.7rem 1.3rem 0 1.3rem;
+    }
+
+    .metric-label {
+        color: #666;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-left: 0.7em;
+    }
+
+    .card-body {
+        display: flex;
+        align-items: center;
+        padding: 1.2rem 1.3rem 1.1rem 1.3rem;
+    }
+
+    .metric-number {
+        font-size: 2.1rem !important; // MÁS GRANDE
+        font-weight: bold;
+        letter-spacing: -1px;
+        margin-right: 0.65em;
+        line-height: 1.1;
+    }
+
+    .metric-icon {
+        font-size: 3.8rem;
+        opacity: 0.14;
+        margin-left: 0.2em;
+        margin-bottom: 0.1em;
+        vertical-align: middle;
+    }
+
+    &.metric-border-purple { border-color: #8f54ff !important; }
+    &.metric-border-orange { border-color: #f7971e !important; }
+    &.metric-border-red { border-color: #e74c3c !important; }
+    &.metric-border-green { border-color: #22c55e !important; }
+    &.metric-border-blue { border-color: #3498db !important; }
+}
+.metric-purple { color: #8f54ff !important; }
+.metric-orange { color: #f7971e !important; }
+.metric-red { color: #e74c3c !important; }
+.metric-green { color: #22c55e !important; }
+.metric-blue { color: #3498db !important; }
+
+// NOTIFICACIONES
+.notificaciones-card {
+    border-radius: 1rem;
+    box-shadow: 0 0.1rem 0.5rem rgba(44, 62, 80, 0.13);
+
+    .card-header {
+        border-top-left-radius: 1rem;
+        border-top-right-radius: 1rem;
+        background: linear-gradient(90deg, #337ab7 0%, #4e54c8 100%);
+        color: white;
+        font-size: 1.15rem;
+        font-weight: 400 !important; // QUITA la negrita al título
+        display: flex;
+        align-items: center;
+    }
+
+    .noti-item {
+        font-size: 1.03em;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 0.65em 0 0.6em 0;
+        display: flex;
+        align-items: flex-start;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        i.fa {
+            vertical-align: top;
+            margin-top: 2px;
+            margin-right: 12px;
+            min-width: 1.3em;
+        }
+
+        .noti-title {
+            font-size: 1.08em;
+            font-weight: 700; // NEGRITA para el título
+            margin-bottom: 0.04em;
+            display: inline-block;
+        }
+        .noti-message {
+            color: #222;
+            font-size: 0.99em;
+            font-weight: 400;
+            margin-bottom: 0.08em;
+        }
+    }
 }

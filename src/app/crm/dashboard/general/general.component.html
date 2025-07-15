@@ -1,77 +1,51 @@
 <div class="page-body">
-    <div class="row">
-        <div class="col-xl-3 col-md-6">
-            <div class="card">
-                <div class="card-block">
-                    <div class="row align-items-center m-l-0">
-                        <div class="col-auto">
+    <!-- MÉTRICAS -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3" *ngFor="let card of metricCards">
+            <div class="card h-100 metric-card shadow-sm border-0" [ngClass]="card.cardBorderClass">
+                <div class="card-body d-flex align-items-center justify-content-between py-3">
+                    <div>
+                        <div class="text-muted" style="font-size: 1.1rem;">{{ card.title }}</div>
+                        <div>
+                            <span class="metric-number" [ngClass]="card.textClass">{{ card.value }}</span>
+                        </div>
+                    </div>
+                    <span [ngClass]="card.iconClass" class="metric-icon ml-3"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICACIONES GENERALES -->
+    <div class="row mb-4" *ngIf="notificaciones.length > 0">
+        <div class="col-12">
+            <div class="card notificaciones-card">
+                <div class="card-header bg-gradient-primary text-white d-flex align-items-center py-2">
+                    <i class="fa fa-bell f-24 mr-2"></i>
+                    <span class="ml-2 font-weight-normal" style="font-size: 1.1rem; font-weight: 400 !important;">Notificaciones</span>
+                    <span class="badge badge-danger ml-2" *ngIf="notificaciones.length">{{ notificaciones.length }}</span>
+                </div>
+                <div class="card-body py-2 px-3" style="max-height: 220px; overflow-y: auto;">
+                    <ul class="list-group list-group-flush">
+                        <li *ngFor="let noti of notificaciones" class="list-group-item py-2 px-0 d-flex align-items-start noti-item">
+                        <span>
                             <i
-                                class="fa fa-shopping-cart f-30 text-c-purple"
+                                class="fa"
+                                [ngClass]="[
+                                            getIconClass(noti.tipo),
+                                            getIconColor(noti.tipo)
+                                          ]"
+                                style="font-size: 1.25em; margin-right: 12px; min-width:1.3em;"
                             ></i>
-                        </div>
-                        <div class="col-auto">
-                            <h6 class="text-muted m-b-10">Total de ventas</h6>
-                            <h3 class="m-b-0">{{ ventas_totales }}</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card">
-                <div class="card-block">
-                    <div class="row align-items-center m-l-0">
-                        <div class="col-auto">
-                            <h6 class="text-muted m-b-10">
-                                Pendientes de finalizar
-                            </h6>
-                            <h3 class="m-b-0">
-                                {{ ventas_pendientes_finalizar }}
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card">
-                <div class="card-block">
-                    <div class="row align-items-center m-l-0">
-                        <div class="col-auto">
-                            <i class="fa fa-balance-scale f-30 text-c-red"></i>
-                        </div>
-                        <div class="col-auto">
-                            <h6 class="text-muted m-b-10">Breath</h6>
-                            <h3
-                                class="m-b-0 {{
-                                    diferencia_ventas_mes < 1
-                                        ? 'text-c-red'
-                                        : 'text-c-green'
-                                }}"
-                            >
-                                {{
-                                    diferencia_ventas_mes > 0
-                                        ? "+" + diferencia_ventas_mes
-                                        : diferencia_ventas_mes
-                                }}
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card">
-                <div class="card-block">
-                    <div class="row align-items-center m-l-0">
-                        <div class="col-auto">
-                            <i class="fa fa-balance-scale f-30 text-c-blue"></i>
-                        </div>
-                        <div class="col-auto">
-                            <h6 class="text-muted m-b-10">Mes actual</h6>
-                            <h3 class="m-b-0">{{ ventas_mes_actual }}</h3>
-                        </div>
-                    </div>
+                        </span>
+                            <div style="flex:1">
+                                <span class="noti-title font-weight-bold">{{ noti.titulo || noti.title }}</span>
+                                <div class="noti-message">{{ noti.message || noti.mensaje }}</div>
+                            </div>
+                            <span class="ml-2 text-muted" style="font-size:0.95em; min-width: 116px; text-align: right;">{{ noti.fecha || '' }}</span>
+                        </li>
+                        <li *ngIf="notificaciones.length == 0" class="list-group-item text-muted">No hay notificaciones recientes.</li>
+                    </ul>
                 </div>
             </div>
         </div>
