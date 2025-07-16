@@ -72,6 +72,10 @@ export class CompraService {
         return this.http.post(`${backend_url}compra/orden/autorizacion-requisicion/cancelar`, form_data);
     }
 
+    productoGestionData() {
+        return this.http.get(`${backend_url}compra/producto/gestion/data`);
+    }
+
     // No se usa
 
     // undefined

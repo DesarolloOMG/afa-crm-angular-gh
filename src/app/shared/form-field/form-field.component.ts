@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 
 
 @Component({
@@ -6,6 +6,8 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
     templateUrl: './form-field.component.html',
 })
 export class FormFieldComponent {
+    @ViewChild('inputElement') inputElement: ElementRef;
+
     @Input() label = '';
     @Input() type: 'text' | 'date' | 'number' | 'select' = 'text';
     @Input() name = '';
@@ -15,6 +17,8 @@ export class FormFieldComponent {
     @Input() required = false;
     @Input() disabled = false;
     @Input() pattern?: string;
+    @Input() maxlength?: string;
+    @Input() id?: string;
 
     value: any;
     @Output() modelChange = new EventEmitter<any>();
@@ -40,5 +44,9 @@ export class FormFieldComponent {
         }
         const regex = new RegExp(this.pattern);
         return !regex.test(this.model);
+    }
+
+    focus() {
+        this.inputElement.nativeElement.focus();
     }
 }

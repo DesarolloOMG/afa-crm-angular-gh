@@ -1,7 +1,8 @@
-import {ChangeDetectorRef, Component, ElementRef, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ViewChild} from '@angular/core';
 import {GeneralService} from '@services/http/general.service';
 import {swalErrorHttpResponse} from '@env/environment';
 import {PrintService} from '@services/http/print.service';
+import {FormFieldComponent} from '../../../../shared/form-field/form-field.component';
 
 @Component({
     selector: 'app-serie',
@@ -9,7 +10,7 @@ import {PrintService} from '@services/http/print.service';
     styleUrls: ['./serie.component.scss'],
 })
 export class SerieComponent {
-    @ViewChild('serieInput') serieInput!: ElementRef;
+    @ViewChild('serieInput') serieInput!: FormFieldComponent;
 
     datatable: any;
     datatable_name = '.movimientos';
@@ -62,7 +63,7 @@ export class SerieComponent {
 
                 this.chRef.detectChanges();
 
-                this.serieInput.nativeElement.focus();
+                this.serieInput.focus();
                 this.rebuildTable();
             },
             error: (err: any) => {

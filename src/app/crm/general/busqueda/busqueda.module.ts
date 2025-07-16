@@ -14,6 +14,7 @@ import {VentaComponent} from './venta/venta.component';
 import {EditorSeguimientosModule} from 'app/utils/editor-seguimientos/editor-seguimientos.module';
 import {ProductoComponent} from './producto/producto.component';
 import {RouterModule, Routes} from '@angular/router';
+import {SharedModule} from '../../../shared/shared.module';
 
 const routes: Routes = [
     {
@@ -55,7 +56,8 @@ const routes: Routes = [
         ChartModule,
         NgbModule,
         EditorSeguimientosModule,
-        RouterModule.forChild(routes)
+        RouterModule.forChild(routes),
+        SharedModule
     ],
     declarations: [SerieComponent, VentaComponent, ProductoComponent,],
     exports: [RouterModule]
