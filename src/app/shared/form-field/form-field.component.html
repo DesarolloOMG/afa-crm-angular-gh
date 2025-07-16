@@ -2,10 +2,12 @@
     <ng-container [ngSwitch]="type">
         <select
             *ngSwitchCase="'select'"
+            #inputElement
             class="form-control"
             [name]="name"
             [disabled]="disabled"
             [required]="required"
+            [maxlength]="maxlength"
             [ngModel]="model"
             (ngModelChange)="onModelChange($event)"
         >
@@ -20,12 +22,15 @@
 
         <input
             *ngSwitchDefault
+            #inputElement
             class="form-control"
             [type]="type"
             [name]="name"
             [required]="required"
             [pattern]="pattern"
             [disabled]="disabled"
+            [id]="id"
+            [maxlength]="maxlength"
             [ngModel]="model"
             (ngModelChange)="onModelChange($event)"
         />

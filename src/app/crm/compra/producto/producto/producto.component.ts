@@ -1,12 +1,13 @@
-import {backend_url} from '@env/environment';
+import {backend_url, swalErrorHttpResponse} from '@env/environment';
 import {animate, style, transition, trigger} from '@angular/animations';
 import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
-import {AuthService} from '@services/auth.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import * as XLSX from 'xlsx';
 import swal from 'sweetalert2';
+import {CompraService} from '@services/http/compra.service';
+import {Producto} from './producto.model';
 
 @Component({
     selector: 'app-producto',
@@ -30,7 +31,6 @@ export class ProductoComponent implements OnInit {
     modal: NgbModal;
 
     empresas: any[] = [];
-    productos: any[] = [];
     tipos: any[] = [];
     codigos_sat: any[] = [];
     proveedores: any[] = [];
@@ -47,49 +47,17 @@ export class ProductoComponent implements OnInit {
         criterio: '',
     };
 
-    producto = {
-        id: 0,
-        sku: '',
-        descripcion: '',
-        np: '',
-        serie: 1,
-        refurbished: 0,
-        costo: 0,
-        extra: 0,
-        alto: 0,
-        ancho: 0,
-        largo: 0,
-        peso: 0,
-        tipo: 1,
-        codigo_text: '',
-        clave_sat: '',
-        clave_unidad: '',
-        cat1: '',
-        cat2: '',
-        cat3: '',
-        cat4: '',
-        proveedores: [],
-        imagenes: [],
-        imagenes_anteriores: [],
-        amazon: {
-            codigo: '',
-            descripcion: '',
-        },
-        precio: {
-            empresa: '1',
-            precio: 0,
-            productos: [],
-        },
-        caducidad: 0,
-    };
+    readonly CLAVES_VALIDAS = ['H87', 'E48'];
+
+    productos: Producto[] = [];
+    producto: Producto = this.getEmptyProducto();
 
     constructor(
         private http: HttpClient,
         private chRef: ChangeDetectorRef,
         private modalService: NgbModal,
-        private router: Router,
         private route: ActivatedRoute,
-        private auth: AuthService
+        private compraService: CompraService
     ) {
         const table_producto: any = $('#compra_producto_producto');
 
@@ -97,7 +65,7 @@ export class ProductoComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http.get(`${backend_url}compra/producto/gestion/data`).subscribe(
+        this.compraService.productoGestionData().subscribe(
             (res: any) => {
                 this.tipos = res['tipos'];
                 this.empresas = res['empresas'];
@@ -114,16 +82,7 @@ export class ProductoComponent implements OnInit {
                 }
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                });
+                swalErrorHttpResponse(response);
             }
         );
 
@@ -216,16 +175,7 @@ export class ProductoComponent implements OnInit {
                             producto.url = res.link;
                         },
                         (response) => {
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             });
@@ -235,7 +185,7 @@ export class ProductoComponent implements OnInit {
                 if (proveedor.producto) {
                     proveedor.producto_text = proveedor.producto;
 
-                    this.buscarProductoProveedorB2B(proveedor);
+                    this.buscarProductoProveedorB2B(proveedor).then();
                 }
             }
         } else {
@@ -275,16 +225,7 @@ export class ProductoComponent implements OnInit {
                     this.datatable_producto = table.DataTable();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -324,16 +265,7 @@ export class ProductoComponent implements OnInit {
                     proveedor.productos = res.data;
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -388,16 +320,7 @@ export class ProductoComponent implements OnInit {
                     }
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
     }
@@ -423,62 +346,9 @@ export class ProductoComponent implements OnInit {
                     this.codigos_sat = Array.isArray(res.data) ? res.data : [res.data];
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html: response.message
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
-    }
-
-    onChangeArchivo() {
-        const files = $('#archivos').prop('files');
-
-        if (files.length + this.producto.imagenes_anteriores.length > 6) {
-            swal({
-                type: 'error',
-                html: 'Solo puedes agregar 6 imagenes por producto',
-            });
-
-            $('#archivos').val('');
-
-            return;
-        }
-
-        const archivos = [];
-        const $this = this;
-
-        for (let i = 0, len = files.length; i < len; i++) {
-            const file = files[i];
-
-            const reader = new FileReader();
-
-            reader.onload = (function (f) {
-                return function (e) {
-                    console.log(f, e);
-
-                    archivos.push({
-                        tipo: f.type.split('/')[0],
-                        nombre: f.name,
-                        data: e.target.result,
-                    });
-
-                    $this.producto.imagenes = archivos;
-                };
-            })(file);
-
-            reader.onerror = (function (f) {
-                return function (e) {
-                    swal({
-                        type: 'error',
-                        html: 'No fue posible agregar el archivo',
-                    });
-                };
-            })(file);
-
-            reader.readAsDataURL(file);
-        }
     }
 
     onChangeArchivoPrecios() {
@@ -530,12 +400,77 @@ export class ProductoComponent implements OnInit {
 
             reader.onerror = (function (f) {
                 return function (e) {
-                    swal('', 'Ocurrió un error al leer el archivo', 'error');
+                    swal('', 'Ocurrió un error al leer el archivo', 'error').then();
                 };
             })(file);
 
             reader.readAsBinaryString(file);
         }
+    }
+
+    onChangeArchivo() {
+        const files = $('#archivos').prop('files');
+
+        if (files.length + this.producto.imagenes_anteriores.length > 6) {
+            swal({
+                type: 'error',
+                html: 'Solo puedes agregar 6 imagenes por producto',
+            });
+
+            $('#archivos').val('');
+
+            return;
+        }
+
+        const archivos = [];
+        const $this = this;
+
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
+
+            const reader = new FileReader();
+
+            reader.onload = (function (f) {
+                return function (e) {
+                    console.log(f, e);
+
+                    archivos.push({
+                        tipo: f.type.split('/')[0],
+                        nombre: f.name,
+                        data: e.target.result,
+                    });
+
+                    $this.producto.imagenes = archivos;
+                };
+            })(file);
+
+            reader.onerror = (function (f) {
+                return function (e) {
+                    swal({
+                        type: 'error',
+                        html: 'No fue posible agregar el archivo',
+                    });
+                };
+            })(file);
+
+            reader.readAsDataURL(file);
+        }
+    }
+
+    descargarImagen(dropbox) {
+        this.http
+            .post<any>(
+                `${backend_url}/dropbox/get-link`, // Llama a tu backend seguro
+                {path: dropbox}
+            )
+            .subscribe(
+                (res) => {
+                    window.open(res.link);
+                },
+                (response) => {
+                    swalErrorHttpResponse(response);
+                }
+            );
     }
 
     onChangeEmpresaPrecio() {
@@ -554,31 +489,6 @@ export class ProductoComponent implements OnInit {
         } else {
             this.producto.precio.precio = 0;
         }
-    }
-
-    descargarImagen(dropbox) {
-        this.http
-            .post<any>(
-                `${backend_url}/dropbox/get-link`, // Llama a tu backend seguro
-                {path: dropbox}
-            )
-            .subscribe(
-                (res) => {
-                    window.open(res.link);
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    });
-                }
-            );
     }
 
     eliminarImagen(dropbox) {
@@ -615,34 +525,54 @@ export class ProductoComponent implements OnInit {
                                     (_res) => {
                                     },
                                     (response) => {
-                                        swal({
-                                            title: '',
-                                            type: 'error',
-                                            html:
-                                                response.status == 0
-                                                    ? response.message
-                                                    : typeof response.error === 'object'
-                                                        ? response.error.error_summary
-                                                        : response.error,
-                                        });
+                                        swalErrorHttpResponse(response);
                                     }
                                 );
                         },
                         (response) => {
-                            swal({
-                                title: '',
-                                type: 'error',
-                                html:
-                                    response.status == 0
-                                        ? response.message
-                                        : typeof response.error === 'object'
-                                            ? response.error.error_summary
-                                            : response.error,
-                            });
+                            swalErrorHttpResponse(response);
                         }
                     );
             }
         });
+    }
+
+    private getEmptyProducto(): Producto {
+        return {
+            id: 0,
+            sku: '',
+            descripcion: '',
+            np: '',
+            serie: 1,
+            refurbished: 0,
+            costo: 0,
+            extra: 0,
+            alto: 0,
+            ancho: 0,
+            largo: 0,
+            peso: 0,
+            tipo: 1,
+            codigo_text: '',
+            clave_sat: '',
+            clave_unidad: '',
+            cat1: '',
+            cat2: '',
+            cat3: '',
+            cat4: '',
+            proveedores: [],
+            imagenes: [],
+            imagenes_anteriores: [],
+            amazon: {
+                codigo: '',
+                descripcion: ''
+            },
+            precio: {
+                empresa: this.data.empresa,
+                precio: 0,
+                productos: []
+            },
+            caducidad: 0
+        };
     }
 
 
