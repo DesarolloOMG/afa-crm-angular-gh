@@ -266,6 +266,11 @@ export class CrearComponent implements OnInit {
             return;
         }
 
+        // @ts-ignore
+        if (this.data.documento.marketplace != 1) {
+            return;
+        }
+
         const response = await this.existeVenta();
 
         if (response['code'] != 200) {
@@ -306,44 +311,6 @@ export class CrearComponent implements OnInit {
 
                                     await this.ventaMultipleMercadolibre(res['venta'][0]);
                                     break;
-
-                                case 'linio':
-                                    await this.cargarInformacionLinio(informacion);
-                                    break;
-
-                                case 'amazon':
-                                    await this.cargarInformacionAmazon(informacion);
-                                    break;
-
-                                case 'claroshop':
-                                case 'sears':
-                                case 'sanborns':
-                                    await this.cargarInformacionT1(informacion);
-                                    break;
-
-                                case 'shopify':
-                                    await this.cargarInformacionShopify(informacion);
-                                    break;
-
-                                case 'walmart':
-                                    await this.cargarInformacionWalmart(informacion);
-                                    break;
-
-
-                                case 'elektra':
-                                    await this.cargarInformacionElektra(informacion);
-                                    break;
-
-                                case 'coppel':
-                                    await this.cargarInformacionCoppel(informacion);
-                                    break;
-
-
-                                case 'liverpool':
-                                    await this.cargarInformacionLiverpool(informacion);
-                                    break;
-
-
                                 default:
                                     this.data.terminar = 0;
 

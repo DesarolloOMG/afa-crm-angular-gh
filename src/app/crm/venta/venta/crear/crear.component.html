@@ -46,10 +46,7 @@
                                     (change)="cambiarMarketplace()"
                                 >
                                     <option value="" disabled></option>
-                                    <option
-                                        value="{{ marketplace.id }}"
-                                        *ngFor="let marketplace of marketplaces"
-                                    >
+                                    <option [value]="marketplace.id" *ngFor="let marketplace of marketplaces">
                                         {{ marketplace.marketplace }}
                                     </option>
                                 </select>
@@ -453,7 +450,8 @@
                                     marketplace_info.secret == null ||
                                     marketplace_info.secret == '' ||
                                     (venta.invalid &&
-                                        (venta.dirty || venta.touched))
+                                        (venta.dirty || venta.touched)) ||
+                                    data.documento.marketplace != 1
                                 "
                             >
                                 Buscar
