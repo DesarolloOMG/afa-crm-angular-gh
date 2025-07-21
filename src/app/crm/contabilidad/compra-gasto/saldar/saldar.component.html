@@ -1,210 +1,217 @@
-<!--suppress JSUnusedGlobalSymbols -->
-<form class="md-float-material form-material" #f="ngForm" autocomplete="off">
-    <div class="card">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="empresa"
-                                    id="empresa"
-                                    #empresa="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="data.empresa"
-                                >
-                                    <option value="" disabled></option>
-                                    <option
-                                        value="{{ empresa.id }}"
-                                        *ngFor="let empresa of empresas"
-                                    >
-                                        {{ empresa.empresa }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Empresa</label>
-                                <small
-                                    class="text-danger messages block"
-                                    *ngIf="
-                                        empresa.errors?.required &&
-                                        empresa.invalid &&
-                                        (empresa.dirty || empresa.touched)
-                                    "
-                                    >Campo requerido</small
-                                >
-                            </div>
-                        </div>
-                    </div>
+<div class="card">
+    <div class="card-block">
 
-                    <div class="row">
-                        <div
-                            class="col-md-10"
-                            [hidden]="proveedores.length > 0"
+        <div class="row mb-3 align-items-end">
+
+            <!-- RFC o razón social -->
+            <div class="col-md-5">
+                <label class="fw-bold mb-1">RFC o Razón Social</label>
+                <div class="d-flex align-items-end gap-2">
+                    <ng-container *ngIf="!entidadesLoaded">
+                        <input
+                            class="form-control"
+                            [(ngModel)]="criterioEntidad"
+                            placeholder="Ej. CYBERPUERTA"
+                            (keyup.enter)="toggleEntidadBusqueda()"
+                        />
+                    </ng-container>
+                    <ng-container *ngIf="entidadesLoaded">
+                        <select
+                            class="form-control form-select-sm"
+                            [(ngModel)]="entidadSeleccionada"
+                            (change)="onEntidadSeleccionada()"
                         >
-                            <div class="form-group form-primary">
-                                <input
-                                    type="text"
-                                    name="proveedor_input"
-                                    class="form-control"
-                                    #proveedorinput="ngModel"
-                                    [(ngModel)]="busqueda"
-                                    (keyup.enter)="buscarProveedor()"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Proveedor</label>
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        proveedorinput.invalid &&
-                                        (proveedorinput.dirty ||
-                                            proveedorinput.touched)
-                                    "
-                                    >No se permite el caracter ' ó "</small
-                                >
-                            </div>
-                        </div>
+                            <option value="">Seleccione entidad</option>
+                            <option *ngFor="let e of entidades" [ngValue]="e">
+                                {{ e.razon_social }} - {{ e.rfc }}
+                            </option>
+                        </select>
+                    </ng-container>
+                    <button
+                        class="btn btn-outline-primary d-flex align-items-center justify-content-center px-3"
+                        style="height:42px;"
+                        (click)="toggleEntidadBusqueda()"
+                        [disabled]="!criterioEntidad || criterioEntidad.trim().length < 3"
+                    >
+                        <i class="fas fa-search me-2"></i> Buscar
+                    </button>
+                </div>
+            </div>
 
-                        <div
-                            class="col-md-10"
-                            [hidden]="proveedores.length == 0"
-                        >
-                            <div class="form-group form-primary">
-                                <select
-                                    name="proveedor_select"
-                                    id="proveedor_select"
-                                    class="form-control"
-                                    [(ngModel)]="data.proveedor"
-                                    #proveedordocumento="ngModel"
-                                    (change)="cambiarProveedor()"
-                                    required
-                                >
-                                    <option value=""></option>
-                                    <option
-                                        value="{{ proveedor.idproveedor }}"
-                                        *ngFor="let proveedor of proveedores"
-                                    >
-                                        {{ proveedor.razon }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Proveedor</label>
-                                <small
-                                    class="text-danger messages"
-                                    *ngIf="
-                                        proveedordocumento.errors?.required &&
-                                        proveedordocumento.invalid &&
-                                        (proveedordocumento.dirty ||
-                                            proveedordocumento.touched)
-                                    "
-                                    >Campo requerido</small
-                                >
-                            </div>
-                        </div>
+            <!-- Select tipo -->
+            <div class="col-md-3">
+                <label class="fw-bold mb-1">Tipo</label>
+                <select
+                    class="form-control form-select-sm"
+                    [(ngModel)]="tipoAplicacion"
+                    (change)="onTipoChange()"
+                >
+                    <option value="egreso">Egresos</option>
+                    <option value="nota_credito">Nota de Crédito</option>
+                </select>
+            </div>
+        </div>
 
-                        <div class="col-md-2">
-                            <button
-                                type="button"
-                                class="btn btn-primary btn-sm btn-block http-disabled"
-                                placement="top"
-                                ngbTooltip="{{
-                                    proveedores.length
-                                        ? 'Limpiar búsqueda'
-                                        : 'Buscar proveedor'
-                                }}"
-                                (click)="buscarProveedor()"
-                            >
-                                <i class="fa fa-search fa-2x"></i>
-                            </button>
-                        </div>
-                    </div>
+        <!-- tabla de egresos filtrados -->
+        <div *ngIf="egresos_filtrados.length > 0 && !egresoSeleccionado" class="table-responsive mb-4">
+            <table class="table table-bordered table-hover table-striped" id="egresos_table">
+                <thead class="table-light">
+                <tr>
+                    <th>Folio</th>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                    <th>Saldo disponible</th>
+                    <th>Forma de pago</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let egreso of egresos_filtrados">
+                    <td>{{ egreso.folio }}</td>
+                    <td>{{ egreso.fecha_operacion | date:'yyyy-MM-dd HH:mm' }}</td>
+                    <td>{{ egreso.monto | currency: egreso.moneda }}</td>
+                    <td>{{ egreso.saldo_disponible | currency: egreso.moneda }}</td>
+                    <td>{{ egreso.forma_pago }}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm" (click)="seleccionarEgreso(egreso)">
+                            Seleccionar
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-                    <div class="row m-t-50">
-                        <div class="col-md-4">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="documento"
-                                    class="form-control"
-                                    [(ngModel)]="data.documento"
-                                    (change)="cambiarCantidadAplicar()"
-                                >
-                                    <option value="" disabled></option>
-                                    <option
-                                        value="{{ documento.documento }}"
-                                        *ngFor="let documento of documentos"
-                                    >
-                                        {{
-                                            documento.documento +
-                                                " | " +
-                                                documento.modulo +
-                                                " | " +
-                                                documento.serie +
-                                                " " +
-                                                documento.folio +
-                                                " | $ " +
-                                                documento.balancereal
-                                        }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label"
-                                    >Documento a saldar</label
-                                >
-                            </div>
+        <!-- card egreso seleccionado -->
+        <div *ngIf="egresoSeleccionado" class="bg-white px-4 py-3 mb-4 border border-primary border-2 rounded-4 shadow-sm">
+            <div class="row align-items-center g-3">
+                <!-- ICONO + FOLIO -->
+                <div class="col-auto d-flex flex-column align-items-center justify-content-center" style="min-width:110px;">
+                    <div
+                        style="background: #e8f0fe; border-radius:1rem; box-shadow:0 2px 10px #88a9ea33; border: 1px solid #e3eafd; padding:14px 14px 6px 14px; display:flex; flex-direction:column; align-items:center;">
+                        <div style="width:38px; height:38px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; margin-bottom:6px;">
+                            <i class="fas fa-money-bill-wave" style="color:#377dff; font-size:1.5rem;"></i>
                         </div>
-
-                        <div class="col-md-4">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="documento"
-                                    class="form-control"
-                                    [(ngModel)]="data.egreso"
-                                    (change)="cambiarCantidadAplicar()"
-                                >
-                                    <option value="" disabled></option>
-                                    <option
-                                        value="{{ egreso.id }}"
-                                        *ngFor="let egreso of egresos"
-                                    >
-                                        {{ egreso.id + " | $ " + egreso.monto }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Egreso</label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="form-group form-primary">
-                                <input
-                                    type="number"
-                                    name="montosaldar"
-                                    class="form-control"
-                                    [(ngModel)]="data.monto"
-                                    step="0.001"
-                                />
-                                <span class="form-bar"></span>
-                                <label class="float-label">Monto</label>
-                            </div>
-                        </div>
+                        <span class="fw-bold text-primary" style="font-size:1.02rem;">
+                          {{ egresoSeleccionado.folio }}
+                        </span>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button
-                                class="btn btn-outline-info btn-sm btn-block http-disabled"
-                                (click)="saldarDocumento()"
-                                placement="top"
-                                ngbTooltip="Saldar documento"
-                            >
-                                <i class="fa fa-2x fa-cash-register"></i>
-                            </button>
+                <!-- DATOS -->
+                <div class="col">
+                    <div class="row text-center align-items-center">
+                        <!-- FECHA / DESCRIPCION -->
+                        <div class="col-md-3 mb-2 mb-md-0">
+                            <div class="d-flex flex-column align-items-center" style="font-size:0.97rem;">
+                                <span class="text-uppercase small text-muted">Fecha</span>
+                                <span class="text-dark">{{ egresoSeleccionado.fecha_operacion | date:'yyyy-MM-dd HH:mm' }}</span>
+                                <span class="text-uppercase small text-muted mt-2">Descripción</span>
+                                <span class="text-dark">{{ egresoSeleccionado.descripcion_pago }}</span>
+                            </div>
+                        </div>
+
+                        <!-- MONEDA / FORMA PAGO -->
+                        <div class="col-md-3 mb-2 mb-md-0">
+                            <div class="d-flex flex-column align-items-center">
+                                <span class="text-uppercase small text-muted">Moneda</span>
+                                <span class="text-dark">
+                                    {{ egresoSeleccionado.moneda }}
+                                    <span *ngIf="egresoSeleccionado.moneda !== 'MXN'" class="ms-1 text-muted" style="font-size:0.9rem;">
+                                    | TC {{ egresoSeleccionado.tipo_cambio }}
+                                  </span>
+                                </span>
+                                <span class="text-uppercase small text-muted mt-2">Forma de pago</span>
+                                <span class="text-dark">{{ egresoSeleccionado.forma_pago }}</span>
+                            </div>
+                        </div>
+
+                        <!-- MONTO ORIGINAL -->
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <span style="color:#858b98; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">Monto original</span>
+                            <div class="fw-bold" style="font-size:1.3rem; color:#6c757d;">
+                                {{ egresoSeleccionado.monto | currency: egresoSeleccionado.moneda:'symbol':'1.2-2' }}
+                            </div>
+                        </div>
+
+                        <!-- SALDO UTILIZADO -->
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <span style="color:#858b98; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">Saldo utilizado</span>
+                            <div class="fw-bold text-primary" style="font-size:1.3rem;">
+                                {{
+                                    (egresoSeleccionado.monto - egresoSeleccionado.saldo_disponible)
+                                        | currency: egresoSeleccionado.moneda:'symbol':'1.2-2'
+                                }}
+                            </div>
+                        </div>
+
+                        <!-- DISPONIBLE -->
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <span style="color:#858b98; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.5px;">Disponible</span>
+                            <div class="fw-bold text-success" style="font-size:1.3rem;">
+                                {{ egresoSeleccionado.saldo_disponible | currency: egresoSeleccionado.moneda:'symbol':'1.2-2' }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- tabla documentos -->
+        <div class="table-responsive" *ngIf="egresoSeleccionado">
+            <table class="table table-striped" id="contabilidad_factura_saldar">
+                <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Proveedor</th>
+                    <th>Total</th>
+                    <th>Saldo</th>
+                    <th>Monto a aplicar</th>
+                    <th>Moneda</th>
+                    <th>Tipo de cambio</th>
+                    <th>Seleccionar</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let doc of documentos; let i = index">
+                    <td>{{ doc.id }}</td>
+                    <td>{{ doc.proveedor }}</td>
+                    <td>{{ doc.total | number:'1.2-2' }}</td>
+                    <td>{{ doc.saldo | number:'1.2-2' }}</td>
+                    <td>
+                        <input type="number" class="form-control" min="0.01" [max]="doc.saldo"
+                               [(ngModel)]="aplicaciones[i].monto" />
+                    </td>
+                    <td>
+                        <select class="form-control" [(ngModel)]="aplicaciones[i].moneda">
+                            <option *ngFor="let moneda of monedas" [value]="moneda.id">
+                                {{ moneda.moneda }}
+                            </option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" step="0.0001" class="form-control"
+                               [(ngModel)]="aplicaciones[i].tipo_cambio_aplicado"
+                               (change)="cambiarTipoCambio(i, aplicaciones[i].tipo_cambio_aplicado)" />
+                    </td>
+                    <td class="text-center">
+                        <ui-switch
+                            color="#4680ff"
+                            switchColor="#fff"
+                            size="small"
+                            [(ngModel)]="aplicaciones[i].seleccionado"
+                            (change)="toggleSeleccionAplicacion(i)">
+                        </ui-switch>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div *ngIf="tieneDocumentosSeleccionados" class="mt-3 text-end">
+            <button class="btn btn-primary" (click)="aplicarEgreso()">
+                Aplicar egreso
+            </button>
+        </div>
     </div>
-</form>
+</div>

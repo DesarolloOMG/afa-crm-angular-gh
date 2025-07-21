@@ -1,9 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {backend_url} from '@env/environment';
+import {backend_url, commaNumber, swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {AuthService} from '@services/auth.service';
-import {Router} from '@angular/router';
 import swal from 'sweetalert2';
+import {CompraService} from '@services/http/compra.service';
 
 @Component({
     selector: 'app-crear-gasto',
@@ -11,649 +10,398 @@ import swal from 'sweetalert2';
     styleUrls: ['./crear-gasto.component.scss'],
 })
 export class CrearGastoComponent implements OnInit {
+
+    commaNumber = commaNumber;
+
+    modalReference: any;
+    datatable: any;
+
+    monedas: any[] = [];
+    periodos: any[] = [];
+    empresas: any[] = [];
+    documentos: any[] = [];
+    proveedores: any[] = [];
+    empresas_usuario: any[] = [];
+    productos: any[] = [];
+    usos_cfdi: any[] = [];
+    almacenes: any[] = [];
+    metodos_pago: any[] = [];
+
+    proveedor_text: any = '';
+    total_prorrateo = 0;
+
+    producto = {
+        text: '',
+        id: 0,
+        codigo: '',
+        descripcion: '',
+        comentario: '',
+        cantidad: 0,
+        costo: 0,
+        descuento: 0,
+        existe: true,
+    };
+
     data = {
         empresa: '1',
-        serie: '',
-        folio: '',
-        fecha: '',
-        titulo: '',
-        moneda: '',
-        tipo_cambio: 0,
-        metodo_pago: '',
-        periodo_text: '',
-        periodo: '',
-        uso_cfdi: '',
         proveedor: {
             id: 0,
             rfc: '',
-            busqueda: '',
             razon: '',
             email: '',
             telefono: '',
-            fisica: 0,
         },
+        almacen: '',
+        uso_cfdi: '',
+        comentarios: '',
+        fob: '',
+        impuesto: '',
+        invoice: '',
+        billto: '',
+        shipto: '',
+        extranjero: '',
+        moneda: '',
+        tipo_cambio: 1,
+        periodo: '',
+        metodo_pago: '',
+        archivos: [],
         productos: [],
-        descuento: 0,
-        subtotal: 0,
-        total: 0,
-        impuesto: 0,
-        impuestos_locales: [],
-        retencion: 0,
-        uuid: '',
+        documentos: [],
+        fecha_entrega: '',
     };
 
-    proveedor = {
-        id: 0,
-        empresa: '1',
-        pais: '',
-        regimen: '',
-        razon_social: '',
-        rfc: '',
-        email: '',
-        telefono: '',
-        celular: '',
-    };
-
-    producto = {
-        descripcion: '',
-        cantidad: 0,
-        precio: 0,
-        deducible: 100,
-        descuento: 0,
-        impuesto_id: '5',
-        tipo_gasto_id: '',
-        comentario: '',
-    };
-
-    empresas_usuario: any[] = [];
-    empresas: any[] = [];
-    proveedores: any[] = [];
-    periodos: any[] = [];
-    monedas: any[] = [];
-    metodos: any[] = [];
-    tipos: any[] = [];
-    tipos_gasto: any[] = [];
-    usos: any[] = [];
-    impuestos: any[] = [];
+    isDataLoaded = false;
 
     constructor(
         private http: HttpClient,
-        private auth: AuthService,
-        private router: Router
+        private chRef: ChangeDetectorRef,
+        private compraService: CompraService
     ) {
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
+        const table: any = $('#compra_orden_orden');
+
+        this.datatable = table.DataTable();
     }
 
     ngOnInit() {
-        this.http.get(`${backend_url}compra/compra/crear/data`).subscribe(
-            (res) => {
-                this.periodos = res['periodos'];
-                this.empresas = res['empresas'];
-                this.monedas = res['monedas'];
-                this.metodos = res['metodos'];
-                this.tipos = res['tipos'];
-                this.usos = res['usos'];
+        this.http.get(`${backend_url}contabilidad/compras-gastos/gasto/data`).subscribe(
+            (res: any) => {
+                this.periodos = [...res.periodos];
+                this.monedas = [...res.monedas];
+                this.usos_cfdi = [...res.usos_venta];
+                this.metodos_pago = [...res.metodos];
+                this.empresas = [...res.empresas];
 
-                if (this.empresas_usuario.length == 1) {
-                    const empresa = this.empresas.find(
-                        (empresa) => empresa.id === this.empresas_usuario[0]
-                    );
-
-                    if (!empresa) {
-                        swal({
-                            type: 'error',
-                            html: 'Tus empresas asignada no coinciden con las empresas activas, favor de contactar con un administrador',
-                        });
-
-                        this.router.navigate(['/dashboard']);
-
-                        return;
-                    }
-
-                    this.empresas.forEach((empresa, index) => {
-                        if (
-                            $.inArray(empresa.id, this.empresas_usuario) == -1
-                        ) {
-                            this.empresas.splice(index, 1);
-                        }
-                    });
-
-                    this.data.empresa = empresa.id;
-                }
+                const empresa = this.empresas.find((item) =>
+                    item.id == this.data.empresa
+                );
+                this.almacenes = [...empresa.almacenes];
             },
             (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
+                swalErrorHttpResponse(response);
             }
         );
     }
 
-    async buscarProveedor() {
-        return new Promise((resolve, reject) => {
-            if (this.data.empresa == '') {
-                swal('', 'Selecciona una empresa.', 'error');
+    buscarProveedor() {
+        if (this.proveedores.length > 0) {
+            this.proveedores = [];
+            this.proveedor_text = '';
 
-                resolve(1);
+            return;
+        }
 
-                return;
+        const form_data = new FormData();
+        form_data.append('criterio', this.proveedor_text);
+
+        this.http.post(`${backend_url}contabilidad/proveedor/buscar`, form_data).subscribe(
+            (res: any) => {
+                if (res.code == 200 && res.proveedores && res.proveedores.length > 0) {
+                    this.proveedores = res.proveedores;
+                } else {
+                    swal('Aviso', 'No se encontraron coincidencias.', 'info');
+                }
+            },
+            (error) => {
+                console.error(error);
+                swal('Error', 'Error al buscar entidad.', 'error');
             }
-
-            if (this.proveedores.length > 0) {
-                this.proveedores = [];
-                this.data.proveedor.busqueda = '';
-
-                resolve(1);
-
-                return;
-            }
-        });
+        );
     }
 
     cambiarProveedor() {
         const proveedor = this.proveedores.find(
-            (proveedor) => proveedor.idproveedor == this.data.proveedor.id
+            (p) => p.id == this.data.proveedor.id
         );
-
-        this.data.proveedor = {
-            id: proveedor.idproveedor,
-            busqueda: '',
-            rfc: proveedor.rfc,
-            razon: proveedor.razon,
-            email: proveedor.email == null ? '' : proveedor.email,
-            telefono: proveedor.telefono == null ? '' : proveedor.telefono,
-            fisica: proveedor.id_tipo == 2 ? 1 : 0,
-        };
+        if (proveedor) {
+            this.data.proveedor = {
+                id: proveedor.id,
+                rfc: proveedor.rfc,
+                razon: proveedor.razon,
+                email: proveedor.email,
+                telefono: proveedor.telefono,
+            };
+        }
     }
 
-    cambiarEmpresa() {}
+    buscarProducto() {
+        if (this.productos.length > 0) {
+            this.productos = [];
 
-    async cargarXML() {
-        var files = $('#xml_gasto').prop('files');
-        var archivos = [];
-        var $this = this;
+            this.producto = {
+                text: '',
+                id: 0,
+                codigo: '',
+                descripcion: '',
+                comentario: '',
+                cantidad: 0,
+                costo: 0,
+                descuento: 0,
+                existe: true,
+            };
 
-        for (var i = 0, len = files.length; i < len; i++) {
-            var file = files[i];
-
-            var reader = new FileReader();
-
-            reader.onload = (function (f: any) {
-                return function (e: any) {
-                    var extension =
-                        f.name.split('.')[f.name.split('.').length - 1];
-
-                    if (extension.toLowerCase() != 'xml') {
-                        swal('', 'Debes proporcionar un XML.', 'error');
-
-                        $('#xml_factura').val('');
-
-                        return;
-                    }
-
-                    var xml = $(e.target.result);
-
-                    xml.each(function () {
-                        if ($(this).get(0).tagName == 'CFDI:COMPROBANTE') {
-                            var date = new Date($(this).attr('fecha'));
-
-                            $this.data.serie = $(this).attr('serie');
-                            $this.data.folio = $(this).attr('folio');
-                            $this.data.fecha =
-                                date.getFullYear() +
-                                '-' +
-                                (String(date.getMonth() + 1).length == 1
-                                    ? '0' + (date.getMonth() + 1)
-                                    : date.getMonth() + 1) +
-                                '-' +
-                                (String(date.getDate()).length == 1
-                                    ? '0' + date.getDate()
-                                    : date.getDate());
-
-                            const metodo_pago = $(this).attr('formapago');
-                            const is_same_metodo = $this.metodos.find(
-                                (metodo) => metodo.codigo == metodo_pago
-                            );
-
-                            if (is_same_metodo) {
-                                $this.data.metodo_pago = is_same_metodo.id;
-                            }
-
-                            $this.data.descuento = $(this).attr('descuento')
-                                ? Number($(this).attr('descuento'))
-                                : 0;
-                            $this.data.tipo_cambio = $(this).attr('tipocambio')
-                                ? Number($(this).attr('tipocambio'))
-                                : 1;
-                            $this.data.periodo_text =
-                                $(this).attr('CondicionesDePago');
-
-                            if (
-                                $(this).attr('condicionesdepago') == 'CONTADO'
-                            ) {
-                                $this.data.periodo = '1';
-                            }
-
-                            switch ($(this).attr('moneda')) {
-                                case 'MXN':
-                                    $this.data.moneda = '3';
-
-                                    break;
-
-                                case 'USD':
-                                    $this.data.moneda = '2';
-
-                                    break;
-
-                                default:
-                                    $this.data.moneda = '1';
-
-                                    break;
-                            }
-                        }
-                    });
-
-                    xml.children().each(function () {
-                        switch ($(this).get(0).tagName) {
-                            case 'CFDI:EMISOR':
-                                if ($this.proveedores.length == 0) {
-                                    $this.data.proveedor.rfc =
-                                        $(this).attr('rfc');
-                                    $this.data.proveedor.busqueda =
-                                        $(this).attr('rfc');
-
-                                    $this.proveedor = {
-                                        id: 0,
-                                        empresa: '1',
-                                        pais: '412',
-                                        regimen: $(this).attr('regimenfiscal'),
-                                        razon_social: $(this).attr('nombre'),
-                                        rfc: $(this).attr('rfc'),
-                                        email: '',
-                                        telefono: '',
-                                        celular: '',
-                                    };
-
-                                    $this.buscarProveedor();
-                                }
-
-                                break;
-
-                            case 'CFDI:RECEPTOR':
-                                $this.data.uso_cfdi = $(this).attr('usocfdi');
-
-                                break;
-
-                            case 'CFDI:CONCEPTOS':
-                                $(this)
-                                    .children()
-                                    .each(function (index, e) {
-                                        const impuesto_xml =
-                                            Number(
-                                                $(this)
-                                                    .children()
-                                                    .children()
-                                                    .children()
-                                                    .attr('tasaocuota')
-                                            ) * 100;
-
-                                        const impuesto_selected =
-                                            $this.impuestos.find((impuesto) =>
-                                                impuesto.impuesto.includes(
-                                                    impuesto_xml
-                                                )
-                                            );
-
-                                        const descuento = $(this).attr(
-                                            'descuento'
-                                        )
-                                            ? Number($(this).attr('descuento'))
-                                            : 0;
-                                        const descripcion =
-                                            $(this).attr('descripcion');
-
-                                        const costo = Number(
-                                            $(this).attr('valorunitario')
-                                        );
-
-                                        $this.producto = {
-                                            descripcion: descripcion,
-                                            cantidad: Number(
-                                                $(this).attr('cantidad')
-                                            ),
-                                            precio: costo,
-                                            deducible: $this.producto.deducible,
-                                            descuento: descuento,
-                                            impuesto_id: impuesto_selected
-                                                ? impuesto_selected.id
-                                                : '2',
-                                            tipo_gasto_id: '',
-                                            comentario: '',
-                                        };
-
-                                        $this.agregarProducto();
-                                    });
-
-                                break;
-
-                            case 'CFDI:COMPLEMENTO':
-                                $this.data.uuid = $(this)
-                                    .children()
-                                    .attr('uuid');
-
-                                if (
-                                    $(this)
-                                        .children()
-                                        .prop('tagName')
-                                        .includes('CARTAPORTE')
-                                ) {
-                                    $this.data.uuid = $(this)
-                                        .children()
-                                        .eq(1)
-                                        .attr('uuid');
-                                }
-
-                                if (
-                                    $(this)
-                                        .children()
-                                        .prop('tagName')
-                                        .includes('DIVISAS')
-                                ) {
-                                    $this.data.uuid = $(this)
-                                        .children()
-                                        .eq(1)
-                                        .attr('uuid');
-                                }
-
-                                if (
-                                    $(this)
-                                        .children()
-                                        .prop('tagName')
-                                        .includes('IMPUESTOSLOCALES')
-                                ) {
-                                    $this.data.uuid = $(this)
-                                        .children()
-                                        .eq(1)
-                                        .attr('uuid');
-
-                                    $(this)
-                                        .children()
-                                        .children()
-                                        .each(function (index, e) {
-                                            $this.data.impuestos_locales.push({
-                                                nombre: $(this).attr(
-                                                    'imploctrasladado'
-                                                ),
-                                                monto: Number(
-                                                    $(this).attr('importe')
-                                                ),
-                                            });
-                                        });
-                                }
-
-                                break;
-
-                            case 'CFDI:IMPUESTOS':
-                                $this.data.impuesto = Number(
-                                    $(this).attr('TotalImpuestosTrasladados')
-                                );
-
-                                $this.data.retencion = Number(
-                                    $(this).attr('TotalImpuestosRetenidos')
-                                )
-                                    ? Number(
-                                          $(this).attr(
-                                              'TotalImpuestosRetenidos'
-                                          )
-                                      )
-                                    : 0;
-
-                                break;
-
-                            default:
-                                break;
-                        }
-                    });
-                };
-            })(file);
-
-            reader.onerror = (function (f) {
-                return function (e) {
-                    archivos.push({ tipo: '', nombre: '', data: '' });
-                };
-            })(file);
-
-            reader.readAsText(file);
+            return;
         }
+
+        if (!this.producto.text) {
+            return;
+        }
+
+        this.compraService.searchProduct(this.producto.text).subscribe({
+            next: (res: any) => {
+                this.productos = [...res.data];
+            },
+            error: (err: any) => {
+                swalErrorHttpResponse(err);
+            },
+        });
     }
 
     agregarProducto() {
-        if (this.producto.cantidad < 1) {
+        if (!this.producto.id) {
             return swal({
                 type: 'error',
-                html: 'No puedes agregar un concepto en cantidad 0',
+                html: 'Favor de buscar y seleccionar un producto.',
             });
         }
 
-        if (this.producto.precio <= 0) {
+        if (this.producto.cantidad <= 0) {
             return swal({
                 type: 'error',
-                html: 'No puedes agregar un concepto en costo 0',
+                html: 'La cantidad del producto debe ser mayor a 0',
             });
         }
 
-        if (this.producto.deducible < 0) {
+        if (this.producto.costo <= 0) {
             return swal({
                 type: 'error',
-                html: 'No puedes agregar un concepto con un deducible en negativo',
+                html: 'El costo del producto tiene que ser mayor a 0',
             });
         }
 
-        if (!this.producto.impuesto_id) {
-            return swal({
-                type: 'error',
-                html: 'No puedes agregar un concepto sin impuesto',
-            });
-        }
+        const producto = this.productos.find(p => p.id == this.producto.id);
+
+        this.producto.descripcion = producto.descripcion;
 
         this.data.productos.push(this.producto);
+        console.log(this.data.productos);
 
-        this.producto = {
-            descripcion: '',
-            cantidad: 0,
-            precio: 0,
-            deducible: 100,
-            descuento: 0,
-            impuesto_id: '5',
-            tipo_gasto_id: '',
-            comentario: '',
-        };
+        this.clearProducto();
     }
 
-    crearGasto(event) {
-        if (!event.detail || event.detail > 1) {
+    onProductoSeleccionado() {
+        // tslint:disable-next-line:no-shadowed-variable
+        const prod = this.productos.find(p => p.id === this.producto.id);
+        this.producto.descripcion = prod ? prod.descripcion : '';
+        this.producto.costo = prod ? prod.costo : 0;
+    }
+
+    crearDocumento(event) {
+        // Previene doble submit por error de teclado o mouse
+        if (event.detail && event.detail > 1) { return; }
+
+        // Valida campos con clase ng-invalid
+        const invalidElements = $('.ng-invalid');
+        if (invalidElements.length > 0) {
+            $(invalidElements.get().reverse()).each((_, el) => { $(el).focus(); });
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
-            $(value).focus();
-        });
-
-        if ($('.ng-invalid').length > 0) {
-            return;
-        }
-
-        if (!this.data.productos.length) {
+        // Validación: al menos un producto
+        if (this.data.productos.length < 1) {
             return swal({
                 type: 'error',
-                html: 'Tienes que agregar al menos un concepto.',
+                html: 'Debes agregar al menos un producto para generar la orden de compra',
             });
         }
 
-        const productos_en_cantidad_0 = this.data.productos.find(
-            (producto) => producto.cantidad <= 0
+        // Validación: sin productos con costo o cantidad cero
+        const producto = this.data.productos.find(
+            (p) => p.costo < 0.01 || p.cantidad <= 0
         );
-
-        if (productos_en_cantidad_0) {
+        if (producto) {
             return swal({
+                title: '',
                 type: 'error',
-                html: 'No puedes generar un gasto con conceptos que tengan cantidad en 0',
+                html: 'No puede haber productos en costo 0 ni cantidad 0.<br><br>' + producto.descripcion,
             });
         }
 
-        const productos_en_costo_0 = this.data.productos.find(
-            (producto) => producto.costo <= 0
-        );
-
-        if (productos_en_costo_0) {
+        // Validación: productos inexistentes
+        const productoSinExistir = this.data.productos.find((p) => !p.existe);
+        if (productoSinExistir) {
             return swal({
                 type: 'error',
-                html: 'No puedes generar un gasto con conceptos que tengan costo en 0',
+                html: `El producto con el código ${productoSinExistir.codigo} no está registrado en la empresa seleccionada`,
             });
         }
 
-        const producto_deducible_negativo = this.data.productos.find(
-            (producto) => producto.deducible < 0
-        );
-
-        if (producto_deducible_negativo) {
-            return swal({
-                type: 'error',
-                html: 'No puedes generar un gasto con conceptos que tengan un deducible en negativo',
-            });
-        }
-
-        const producto_impuesto_no_registrado = this.data.productos.find(
-            (producto) => !producto.impuesto_id
-        );
-
-        if (producto_impuesto_no_registrado) {
-            return swal({
-                type: 'error',
-                html: 'No puedes generar un gasto sin asignar un impuesto',
-            });
-        }
-
-        const producto_tipo_gasto_no_registrado = this.data.productos.find(
-            (producto) => !producto.tipo_gasto_id
-        );
-
-        if (producto_tipo_gasto_no_registrado) {
-            return swal({
-                type: 'error',
-                html: 'No puedes generar un gasto con conceptos que no tengan el tipo de gasto definido',
-            });
-        }
-
-        this.data.total =
-            Math.round(
-                this.data.productos.reduce(
-                    (total, producto) =>
-                        total + producto.precio * producto.cantidad * 1.16,
-                    0
-                ) * 100
-            ) / 100;
-
-        this.data.subtotal = Math.round((this.data.total / 1.16) * 100) / 100;
-
-        if (this.data.metodo_pago.length == 1) {
-            this.data.metodo_pago = '0' + this.data.metodo_pago;
-        }
-
+        // Arma y envía el formData
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.data));
 
         this.http
-            .post(
-                `${backend_url}contabilidad/compra-gasto/crear-gasto`,
-                form_data
-            )
+            .post(`${backend_url}contabilidad/compras-gastos/gasto/crear`, form_data)
             .subscribe(
                 (res) => {
                     swal({
+                        title: '',
                         type: res['code'] == 200 ? 'success' : 'error',
                         html: res['message'],
+                    }).then(() => {
+                        if (res['code'] == 200) {
+                            // Descarga archivo si existe
+                            if (res['file']) {
+                                const dataURI = 'data:application/pdf;base64, ' + res['file'];
+                                const a = window.document.createElement('a');
+                                a.href = dataURI;
+                                a.download = res['name'];
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            }
+                            this.clearData();
+                            this.clearProducto();
+                        }
                     });
-
-                    if (res['code'] == 200) this.clearData();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
+                    swalErrorHttpResponse(response);
                 }
             );
+    }
+
+    agregarArchivo() {
+        this.data.archivos = [];
+
+        const files = $('#archivos').prop('files');
+        const archivos = [];
+
+        for (let i = 0, len = files.length; i < len; i++) {
+            const file = files[i];
+
+            const reader = new FileReader();
+
+            reader.onload = (function (f) {
+                return function (e) {
+                    archivos.push({
+                        tipo: f.type.split('/')[0],
+                        nombre: f.name,
+                        data: e.target.result,
+                    });
+                };
+            })(file);
+            reader.onerror = (function (_f) {
+                return function (_e) {
+                    archivos.push({tipo: '', nombre: '', data: ''});
+                };
+            })(file);
+
+            reader.readAsDataURL(file);
+        }
+
+        this.data.archivos = archivos;
+    }
+
+    totalDocumento() {
+        let total_odc: number;
+
+        total_odc = this.data.productos.reduce(
+            (total, producto) =>
+                total + Number(producto.costo) * Number(producto.cantidad),
+            0
+        );
+
+        if (this.data.impuesto != '0') {
+            total_odc = total_odc * 1.16;
+        }
+
+        return total_odc;
+    }
+
+    totalDescuento() {
+        let total_descuento: number;
+
+        total_descuento = this.data.productos.reduce(
+            (total, producto) =>
+                total +
+                (Number(producto.costo) *
+                    Number(producto.cantidad) *
+                    producto.descuento) /
+                100,
+            0
+        );
+
+        if (this.data.impuesto != '0') {
+            total_descuento = total_descuento * 1.16;
+        }
+
+        return total_descuento;
+    }
+
+    clearProducto() {
+        this.producto = {
+            text: '',
+            id: 0,
+            codigo: '',
+            descripcion: '',
+            comentario: '',
+            cantidad: 0,
+            costo: 0,
+            descuento: 0,
+            existe: true,
+        };
+
+        this.productos = [];
     }
 
     clearData() {
         this.data = {
             empresa: '1',
-            serie: '',
-            folio: '',
-            fecha: '',
-            titulo: '',
-            moneda: '',
-            tipo_cambio: 0,
-            metodo_pago: '',
-            periodo_text: '',
-            periodo: '',
-            uso_cfdi: '',
             proveedor: {
                 id: 0,
                 rfc: '',
-                busqueda: '',
                 razon: '',
                 email: '',
                 telefono: '',
-                fisica: 0,
             },
+            almacen: '',
+            uso_cfdi: '',
+            comentarios: '',
+            fob: '',
+            impuesto: '',
+            invoice: '',
+            billto: '',
+            shipto: '',
+            extranjero: '',
+            moneda: '',
+            tipo_cambio: 1,
+            periodo: '',
+            metodo_pago: '',
+            archivos: [],
             productos: [],
-            descuento: 0,
-            subtotal: 0,
-            total: 0,
-            impuesto: 0,
-            impuestos_locales: [],
-            retencion: 0,
-            uuid: '',
+            documentos: [],
+            fecha_entrega: '',
         };
-
-        this.proveedor = {
-            id: 0,
-            empresa: '1',
-            pais: '',
-            regimen: '',
-            razon_social: '',
-            rfc: '',
-            email: '',
-            telefono: '',
-            celular: '',
-        };
-
-        this.producto = {
-            descripcion: '',
-            cantidad: 0,
-            precio: 0,
-            deducible: 100,
-            descuento: 0,
-            impuesto_id: '5',
-            tipo_gasto_id: '',
-            comentario: '',
-        };
-
-        this.proveedores = [];
     }
+
 }

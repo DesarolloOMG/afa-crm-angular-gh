@@ -7,6 +7,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { SaldarComponent } from './saldar/saldar.component';
 import { CrearGastoComponent } from './crear-gasto/crear-gasto.component';
+import {UiSwitchModule} from 'ng2-ui-switch';
+import {EditorSeguimientosModule} from '../../../utils/editor-seguimientos/editor-seguimientos.module';
 
 @NgModule({
     imports: [
@@ -15,6 +17,8 @@ import { CrearGastoComponent } from './crear-gasto/crear-gasto.component';
         FormsModule,
         ReactiveFormsModule,
         NgbModule,
+        UiSwitchModule,
+        EditorSeguimientosModule,
     ],
     declarations: [SaldarComponent, CrearGastoComponent],
 })

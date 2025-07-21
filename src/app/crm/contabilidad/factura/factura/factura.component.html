@@ -178,8 +178,28 @@
             <div class="bg-white border rounded-4 shadow-sm px-3 pt-3 pb-2">
                 <div class="d-flex align-items-center mb-2">
                     <i class="fas fa-money-check-alt me-2 text-primary" style="font-size:1.1rem;"></i>
-                    <span class="fw-bold text-secondary" style="margin-left: 5px">Pagos registrados</span>
+                    <span class="fw-bold text-secondary" style="margin-left: 5px">Pagos</span>
                 </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6 d-flex align-items-center">
+                        <i class="fas fa-file-invoice-dollar text-primary" style="font-size:1.3rem; margin-right:14px;"></i>
+                        <span class="fw-semibold me-2">Total del documento:</span>
+                        <span class="fw-bold" style="font-size:1.15rem; color:#1976d2;">
+                    {{ data.total | currency:'MXN':'symbol':'1.2-2' }}
+                </span>
+                    </div>
+                    <div class="col-md-6 d-flex align-items-center">
+                        <i class="fas fa-coins"
+                           style="font-size:1.3rem; margin-right:14px; color:#22b569;"></i>
+                        <span class="fw-semibold me-2">Saldo pendiente:</span>
+                        <span class="fw-bold"
+                              style="font-size:1.15rem; color:#22b569;">
+                    {{ data.saldo | currency:'MXN':'symbol':'1.2-2' }}
+                </span>
+                    </div>
+                </div>
+
                 <div *ngIf="data.pagos && data.pagos.length > 0; else noPagos">
                     <div class="table-responsive">
                         <table class="table table-sm align-middle mb-0 border-top">
@@ -205,38 +225,104 @@
                     </div>
                 </div>
                 <ng-template #noPagos>
-                    <div class="text-center text-muted fst-italic pb-2">
-                        <i class="fas fa-money-bill-wave fa-2x mb-2"></i><br>
-                        No hay pagos registrados
-                    </div>
-                </ng-template>
-            </div>
-        </div>
+                    <div *ngIf="!data.pagos || data.pagos.length == 0">
+                        <form #formIngreso="ngForm" (ngSubmit)="guardarIngreso()">
+                            <div class="row">
+                                <!-- Importe -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="importe" class="form-label">Importe a ingresar</label>
+                                    <input
+                                        type="number"
+                                        id="importe"
+                                        name="importe"
+                                        class="form-control"
+                                        [(ngModel)]="nuevoIngreso.importe"
+                                        required
+                                        [max]="data.saldo"
+                                        step="0.01"
+                                    />
+                                    <div *ngIf="nuevoIngreso.importe > data.saldo" class="text-danger small mt-1">
+                                        El importe no puede ser mayor al saldo pendiente (${{ data.saldo }}).
+                                    </div>
+                                </div>
+                                <!-- Fecha de cobro -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="fecha_cobro" class="form-label">Fecha de cobro</label>
+                                    <input
+                                        type="date"
+                                        id="fecha_cobro"
+                                        name="fecha_cobro"
+                                        class="form-control"
+                                        [(ngModel)]="nuevoIngreso.fecha_cobro"
+                                    />
+                                </div>
+                                <!-- Referencia -->
+                                <div class="col-md-4 mb-3">
+                                    <label for="referencia" class="form-label">Referencia</label>
+                                    <input
+                                        type="text"
+                                        id="referencia"
+                                        name="referencia"
+                                        class="form-control"
+                                        [(ngModel)]="nuevoIngreso.referencia"
+                                        maxlength="80"
+                                    />
+                                </div>
+                            </div>
 
-        <!-- Archivos -->
-        <div>
-            <div class="bg-white border rounded-4 shadow-sm px-3 pt-3 pb-2">
-                <div class="d-flex align-items-center mb-2">
-                    <i class="fas fa-paperclip me-2 text-secondary" style="font-size:1.1rem;"></i>
-                    <span class="fw-bold text-secondary" style="margin-left: 15px">Archivos</span>
-                </div>
-                <div *ngIf="data.archivos && data.archivos.length > 0; else noArchivos">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item" *ngFor="let archivo of data.archivos">
-                            <span class="fw-semibold">{{ archivo.archivo }}</span>
-                            <span class="text-muted small ms-2">Subido por: {{ archivo.usuario }}</span>
-                            <span *ngIf="archivo.dropbox" class="ms-3">
-                <a [href]="archivo.dropbox" target="_blank" class="text-primary">
-                  <i class="fab fa-dropbox"></i> Ver archivo
-                </a>
-              </span>
-                        </li>
-                    </ul>
-                </div>
-                <ng-template #noArchivos>
-                    <div class="text-center text-muted fst-italic pb-2">
-                        <i class="fas fa-paperclip fa-2x mb-2"></i><br>
-                        No hay archivos adjuntos
+                            <div class="row">
+                                <!-- Forma de pago -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="metodo_pago" class="form-label">Forma de pago</label>
+                                    <select
+                                        id="metodo_pago"
+                                        name="metodo_pago"
+                                        class="form-control"
+                                        [(ngModel)]="nuevoIngreso.metodo_pago"
+                                        required
+                                    >
+                                        <option value="" disabled selected>Selecciona forma de pago</option>
+                                        <option *ngFor="let metodo of formas_pago" [value]="metodo.id">
+                                            {{ metodo.codigo_sat }} - {{ metodo.descripcion }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <!-- Cuenta destino -->
+                                <div class="col-md-6 mb-3">
+                                    <label for="entidad_destino" class="form-label">Cuenta destino</label>
+                                    <select
+                                        id="entidad_destino"
+                                        name="entidad_destino"
+                                        class="form-control"
+                                        [(ngModel)]="nuevoIngreso.entidad_destino"
+                                        required
+                                    >
+                                        <option value="" disabled selected>Selecciona cuenta</option>
+                                        <option *ngFor="let entidad of entidadesFinancieras" [value]="entidad.id">
+                                            {{ entidad.nombre }} ({{ entidad.tipo }}) - {{ entidad.moneda }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Seguimiento -->
+                            <div class="row">
+                                <div class="col-12 mb-3">
+                                    <label for="seguimiento" class="form-label">Seguimiento/Comentario</label>
+                                    <textarea
+                                        id="seguimiento"
+                                        name="seguimiento"
+                                        class="form-control"
+                                        rows="2"
+                                        [(ngModel)]="nuevoIngreso.seguimiento"
+                                    ></textarea>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success" [disabled]="!formIngreso.form.valid">
+                                Registrar Ingreso
+                            </button>
+                        </form>
+
                     </div>
                 </ng-template>
             </div>
