@@ -353,7 +353,7 @@ const MENUITEMS = [
                     {
                         state: 'importar',
                         name: 'Importar ventas',
-                        level: [14],
+                        level: [8],
                         sublevel: 25,
                     },
                     {
