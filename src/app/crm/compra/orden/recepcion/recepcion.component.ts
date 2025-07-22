@@ -95,7 +95,6 @@ export class RecepcionComponent implements OnInit {
     documentos: any[] = [];
     empresas: any[] = [];
     usuarios: any[] = [];
-    autorizados: any[] = [3, 25, 29, 31, 47, 51, 58, 78, 97];
 
     constructor(
         private http: HttpClient,
@@ -106,13 +105,22 @@ export class RecepcionComponent implements OnInit {
         private whatsappService: WhatsappService,
         private printService: PrintService
     ) {
-        const usuario = JSON.parse(this.auth.userData().sub);
-
-        if (this.autorizados.includes(usuario.id)) {
-            this.autorizado = true;
-        }
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
+
+        const usuario = JSON.parse(this.auth.userData().sub);
+
+        this.http
+            .get(`${backend_url}dashboard/user/subnivel-nivel/${usuario.id}`)
+            .subscribe(
+                (res: any) => {
+                    const subniveles = [res][0];
+                    this.autorizado = subniveles.includes(74);
+                },
+                (response) => {
+                    swalErrorHttpResponse(response);
+                }
+            );
     }
 
     ngOnInit() {

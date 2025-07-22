@@ -33,6 +33,7 @@ export interface Producto {
     };
     caducidad: number;
     precios_empresa?: any[];
+    tipo_text: string;
 }
 
 export interface Archivo {

@@ -1,3 +1,4 @@
+<!--suppress JSUnusedLocalSymbols, JSUnusedGlobalSymbols -->
 <div class="card">
     <div class="card-header">
         <form class="md-float-material form-material mt-10">
@@ -50,7 +51,7 @@
         <h4
             class="sub-title m-t-20"
             (click)="agregarProducto(0)"
-            style="cursor: pointer"
+            style="cursor: pointer;"
         >
             Productos
         </h4>
@@ -62,49 +63,49 @@
                     id="compra_producto_producto"
                 >
                     <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Producto</th>
-                            <th>Costo</th>
-                            <th>Tipo</th>
-                            <th>Serie</th>
-                            <th>Caducidad</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Costo</th>
+                        <th>Tipo</th>
+                        <th>Serie</th>
+                        <th>Caducidad</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let producto of productos">
-                            <td>{{ producto.sku }}</td>
-                            <td>{{ producto.descripcion }}</td>
-                            <td>$ {{ producto.costo }}</td>
-                            <td>{{ producto.tipo_text }}</td>
-                            <td>
-                                <i
-                                    class="fa {{
+                    <tr *ngFor="let producto of productos">
+                        <td>{{ producto.sku }}</td>
+                        <td>{{ producto.descripcion }}</td>
+                        <td>$ {{ producto.costo }}</td>
+                        <td>{{ producto.tipo_text }}</td>
+                        <td>
+                            <i
+                                class="fa {{
                                         producto.serie ? 'fa-check' : 'fa-times'
                                     }}"
-                                ></i>
-                            </td>
-                            <td>
-                                <i
-                                    class="fa {{
+                            ></i>
+                        </td>
+                        <td>
+                            <i
+                                class="fa {{
                                         producto.caducidad
                                             ? 'fa-check'
                                             : 'fa-times'
                                     }}"
-                                ></i>
-                            </td>
-                            <td>
-                                <button
-                                    class="btn btn-info btn-sm btn-block"
-                                    (click)="agregarProducto(producto.id)"
-                                    placement="top"
-                                    ngbTooltip="Editar producto"
-                                >
-                                    <i class="fa fa-edit fa-2x"></i>
-                                </button>
-                            </td>
-                        </tr>
+                            ></i>
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-info btn-sm btn-block"
+                                (click)="agregarProducto(producto.id)"
+                                placement="top"
+                                ngbTooltip="Editar producto"
+                            >
+                                <i class="fa fa-edit fa-2x"></i>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -176,7 +177,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Empresa</label
+                                                    >Empresa</label
                                                     >
                                                     <small
                                                         class="text-danger messages block"
@@ -184,7 +185,7 @@
                                                             empresa.errors
                                                                 ?.required
                                                         "
-                                                        >Campo requerido</small
+                                                    >Campo requerido</small
                                                     >
                                                 </div>
                                             </div>
@@ -226,7 +227,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Tipo de producto</label
+                                                    >Tipo de producto</label
                                                     >
                                                 </div>
                                             </div>
@@ -262,7 +263,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Marca</label
+                                                    >Marca</label
                                                     >
                                                 </div>
                                             </div>
@@ -298,7 +299,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Subtipo de
+                                                    >Subtipo de
                                                         producto</label
                                                     >
                                                 </div>
@@ -335,7 +336,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Vertical de
+                                                    >Vertical de
                                                         negocio</label
                                                     >
                                                 </div>
@@ -357,7 +358,8 @@
                                                         class="form-control"
                                                         required
                                                         #productosku="ngModel"
-                                                        (keydown.enter)="$event.preventDefault()"
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="1"
                                                         [(ngModel)]="
                                                             producto.sku
                                                         "
@@ -367,7 +369,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Código</label
+                                                    >Código</label
                                                     >
                                                     <small
                                                         class="text-danger messages"
@@ -376,7 +378,7 @@
                                                             (productosku.dirty ||
                                                                 productosku.touched)
                                                         "
-                                                        >No se permite el
+                                                    >No se permite el
                                                         caracter ' ó "</small
                                                     >
                                                 </div>
@@ -387,6 +389,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="2"
                                                         type="text"
                                                         name="productonp"
                                                         class="form-control"
@@ -401,7 +405,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Número de parte</label
+                                                    >Número de parte</label
                                                     >
                                                     <small
                                                         class="text-danger messages"
@@ -410,7 +414,7 @@
                                                             (productonp.dirty ||
                                                                 productonp.touched)
                                                         "
-                                                        >No se permite el
+                                                    >No se permite el
                                                         caracter ' ó "</small
                                                     >
                                                 </div>
@@ -421,6 +425,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="3"
                                                         type="text"
                                                         name="productodescripcion"
                                                         class="form-control"
@@ -435,7 +441,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Descripción</label
+                                                    >Descripción</label
                                                     >
                                                     <small
                                                         class="text-danger messages"
@@ -444,7 +450,7 @@
                                                             (productodescripcion.dirty ||
                                                                 productodescripcion.touched)
                                                         "
-                                                        >No se permite el
+                                                    >No se permite el
                                                         caracter ' ó "</small
                                                     >
                                                 </div>
@@ -455,6 +461,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="4"
                                                         type="number"
                                                         name="productocosto"
                                                         class="form-control"
@@ -470,7 +478,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Costo</label
+                                                    >Costo</label
                                                     >
                                                 </div>
                                             </div>
@@ -480,6 +488,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="5"
                                                         type="number"
                                                         name="productoalto"
                                                         class="form-control"
@@ -494,7 +504,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Alto</label
+                                                    >Alto</label
                                                     >
                                                 </div>
                                             </div>
@@ -504,6 +514,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="6"
                                                         type="number"
                                                         name="productoancho"
                                                         class="form-control"
@@ -518,7 +530,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Ancho</label
+                                                    >Ancho</label
                                                     >
                                                 </div>
                                             </div>
@@ -528,6 +540,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="7"
                                                         type="number"
                                                         name="productolargo"
                                                         class="form-control"
@@ -542,7 +556,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Largo</label
+                                                    >Largo</label
                                                     >
                                                 </div>
                                             </div>
@@ -552,6 +566,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="8"
                                                         type="number"
                                                         name="prodcutopeso"
                                                         class="form-control"
@@ -566,7 +582,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Peso</label
+                                                    >Peso</label
                                                     >
                                                 </div>
                                             </div>
@@ -603,21 +619,21 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Tipo</label
+                                                    >Tipo</label
                                                     >
                                                 </div>
                                             </div>
 
                                             <div
                                                 class="col-md-2"
-                                                style="margin-top: -16px"
+                                                style="margin-top: -16px;"
                                             >
                                                 <label
                                                     style="
                                                         display: block;
                                                         font-size: 9pt;
                                                     "
-                                                    >Serie</label
+                                                >Serie</label
                                                 >
                                                 <ui-switch
                                                     class="js-single"
@@ -633,14 +649,14 @@
 
                                             <div
                                                 class="col-md-2"
-                                                style="margin-top: -16px"
+                                                style="margin-top: -16px;"
                                             >
                                                 <label
                                                     style="
                                                         display: block;
                                                         font-size: 9pt;
                                                     "
-                                                    >Refurbished</label
+                                                >Refurbished</label
                                                 >
                                                 <ui-switch
                                                     class="js-single"
@@ -657,14 +673,14 @@
                                             </div>
                                             <div
                                                 class="col-md-2"
-                                                style="margin-top: -16px"
+                                                style="margin-top: -16px;"
                                             >
                                                 <label
                                                     style="
                                                         display: block;
                                                         font-size: 9pt;
                                                     "
-                                                    >Caducidad</label
+                                                >Caducidad</label
                                                 >
                                                 <ui-switch
                                                     class="js-single"
@@ -690,6 +706,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="buscarCodigoSat()"
+                                                        tabindex="9"
                                                         type="text"
                                                         name="selectcodigosat"
                                                         id="selectcodigosat"
@@ -703,7 +721,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Descripción (Codigo
+                                                    >Descripción (Codigo
                                                         para el sat)</label
                                                     >
                                                 </div>
@@ -748,7 +766,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Codigo para el
+                                                    >Codigo para el
                                                         sat</label
                                                     >
                                                 </div>
@@ -793,7 +811,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Codigo unidad</label
+                                                    >Codigo unidad</label
                                                     >
                                                 </div>
                                             </div>
@@ -810,6 +828,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="10"
                                                         type="text"
                                                         name="amazoncodigo"
                                                         class="form-control"
@@ -825,7 +845,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Código</label
+                                                    >Código</label
                                                     >
                                                     <small
                                                         class="text-danger messages"
@@ -836,7 +856,7 @@
                                                             amazoncodigo.errors
                                                                 ?.pattern
                                                         "
-                                                        >No se permite el
+                                                    >No se permite el
                                                         caracter ' ó "</small
                                                     >
                                                 </div>
@@ -847,6 +867,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="11"
                                                         type="text"
                                                         name="amazondescripcion"
                                                         class="form-control"
@@ -862,7 +884,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Descripción</label
+                                                    >Descripción</label
                                                     >
                                                     <small
                                                         class="text-danger messages"
@@ -873,127 +895,127 @@
                                                             amazondescripcion
                                                                 .errors?.pattern
                                                         "
-                                                        >No se permite el
+                                                    >No se permite el
                                                         caracter ' ó "</small
                                                     >
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <h4 class="sub-title m-t-30">
-                                            Relación de sku con proveedores
-                                            externos (dropshipping)
-                                        </h4>
+                                        <!--                                        <h4 class="sub-title m-t-30">-->
+                                        <!--                                            Relación de sku con proveedores-->
+                                        <!--                                            externos (dropshipping)-->
+                                        <!--                                        </h4>-->
 
-                                        <div class="row">
-                                            <div
-                                                class="col-md-12"
-                                                *ngFor="
-                                                    let proveedor of producto.proveedores;
-                                                    let index = index
-                                                "
-                                            >
-                                                <div class="row">
-                                                    <div class="col-md-10">
-                                                        <div
-                                                            class="form-group form-primary"
-                                                            *ngIf="
-                                                                proveedor
-                                                                    .productos
-                                                                    .length == 0
-                                                            "
-                                                        >
-                                                            <input
-                                                                type="text"
-                                                                name="proveedorproductotext{{
-                                                                    index
-                                                                }}"
-                                                                class="form-control"
-                                                                [(ngModel)]="
-                                                                    proveedor.producto_text
-                                                                "
-                                                            />
-                                                            <span
-                                                                class="form-bar"
-                                                            ></span>
-                                                            <label
-                                                                class="float-label"
-                                                                >Buscar producto
-                                                                ({{
-                                                                    proveedor.razon_social
-                                                                }})</label
-                                                            >
-                                                        </div>
+                                        <!--                                        <div class="row">-->
+                                        <!--                                            <div-->
+                                        <!--                                                class="col-md-12"-->
+                                        <!--                                                *ngFor="-->
+                                        <!--                                                    let proveedor of producto.proveedores;-->
+                                        <!--                                                    let index = index-->
+                                        <!--                                                "-->
+                                        <!--                                            >-->
+                                        <!--                                                <div class="row">-->
+                                        <!--                                                    <div class="col-md-10">-->
+                                        <!--                                                        <div-->
+                                        <!--                                                            class="form-group form-primary"-->
+                                        <!--                                                            *ngIf="-->
+                                        <!--                                                                proveedor-->
+                                        <!--                                                                    .productos-->
+                                        <!--                                                                    .length == 0-->
+                                        <!--                                                            "-->
+                                        <!--                                                        >-->
+                                        <!--                                                            <input-->
+                                        <!--                                                                type="text"-->
+                                        <!--                                                                name="proveedorproductotext{{-->
+                                        <!--                                                                    index-->
+                                        <!--                                                                }}"-->
+                                        <!--                                                                class="form-control"-->
+                                        <!--                                                                [(ngModel)]="-->
+                                        <!--                                                                    proveedor.producto_text-->
+                                        <!--                                                                "-->
+                                        <!--                                                            />-->
+                                        <!--                                                            <span-->
+                                        <!--                                                                class="form-bar"-->
+                                        <!--                                                            ></span>-->
+                                        <!--                                                            <label-->
+                                        <!--                                                                class="float-label"-->
+                                        <!--                                                                >Buscar producto-->
+                                        <!--                                                                ({{-->
+                                        <!--                                                                    proveedor.razon_social-->
+                                        <!--                                                                }})</label-->
+                                        <!--                                                            >-->
+                                        <!--                                                        </div>-->
 
-                                                        <div
-                                                            class="form-group form-primary"
-                                                            *ngIf="
-                                                                proveedor
-                                                                    .productos
-                                                                    .length > 0
-                                                            "
-                                                        >
-                                                            <select
-                                                                name="productoexel{{
-                                                                    proveedor.id
-                                                                }}"
-                                                                id="productoexel{{
-                                                                    proveedor.id
-                                                                }}"
-                                                                class="form-control"
-                                                                [(ngModel)]="
-                                                                    proveedor.producto
-                                                                "
-                                                            >
-                                                                <option
-                                                                    value=""
-                                                                    disabled
-                                                                ></option>
-                                                                <option
-                                                                    value="{{
-                                                                        row.id
-                                                                    }}"
-                                                                    *ngFor="
-                                                                        let row of proveedor.productos
-                                                                    "
-                                                                >
-                                                                    {{
-                                                                        row.descripcion
-                                                                    }}
-                                                                </option>
-                                                            </select>
-                                                            <span
-                                                                class="form-bar"
-                                                            ></span>
-                                                            <label
-                                                                class="float-label"
-                                                                >Seleccionar
-                                                                producto ({{
-                                                                    proveedor.razon_social
-                                                                }})</label
-                                                            >
-                                                        </div>
-                                                    </div>
+                                        <!--                                                        <div-->
+                                        <!--                                                            class="form-group form-primary"-->
+                                        <!--                                                            *ngIf="-->
+                                        <!--                                                                proveedor-->
+                                        <!--                                                                    .productos-->
+                                        <!--                                                                    .length > 0-->
+                                        <!--                                                            "-->
+                                        <!--                                                        >-->
+                                        <!--                                                            <select-->
+                                        <!--                                                                name="productoexel{{-->
+                                        <!--                                                                    proveedor.id-->
+                                        <!--                                                                }}"-->
+                                        <!--                                                                id="productoexel{{-->
+                                        <!--                                                                    proveedor.id-->
+                                        <!--                                                                }}"-->
+                                        <!--                                                                class="form-control"-->
+                                        <!--                                                                [(ngModel)]="-->
+                                        <!--                                                                    proveedor.producto-->
+                                        <!--                                                                "-->
+                                        <!--                                                            >-->
+                                        <!--                                                                <option-->
+                                        <!--                                                                    value=""-->
+                                        <!--                                                                    disabled-->
+                                        <!--                                                                ></option>-->
+                                        <!--                                                                <option-->
+                                        <!--                                                                    value="{{-->
+                                        <!--                                                                        row.id-->
+                                        <!--                                                                    }}"-->
+                                        <!--                                                                    *ngFor="-->
+                                        <!--                                                                        let row of proveedor.productos-->
+                                        <!--                                                                    "-->
+                                        <!--                                                                >-->
+                                        <!--                                                                    {{-->
+                                        <!--                                                                        row.descripcion-->
+                                        <!--                                                                    }}-->
+                                        <!--                                                                </option>-->
+                                        <!--                                                            </select>-->
+                                        <!--                                                            <span-->
+                                        <!--                                                                class="form-bar"-->
+                                        <!--                                                            ></span>-->
+                                        <!--                                                            <label-->
+                                        <!--                                                                class="float-label"-->
+                                        <!--                                                                >Seleccionar-->
+                                        <!--                                                                producto ({{-->
+                                        <!--                                                                    proveedor.razon_social-->
+                                        <!--                                                                }})</label-->
+                                        <!--                                                            >-->
+                                        <!--                                                        </div>-->
+                                        <!--                                                    </div>-->
 
-                                                    <div class="col-md-2">
-                                                        <button
-                                                            class="btn btn-info btn-sm btn-block"
-                                                            (click)="
-                                                                buscarProductoProveedorB2B(
-                                                                    proveedor
-                                                                )
-                                                            "
-                                                            placement="top"
-                                                            ngbTooltip="Buscar producto"
-                                                        >
-                                                            <i
-                                                                class="fa fa-2x fa-search"
-                                                            ></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <!--                                                    <div class="col-md-2">-->
+                                        <!--                                                        <button-->
+                                        <!--                                                            class="btn btn-info btn-sm btn-block"-->
+                                        <!--                                                            (click)="-->
+                                        <!--                                                                buscarProductoProveedorB2B(-->
+                                        <!--                                                                    proveedor-->
+                                        <!--                                                                )-->
+                                        <!--                                                            "-->
+                                        <!--                                                            placement="top"-->
+                                        <!--                                                            ngbTooltip="Buscar producto"-->
+                                        <!--                                                        >-->
+                                        <!--                                                            <i-->
+                                        <!--                                                                class="fa fa-2x fa-search"-->
+                                        <!--                                                            ></i>-->
+                                        <!--                                                        </button>-->
+                                        <!--                                                    </div>-->
+                                        <!--                                                </div>-->
+                                        <!--                                            </div>-->
+                                        <!--                                        </div>-->
                                     </form>
                                 </div>
                             </ng-template>
@@ -1040,13 +1062,13 @@
                                                 <img
                                                     class="img-fluid producto-imagen"
                                                     src="{{ row.data }}"
-                                                />
+                                                    alt=""/>
                                                 <span
                                                     (click)="
-                                                        borrarImagenAlAgregar()
+                                                        borrarImagenAlAgregar(row.nombre)
                                                     "
                                                     class="float-right cursor-pointer text-danger delete-image"
-                                                    >Eliminar imagen</span
+                                                >Eliminar imagen</span
                                                 >
                                                 <!-- <i
                                                     class="fa fa-trash float-right fa-2x text-danger cursor-pointer delete-image"
@@ -1069,62 +1091,62 @@
                                                     class="table table-striped"
                                                 >
                                                     <thead>
-                                                        <tr>
-                                                            <th>Preview</th>
-                                                            <th>Nombre</th>
-                                                            <th></th>
-                                                        </tr>
+                                                    <tr>
+                                                        <th>Preview</th>
+                                                        <th>Nombre</th>
+                                                        <th></th>
+                                                    </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr
-                                                            *ngFor="
+                                                    <tr
+                                                        *ngFor="
                                                                 let row of producto.imagenes_anteriores
                                                             "
-                                                        >
-                                                            <td>
-                                                                <img
-                                                                    class="img-fluid producto-imagen"
-                                                                    src="{{
+                                                    >
+                                                        <td>
+                                                            <img
+                                                                class="img-fluid producto-imagen"
+                                                                src="{{
                                                                         row.url
                                                                     }}"
-                                                                />
-                                                            </td>
-                                                            <td>
-                                                                {{ row.nombre }}
-                                                            </td>
-                                                            <td>
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-outline-info btn-sm float-right"
-                                                                    placement="top"
-                                                                    ngbTooltip="Eliminar"
-                                                                    (click)="
+                                                                alt=""/>
+                                                        </td>
+                                                        <td>
+                                                            {{ row.nombre }}
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-outline-info btn-sm float-right"
+                                                                placement="top"
+                                                                ngbTooltip="Eliminar"
+                                                                (click)="
                                                                         eliminarImagen(
                                                                             row.dropbox
                                                                         )
                                                                     "
-                                                                >
-                                                                    <i
-                                                                        class="fa fa-trash fa-2x"
-                                                                    ></i>
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    class="btn btn-outline-info btn-sm float-right"
-                                                                    placement="top"
-                                                                    ngbTooltip="Descargar"
-                                                                    (click)="
+                                                            >
+                                                                <i
+                                                                    class="fa fa-trash fa-2x"
+                                                                ></i>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-outline-info btn-sm float-right"
+                                                                placement="top"
+                                                                ngbTooltip="Descargar"
+                                                                (click)="
                                                                         descargarImagen(
                                                                             row.dropbox
                                                                         )
                                                                     "
-                                                                >
-                                                                    <i
-                                                                        class="fa fa-file-download fa-2x"
-                                                                    ></i>
-                                                                </button>
-                                                            </td>
-                                                        </tr>
+                                                            >
+                                                                <i
+                                                                    class="fa fa-file-download fa-2x"
+                                                                ></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -1183,7 +1205,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Empresa</label
+                                                    >Empresa</label
                                                     >
                                                     <small
                                                         class="text-danger messages block"
@@ -1191,7 +1213,7 @@
                                                             empresaprecio.errors
                                                                 ?.required
                                                         "
-                                                        >Campo requerido</small
+                                                    >Campo requerido</small
                                                     >
                                                 </div>
                                             </div>
@@ -1201,6 +1223,8 @@
                                                     class="form-group form-primary"
                                                 >
                                                     <input
+                                                        (keydown.enter)="focusNext($event)"
+                                                        tabindex="12"
                                                         type="number"
                                                         name="precioempresa"
                                                         class="form-control"
@@ -1214,7 +1238,7 @@
                                                         class="form-bar"
                                                     ></span>
                                                     <label class="float-label"
-                                                        >Precio de venta</label
+                                                    >Precio de venta</label
                                                     >
                                                 </div>
                                             </div>

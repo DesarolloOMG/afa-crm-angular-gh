@@ -8,6 +8,7 @@ import * as XLSX from 'xlsx';
 import swal from 'sweetalert2';
 import {CompraService} from '@services/http/compra.service';
 import {Producto} from './producto.model';
+import {swalSuccessError} from '@sharedUtils/shared';
 
 @Component({
     selector: 'app-producto',
@@ -127,6 +128,7 @@ export class ProductoComponent implements OnInit {
                             productos: [],
                         },
                         caducidad: 0,
+                        tipo_text: ''
                     };
 
                     this.modalService.open(this.modal, {
@@ -211,7 +213,7 @@ export class ProductoComponent implements OnInit {
             .subscribe(
                 (res) => {
                     if (res['code'] != 200) {
-                        swal('', res['message'], 'error');
+                        swal('', res['message'], 'error').then();
 
                         return;
                     }
@@ -275,22 +277,20 @@ export class ProductoComponent implements OnInit {
             return;
         }
 
-        $($('.ng-invalid').get().reverse()).each((index, value) => {
+        const $invalidFields = $('.ng-invalid');
+        $($invalidFields.get().reverse()).each((_index, value) => {
             $(value).focus();
         });
-
-        if ($('.ng-invalid').length > 0) {
-            return;
+        if ($invalidFields.length > 0) {
+            return console.log($invalidFields);
         }
 
-        const clavesValidas = ['H87', 'E48'];
-
-        if (!clavesValidas.includes(this.producto.clave_unidad)) {
+        if (!this.CLAVES_VALIDAS.includes(this.producto.clave_unidad)) {
             swal({
                 title: '',
                 type: 'error',
                 html: 'No se seleccionó clave de unidad',
-            });
+            }).then();
             return;
         }
 
@@ -303,11 +303,7 @@ export class ProductoComponent implements OnInit {
             .post(`${backend_url}compra/producto/gestion/crear`, form_data)
             .subscribe(
                 (res) => {
-                    swal({
-                        title: '',
-                        type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message'],
-                    });
+                    swalSuccessError(res);
 
                     if (res['code'] == 200) {
                         if (res['id_producto'] != undefined) {
@@ -400,7 +396,11 @@ export class ProductoComponent implements OnInit {
 
             reader.onerror = (function (f) {
                 return function (e) {
-                    swal('', 'Ocurrió un error al leer el archivo', 'error').then();
+                    console.error(`Error al leer el archivo: ${f.name}`, e);
+                    swal({
+                        type: 'error',
+                        html: `Ocurrió un error al leer el archivo ${f.name}`,
+                    }).then();
                 };
             })(file);
 
@@ -409,48 +409,43 @@ export class ProductoComponent implements OnInit {
     }
 
     onChangeArchivo() {
-        const files = $('#archivos').prop('files');
+        const $input = $('#archivos');
+        const files = $input.prop('files');
 
-        if (files.length + this.producto.imagenes_anteriores.length > 6) {
+        const totalArchivos = files.length + this.producto.imagenes_anteriores.length;
+        if (totalArchivos > 6) {
             swal({
                 type: 'error',
-                html: 'Solo puedes agregar 6 imagenes por producto',
-            });
+                html: 'Solo puedes agregar 6 imágenes por producto',
+            }).then();
 
-            $('#archivos').val('');
-
+            $input.val('');
             return;
         }
 
         const archivos = [];
         const $this = this;
 
-        for (let i = 0, len = files.length; i < len; i++) {
+        for (let i = 0; i < files.length; i++) {
             const file = files[i];
-
             const reader = new FileReader();
 
-            reader.onload = (function (f) {
-                return function (e) {
-                    console.log(f, e);
+            reader.onload = ((f) => (e) => {
+                archivos.push({
+                    tipo: f.type.split('/')[0],
+                    nombre: f.name,
+                    data: e.target.result,
+                });
 
-                    archivos.push({
-                        tipo: f.type.split('/')[0],
-                        nombre: f.name,
-                        data: e.target.result,
-                    });
-
-                    $this.producto.imagenes = archivos;
-                };
+                $this.producto.imagenes = archivos;
             })(file);
 
-            reader.onerror = (function (f) {
-                return function (e) {
-                    swal({
-                        type: 'error',
-                        html: 'No fue posible agregar el archivo',
-                    });
-                };
+            reader.onerror = ((f) => (e) => {
+                console.error(`Error al leer el archivo: ${f.name}`, e);
+                swal({
+                    type: 'error',
+                    html: `Ocurrió un error al leer el archivo ${f.name}`,
+                }).then();
             })(file);
 
             reader.readAsDataURL(file);
@@ -508,7 +503,7 @@ export class ProductoComponent implements OnInit {
                         {path: dropbox}
                     )
                     .subscribe(
-                        (res) => {
+                        () => {
                             const index = this.producto.imagenes_anteriores.findIndex(
                                 (archivo) => archivo.dropbox == dropbox
                             );
@@ -571,7 +566,8 @@ export class ProductoComponent implements OnInit {
                 precio: 0,
                 productos: []
             },
-            caducidad: 0
+            caducidad: 0,
+            tipo_text: ''
         };
     }
 
@@ -619,8 +615,30 @@ export class ProductoComponent implements OnInit {
                 productos: [],
             },
             caducidad: 0,
+            tipo_text: ''
         };
 
         this.codigos_sat = [];
+    }
+
+    focusNext(event: KeyboardEvent) {
+        const current = event.target as HTMLElement;
+        event.preventDefault();
+
+        const form = current.closest('form');
+        if (!form) {
+            return;
+        }
+
+        const focusables = Array.from(
+            form.querySelectorAll<HTMLElement>(
+                'input, select, textarea, button:not([disabled])'
+            )
+        ).filter(el => !el.hasAttribute('disabled') && el.tabIndex >= 0);
+
+        const index = focusables.indexOf(current);
+        if (index >= 0 && index + 1 < focusables.length) {
+            focusables[index + 1].focus();
+        }
     }
 }
