@@ -33,7 +33,6 @@ export class HistorialComponent implements OnInit {
         type: '',
         initial_date: '',
         final_date: '',
-        su: false,
     };
 
     data = {
@@ -60,7 +59,7 @@ export class HistorialComponent implements OnInit {
         estado: '',
     };
     requiere_series: boolean;
-    is_su: boolean;
+    can_copypaste: boolean;
     usuario_subniveles: any[] = [];
 
     constructor(
@@ -82,7 +81,7 @@ export class HistorialComponent implements OnInit {
                 (res) => {
                     this.usuario_subniveles = [res];
                     this.usuario_subniveles = this.usuario_subniveles[0];
-                    this.is_su = this.usuario_subniveles.includes(70);
+                    this.can_copypaste = this.usuario_subniveles.includes(73);
                 },
                 (response) => {
                     swalErrorHttpResponse(response);
@@ -116,7 +115,6 @@ export class HistorialComponent implements OnInit {
                 html: 'El rango de fechas es erroneo, favor de revisar en intentar de nuevo',
             });
         }
-        this.filter_data.su = this.is_su;
         this.almacenService
             .getMovimientoHistorialDocuments(this.filter_data)
             .subscribe(
@@ -439,13 +437,13 @@ export class HistorialComponent implements OnInit {
     }
 
     handlePaste(event: ClipboardEvent) {
-        if (!this.is_su) {
+        if (!this.can_copypaste) {
             event.preventDefault();
         }
     }
 
     handleDrop(event: DragEvent) {
-        if (!this.is_su) {
+        if (!this.can_copypaste) {
             event.preventDefault();
         }
     }

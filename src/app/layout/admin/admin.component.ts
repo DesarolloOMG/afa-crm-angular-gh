@@ -1,4 +1,4 @@
-import {animate, AUTO_STYLE, state, style, transition, trigger,} from '@angular/animations';
+import {animate, AUTO_STYLE, state, style, transition, trigger} from '@angular/animations';
 import {backend_url, swalErrorHttpResponse} from '@env/environment';
 import {Component, OnInit, Renderer2} from '@angular/core';
 import {AuthService} from '@services/auth.service';
@@ -8,6 +8,7 @@ import {Router} from '@angular/router';
 import * as Pusher from 'pusher-js';
 import swal from 'sweetalert2';
 
+// noinspection UnterminatedStatementJS,XHTMLIncompatabilitiesJS
 @Component({
     selector: 'app-admin',
     templateUrl: './admin.component.html',
@@ -152,7 +153,6 @@ export class AdminComponent implements OnInit {
     public snowEffect: boolean;
 
     public isCollapsedSideBar: string;
-    public psDisabled: string;
 
     public config: any;
     public ipAddress: any;
@@ -349,7 +349,7 @@ export class AdminComponent implements OnInit {
                                 title: mensaje.titulo,
                                 text: mensaje.message,
                                 type: 'info',
-                            });
+                            }).then();
                         }
                     }
                 }
@@ -359,7 +359,7 @@ export class AdminComponent implements OnInit {
                 localStorage.removeItem('crm_user');
                 localStorage.removeItem('crm_date');
 
-                $this.router.navigate(['auth/login']);
+                $this.router.navigate(['auth/login']).then();
             }
 
             $this.agregarNotificacion(notificaciones);
@@ -368,8 +368,9 @@ export class AdminComponent implements OnInit {
 
     scroll = (): void => {
         const scrollPosition = window.pageYOffset;
+
         if (scrollPosition > 56) {
-            if (this.isSidebarChecked === true) {
+            if (this.isSidebarChecked) {
                 this.pcodedSidebarPosition = 'fixed';
             }
             this.headerFixedTop = '0';
@@ -389,7 +390,7 @@ export class AdminComponent implements OnInit {
         this.http.get(`${backend_url}general/notificacion/data`).subscribe(
             (res) => {
                 if (res['code'] != 200) {
-                    swal('1', res['message'], 'error');
+                    swal('1', res['message'], 'error').then();
 
                     return;
                 }
@@ -397,16 +398,7 @@ export class AdminComponent implements OnInit {
                 this.notificaciones = res['notificaciones'];
             },
             (response) => {
-                swal({
-                    title: '2',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                });
+                swalErrorHttpResponse(response);
             }
         );
 
@@ -607,7 +599,7 @@ export class AdminComponent implements OnInit {
             this.verticalNavType === 'expanded' ? 'offcanvas' : 'expanded';
     }
 
-    onClickedOutsideSidebar(e: Event) {
+    onClickedOutsideSidebar(_e: Event) {
         if (
             (this.windowWidth < 992 &&
                 this.toggleOn &&
@@ -792,7 +784,7 @@ export class AdminComponent implements OnInit {
             '/general/busqueda/venta',
             this.busqueda.campo,
             encodeURI(this.busqueda.criterio),
-        ]);
+        ]).then();
     }
 
     itsTimeForSnow() {
@@ -820,29 +812,20 @@ export class AdminComponent implements OnInit {
                             title: '',
                             type: 'error',
                             html: res['message'],
-                        });
+                        }).then();
                     }
 
                     $('#loading-spinner').fadeOut();
                 },
                 (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                    ? response.error.error_summary
-                                    : response.error,
-                    });
+                    swalErrorHttpResponse(response);
 
                     $('#loading-spinner').fadeOut();
                 }
             );
 
         if (link != undefined) {
-            this.router.navigate([link]);
+            this.router.navigate([link]).then();
         }
     }
 
@@ -860,7 +843,7 @@ export class AdminComponent implements OnInit {
                                 title: '',
                                 type: 'error',
                                 html: res['message'],
-                            });
+                            }).then();
                         }
                     },
                     (response) => {
@@ -876,7 +859,7 @@ export class AdminComponent implements OnInit {
         const audio = new Audio();
         audio.src = '../../../assets/sounds/definite.mp3';
         audio.load();
-        audio.play();
+        audio.play().then();
     }
 
     sessionTimeLeft() {
@@ -893,9 +876,11 @@ export class AdminComponent implements OnInit {
             const distance = countDownDate - now;
 
             // Time calculations for days, hours, minutes and seconds
-            const hours = Math.floor(
-                (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-            );
+            const msInHour = 1000 * 60 * 60;
+            const msInDay = msInHour * 24;
+
+            const hours = Math.floor((distance % msInDay) / msInHour);
+
             const minutes = Math.floor(
                 (distance % (1000 * 60 * 60)) / (1000 * 60)
             );
@@ -920,7 +905,7 @@ export class AdminComponent implements OnInit {
                         'Su sesión ha expirado<br/>' +
                         `recargue la página o haga click en el siguiente enlace:<br/>` +
                         `<h1> <a href='https://afainnova.com/#/auth/login'>https://afainnova.com/#/auth/login</a></h1>`,
-                });
+                }).then();
                 localStorage.removeItem('crm_user');
                 localStorage.removeItem('crm_date');
                 localStorage.removeItem('crm_access_token');
