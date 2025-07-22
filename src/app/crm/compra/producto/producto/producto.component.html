@@ -357,6 +357,7 @@
                                                         class="form-control"
                                                         required
                                                         #productosku="ngModel"
+                                                        (keydown.enter)="$event.preventDefault()"
                                                         [(ngModel)]="
                                                             producto.sku
                                                         "
