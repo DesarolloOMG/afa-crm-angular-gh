@@ -492,7 +492,7 @@ export class EditarComponent implements OnInit {
                         this.producto.precio =
                             this.data.area == '2'
                                 ? this.producto.precio
-                                : this.producto.precio / 1.16;
+                                : this.producto.precio;
                         this.producto.descripcion = $(
                             '#pro_codigo option:selected'
                         ).text();
