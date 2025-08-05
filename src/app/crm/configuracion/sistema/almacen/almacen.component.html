@@ -6,9 +6,11 @@
             <button
                 style="float: right"
                 class="btn btn-info btn-sm"
+                (click)="abrirModalCrearAlmacen(modalCrearAlmacen)"
             >
-                Crear almacen
+                Crear almacén
             </button>
+
         </div>
         <div class="card-block table-responsive">
             <div class="row">
@@ -30,19 +32,14 @@
                             <td>{{ almacen.empresa.empresa }}</td>
                             <td>
                                 <button
-                                    class="btn btn-sm btn-outline-info"
+                                    class="btn btn-sm btn-outline-danger m-l-10"
                                     placement="top"
-                                    ngbTooltip="Editar Almacen"
+                                    ngbTooltip="Eliminar Almacen"
+                                    (click)="eliminarAlmacen(almacen.almacen.id)"
                                 >
-                                    <i class="fa fa-pencil fa-2x"></i>
+                                    <i class="fa fa-trash fa-2x"></i>
                                 </button>
-                                <button
-                                    class="btn btn-sm btn-outline-warning m-l-10"
-                                    placement="top"
-                                    ngbTooltip="Desactivar Almacen"
-                                >
-                                    <i class="fa fa-ban fa-2x"></i>
-                                </button>
+
                             </td>
                         </tr>
                         </tbody>
@@ -52,3 +49,29 @@
         </div>
     </div>
 </div>
+
+<ng-template #modalCrearAlmacen let-d="dismiss">
+    <div class="modal-header">
+        <h5 class="modal-title">Crear Almacén</h5>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <form (ngSubmit)="guardarAlmacen(d)">
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Nombre del Almacén</label>
+                <input type="text" class="form-control" [(ngModel)]="nuevoAlmacen.nombre" name="nombre" required />
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" [disabled]="!nuevoAlmacen.nombre">
+                Guardar
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="d('Cross click')">
+                Cancelar
+            </button>
+        </div>
+    </form>
+</ng-template>
+
