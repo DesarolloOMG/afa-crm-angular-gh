@@ -82,16 +82,6 @@ export class PendienteComponent implements OnInit {
             .subscribe(
                 (res) => {
                     this.ventas = res['ventas'];
-
-                    this.ventas.forEach((element) => {
-                        if (element.nota_pendiente == 1) {
-                            const index = this.ventas.findIndex(
-                                (venta) => venta.id == element.id
-                            );
-                            this.ventas.splice(index, 1);
-                        }
-                    });
-
                     this.tecnicos = res['tecnicos'];
                     this.paqueterias = res['paqueterias'];
                     this.causas_documento = res['causas'];
@@ -138,8 +128,6 @@ export class PendienteComponent implements OnInit {
                 archivo.icon = 'file';
             }
         });
-
-        this.final_data.nota_pendiente = venta.nota_pendiente;
 
         this.modalReference = this.modalService.open(modal, {
             size: 'lg',
