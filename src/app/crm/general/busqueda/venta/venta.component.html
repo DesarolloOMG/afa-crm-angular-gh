@@ -258,6 +258,7 @@
                             <th class="text-start">Descripción</th>
                             <th class="text-center">Cantidad</th>
                             <th class="text-end">Precio</th>
+                            <th class="text-center">Series</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -267,6 +268,13 @@
                             <td class="text-center">{{ prod.cantidad }}</td>
                             <td class="text-end">
                                 {{ prod.precio | currency:'MXN':'symbol':'1.2-2' }}
+                            </td>
+                            <td class="text-center">
+                                <button *ngIf="prod.series && prod.series.length > 0"
+                                        class="btn btn-outline-primary btn-sm"
+                                        (click)="verSeries(prod.series, modalserierecibidas)">
+                                    <i class="fas fa-barcode me-1"></i>Ver series ({{ prod.series.length }})
+                                </button>
                             </td>
                         </tr>
                         </tbody>
@@ -486,13 +494,8 @@
 <ng-template #modalserierecibidas let-d="dismiss">
     <div class="modal-header">
         <h4 class="modal-title">Series</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal_serie"
-        >
+        <button type="button" class="close" aria-label="Close"
+                (click)="d('Cross click')" id="cerrar_modal_serie">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
@@ -502,10 +505,8 @@
                 <label class="col-form-label col-sm-2">Series</label>
                 <div class="col-sm-10 inline-block">
                     <ul class="list-group m-b-20" id="ul_series">
-                        <li
-                            class="list-group-item"
-                            *ngFor="let serie of data.series"
-                        >
+                        <li class="list-group-item"
+                            *ngFor="let serie of seriesProductoSeleccionado">
                             {{ serie.serie }}
                         </li>
                     </ul>
@@ -514,6 +515,7 @@
         </div>
     </div>
 </ng-template>
+
 
 <ng-template #modalinformacionmercadolibre let-d="dismiss">
     <!-- CABECERA -->

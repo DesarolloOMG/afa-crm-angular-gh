@@ -19,6 +19,7 @@ export class VentaComponent implements OnInit {
 
     tablename = '#general_busqueda_venta';
     desGlobalizarAutorizados: number[] = [90];
+    seriesProductoSeleccionado: any[] = [];
     niveles: number[] = [];
     id_usuario: number;
     busqueda: string;
@@ -127,6 +128,8 @@ export class VentaComponent implements OnInit {
             return;
         }
 
+        console.log(venta);
+
         Object.assign(this.data, {
             almacen: venta.almacen,
             area: venta.area,
@@ -210,6 +213,11 @@ export class VentaComponent implements OnInit {
             windowClass: 'bigger-modal',
             backdrop: 'static',
         });
+    }
+
+    verSeries(series: any[], modal) {
+        this.seriesProductoSeleccionado = series;
+        this.modalService.open(modal);
     }
 
     async guardarDocumento(): Promise<void> {
@@ -340,20 +348,20 @@ export class VentaComponent implements OnInit {
             });
     }
 
-    verSeries(sku: string, modal: any): void {
-        const producto = this.data.productos.find(
-            (productoFind) => productoFind.sku == sku
-        );
-
-        if (!producto) {
-            this.swalResponse('error', 'Error', 'Producto no encontrado.').then();
-            return;
-        }
-
-        this.data.series = producto.series;
-
-        this.modalService.open(modal, {backdrop: 'static'});
-    }
+    // verSeries(sku: string, modal: any): void {
+    //     const producto = this.data.productos.find(
+    //         (productoFind) => productoFind.sku == sku
+    //     );
+    //
+    //     if (!producto) {
+    //         this.swalResponse('error', 'Error', 'Producto no encontrado.').then();
+    //         return;
+    //     }
+    //
+    //     this.data.series = producto.series;
+    //
+    //     this.modalService.open(modal, {backdrop: 'static'});
+    // }
 
     async crearRefacturacion($option: any): Promise<void | SweetAlertResult> {
         const currentDate = moment();
