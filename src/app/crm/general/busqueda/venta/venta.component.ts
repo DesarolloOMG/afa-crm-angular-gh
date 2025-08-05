@@ -419,13 +419,6 @@ export class VentaComponent implements OnInit {
     async crearNotaCredito(
         refacturado: number
     ): Promise<void | SweetAlertResult> {
-        if (this.data.nota_pendiente) {
-            return this.swalResponse(
-                'error',
-                '',
-                'Nota de crédito pendiente de autorización o ya existente'
-            );
-        }
 
         if (refacturado) {
             return this.swalResponse(
@@ -435,22 +428,13 @@ export class VentaComponent implements OnInit {
             );
         }
 
-        const confirm = await this.mostrarConfirmacion(
-            'Se enviará la nota a Autorización'
-        );
-
-        if (!confirm) {
-            return;
-        }
-
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data.documento));
-        form_data.append('modulo', JSON.stringify('Ventas'));
 
         try {
             const res = await this.http
                 .post(
-                    `${backend_url}general/busqueda/venta/autorizar-nota`,
+                    `${backend_url}general/busqueda/venta/nota-credito`,
                     form_data
                 )
                 .toPromise();
@@ -458,9 +442,6 @@ export class VentaComponent implements OnInit {
         } catch (response) {
             swalErrorHttpResponse(response);
         }
-    }
-
-    async enviarFactura(): Promise<void> {
     }
 
     async informacionExtraMercadolibre(
@@ -506,26 +487,9 @@ export class VentaComponent implements OnInit {
     ): Promise<void> {
     }
 
-    descargarComplemento(_tipo_documento: number): void {
-    }
-
     clearData(): void {
         this.data = createEmptyGBBData();
         this.final_data = createEmptyGBBFinalData();
-    }
-
-    diferenciaFechas(date: string | Date): number {
-        const date1 = new Date(date);
-        if (isNaN(date1.getTime())) {
-            throw new Error('La fecha proporcionada no es válida.');
-        }
-
-        const date2 = new Date();
-        const one_day = 1000 * 60 * 60 * 24;
-
-        const difference_ms = date2.getTime() - date1.getTime();
-
-        return Math.round(difference_ms / one_day);
     }
 
     totalDocumento(): number {
