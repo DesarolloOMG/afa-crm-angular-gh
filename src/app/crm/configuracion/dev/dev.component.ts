@@ -25,4 +25,15 @@ export class DevComponent implements OnInit {
             },
         });
     }
+
+    recalcular() {
+        this.developerService.recalcularInventario().subscribe({
+            next: (data) => {
+                console.log(data);
+            },
+            error: (error) => {
+                swalErrorHttpResponse(error);
+            },
+        });
+    }
 }

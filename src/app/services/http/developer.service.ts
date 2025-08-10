@@ -13,5 +13,7 @@ export class DeveloperService {
         return this.http.get(`${backend_url}developer/test`);
     }
 
-
+    recalcularInventario() {
+        return this.http.get(`${backend_url}developer/recalcularInventario`);
+    }
 }
