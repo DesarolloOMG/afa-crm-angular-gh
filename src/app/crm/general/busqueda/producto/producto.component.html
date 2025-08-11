@@ -152,7 +152,7 @@
                         </td>
                         <td>{{ producto.descripcion }}</td>
                         <td>
-                            ${{ commaNumber(producto.costo_promedio) }}
+                            ${{ commaNumber(producto?.costo_promedio) }}
                         </td>
                         <td *ngIf="esAdmin()">
                             ${{ commaNumber(producto?.precio || 0) }}
