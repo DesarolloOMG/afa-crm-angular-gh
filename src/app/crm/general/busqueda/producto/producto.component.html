@@ -155,8 +155,7 @@
                             ${{ commaNumber(producto.costo_promedio) }}
                         </td>
                         <td *ngIf="esAdmin()">
-                            <!-- Precio si existiera a nivel producto; si no, 0 -->
-                            ${{ commaNumber(producto.precio > 0 ? producto.precio : producto.costo_promedio) }}
+                            ${{ commaNumber(producto?.precio || 0) }}
                         </td>
 
                         <!-- INVENTARIO -->
