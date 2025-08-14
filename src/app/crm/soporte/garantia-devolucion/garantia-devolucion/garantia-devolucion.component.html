@@ -3,7 +3,7 @@
         <form class="md-float-material form-material" #f="ngForm">
             <div class="auth-box card">
                 <div class="card-block">
-                    <h4 class="sub-title m-t-20">Información del documento</h4>
+                    <h4 class="form-step-title">1. Datos de la Solicitud</h4>
 
                     <div class="row">
                         <div class="col-md-5">
@@ -33,27 +33,6 @@
                                     *ngIf="tipodocumento.errors?.required"
                                     >Campo requerido</small
                                 >
-                            </div>
-                        </div>
-
-                        <div class="col-md-1">
-                            <div
-                                class="form-group form-primary"
-                                style="margin-top: -14px"
-                            >
-                                <label style="font-size: 11px; display: block"
-                                    >Parcial</label
-                                >
-                                <ui-switch
-                                    class="js-single"
-                                    color="#4680ff"
-                                    switchColor="#fff"
-                                    size="medium"
-                                    name="devolucion_parcial"
-                                    id="devolucion_parcial"
-                                    [disabled]="data.tipo == '1'"
-                                    [(ngModel)]="data.parcial"
-                                ></ui-switch>
                             </div>
                         </div>
 
@@ -151,66 +130,114 @@
                         </div>
                     </div>
 
+                    <div class="row" *ngIf="data.venta_id">
+                        <div class="col-md-12">
+                            <div class="document-info-card">
+                                <h5 class="document-info-title">Resumen del Pedido Original</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="info-item">
+                                            <i class="fas fa-ticket-alt info-icon"></i>
+                                            <div class="info-text">
+                                                <span class="info-label">ID Venta</span>
+                                                <span class="info-value">{{ data.venta_id }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="info-item">
+                                            <i class="fas fa-shopping-cart info-icon"></i>
+                                            <div class="info-text">
+                                                <span class="info-label">Marketplace</span>
+                                                <span class="info-value">{{ data.marketplace }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="info-item">
+                                            <i class="fas fa-warehouse info-icon"></i>
+                                            <div class="info-text">
+                                                <span class="info-label">Almacén de Origen</span>
+                                                <span class="info-value">{{ data.almacen }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-12">
+                            <h4 class="form-step-title">2. Productos a Devolver</h4>
                             <form class="md-float-material form-material">
-                                <table class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Código</th>
-                                            <th>Descripción</th>
-                                            <th>Series</th>
-                                        </tr>
+                                <div class="table-container">
+                                    <table class="table"> <thead>
+                                    <tr>
+                                        <th class="col-seleccionar">Seleccionar</th>
+                                        <th class="col-codigo">Código</th>
+                                        <th class="col-descripcion">Descripción</th>
+                                        <th class="col-cantidad">Cant. Pedido</th>
+                                        <th class="col-cantidad">Cant. a Devolver</th>
+                                    </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr
-                                            *ngFor="
-                                                let producto of data.productos;
-                                                let index = index
-                                            "
-                                        >
-                                            <td>{{ producto.sku }}</td>
-                                            <td>
-                                                <div
-                                                    class="form-group form-primary"
-                                                >
-                                                    <input
-                                                        type="text"
-                                                        name="descripcion_{{
-                                                            index
-                                                        }}"
-                                                        class="form-control"
-                                                        [(ngModel)]="
-                                                            producto.descripcion
-                                                        "
-                                                    />
-                                                    <span
-                                                        class="form-bar"
-                                                    ></span>
+                                        <tbody>
+                                        <tr *ngFor="let producto of data.productos; let i = index">
+                                            <td class="col-seleccionar">
+                                                <div *ngIf="data.tipo == '1'">
+                                                    <i class="fas fa-check-circle" style="color: #28a745; font-size: 22px;"></i>
                                                 </div>
+
+                                                <ui-switch
+                                                    *ngIf="data.tipo != '1'"
+                                                    class="js-single"
+                                                    color="#4680ff"
+                                                    switchColor="#fff"
+                                                    size="medium"
+                                                    name="devuelto_{{i}}"
+                                                    [(ngModel)]="producto.devuelto"
+                                                ></ui-switch>
                                             </td>
-                                            <td>
-                                                <div
-                                                    class="form-group form-primary"
-                                                >
-                                                    <input
-                                                        type="text"
-                                                        name="series_{{
-                                                            index
-                                                        }}"
-                                                        class="form-control"
-                                                        [(ngModel)]="
-                                                            producto.series
-                                                        "
-                                                    />
-                                                    <span
-                                                        class="form-bar"
-                                                    ></span>
+
+                                            <td class="col-codigo">{{ producto.sku }}</td>
+                                            <td class="col-descripcion">
+                                                <input
+                                                    type="text"
+                                                    name="descripcion_{{i}}"
+                                                    class="form-control-plaintext"
+                                                    [(ngModel)]="producto.descripcion"
+                                                />
+                                            </td>
+                                            <td class="col-cantidad">
+                                                <span class="badge-custom badge-custom-info">{{ producto.cantidad }} pza</span>
+                                            </td>
+                                            <td class="col-cantidad">
+                                                <div *ngIf="data.tipo == '1'">
+                                                    <span class="badge-custom badge-custom-secondary">{{ producto.cantidad }} pza</span>
+                                                </div>
+                                                <div *ngIf="data.tipo != '1'">
+                                                    <div *ngIf="producto.devuelto && producto.cantidad > 1">
+                                                        <input
+                                                            type="number"
+                                                            class="form-control form-control-sm"
+                                                            style="width: 90px;"
+                                                            name="cantidad_a_devolver_{{i}}"
+                                                            [(ngModel)]="producto.cantidad_a_devolver"
+                                                            required
+                                                            min="1"
+                                                            [max]="producto.cantidad"
+                                                        />
+                                                    </div>
+                                                    <div *ngIf="producto.devuelto && producto.cantidad == 1">
+                                                        <span class="badge-custom badge-custom-success">1 pza</span>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </form>
                         </div>
                     </div>
