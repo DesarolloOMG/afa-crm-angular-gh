@@ -58,6 +58,8 @@ export interface GBBData {
     documento_extra: string;
     tipo_cambio: number;
     referencia: string;
+    garantia_devolucion: any;
+    nota_de_credito: any;
 }
 
 export interface GBBFinalData {

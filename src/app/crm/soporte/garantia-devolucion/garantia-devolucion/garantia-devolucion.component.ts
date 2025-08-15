@@ -9,9 +9,6 @@ import swal from 'sweetalert2';
     styleUrls: ['./garantia-devolucion.component.scss']
 })
 export class GarantiaDevolucionComponent implements OnInit {
-
-
-
     tipos_documento: any[] = [];
     causas_documento: any[] = [];
 

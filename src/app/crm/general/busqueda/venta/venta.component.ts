@@ -181,6 +181,8 @@ export class VentaComponent implements OnInit {
             mkt_coupon: venta.mkt_coupon,
             documento_extra: venta.documento_extra,
             seguimiento_anterior: venta.seguimiento,
+            garantia_devolucion: venta.garantia_devolucion,
+            nota_de_credito: venta.nota_de_credito
         });
 
         const getFileIcon = (ext) => {
@@ -218,6 +220,97 @@ export class VentaComponent implements OnInit {
     verSeries(series: any[], modal) {
         this.seriesProductoSeleccionado = series;
         this.modalService.open(modal);
+    }
+
+    /**
+     * Llama al backend para generar y descargar el PDF de una Nota de Crédito.
+     * @param id_nota El ID del documento de la nota de crédito.
+     */
+    descargarNotaCreditoPDF(id_nota: number): void {
+        if (!id_nota) {
+            console.error('ID de la nota de crédito no proporcionado.');
+            return;
+        }
+
+        swal({
+            title: 'Generando PDF...',
+            text: 'Por favor, espera un momento.',
+            allowOutsideClick: false,
+            onOpen: () => {
+                swal.showLoading();
+            }
+        });
+
+        // --- CAMBIO AQUÍ ---
+        // Quitamos { responseType: 'blob' } para que Angular procese la respuesta como JSON.
+        this.http.get(`${backend_url}general/busqueda/venta/descargarNota/${id_nota}`)
+            .subscribe(
+                (res: any) => {
+                    swal.close();
+
+                    // Ahora 'res' será el objeto JSON { code: 200, file: '...', name: '...' }
+                    if (res && res.file && res.name) {
+                        // El resto de tu lógica es correcta para manejar una respuesta con Base64.
+                        const dataURI = 'data:application/pdf;base64,' + res.file;
+                        const a = document.createElement('a');
+                        a.href = dataURI;
+                        a.download = res.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    } else {
+                        swal('Error', 'El servidor no devolvió un archivo válido.', 'error');
+                    }
+                },
+                (error) => {
+                    swalErrorHttpResponse(error); // Asumo que esta es una función personalizada para manejar errores.
+                }
+            );
+    }
+
+    /**
+     * Llama al backend para generar y descargar el PDF de una Devolución o Garantía.
+     * @param id_garantia El ID del documento de la garantía/devolución.
+     */
+    descargarGarantiaPDF(id_garantia: number): void {
+        if (!id_garantia) {
+            console.error('ID de la garantía no proporcionado.');
+            return;
+        }
+
+        swal({
+            title: 'Generando PDF...',
+            text: 'Por favor, espera un momento.',
+            allowOutsideClick: false,
+            onOpen: () => {
+                swal.showLoading();
+            }
+        });
+
+        // --- CAMBIO AQUÍ ---
+        // Quitamos { responseType: 'blob' } para que Angular procese la respuesta como JSON.
+        this.http.get(`${backend_url}general/busqueda/venta/descargarGarantia/${id_garantia}`)
+            .subscribe(
+                (res: any) => {
+                    swal.close();
+
+                    // Ahora 'res' será el objeto JSON { code: 200, file: '...', name: '...' }
+                    if (res && res.file && res.name) {
+                        const dataURI = 'data:application/pdf;base64,' + res.file;
+                        const a = document.createElement('a');
+                        a.href = dataURI;
+                        a.download = res.name;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    } else {
+                        swal('Error', 'El servidor no devolvió un archivo válido.', 'error');
+                    }
+                },
+                (error) => {
+                    swalErrorHttpResponse(error);
+                }
+            );
     }
 
     async guardarDocumento(): Promise<void> {
@@ -310,17 +403,6 @@ export class VentaComponent implements OnInit {
                     );
             }
         });
-    }
-
-    descargarNotaCredito(_nota: string, tipo: number): void {
-        if (![1, 2].includes(tipo)) {
-            this.swalResponse(
-                'error',
-                'Error',
-                'Tipo inválido. Debe ser 1 (XML) o 2 (PDF).'
-            ).then();
-            return;
-        }
     }
 
     agregarArchivo(): void {
@@ -425,7 +507,7 @@ export class VentaComponent implements OnInit {
     }
 
     async crearNotaCredito(
-        refacturado: number
+        refacturado: string
     ): Promise<void | SweetAlertResult> {
 
         if (refacturado) {

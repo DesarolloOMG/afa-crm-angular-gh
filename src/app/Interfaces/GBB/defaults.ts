@@ -64,7 +64,9 @@ export function createEmptyGBBData(): GBBData {
         nota_pendiente: false,
         usuario_agro: 0,
         refacturacion_pendiente: 0,
-        documento_extra: ''
+        documento_extra: '',
+        garantia_devolucion: null,
+        nota_de_credito: null,
     };
 }
 

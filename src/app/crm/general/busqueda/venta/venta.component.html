@@ -194,6 +194,60 @@
                 </div>
             </div>
 
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div *ngIf="data.garantia_devolucion"
+                         class="bg-white rounded-4 shadow-sm p-3 h-100 border-top"
+                         style="border-color: #fd7e14 !important;">
+                        <div class="d-flex justify-content-between align-items-center h-100">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 py-1">
+                                    <i class="fas fa-undo text-warning"></i>
+                                    <span class="fw-bold text-secondary">Devolución / Garantía Asociada</span>
+                                </div>
+                                <div class="fw-semibold text-dark">
+                                    {{ data.garantia_devolucion.tipo }} #{{ data.garantia_devolucion.id }}
+                                </div>
+                                <div class="text-muted small">
+                                    Creado por: {{ data.garantia_devolucion.creador }}
+                                </div>
+                            </div>
+                            <div class="align-self-start">
+                                <button class="btn btn-outline-warning btn-sm" (click)="descargarGarantiaPDF(data.garantia_devolucion.id)">
+                                    Descargar PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div *ngIf="data.nota_de_credito"
+                         class="bg-white rounded-4 shadow-sm p-3 h-100 border-top"
+                         style="border-color: #0d6efd !important;">
+                        <div class="d-flex justify-content-between align-items-center h-100">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 py-1">
+                                    <i class="fas fa-receipt text-primary"></i>
+                                    <span class="fw-bold text-secondary">Nota de Crédito Generada</span>
+                                </div>
+                                <div class="fw-semibold text-dark">
+                                    Folio #{{ data.nota_de_credito.id }}
+                                </div>
+                                <div class="text-muted small">
+                                    Fecha: {{ data.nota_de_credito.created_at | date:'yyyy-MM-dd HH:mm' }}
+                                </div>
+                            </div>
+                            <div class="align-self-start">
+                                <button class="btn btn-primary btn-sm fw-bold" (click)="descargarNotaCreditoPDF(data.nota_de_credito.id)">
+                                    <i class="fas fa-download me-1"></i> Descargar PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Sección exclusiva para la guía -->
             <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
                 <div class="d-flex align-items-center gap-2 py-1 mb-2">
