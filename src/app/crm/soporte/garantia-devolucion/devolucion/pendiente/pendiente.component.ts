@@ -136,38 +136,64 @@ export class PendienteComponent implements OnInit {
         });
     }
 
-    solicitarAutorizacion() {
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.final_data));
-        form_data.append('usuario', JSON.stringify(this.auth_id.id));
-        form_data.append('modulo', JSON.stringify('D'));
-        form_data.append('doc', JSON.stringify(this.data));
-
-        this.http
-            .post(
-                `${backend_url}general/busqueda/venta/autorizar-garantia`,
-                form_data
-            )
-            .subscribe(
-                (res) => {
-                    swal({
-                        title: '',
-                        type: res['code'] == 200 ? 'success' : 'error',
-                        html: res['message'],
-                    }).then();
-                    if (res['code'] == 200) {
-                        this.getData();
-                        this.modalReference.close();
-                    }
-                },
-                (response) => {
-                    swalErrorHttpResponse(response);
-                }
-            );
-    }
+    // solicitarAutorizacion() {
+    //     const form_data = new FormData();
+    //     form_data.append('data', JSON.stringify(this.final_data));
+    //     form_data.append('usuario', JSON.stringify(this.auth_id.id));
+    //     form_data.append('modulo', JSON.stringify('D'));
+    //     form_data.append('doc', JSON.stringify(this.data));
+    //
+    //     this.http
+    //         .post(
+    //             `${backend_url}general/busqueda/venta/autorizar-garantia`,
+    //             form_data
+    //         )
+    //         .subscribe(
+    //             (res) => {
+    //                 swal({
+    //                     title: '',
+    //                     type: res['code'] == 200 ? 'success' : 'error',
+    //                     html: res['message'],
+    //                 }).then();
+    //                 if (res['code'] == 200) {
+    //                     this.getData();
+    //                     this.modalReference.close();
+    //                 }
+    //             },
+    //             (response) => {
+    //                 swalErrorHttpResponse(response);
+    //             }
+    //         );
+    // }
 
     // noinspection JSUnusedGlobalSymbols
     guardarDocumento() {
+        // --- VALIDACIÓN 1: Técnico y Guía ---
+        if (!this.final_data.tecnico || !this.final_data.paqueteria || !this.final_data.guia) {
+            swal({
+                title: 'Campos Incompletos',
+                type: 'warning',
+                html: 'Por favor, asigna un técnico y completa la información de paquetería y guía antes de guardar.',
+            });
+            return;
+        }
+
+        // --- VALIDACIÓN 2: Series de Productos ---
+        // Usamos .some() para ver si al menos un producto no cumple la condición
+        const seriesIncompletas = this.final_data.productos.some(
+            producto => producto.series.length !== producto.cantidad
+        );
+
+        if (seriesIncompletas) {
+            swal({
+                title: 'Series Incompletas',
+                type: 'warning',
+                html: 'La cantidad de series ingresadas no coincide con la cantidad a devolver en al menos un producto. Por favor, verifica las series.',
+            });
+            return; // Detiene la ejecución si las series no coinciden
+        }
+        // --- FIN DE LAS VALIDACIONES ---
+
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(this.final_data));
 
@@ -185,6 +211,27 @@ export class PendienteComponent implements OnInit {
                     }).then();
 
                     if (res['code'] == 200) {
+                        // --- INICIO: LÓGICA PARA DESCARGAR EL ARCHIVO ---
+                        // 1. Verificamos que el backend nos haya enviado un archivo
+                        if (res['file'] && res['name']) {
+                            // 2. Construimos el enlace de descarga a partir de los datos base64
+                            // Nota: Si fuera un Excel, cambiarías 'application/pdf' por
+                            // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                            const dataURI = 'data:application/pdf;base64,' + res['file'];
+
+                            // 3. Creamos un elemento <a> temporal en la memoria
+                            const a = document.createElement('a');
+                            a.href = dataURI;
+                            a.download = res['name'];
+
+                            // 4. Lo añadimos al cuerpo del documento, simulamos un clic y lo eliminamos
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
+                        // --- FIN: LÓGICA PARA DESCARGAR EL ARCHIVO ---
+
+                        // Tu lógica existente para actualizar la interfaz de usuario
                         const index = this.ventas.findIndex(
                             (venta) => venta.id == this.final_data.documento
                         );
