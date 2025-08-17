@@ -15,6 +15,7 @@
                                     #tipodocumento="ngModel"
                                     class="form-control"
                                     [(ngModel)]="data.tipo"
+                                    (ngModelChange)="onTipoDocumentoChange($event)"
                                 >
                                     <option value="" disabled selected></option>
                                     <option

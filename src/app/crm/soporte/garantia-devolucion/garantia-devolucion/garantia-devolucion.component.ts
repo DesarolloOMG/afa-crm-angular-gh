@@ -77,6 +77,33 @@ export class GarantiaDevolucionComponent implements OnInit {
                 });
     }
 
+    // Agrega esta nueva función dentro de tu clase GarantiaDevolucionComponent
+
+    onTipoDocumentoChange(nuevoTipo: string): void {
+        // Primero, actualizamos el valor en nuestro modelo de datos
+        this.data.tipo = nuevoTipo;
+
+        // Si aún no se han cargado productos, no hacemos nada más
+        if (!this.data.productos || this.data.productos.length === 0) {
+            return;
+        }
+
+        // Determinamos si el nuevo tipo es "Devolución Total"
+        const esDevolucionTotal = nuevoTipo === '1';
+
+        // Recorremos todos los productos y reiniciamos su estado de selección
+        this.data.productos.forEach(producto => {
+            // Si es Devolución Total, todos los productos se marcan como devueltos.
+            // Si es Parcial, se desmarcan todos para que el usuario elija de nuevo.
+            producto.devuelto = esDevolucionTotal;
+
+            // También reiniciamos la cantidad a devolver a su valor original
+            if (esDevolucionTotal) {
+                producto.cantidad_a_devolver = producto.cantidad;
+            }
+        });
+    }
+
     crearDocumento(event) {
         if (!event.detail || event.detail > 1) {
             return;
