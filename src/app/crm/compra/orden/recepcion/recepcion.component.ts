@@ -681,6 +681,56 @@ export class RecepcionComponent implements OnInit {
         }
     }
 
+    // generarCodigos(codigo) {
+    //     swal({
+    //         title: '',
+    //         type: 'warning',
+    //         showCancelButton: true,
+    //         showConfirmButton: true,
+    //         cancelButtonText: 'Cancelar',
+    //         confirmButtonText: 'Imprimir',
+    //         html: 'Escribe la cantidad de series a generar',
+    //         input: 'text',
+    //     }).then((confirm) => {
+    //         if (confirm.value) {
+    //             if (isNaN(confirm.value)) {
+    //                 return swal({
+    //                     type: 'error',
+    //                     html: 'La cantidad de etiquetas a generar debe ser mayor a 0',
+    //                 });
+    //             }
+    //
+    //             if (confirm.value <= 0) {
+    //                 return swal({
+    //                     type: 'error',
+    //                     html: 'La cantidad de etiquetas a generar debe ser mayor a 0',
+    //                 });
+    //             }
+    //
+    //             const producto = this.final_data.productos.find(
+    //                 (p) => p.codigo == codigo
+    //             );
+    //
+    //             const etiqueta_serie = {
+    //                 codigo: producto.codigo,
+    //                 descripcion: producto.descripcion,
+    //                 cantidad: Number(confirm.value),
+    //                 impresora: '1',
+    //             };
+    //
+    //             this.printService.printEtiquetasSerie(etiqueta_serie)
+    //                 .subscribe(
+    //                     (res) => {
+    //                         console.log(res);
+    //                     },
+    //                     (response) => {
+    //                         swalErrorHttpResponse(response);
+    //                     }
+    //                 );
+    //         }
+    //     });
+    // }
+
     generarCodigos(codigo) {
         swal({
             title: '',
@@ -714,17 +764,22 @@ export class RecepcionComponent implements OnInit {
                 const etiqueta_serie = {
                     codigo: producto.codigo,
                     descripcion: producto.descripcion,
-                    cantidad: Number(confirm.value),
-                    impresora: '1',
+                    cantidad: confirm.value,
+                    impresora: 30,
+                    extra: this.series.extra,
                 };
 
-                this.printService.printEtiquetasSerie(etiqueta_serie)
+                const form_data = new FormData();
+                form_data.append('data', JSON.stringify(etiqueta_serie));
+
+                this.http
+                    .post(`${backend_url}almacen/etiqueta/serie`, form_data)
                     .subscribe(
-                        (res) => {
-                            console.log(res);
+                        () => {
                         },
                         (response) => {
                             swalErrorHttpResponse(response);
+
                         }
                     );
             }
