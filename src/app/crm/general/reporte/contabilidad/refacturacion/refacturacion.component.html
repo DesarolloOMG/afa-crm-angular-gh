@@ -1,0 +1,113 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_inicio"
+                                    [(ngModel)]="busqueda.fecha_inicio"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de inicio</label
+                                >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_final"
+                                    [(ngModel)]="busqueda.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha final</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="generarReporte()"
+                                id="generar_reporte"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-file-excel fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="descargarReporte()"
+                                [disabled]="excel == ''"
+                                placement="top"
+                                ngbTooltip="Descargar reporte"
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <table
+            class="table table-striped"
+            id="general_reporte_contabilidad_refacturacion"
+        >
+            <thead>
+                <tr>
+                    <th>Documento</th>
+                    <th>Venta</th>
+                    <th>Marketplace</th>
+                    <th>Cliente</th>
+                    <th>Paquetería</th>
+                    <th>Vendedor</th>
+                    <th>Fase</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let row of ventas"
+                    class="{{ row.status == 0 ? 'cancelado' : '' }}"
+                >
+                    <td>
+                        <a
+                            class="btn btn-info btn-sm btn-block"
+                            target="_blank"
+                            [routerLink]="[
+                                '/general/busqueda/venta/id',
+                                row.id
+                            ]"
+                            >{{ row.id }}</a
+                        >
+                    </td>
+                    <td>{{ row.no_venta }}</td>
+                    <td>{{ row.area + " / " + row.marketplace }}</td>
+                    <td>{{ row.cliente }}</td>
+                    <td>{{ row.paqueteria }}</td>
+                    <td>{{ row.usuario }}</td>
+                    <td>{{ row.fase }}</td>
+                    <td>{{ row.created_at }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

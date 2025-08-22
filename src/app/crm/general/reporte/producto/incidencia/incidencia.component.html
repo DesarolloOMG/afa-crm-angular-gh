@@ -1,0 +1,233 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    id="empresa"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.empresa"
+                                >
+                                    <option
+                                        value="{{ empresa.id }}"
+                                        *ngFor="let empresa of empresas"
+                                    >
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_inicial"
+                                    [(ngModel)]="busqueda.fecha_inicial"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de inicio</label
+                                >
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_final"
+                                    [(ngModel)]="busqueda.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha final</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="
+                                    btn btn-sm btn-block btn-outline-info
+                                    http-disabled
+                                "
+                                (click)="generarReporte()"
+                                id="generar_reporte"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-file-excel fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="
+                                    btn btn-sm btn-block btn-outline-info
+                                    http-disabled
+                                "
+                                (click)="descargarReporte()"
+                                [disabled]="excel == ''"
+                                placement="top"
+                                ngbTooltip="Descargar reporte"
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <table
+            class="table table-striped"
+            id="general_reporte_producto_incidencia"
+        >
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Cantidad de incidencias</th>
+                    <th>Cantidad de ventas</th>
+                    <th>Taza</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let row of productos">
+                    <td>{{ row.sku }}</td>
+                    <td>{{ row.descripcion }}</td>
+                    <td>{{ row.incidencias }}</td>
+                    <td>{{ row.ventas }}</td>
+                    <td>{{ row.taza }} %</td>
+                    <td>
+                        <button
+                            class="btn btn-info btn-sm"
+                            placement="top"
+                            ngbTooltip="Ver detalle"
+                            (click)="verDetalle(row)"
+                        >
+                            <i class="fa fa-info fa-2x"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Detalle de incidencias</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <table
+                        class="table table-striped"
+                        id="general_reporte_producto_incidencia_detalle"
+                    >
+                        <thead>
+                            <tr>
+                                <th># de incidencia</th>
+                                <th>Tipo de incidencia</th>
+                                <th>Causa</th>
+                                <th>Fecha</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let row of incidencias">
+                                <td>{{ row.id }}</td>
+                                <td>{{ row.tipo }}</td>
+                                <td>{{ row.causa }}</td>
+                                <td>{{ row.created_at }}</td>
+                                <td>
+                                    <button
+                                        class="btn btn-info btn-sm"
+                                        placement="top"
+                                        ngbTooltip="Ver seguimiento"
+                                        (click)="verSeguimiento(row.id)"
+                                    >
+                                        <i class="fa fa-comments fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
+
+<ng-template #modalseguimiento let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Seguimientos</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body table-responsive">
+        <form class="md-float-material form-material mt-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <div
+                        *ngFor="let seguimiento of comentarios"
+                        class="m-t-20 m-b-20"
+                    >
+                        <div class="media chat-messages">
+                            <div class="media-body chat-menu-content">
+                                <div class="">
+                                    <p class="chat-cont">
+                                        {{
+                                            seguimiento.nombre +
+                                                " - " +
+                                                seguimiento.created_at
+                                        }}
+                                    </p>
+                                    <p
+                                        class="chat-cont"
+                                        [innerHTML]="seguimiento.seguimiento"
+                                    ></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>

@@ -1,0 +1,84 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>Generar Reporte</h4>
+                </div>
+                <div class="col-md-4">
+                    <h4>Descargar Reporte</h4>
+                </div>
+                <div class="col-md-2">
+                    <h4>Solo Disponibles</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <button
+                        class="btn btn-sm btn-block btn-outline-info http-disabled"
+                        (click)="generarReporte()"
+                        id="generar_reporte"
+                        placement="top"
+                        ngbTooltip="Generar reporte"
+                    >
+                        <i class="fa fa-file-excel fa-2x"></i>
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <button
+                        class="btn btn-sm btn-block btn-outline-info http-disabled"
+                        (click)="descargarReporte()"
+                        [disabled]="excel == ''"
+                        placement="top"
+                        ngbTooltip="Descargar reporte"
+                    >
+                        <i class="fa fa-file-download fa-2x"></i>
+                    </button>
+                </div>
+                <div class="col-md-2">
+                    <ui-switch
+                        class="js-single"
+                        color="#4680ff"
+                        switchColor="#fff"
+                        size="medium"
+                        name="statusfactura"
+                        [(ngModel)]="disponibles"
+                    ></ui-switch>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body">
+        <table
+            class="table table-striped"
+            id="general_reporte_producto_caducidades"
+        >
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Producto</th>
+                    <th>Serie</th>
+                    <th>Almacen</th>
+                    <th>Estatus</th>
+                    <th>Caducidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let row of productos"
+                    class="{{ row.status == 0 ? 'cancelado' : '' }}"
+                >
+                    <td>{{ row.sku }}</td>
+                    <td>{{ row.modelo }}</td>
+                    <td>{{ row.serie }}</td>
+                    <td>{{ row.almacen }}</td>
+                    <td>
+                        {{ row.status == 1 ? "Disponible" : "No Disponible" }}
+                    </td>
+                    <td>{{ row.fecha_caducidad }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

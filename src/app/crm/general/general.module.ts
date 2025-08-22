@@ -7,6 +7,10 @@ const routes: Routes = [
         path: 'busqueda',
         loadChildren: './busqueda/busqueda.module#BusquedaModule',
     },
+    {
+        path: 'reporte',
+        loadChildren: './reporte/reporte.module#ReporteModule',
+    },
 ];
 
 @NgModule({

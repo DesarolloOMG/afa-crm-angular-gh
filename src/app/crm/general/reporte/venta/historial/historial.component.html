@@ -1,0 +1,222 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="empresa"
+                                    id="empresa"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.empresa"
+                                >
+                                    <option
+                                        value="{{ empresa.id }}"
+                                        *ngFor="let empresa of empresas"
+                                    >
+                                        {{ empresa.empresa }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Empresa</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="vendedor"
+                                    id="vendedor"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.vendedor"
+                                >
+                                    <option value="0"></option>
+                                    <option
+                                        value="{{ vendedor.id }}"
+                                        *ngFor="let vendedor of vendedores"
+                                    >
+                                        {{ vendedor.nombre }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label">Vendedor</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <label>Áreas</label>
+
+                                <div class="custom-multi-select">
+                                    <div
+                                        *ngFor="let area of areas"
+                                        (click)="toggleArea(area)"
+                                        [class.selected]="
+                                            busqueda.area.includes(area.id)
+                                        "
+                                        class="custom-option"
+                                    >
+                                        {{ area.area }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <label>Marketplaces</label>
+
+                                <div class="custom-multi-select">
+                                    <div
+                                        *ngFor="let row of marketplaces"
+                                        (click)="toggleMarketplace(row.id)"
+                                        [class.selected]="
+                                            busqueda.marketplace.includes(
+                                                row.id
+                                            )
+                                        "
+                                        class="custom-option"
+                                    >
+                                        {{ row.area + " / " + row.marketplace }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_inicio"
+                                    [(ngModel)]="busqueda.fecha_inicio"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Fecha de inicio</label
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="fecha_final"
+                                    [(ngModel)]="busqueda.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha final</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label style="font-size: 11px"
+                                >Visualizar ventas</label
+                            >
+                            <ui-switch
+                                class="js-single"
+                                color="#4680ff"
+                                switchColor="#fff"
+                                size="medium"
+                                name="mostrarventas"
+                                id="mostrarventas"
+                                [(ngModel)]="data.mostrar"
+                            ></ui-switch>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="generarReporte()"
+                                id="generar_reporte"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-file-excel fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="descargarReporte()"
+                                [disabled]="data.excel == ''"
+                                placement="top"
+                                ngbTooltip="Descargar reporte"
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body" *ngIf="data.mostrar">
+        <table class="table table-striped" id="general_reporte_venta_historial">
+            <thead>
+                <tr>
+                    <th>Documento</th>
+                    <th>Venta</th>
+                    <th>Marketplace</th>
+                    <th>Cliente</th>
+                    <th>Paquetería</th>
+                    <th>Vendedor</th>
+                    <th>Fase</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    *ngFor="let row of ventas"
+                    class="{{ row.status == 0 ? 'cancelado' : '' }}"
+                >
+                    <td>
+                        <a
+                            class="btn btn-info btn-sm btn-block"
+                            target="_blank"
+                            [routerLink]="[
+                                '/general/busqueda/venta/id',
+                                row.id
+                            ]"
+                            >{{ row.id }}</a
+                        >
+                    </td>
+                    <td>{{ row.no_venta }}</td>
+                    <td>{{ row.area + " / " + row.marketplace }}</td>
+                    <td>{{ row.cliente }}</td>
+                    <td>{{ row.paqueteria }}</td>
+                    <td>{{ row.usuario }}</td>
+                    <td>{{ row.fase }}</td>
+                    <td>{{ row.created_at }}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="6"></td>
+                    <td>Total</td>
+                    <td>$ {{ commaNumber(totalDocumento()) }}</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,76 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material m-t-10">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    name="reporte-serie-documento"
+                                    [(ngModel)]="busqueda.documento"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Documento</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group form-primary">
+                                <select
+                                    name="reporte-serie-producto"
+                                    class="form-control"
+                                    [(ngModel)]="busqueda.producto"
+                                >
+                                    <option value="" selected></option>
+                                    <option
+                                        value="{{ row.sku }}"
+                                        *ngFor="let row of productos"
+                                    >
+                                        {{ row.sku + " | " + row.descripcion }}
+                                    </option>
+                                </select>
+                                <span class="form-bar"></span>
+                                <label class="float-label"
+                                    >Productos de la ODC</label
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="buscarProductosOrdenCompra()"
+                                placement="top"
+                                ngbTooltip="Buscar productos"
+                            >
+                                <i class="fa fa-search fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-20">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-sm btn-block btn-outline-info http-disabled"
+                                (click)="generarReporte()"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-file-download fa-2x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

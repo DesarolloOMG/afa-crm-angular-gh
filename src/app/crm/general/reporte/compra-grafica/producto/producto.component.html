@@ -1,0 +1,109 @@
+<div class="card">
+    <div class="card-header">
+        <form class="md-float-material form-material mt-10" autocomplete="off">
+            <div class="row m-t-20">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_inicial"
+                                    #fechainicial="ngModel"
+                                    required
+                                    class="form-control"
+                                    [(ngModel)]="data.fecha_inicial"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha inicial</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="fechainicial.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group form-primary">
+                                <input
+                                    type="date"
+                                    name="fecha_final"
+                                    #fechafinal="ngModel"
+                                    required
+                                    class="form-control"
+                                    [(ngModel)]="data.fecha_final"
+                                />
+                                <span class="form-bar"></span>
+                                <label class="float-label">Fecha inicial</label>
+                                <small
+                                    class="text-danger messages"
+                                    *ngIf="fechafinal.errors?.required"
+                                    >Campo requerido</small
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                (click)="generarReporte()"
+                                placement="top"
+                                ngbTooltip="Generar reporte"
+                            >
+                                <i class="fa fa-2x fa-file-excel"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="row m-t-10">
+                        <div class="col-md-6">
+                            <a
+                                class="
+                                    btn btn-sm btn-block btn-outline-info
+                                    http-disabled
+                                "
+                                [href]="backend_url + data.archivo"
+                                [hidden]="data.archivo == ''"
+                                placement="top"
+                                ngbTooltip="Descargar excel"
+                                ><i class="fa fa-download fa-2x"></i
+                            ></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table
+                    class="table table-striped"
+                    id="general_reporte_compra_producto"
+                >
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Costo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of productos">
+                            <td>{{ row.sku }}</td>
+                            <td>{{ row.descripcion }}</td>
+                            <td>{{ row.cantidad }}</td>
+                            <td>$ {{ commaNumber(row.costo) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
