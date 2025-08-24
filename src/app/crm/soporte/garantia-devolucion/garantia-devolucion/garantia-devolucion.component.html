@@ -211,14 +211,14 @@
                                                 />
                                             </td>
                                             <td class="col-cantidad">
-                                                <span class="badge-custom badge-custom-info">{{ producto.cantidad }} pza</span>
+                                                <span class="badge-custom badge-custom-info">{{ producto.cantidad_disponible }} pza</span>
                                             </td>
                                             <td class="col-cantidad">
                                                 <div *ngIf="data.tipo == '1'">
-                                                    <span class="badge-custom badge-custom-secondary">{{ producto.cantidad }} pza</span>
+                                                    <span class="badge-custom badge-custom-secondary">{{ producto.cantidad_disponible }} pza</span>
                                                 </div>
                                                 <div *ngIf="data.tipo != '1'">
-                                                    <div *ngIf="producto.devuelto && producto.cantidad > 1">
+                                                    <div *ngIf="producto.devuelto && producto.cantidad_disponible > 1">
                                                         <input
                                                             type="number"
                                                             class="form-control form-control-sm"
@@ -227,10 +227,10 @@
                                                             [(ngModel)]="producto.cantidad_a_devolver"
                                                             required
                                                             min="1"
-                                                            [max]="producto.cantidad"
+                                                            [max]="producto.cantidad_disponible"
                                                         />
                                                     </div>
-                                                    <div *ngIf="producto.devuelto && producto.cantidad == 1">
+                                                    <div *ngIf="producto.devuelto && producto.cantidad_disponible == 1">
                                                         <span class="badge-custom badge-custom-success">1 pza</span>
                                                     </div>
                                                 </div>

@@ -165,7 +165,7 @@ export class RecibirComponent implements OnInit {
         form_data.append('criterio', this.usuario.text);
 
         this.http
-            .post(`${backend_url}compra/orden/configuracion/buscar`, form_data)
+            .post(`${backend_url}soporte/buscar/usuario`, form_data)
             .subscribe(
                 (res) => {
                     if (res['code'] == 200) {
