@@ -32,7 +32,7 @@ export class HistorialComponent implements OnInit {
     };
 
     busqueda = {
-        empresa: 0,
+        empresa: 1,
         area: [],
         marketplace: [],
         vendedor: 0,

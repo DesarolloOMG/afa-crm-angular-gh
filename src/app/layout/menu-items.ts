@@ -102,13 +102,7 @@ const MENUITEMS = [
                         children: [
                             {
                                 state: 'producto-transito',
-                                name: 'Productos en transito',
-                                level: [0],
-                                sublevel: 0,
-                            },
-                            {
-                                state: 'recepcion',
-                                name: 'Productos recepcionados',
+                                name: 'Productos',
                                 level: [0],
                                 sublevel: 0,
                             },
@@ -138,13 +132,6 @@ const MENUITEMS = [
                         sublevel: 0,
                         children: [
                             {
-                                state: 'amazon',
-                                name: 'Amazon',
-                                level: [0],
-                                except: [13],
-                                sublevel: 0,
-                            },
-                            {
                                 state: 'crm',
                                 name: 'CRM',
                                 level: [0],
@@ -166,27 +153,6 @@ const MENUITEMS = [
                                 sublevel: 0,
                             },
                             {
-                                state: 'empresa',
-                                name: 'Empresarial',
-                                level: [0],
-                                except: [13],
-                                sublevel: 0,
-                            },
-                            {
-                                state: 'huawei',
-                                name: 'Huawei',
-                                level: [0],
-                                except: [13],
-                                sublevel: 0,
-                            },
-                            {
-                                state: 'cliente',
-                                name: 'Totales',
-                                level: [0],
-                                except: [13],
-                                sublevel: 0,
-                            },
-                            {
                                 state: 'producto',
                                 name: 'Producto',
                                 type: 'sub',
@@ -198,60 +164,6 @@ const MENUITEMS = [
                                         state: 'serie',
                                         name: 'Series',
                                         except: [13],
-                                        level: [0],
-                                        sublevel: 0,
-                                    },
-                                    {
-                                        state: 'categoria',
-                                        name: 'Categorías',
-                                        except: [13],
-                                        level: [0],
-                                        sublevel: 0,
-                                    },
-                                    {
-                                        state: 'precio',
-                                        name: 'Precio',
-                                        level: [0],
-                                        sublevel: 0,
-                                    },
-                                    {
-                                        state: 'utilidad',
-                                        name: 'Utilidad',
-                                        except: [13],
-                                        level: [0],
-                                        sublevel: 0,
-                                    },
-                                ],
-                            },
-                            {
-                                state: 'mercadolibre',
-                                name: 'Mercadolibre',
-                                type: 'sub',
-                                level: [0],
-                                except: [13],
-                                sublevel: 0,
-                                children: [
-                                    {
-                                        state: 'venta',
-                                        name: 'Ventas',
-                                        level: [0],
-                                        sublevel: 0,
-                                    },
-                                    {
-                                        state: 'venta-crm',
-                                        name: 'Ventas (CRM)',
-                                        level: [0],
-                                        sublevel: 0,
-                                    },
-                                    {
-                                        state: 'publicacion',
-                                        name: 'Publicaciones',
-                                        level: [0],
-                                        sublevel: 0,
-                                    },
-                                    {
-                                        state: 'catalogo',
-                                        name: 'Catalogo',
                                         level: [0],
                                         sublevel: 0,
                                     },
@@ -276,12 +188,6 @@ const MENUITEMS = [
                         sublevel: 0,
                         children: [
                             {
-                                state: 'guia',
-                                name: 'Guías',
-                                level: [0],
-                                sublevel: 0,
-                            },
-                            {
                                 state: 'manifiesto',
                                 name: 'Manifiesto',
                                 level: [0],
@@ -292,48 +198,6 @@ const MENUITEMS = [
                                 name: 'Marketplaces',
                                 level: [0],
                                 sublevel: 0,
-                            },
-                        ],
-                    },
-                    {
-                        state: 'contabilidad',
-                        type: 'sub',
-                        name: 'Contabilidad',
-                        level: [11],
-                        sublevel: 0,
-                        children: [
-                            {
-                                state: 'refacturacion',
-                                name: 'Refacturaciones',
-                                level: [0],
-                                sublevel: 0,
-                            },
-                            {
-                                state: 'factura-sin-timbre',
-                                name: 'Facturas sin timbre',
-                                level: [0],
-                                sublevel: 0,
-                            },
-                            {
-                                state: 'costo-sobre-venta',
-                                name: 'Costos sobre ventas',
-                                level: [0],
-                                sublevel: 0,
-                            },
-                        ],
-                    },
-                    {
-                        state: 'administracion',
-                        type: 'sub',
-                        name: 'Administración',
-                        level: [8],
-                        sublevel: 7,
-                        children: [
-                            {
-                                state: 'producto',
-                                name: 'Producto',
-                                level: [8],
-                                sublevel: 7,
                             },
                         ],
                     },
@@ -370,12 +234,6 @@ const MENUITEMS = [
                                 sublevel: 0,
                             },
                             {
-                                state: 'b2b',
-                                name: 'Productos B2B',
-                                level: [0],
-                                sublevel: 0,
-                            },
-                            {
                                 state: 'caducidades',
                                 name: 'Caducidad',
                                 level: [0],
@@ -400,27 +258,6 @@ const MENUITEMS = [
                                 state: 'ingresosegresos',
                                 name: 'Ingresos / Egresos',
                                 level: [6, 11],
-                                sublevel: 0,
-                            },
-                        ],
-                    },
-                    {
-                        state: 'hp',
-                        type: 'sub',
-                        name: 'HP',
-                        level: [0],
-                        sublevel: 0,
-                        children: [
-                            {
-                                state: 'compras',
-                                name: 'Compras HP',
-                                level: [0],
-                                sublevel: 0,
-                            },
-                            {
-                                state: 'ventas',
-                                name: 'Ventas HP',
-                                level: [0],
                                 sublevel: 0,
                             },
                         ],

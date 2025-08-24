@@ -22,7 +22,7 @@ export class ProductoTransitoComponent implements OnInit {
         fecha_inicial: '',
         fecha_final: '',
         tipo: 'transito',
-        empresa: 7
+        empresa: 1
     };
 
     empresas: any[] = [];
@@ -35,7 +35,6 @@ export class ProductoTransitoComponent implements OnInit {
     constructor(
         private generalService: GeneralService,
         private chRef: ChangeDetectorRef,
-        private almacenService: AlmacenService,
 
     ) {
         const table: any = $(this.datatable_name);
@@ -44,25 +43,6 @@ export class ProductoTransitoComponent implements OnInit {
 
     ngOnInit() {
         this.getProductsInTransit();
-        this.getEmpresas();
-    }
-
-    getEmpresas() {
-        this.almacenService.getPretransferenciaSolicitudData().subscribe(
-            (res: any) => {
-                this.empresas = [...res.empresas];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
-    }
-
-    cambiarEmpresa() {
-        this.empresas.find(
-            (empresa) => empresa.bd == this.busqueda.empresa
-        );
-
     }
 
     getProductsInTransit() {
@@ -71,6 +51,13 @@ export class ProductoTransitoComponent implements OnInit {
             .getPurchaseOrderProductsInTransit(this.busqueda)
             .subscribe(
                 (res: any) => {
+                    if (res['code'] == 500) {
+                        swal({
+                            title: "",
+                            type: 'error',
+                            html: res['message']
+                        });
+                    }
 
                     this.productos = [...res.data];
 

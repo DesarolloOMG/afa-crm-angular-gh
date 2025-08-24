@@ -57,26 +57,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="empresa"
-                                    #empresa="ngModel"
-                                    class="form-control"
-                                    [(ngModel)]="busqueda.empresa"
-                                    (change)="cambiarEmpresa();productos = []; rebuildTable()" required>
-                                    <option value="" disabled></option>
-                                    <option value="{{ empresa.bd }}" *ngFor="let empresa of empresas">
-                                        {{ empresa.empresa }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Empresa</label>
-                                <small class="text-danger messages block" *ngIf="empresa.errors?.required">Campo requerido</small>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="col-md-6">
