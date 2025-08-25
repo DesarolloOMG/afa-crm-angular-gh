@@ -4,28 +4,6 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <select
-                                    name="company"
-                                    class="form-control"
-                                    [(ngModel)]="search.company"
-                                >
-                                    <option value="" selected disabled></option>
-                                    <option
-                                        value="{{ row.id }}"
-                                        *ngFor="let row of companies"
-                                    >
-                                        {{ row.empresa }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Empresa</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group form-primary">
                                 <input

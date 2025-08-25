@@ -25,21 +25,15 @@ export class NotaCreditoComponent implements OnInit {
     constructor(private generalService: GeneralService) {}
 
     ngOnInit() {
-        this.initData();
     }
 
     createReport() {
-        if (!this.search.company)
-            return swal({
-                type: 'error',
-                html: `Selecciona una empresa para generar el reporte`,
-            });
-
-        if (!this.search.initial_date || !this.search.final_date)
+        if (!this.search.initial_date || !this.search.final_date) {
             return swal({
                 type: 'error',
                 html: `Selecciona un rango de fechas valido para generar el reporte`,
             });
+        }
 
         this.generalService.createCreditNoteReport(this.search).subscribe(
             (res: any) => {
@@ -67,16 +61,5 @@ export class NotaCreditoComponent implements OnInit {
         a.setAttribute('id', 'etiqueta_descargar');
 
         a.click();
-    }
-
-    initData() {
-        this.generalService.getCreditNoteData().subscribe(
-            (res: any) => {
-                this.companies = [...res.companies];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
     }
 }

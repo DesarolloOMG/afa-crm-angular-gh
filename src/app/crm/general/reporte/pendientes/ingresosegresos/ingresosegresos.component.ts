@@ -116,73 +116,41 @@ export class IngresosegresosComponent implements OnInit {
 
     generarReporteIngresos() {
         if (!this.busqueda.fecha_inicio || !this.busqueda.fecha_final) {
-            return swal({
-                type: 'error',
-                html: 'Favor de seleccionar un rango de fechas.',
-            });
+            return swal({ type: 'error', html: 'Favor de seleccionar un rango de fechas.' });
         }
-
         if (this.busqueda.fecha_inicio > this.busqueda.fecha_final) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona un rango de fechas valido.',
-            });
+            return swal({ type: 'error', html: 'Selecciona un rango de fechas valido.' });
         }
-        var inid = this.fechaFormato(this.busqueda.fecha_inicio.split('-'));
-        // 27/06/2023
 
-        var find = this.fechaFormato(this.busqueda.fecha_final.split('-'));
-        // 27/06/2023
-
-        // this.http
-        //     .get(
-        //         `${backend_url_erp}api/adminpro/PendientesAplicar/${this.busqueda.empresa}/${this.current_tab}/rangofechas/De/${inid}/Al/${find}`
-        //     )
-        //     .subscribe(
-        //         (res) => {
-        //             this.pendientes = [];
-        //
-        //             //Obtener las notas
-        //             Object.values(res).forEach((element) => {
-        //                 this.pendientes.push(element);
-        //             });
-        //             //Cambiar $ a 2 decimales y fecha formatear
-        //             this.pendientes.forEach((element) => {
-        //                 element.monto = element.monto.toFixed(2);
-        //                 element.fecha = this.fechaFormato(
-        //                     element.fecha.split('-')
-        //                 );
-        //                 if (this.current_tab == 'Ingresos') {
-        //                     //obtenber el Numero de documento
-        //                     const matches = element.descripcion
-        //                         .toString()
-        //                         .match(/\d{6,10}/g);
-        //                     if (matches) {
-        //                         element.descripcion = matches[0]; // ordem1
-        //                     }
-        //                 }
-        //             });
-        //
-        //             this.rebuildTable();
-        //             if (this.pendientes.length <= 0) {
-        //                 return swal({
-        //                     type: 'warning',
-        //                     html: 'No hay datos para mostrar.',
-        //                 });
-        //             }
-        //         },
-        //         (response) => {
-        //             swal({
-        //                 title: '',
-        //                 type: 'error',
-        //                 html:
-        //                     response.status == 0
-        //                         ? response.message
-        //                         : typeof response.error === 'object'
-        //                         ? response.error.error_summary
-        //                         : response.error,
-        //             });
-        //         }
-        //     );
+        this.http.get(`${backend_url}general/reporte/pendientes/ingresos-egresos`, {
+            params: {
+                tipo: this.current_tab,                       // 'Ingresos' | 'Egresos'
+                fecha_inicio: this.busqueda.fecha_inicio,     // YYYY-MM-DD
+                fecha_final:  this.busqueda.fecha_final       // YYYY-MM-DD
+            }
+        }).subscribe(
+            (res: any) => {
+                this.pendientes = res.pendientes || [];
+                // ajustes visuales
+                this.pendientes.forEach(e => {
+                    e.monto = (+e.monto).toFixed(2);
+                    // si quieres dd/mm/yyyy:
+                    // e.fecha = e.fecha?.split('-').reverse().join('/');
+                });
+                this.rebuildTable();
+                if (this.pendientes.length <= 0) {
+                    swal({ type: 'warning', html: 'No hay datos para mostrar.' });
+                }
+            },
+            (response) => {
+                swal({
+                    title: '',
+                    type: 'error',
+                    html: response.status == 0 ? response.message :
+                        typeof response.error === 'object' ? response.error.error_summary : response.error,
+                });
+            }
+        );
     }
+
 }

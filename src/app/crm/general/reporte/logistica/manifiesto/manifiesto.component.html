@@ -2,32 +2,48 @@
     <div class="card-header">
         <form class="md-float-material form-material mt-10">
             <div class="row">
+
+                <!-- FECHA -->
                 <div class="col-md-6">
                     <div class="form-group form-primary">
-                        <input type="date" class="form-control" name="fecha" [(ngModel)]="data.fecha">
+                        <input type="date"
+                               class="form-control"
+                               name="fecha"
+                               [(ngModel)]="data.fecha" />
                         <span class="form-bar"></span>
-                        <label class="float-label">Paqueteria</label>
+                        <label class="float-label">Fecha</label>
                     </div>
                 </div>
+
+                <!-- PAQUETERÍA -->
                 <div class="col-md-5">
                     <div class="form-group form-primary">
-                        <select name="area" id="paqueteria" required class="form-control" [(ngModel)]="data.paqueteria">
-                            <option value="" disabled selected></option>
-                            <option value="MEL">MEL</option>
-                            <option value="DHL">DHL</option>
-                            <option value="Estafeta">Estafeta</option>
-                            <option value="Fedex">Fedex</option>
-                            <option value="UPS">UPS</option>
+                        <select class="form-control"
+                                id="paqueteria"
+                                name="paqueteria"
+                                required
+                                [(ngModel)]="data.paqueteria">
+                            <option value="" disabled selected>Selecciona…</option>
+                            <option *ngFor="let p of paqueterias"
+                                    [value]="p.id">
+                                {{ p.nombre || p.paqueteria }}
+                            </option>
                         </select>
                         <span class="form-bar"></span>
-                        <label class="float-label">Paqueteria</label>
+                        <label class="float-label">Paquetería</label>
                     </div>
                 </div>
+
+                <!-- BOTÓN -->
                 <div class="col-md-1">
-                    <button type="button" class="btn btn-sm btn-info btn-block http-disabled"
-                        (click)="generarManifiesto()"
-                        [disabled]="data.paqueteria == '' || data.fecha == ''">Generar</button>
+                    <button type="button"
+                            class="btn btn-sm btn-info btn-block http-disabled"
+                            (click)="generarManifiesto()"
+                            [disabled]="!data.paqueteria || !data.fecha || cargando">
+                        {{ cargando ? 'Generando…' : 'Generar' }}
+                    </button>
                 </div>
+
             </div>
         </form>
     </div>

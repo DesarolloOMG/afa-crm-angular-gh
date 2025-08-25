@@ -10,7 +10,6 @@ import swal from 'sweetalert2';
 })
 export class DevolucionesComponent implements OnInit {
     data = {
-        empresa: '',
         fecha_inicio: '',
         fecha_final: '',
         excel: '',
@@ -21,34 +20,9 @@ export class DevolucionesComponent implements OnInit {
     constructor(private http: HttpClient) {}
 
     ngOnInit() {
-        this.http
-            .get(`${backend_url}contabilidad/facturas/saldo/data`)
-            .subscribe(
-                (res) => {
-                    this.empresas = res['empresas'];
-                },
-                (response) => {
-                    swal({
-                        title: '',
-                        type: 'error',
-                        html:
-                            response.status == 0
-                                ? response.message
-                                : typeof response.error === 'object'
-                                ? response.error.error_summary
-                                : response.error,
-                    });
-                }
-            );
     }
 
     generarReporte() {
-        if (!this.data.empresa) {
-            return swal({
-                type: 'error',
-                html: 'Selecciona una empresa para generar el reporte',
-            });
-        }
 
         if (this.data.fecha_inicio == '' || this.data.fecha_final == '') {
             swal({

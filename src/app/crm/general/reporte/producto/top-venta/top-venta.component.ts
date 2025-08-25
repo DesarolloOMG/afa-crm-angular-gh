@@ -20,7 +20,7 @@ export class TopVentaComponent implements OnInit {
     excel: string = '';
 
     busqueda = {
-        empresa: '',
+        empresa: 1,
         fecha_inicial: '',
         fecha_final: '',
     };
@@ -38,37 +38,9 @@ export class TopVentaComponent implements OnInit {
 
         this.busqueda.fecha_inicial = current_date;
         this.busqueda.fecha_final = current_date;
-
-        this.http.get(`${backend_url}general/reporte/venta/data`).subscribe(
-            (res) => {
-                this.empresas = res['empresas'];
-            },
-            (response) => {
-                swal({
-                    title: '',
-                    type: 'error',
-                    html:
-                        response.status == 0
-                            ? response.message
-                            : typeof response.error === 'object'
-                            ? response.error.error_summary
-                            : response.error,
-                });
-            }
-        );
     }
 
     generarReporte() {
-        if (this.busqueda.empresa == '') {
-            swal({
-                type: 'error',
-                html:
-                    'Favor de seleccionar una empresa para generar el reporte',
-            });
-
-            return;
-        }
-
         if (
             this.busqueda.fecha_inicial == '' ||
             this.busqueda.fecha_final == ''

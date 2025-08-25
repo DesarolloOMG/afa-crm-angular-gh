@@ -7,29 +7,6 @@
                         <div class="col-md-12">
                             <div class="form-group form-primary">
                                 <select
-                                    name="empresa"
-                                    id="empresa"
-                                    class="form-control"
-                                    [(ngModel)]="data.empresa"
-                                    (change)="cambiarEmpresa()"
-                                >
-                                    <option
-                                        value="{{ empresa.id }}"
-                                        *ngFor="let empresa of empresas"
-                                    >
-                                        {{ empresa.empresa }}
-                                    </option>
-                                </select>
-                                <span class="form-bar"></span>
-                                <label class="float-label">Empresa</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group form-primary">
-                                <select
                                     name="almacen"
                                     id="almacen"
                                     class="form-control"
@@ -94,7 +71,7 @@
                             <th>Código</th>
                             <th>Descripción</th>
                             <th>Marca</th>
-                            <th>Vertical</th>
+                            <th>Categoria</th>
                             <th>Costo</th>
                             <th>Existencia</th>
                             <th>Fecha U. compra</th>
@@ -104,15 +81,15 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let row of productos">
-                            <td>{{ row.sku }}</td>
-                            <td>{{ row.producto }}</td>
-                            <td>{{ row.cat1 }}</td>
-                            <td>{{ row.cat4 }}</td>
-                            <td>{{ row.precio }}</td>
+                            <td>{{ row.codigo }}</td>
+                            <td>{{ row.descripcion }}</td>
+                            <td>{{ row.marca }}</td>
+                            <td>{{ row.vertical }}</td>
+                            <td>{{ row.costo }}</td>
                             <td>{{ row.existencia ? row.existencia : 0 }}</td>
-                            <td>{{ row.fecha_ultimacompra }}</td>
-                            <td>{{ row.cantidad_ultimacompra }}</td>
-                            <td>{{ row.dias }}</td>
+                            <td>{{ row.fecha_ultima_compra }}</td>
+                            <td>{{ row.cantidad_ultima_compra }}</td>
+                            <td>{{ row.dias_transcurridos != null ? (row.dias_transcurridos + ' días') : '' }}</td>
                         </tr>
                     </tbody>
                 </table>

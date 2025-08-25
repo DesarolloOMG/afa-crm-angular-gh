@@ -33,9 +33,9 @@ export class AntiguedadComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.http.get(`${backend_url}venta/venta/crear/data`).subscribe(
+        this.http.get(`${backend_url}general/reporte/producto/antiguedad/data`).subscribe(
             (res) => {
-                this.empresas = res['empresas'];
+                this.almacenes = res['almacenes'];
             },
             (response) => {
                 swal({
@@ -104,14 +104,6 @@ export class AntiguedadComponent implements OnInit {
 
             a.click();
         }
-    }
-
-    cambiarEmpresa() {
-        const empresa = this.empresas.find(
-            (empresa) => empresa.id == this.data.empresa
-        );
-
-        this.almacenes = empresa.almacenes;
     }
 
     rebuildTable() {

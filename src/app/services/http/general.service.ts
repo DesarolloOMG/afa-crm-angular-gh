@@ -9,8 +9,6 @@ export class GeneralService {
     constructor(private http: HttpClient) {
     }
 
-    // Se usa
-
     /* General > Busqueda > serie */
     searchSerie(serie: string) {
         return this.http.get(`${backend_url}general/busqueda/serie/${serie}`);
@@ -42,11 +40,6 @@ export class GeneralService {
         return this.http.post(`${backend_url}general/busqueda/producto/kardex-crm`, form_data);
     }
 
-    // No se usa
-
-    // ?
-
-
     /* General > Reporte > Contabilidad */
     getReporteContabilidadCostoSobreVenta(data: object) {
         const form_data = new FormData();
@@ -74,13 +67,29 @@ export class GeneralService {
         );
     }
 
+    getProductosByODC(documento) {
+        return this.http.get(
+            `${backend_url}general/reporte/venta/producto/serie/productos/${documento}`
+        );
+    }
+
+    crearReporteSerieByODC(data: object) {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+
+        return this.http.post(
+            `${backend_url}general/reporte/venta/producto/serie/reporte`,
+            form_data
+        );
+    }
+
     /* General > Reportes > Orden de compra > Productos en Transito */
     getPurchaseOrderProductsInTransit(data: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            `${backend_url}general/reporte/orden-compra/producto-transito`,
+            `${backend_url}general/reporte/venta/producto/serie/reporte`,
             form_data
         );
     }
@@ -113,10 +122,6 @@ export class GeneralService {
     }
 
     /* General > Nota de credito */
-    getCreditNoteData() {
-        return this.http.get(`${backend_url}general/reporte/nota-credito/data`);
-    }
-
     createCreditNoteReport(data: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));

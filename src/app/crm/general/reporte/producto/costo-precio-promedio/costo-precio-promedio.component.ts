@@ -32,12 +32,6 @@ export class CostoPrecioPromedioComponent implements OnInit {
     }
 
     createReport() {
-        if (!this.search.company)
-            return swal({
-                type: 'error',
-                html: 'Selecciona una empresa para generar el reporte',
-            });
-
         if (!this.search.year)
             return swal({
                 type: 'error',
@@ -58,14 +52,5 @@ export class CostoPrecioPromedioComponent implements OnInit {
 
     initData() {
         this.anio = String(new Date().getFullYear());
-
-        this.generalService.getProductCostAndPriceData().subscribe(
-            (res: any) => {
-                this.companies = [...res.empresas];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
     }
 }
