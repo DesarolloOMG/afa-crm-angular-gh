@@ -14,7 +14,7 @@ export class EliminarComponent implements OnInit {
     modalReference: any;
     usuarios: any[] = [];
 
-    garantia: any = 1;
+    garantia: any = 0;
     venta = '';
     motivo = '';
     timer = 0;
