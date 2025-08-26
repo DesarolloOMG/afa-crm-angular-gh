@@ -24,7 +24,7 @@ export class GarantiaDevolucionComponent implements OnInit {
         venta_id: 0,
         almacen: '',
         marketplace: ''
-    }
+    };
 
     constructor(private http: HttpClient) { }
 
@@ -59,7 +59,7 @@ export class GarantiaDevolucionComponent implements OnInit {
                             return {
                                 ...producto, // Mantenemos los datos originales (sku, descripcion, cantidad)
                                 devuelto: this.data.tipo == '1', // Si es devolución total, marcar como devuelto por defecto
-                                cantidad_a_devolver: producto.cantidad // Por defecto, la cantidad a devolver es el total
+                                cantidad_a_devolver: producto.cantidad_disponible // Por defecto, la cantidad a devolver es el total
                             };
                         });
                         this.data.venta_id = res['venta_id'];
@@ -99,7 +99,7 @@ export class GarantiaDevolucionComponent implements OnInit {
 
             // También reiniciamos la cantidad a devolver a su valor original
             if (esDevolucionTotal) {
-                producto.cantidad_a_devolver = producto.cantidad;
+                producto.cantidad_a_devolver = producto.cantidad_disponible;
             }
         });
     }
@@ -124,7 +124,7 @@ export class GarantiaDevolucionComponent implements OnInit {
                     descripcion: producto.descripcion,
                     // Si es Devolución Total (tipo 1), se usa la cantidad original.
                     // Si es Parcial, se usa la cantidad que el usuario especificó.
-                    cantidad: payload.tipo == '1' ? producto.cantidad : producto.cantidad_a_devolver
+                    cantidad: payload.tipo == '1' ? producto.cantidad_disponible : producto.cantidad_a_devolver
                 };
             });
 
