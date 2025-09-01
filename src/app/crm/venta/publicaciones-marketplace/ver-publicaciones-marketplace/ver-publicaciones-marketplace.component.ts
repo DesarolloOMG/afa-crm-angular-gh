@@ -451,6 +451,24 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
         this.ventaService.getItemsByFilters(this.search).subscribe(
             (res: any) => {
                 this.items = [...res.data];
+                if (res.file && res.file.data) {
+                    const byteChars = atob(res.file.data);
+                    const byteNumbers = new Array(byteChars.length);
+                    for (let i = 0; i < byteChars.length; i++) {
+                        byteNumbers[i] = byteChars.charCodeAt(i);
+                    }
+                    const blob = new Blob([new Uint8Array(byteNumbers)], {
+                        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    });
+
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = res.file.filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+
                 if (this.datatable) {
                     this.rebuildTable();
                 }
