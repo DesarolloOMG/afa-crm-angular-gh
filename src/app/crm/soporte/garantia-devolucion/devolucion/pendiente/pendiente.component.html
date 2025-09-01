@@ -341,55 +341,6 @@
                 </div>
             </div>
             <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Motivo</label>
-                <div class="col-sm-10 inline-block">
-                    <form class="md-float-material form-material">
-                        <div class="row">
-                            <div class="col-md-12 m-t-10">
-                                <div class="form-group form-primary">
-                                    <select
-                                        name="causadocumento"
-                                        id="causadocumento"
-                                        class="form-control"
-                                        [(ngModel)]="final_data.causa"
-                                    >
-                                        <option
-                                            value=""
-                                            disabled
-                                            selected
-                                        ></option>
-                                        <option
-                                            value="{{ causa.id }}"
-                                            *ngFor="
-                                                let causa of causas_documento
-                                            "
-                                        >
-                                            {{ causa.causa }}
-                                        </option>
-                                    </select>
-                                    <span class="form-bar"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Terminar</label>
-                <div class="col-sm-10 inline-block">
-                    <ui-switch
-                        class="js-single"
-                        color="#4680ff"
-                        switchColor="#fff"
-                        size="medium"
-                        name="terminar"
-                        id="terminar"
-                        [(ngModel)]="final_data.terminar"
-                    ></ui-switch>
-                </div>
-            </div>
-            <div class="form-group group-div">
                 <label class="col-form-label col-sm-2">&nbsp;</label>
                 <button
                     class="btn btn-sm btn-block btn-info http-disabled"
