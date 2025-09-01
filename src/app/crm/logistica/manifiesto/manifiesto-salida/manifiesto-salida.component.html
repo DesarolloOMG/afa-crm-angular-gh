@@ -91,17 +91,7 @@
                                 <label class="float-label">Impresora</label>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-outline-warning btn-block http-disabled"
-                                (click)="printOutputManifest(2)"
-                                placement="top"
-                                ngbTooltip="Reimprimir Manifiesto"
-                            >
-                                <i class="fa fa-print fa-2x"></i>
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -115,57 +105,57 @@
                     id="logistica-manifiesto-manifiesto-salida"
                 >
                     <thead>
-                        <tr>
-                            <th>Guía</th>
-                            <th>Impresora</th>
-                            <th>Destinatario</th>
-                            <th>Dirección</th>
-                            <th>Paquetería</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>Guía</th>
+                        <th>Impresora</th>
+                        <th>Destinatario</th>
+                        <th>Dirección</th>
+                        <th>Paquetería</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let row of labels">
-                            <td>{{ row.guia }}</td>
-                            <td>{{ row.nombre }}</td>
-                            <td>
-                                {{
-                                    row.contacto == null
-                                        ? "DESCONOCIDO"
-                                        : row.contacto
-                                }}
-                            </td>
-                            <td>
-                                {{
-                                    row.codigo_postal == null
-                                        ? "DESCONOCIDO"
-                                        : row.calle +
-                                          " " +
-                                          row.numero +
-                                          " " +
-                                          row.numero_int +
-                                          ", " +
-                                          row.colonia +
-                                          ", " +
-                                          row.ciudad +
-                                          ", " +
-                                          row.estado +
-                                          ", " +
-                                          row.codigo_postal
-                                }}
-                            </td>
-                            <td>{{ row.paqueteria }}</td>
-                            <td>
-                                <button
-                                    class="btn btn-outline-danger btn-sm http-disabled"
-                                    (click)="deleteLabel(row.guia)"
-                                    placement="top"
-                                    ngbTooltip="Borrar guía"
-                                >
-                                    <i class="fa fa-trash fa-2x"></i>
-                                </button>
-                            </td>
-                        </tr>
+                    <tr *ngFor="let row of labels">
+                        <td>{{ row.guia }}</td>
+                        <td>{{ row.nombre }}</td>
+                        <td>
+                            {{
+                                row.contacto == null
+                                    ? "DESCONOCIDO"
+                                    : row.contacto
+                            }}
+                        </td>
+                        <td>
+                            {{
+                                row.codigo_postal == null
+                                    ? "DESCONOCIDO"
+                                    : row.calle +
+                                    " " +
+                                    row.numero +
+                                    " " +
+                                    row.numero_int +
+                                    ", " +
+                                    row.colonia +
+                                    ", " +
+                                    row.ciudad +
+                                    ", " +
+                                    row.estado +
+                                    ", " +
+                                    row.codigo_postal
+                            }}
+                        </td>
+                        <td>{{ row.paqueteria }}</td>
+                        <td>
+                            <button
+                                class="btn btn-outline-danger btn-sm http-disabled"
+                                (click)="deleteLabel(row.guia)"
+                                placement="top"
+                                ngbTooltip="Borrar guía"
+                            >
+                                <i class="fa fa-trash fa-2x"></i>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
