@@ -9,6 +9,11 @@ const routes: Routes = [
                 loadChildren:
                     './garantia-devolucion/garantia-devolucion.module#GarantiaDevolucionModule',
             },
+            {
+                path: 'ensamble',
+                loadChildren:
+                    './ensamble/ensamble.module#EnsambleModule',
+            },
         ],
     },
 ];

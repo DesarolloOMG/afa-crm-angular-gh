@@ -1,0 +1,269 @@
+<!--suppress JSUnusedGlobalSymbols, JSUnusedLocalSymbols -->
+<div class="card">
+    <form class="md-float-material form-material" autocomplete="off">
+        <div class="card-body">
+
+            <!-- ==================== KIT (PRODUCTO PRINCIPAL) ==================== -->
+            <h4 class="sub-title m-t-20">Producto principal (KIT)</h4>
+
+            <div class="row m-t-10" *ngIf="!kit.producto">
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="kit-sku"
+                            class="form-control"
+                            [(ngModel)]="kitSku"
+                            (keyup.enter)="buscarKitPorSku()" />
+                        <span class="form-bar"></span>
+                        <label class="float-label">SKU del producto principal</label>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-block btn-sm http-disabled"
+                        ngbTooltip="Buscar SKU del KIT"
+                        (click)="buscarKitPorSku()">
+                        <i class="fa fa-search fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla del KIT cuando ya está seleccionado -->
+            <div class="row" *ngIf="kit.producto">
+                <div class="col-md-12 m-t-10">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Descripción</th>
+                                <th>Costo</th>
+                                <th width="1"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>{{ kit.producto.sku }}</td>
+                                <td>{{ kit.producto.descripcion }}</td>
+                                <td>
+                                    <!-- Mostrar SIEMPRE el total final (KIT + Componentes) -->
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        [textMask]="{ mask: mask }"
+                                        [ngModel]="costoKitFinal"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        name="kit-costo-total"
+                                        readonly />
+
+                                </td>
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-danger btn-sm"
+                                        ngbTooltip="Quitar KIT"
+                                        (click)="quitarKit()">
+                                        <i class="fa fa-trash fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-3">
+
+            <!-- ==================== COMPONENTES ==================== -->
+            <h4 class="sub-title">Componentes</h4>
+
+            <div class="row m-t-20">
+                <div class="col-md-5">
+                    <div class="form-group form-primary">
+                        <input
+                            type="text"
+                            name="comp-sku"
+                            class="form-control"
+                            [(ngModel)]="componenteSku"
+                            (keyup.enter)="buscarComponentePorSku()" />
+                        <span class="form-bar"></span>
+                        <label class="float-label">SKU del componente</label>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button
+                        type="button"
+                        class="btn btn-outline-primary btn-block btn-sm http-disabled"
+                        ngbTooltip="Agregar componente por SKU"
+                        (click)="buscarComponentePorSku()">
+                        <i class="fa fa-plus fa-2x"></i>
+                    </button>
+                </div>
+
+                <div class="col-md-12 m-t-30 table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Descripción</th>
+                            <th>Costo</th>
+                            <th>Serie</th>
+                            <th width="1"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- trackBy para que Angular no recicle controles cuando agregas filas -->
+                        <tr *ngFor="let row of componentes; let i = index; trackBy: trackBySku">
+                            <td>{{ row.sku }}</td>
+                            <td>{{ row.descripcion }}</td>
+                            <td>
+                                <input
+                                    type="text"
+                                    [attr.name]="'comp-costo-' + row.sku"
+                                    class="form-control"
+                                    [(ngModel)]="row.costo"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    [textMask]="{ mask: mask }"
+                                    readonly />
+                            </td>
+                            <td>
+                                <ng-container *ngIf="row.serie; else btnAsignar">
+                                    <input
+                                        type="text"
+                                        [attr.name]="'comp-serie-' + row.sku"
+                                        class="form-control"
+                                        [(ngModel)]="row.serie"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        readonly />
+                                </ng-container>
+                                <ng-template #btnAsignar>
+                                    <button
+                                        class="btn btn-outline-primary btn-sm"
+                                        ngbTooltip="Asignar serie"
+                                        (click)="abrirModalSerie(row)">
+                                        <i class="fa fa-barcode"></i>
+                                    </button>
+                                </ng-template>
+                            </td>
+                            <td>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger btn-sm"
+                                    ngbTooltip="Eliminar"
+                                    (click)="eliminarComponente(i)">
+                                    <i class="fa fa-trash fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="!componentes.length">
+                            <td colspan="5" class="text-center text-muted">Sin componentes agregados</td>
+                        </tr>
+                        </tbody>
+
+                        <!-- Totales de componentes -->
+                        <tfoot *ngIf="componentes.length">
+                        <tr>
+                            <th colspan="2" class="text-right">TOTAL COMPONENTES:</th>
+                            <th>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    [textMask]="{ mask: mask }"
+                                    [ngModel]="costoComponentes"
+                                    [ngModelOptions]="{ standalone: true }"
+                                    name="total-componentes"
+                                    readonly />
+                            </th>
+                            <th colspan="2"></th>
+                        </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ===== Resumen de costo del KIT ===== -->
+            <div class="row" *ngIf="kit.producto">
+                <div class="col-md-12">
+                    <div class="alert alert-info">
+                        <b>Resumen de costo del KIT:</b>
+                        <span class="m-l-10">
+              {{ (costoKitBase | number:'1.2-4') }} (KIT) +
+                            {{ (costoComponentes | number:'1.2-4') }} (Componentes)
+              = <b>{{ (costoKitFinal | number:'1.2-4') }}</b>
+            </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== COMENTARIOS + GUARDAR ==================== -->
+            <div class="row m-t-20">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+            <textarea
+                class="form-control"
+                name="ensamble-comentarios"
+                [(ngModel)]="comentarios"
+                maxlength="300"></textarea>
+                        <span class="form-bar"></span>
+                        <label class="float-label">Comentarios</label>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-outline-info btn-sm btn-block http-disabled"
+                        ngbTooltip="Guardar Ensamble"
+                        (click)="guardar()">
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<!-- ==================== MODAL SERIE COMPONENTE ==================== -->
+<ng-template #modalSerie let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Asignar serie</h4>
+        <button type="button" class="close" aria-label="Close" (click)="d('cancel')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form class="md-float-material form-material" autocomplete="off">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group form-primary">
+                        <input
+                            id="serie-input"
+                            type="text"
+                            name="serie"
+                            class="form-control"
+                            [(ngModel)]="serieInput" />
+                        <span class="form-bar"></span>
+                        <label class="float-label">Serie del componente</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row m-t-10">
+                <div class="col-md-12">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-info btn-block http-disabled"
+                        (click)="confirmarSerie(c)">
+                        <i class="fa fa-save fa-2x"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ng-template>
