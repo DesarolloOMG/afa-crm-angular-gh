@@ -3,3 +3,142 @@
   font-weight: 600;
   letter-spacing: 1px;
 }
+
+:host {
+    display: block;
+}
+
+/* ---------- Estructura general del modal ---------- */
+.modal-header {
+    .modal-title {
+        font-weight: 600;
+    }
+}
+
+.modal-body {
+    padding-top: 10px;
+}
+
+.form-horizontal.form-bordered {
+    .group-div {
+        margin-bottom: 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eef0f4;
+    }
+}
+
+/* ---------- Utilidades suaves (por si no existen) ---------- */
+.block { display: block; }
+.m-t-10 { margin-top: 10px; }
+.m-b-10 { margin-bottom: 10px; }
+
+/* ---------- Switch "Mismo producto" ---------- */
+#mismo_producto {
+    margin-right: 10px;
+}
+#terminar {
+    margin-right: 10px;
+}
+
+/* ---------- Tabla: MISMO PRODUCTO ---------- */
+.table {
+    th, td {
+        vertical-align: middle !important;
+    }
+
+    thead th {
+        white-space: nowrap;
+        font-weight: 600;
+        color: #404756;
+        border-bottom: 1px solid #e6e9ef;
+    }
+
+    tbody td {
+        border-top: 1px solid #f0f2f6;
+    }
+
+    /* ancho del input de cantidad */
+    td .form-group.form-primary {
+        margin: 0;
+
+        .form-control {
+            height: 36px;
+            padding: 6px 10px;
+            border-radius: 8px;
+        }
+    }
+}
+
+/* ---------- Bloque: NUEVO PRODUCTO ---------- */
+#nuevo_sku,
+#cantidad_nueva,
+#descripcion_nueva,
+#almacen_salida {
+    height: 38px;
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
+/* Botón Buscar alineado a la altura del input */
+#btn_buscar_sku {
+    height: 38px;
+    line-height: 36px;
+    border-radius: 8px;
+}
+
+/* Resultados de búsqueda (si los usas) */
+.list-group {
+    border-radius: 8px;
+    overflow: hidden;
+
+    .list-group-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+
+        &:nth-child(odd) {
+            background: #fafbfc;
+        }
+
+        .btn {
+            min-width: 80px;
+        }
+    }
+}
+.one-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- Etiquetas y textos ---------- */
+.float-label,
+.col-form-label {
+    color: #4a5568;
+}
+
+.text-muted {
+    color: #6b7280 !important;
+}
+
+/* ---------- Ajustes responsive ---------- */
+@media (max-width: 767.98px) {
+    .form-horizontal.form-bordered .group-div {
+        padding-bottom: 6px;
+    }
+
+    /* Inputs a ancho completo en móvil */
+    #nuevo_sku,
+    #cantidad_nueva,
+    #descripcion_nueva,
+    #almacen_salida {
+        width: 100%;
+    }
+
+    #btn_buscar_sku {
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    /* Tabla: permitir saltos de línea en descripción */
+    .table td:nth-child(2) {
+        white-space: normal;
+    }
+}

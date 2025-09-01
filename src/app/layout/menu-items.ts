@@ -660,12 +660,6 @@ const MENUITEMS = [
                                 sublevel: 0,
                             },
                             {
-                                state: 'pedido',
-                                name: 'Pendientes pedido',
-                                level: [10],
-                                sublevel: 0,
-                            },
-                            {
                                 state: 'envio',
                                 name: 'Pendientes entrega / envio',
                                 level: [10],

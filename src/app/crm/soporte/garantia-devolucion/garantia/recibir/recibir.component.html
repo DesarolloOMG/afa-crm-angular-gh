@@ -8,51 +8,40 @@
                     id="soporte_garantia_devolucion_garantia_recibir"
                 >
                     <thead>
-                        <tr>
-                            <th>Documento</th>
-                            <th>Marketplace</th>
-                            <th>Cliente</th>
-                            <th>Paquetería</th>
-                            <th>Vendedor</th>
-                            <th>Fecha</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Marketplace</th>
+                        <th>Cliente</th>
+                        <th>Paquetería</th>
+                        <th>Vendedor</th>
+                        <th>Fecha</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let venta of ventas">
-                            <td>
-                                <button
-                                    class="btn btn-info btn-sm"
-                                    (click)="
-                                        detalleVenta(
-                                            modalventa,
-                                            venta.documento_garantia
-                                        )
-                                    "
-                                >
-                                    {{
-                                        venta.id +
-                                            " - " +
-                                            venta.documento_garantia
-                                    }}
-                                </button>
-                            </td>
-                            <td>
-                                {{ venta.marketplace + " / " + venta.area }}
-                            </td>
-                            <td>{{ venta.cliente }}</td>
-                            <td>{{ venta.paqueteria }}</td>
-                            <td>{{ venta.usuario }}</td>
-                            <td>{{ venta.created_at }}</td>
-                            <td>
-                                <button
-                                    class="btn btn-outline-danger btn-sm btn-block"
-                                    (click)="eliminarDocumento(venta)"
-                                >
-                                    <i class="fa fa-trash fa-2x"></i>
-                                </button>
-                            </td>
-                        </tr>
+                    <tr *ngFor="let venta of ventas">
+                        <td>
+                            <button
+                                class="btn btn-info btn-sm"
+                                (click)="detalleVenta(modalventa, venta.documento_garantia)"
+                            >
+                                {{ venta.id + " - " + venta.documento_garantia }}
+                            </button>
+                        </td>
+                        <td>{{ venta.marketplace + " / " + venta.area }}</td>
+                        <td>{{ venta.cliente }}</td>
+                        <td>{{ venta.paqueteria }}</td>
+                        <td>{{ venta.usuario }}</td>
+                        <td>{{ venta.created_at }}</td>
+                        <td>
+                            <button
+                                class="btn btn-outline-danger btn-sm btn-block"
+                                (click)="eliminarDocumento(venta)"
+                            >
+                                <i class="fa fa-trash fa-2x"></i>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -103,6 +92,8 @@
                     <h5>- {{ data.telefono_alt }}</h5>
                 </div>
             </div>
+
+            <!-- Asignación de técnico -->
             <div class="form-group group-div">
                 <label class="col-form-label col-sm-2">Asignar Técnico</label>
                 <div class="col-sm-10 inline-block">
@@ -118,11 +109,7 @@
                                         #tecnico="ngModel"
                                         [(ngModel)]="final_data.tecnico"
                                     >
-                                        <option
-                                            value=""
-                                            disabled
-                                            selected
-                                        ></option>
+                                        <option value="" disabled selected></option>
                                         <option
                                             value="{{ tecnico.id }}"
                                             *ngFor="let tecnico of tecnicos"
@@ -132,44 +119,62 @@
                                     </select>
                                     <span class="form-bar"></span>
                                     <label class="float-label">Técnico</label>
-                                    <small
-                                        class="text-danger messages block"
-                                        *ngIf="tecnico.errors?.required"
-                                        >Campo requerido</small
-                                    >
+                                    <small class="text-danger messages block" *ngIf="tecnico.errors?.required">Campo requerido</small>
                                 </div>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
+
+            <!-- Productos + Series -->
             <div class="form-group group-div">
                 <label class="col-form-label col-sm-2">Productos</label>
                 <div class="col-sm-10 inline-block table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped m-t-10">
                         <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Descripción</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                            </tr>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Cantidad</th>
+                            <th>Series</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let producto of data.productos">
-                                <td>{{ producto.sku }}</td>
-                                <td>{{ producto.descripcion }}</td>
-                                <td>{{ producto.cantidad }}</td>
-                                <td>$ {{ producto.precio }}</td>
-                            </tr>
+                        <tr *ngFor="let producto of final_data.productos">
+                            <td>{{ producto.sku }}</td>
+                            <td>{{ producto.descripcion }}</td>
+                            <td>{{ producto.cantidad }}</td>
+                            <td>
+                                <div class="m-b-5">
+                                    <span
+                                        *ngFor="let s of (producto.series || [])"
+                                        class="d-block"
+                                    >
+                                      {{ s }}
+                                    </span>
+                                    <span *ngIf="!producto.series || producto.series.length === 0" class="text-muted">
+                                      Sin series
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="btn btn-danger btn-sm"
+                                    (click)="agregarSeries(modalserie, producto.sku)"
+                                >
+                                    Agregar
+                                </button>
+                            </td>
+
+                        </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- Info de paquete -->
             <div class="form-group group-div">
-                <label class="col-form-label col-sm-2"
-                    >Información del paquete</label
-                >
+                <label class="col-form-label col-sm-2">Información del paquete</label>
                 <div class="col-sm-10 inline-block">
                     <form class="md-float-material form-material" #f="ngForm">
                         <div class="row m-t-20">
@@ -186,19 +191,8 @@
                                     />
                                     <span class="form-bar"></span>
                                     <label class="float-label">Guía</label>
-                                    <small
-                                        class="text-danger messages"
-                                        *ngIf="
-                                            guia.invalid &&
-                                            (guia.dirty || guia.touched)
-                                        "
-                                        >No se permite el caracter ' ó "</small
-                                    >
-                                    <small
-                                        class="text-danger messages block"
-                                        *ngIf="guia.errors?.required"
-                                        >Campo requerido</small
-                                    >
+                                    <small class="text-danger messages" *ngIf="guia.invalid && (guia.dirty || guia.touched)">No se permite el caracter ' ó "</small>
+                                    <small class="text-danger messages block" *ngIf="guia.errors?.required">Campo requerido</small>
                                 </div>
                             </div>
 
@@ -212,29 +206,14 @@
                                         #paqueteria="ngModel"
                                         [(ngModel)]="final_data.paqueteria"
                                     >
-                                        <option
-                                            value=""
-                                            disabled
-                                            selected
-                                        ></option>
-                                        <option
-                                            value="{{ paqueteria.id }}"
-                                            *ngFor="
-                                                let paqueteria of paqueterias
-                                            "
-                                        >
+                                        <option value="" disabled selected></option>
+                                        <option value="{{ paqueteria.id }}" *ngFor="let paqueteria of paqueterias">
                                             {{ paqueteria.paqueteria }}
                                         </option>
                                     </select>
                                     <span class="form-bar"></span>
-                                    <label class="float-label"
-                                        >Paquetería</label
-                                    >
-                                    <small
-                                        class="text-danger messages block"
-                                        *ngIf="paqueteria.errors?.required"
-                                        >Campo requerido</small
-                                    >
+                                    <label class="float-label">Paquetería</label>
+                                    <small class="text-danger messages block" *ngIf="paqueteria.errors?.required">Campo requerido</small>
                                 </div>
                             </div>
                         </div>
@@ -242,10 +221,7 @@
                         <h4 class="sub-title m-t-20">Usuarios a notificar</h4>
 
                         <div class="row">
-                            <div
-                                class="col-md-8"
-                                [hidden]="usuarios.length > 0"
-                            >
+                            <div class="col-md-8" [hidden]="usuarios.length > 0">
                                 <div class="form-group form-primary">
                                     <input
                                         type="text"
@@ -258,22 +234,11 @@
                                     />
                                     <span class="form-bar"></span>
                                     <label class="float-label">Usuario</label>
-                                    <small
-                                        class="text-danger messages"
-                                        *ngIf="
-                                            inputusuario.invalid &&
-                                            (inputusuario.dirty ||
-                                                inputusuario.touched)
-                                        "
-                                        >No se permite el caracter ' ó "</small
-                                    >
+                                    <small class="text-danger messages" *ngIf="inputusuario.invalid && (inputusuario.dirty || inputusuario.touched)">No se permite el caracter ' ó "</small>
                                 </div>
                             </div>
 
-                            <div
-                                class="col-md-8"
-                                [hidden]="usuarios.length == 0"
-                            >
+                            <div class="col-md-8" [hidden]="usuarios.length == 0">
                                 <div class="form-group form-primary">
                                     <select
                                         name="usuario_select"
@@ -282,15 +247,8 @@
                                         class="form-control"
                                         [(ngModel)]="usuario.usuario"
                                     >
-                                        <option
-                                            value=""
-                                            disabled
-                                            selected
-                                        ></option>
-                                        <option
-                                            value="{{ usuario.id }}"
-                                            *ngFor="let usuario of usuarios"
-                                        >
+                                        <option value="" disabled selected></option>
+                                        <option value="{{ usuario.id }}" *ngFor="let usuario of usuarios">
                                             {{ usuario.nombre }}
                                         </option>
                                     </select>
@@ -324,22 +282,13 @@
                         <div class="row m-b-20 m-t-10">
                             <div class="col-md-12">
                                 <ul class="list-group">
-                                    <li
-                                        class="list-group-item"
-                                        *ngFor="
-                                            let usuario of final_data.notificados
-                                        "
-                                    >
+                                    <li class="list-group-item" *ngFor="let usuario of final_data.notificados">
                                         {{ usuario.nombre }}
                                         <label
                                             class="label label-danger"
-                                            style="
-                                                cursor: pointer;
-                                                float: right;
-                                            "
+                                            style="cursor: pointer; float: right;"
                                             (click)="borrarUsuario(usuario.id)"
-                                            >X</label
-                                        >
+                                        >X</label>
                                     </li>
                                 </ul>
                             </div>
@@ -347,6 +296,8 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Seguimientos -->
             <div class="form-group group-div">
                 <label class="col-form-label col-sm-2">Seguimiento</label>
                 <div class="col-sm-10 inline-block">
@@ -357,59 +308,33 @@
                     >
                     </app-new-editor>
 
-                    <h4 class="sub-title m-t-20">
-                        Seguimiento de la devolucion
-                    </h4>
-
-                    <div
-                        *ngFor="let seguimiento of data.seguimiento_garantia"
-                        class="m-t-20 m-b-20"
-                    >
+                    <h4 class="sub-title m-t-20">Seguimiento de la devolucion</h4>
+                    <div *ngFor="let seguimiento of data.seguimiento_garantia" class="m-t-20 m-b-20">
                         <div class="media chat-messages">
                             <div class="media-body chat-menu-content">
                                 <div class="">
-                                    <p class="chat-cont">
-                                        {{
-                                            seguimiento.nombre +
-                                                " - " +
-                                                seguimiento.created_at
-                                        }}
-                                    </p>
-                                    <p
-                                        class="chat-cont"
-                                        [innerHTML]="seguimiento.seguimiento"
-                                    ></p>
+                                    <p class="chat-cont">{{ seguimiento.nombre + " - " + seguimiento.created_at }}</p>
+                                    <p class="chat-cont" [innerHTML]="seguimiento.seguimiento"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <h4 class="sub-title m-t-20">Seguimiento de la venta</h4>
-
-                    <div
-                        *ngFor="let seguimiento of data.seguimiento_venta"
-                        class="m-t-20 m-b-20"
-                    >
+                    <div *ngFor="let seguimiento of data.seguimiento_venta" class="m-t-20 m-b-20">
                         <div class="media chat-messages">
                             <div class="media-body chat-menu-content">
                                 <div class="">
-                                    <p class="chat-cont">
-                                        {{
-                                            seguimiento.nombre +
-                                                " - " +
-                                                seguimiento.created_at
-                                        }}
-                                    </p>
-                                    <p
-                                        class="chat-cont"
-                                        [innerHTML]="seguimiento.seguimiento"
-                                    ></p>
+                                    <p class="chat-cont">{{ seguimiento.nombre + " - " + seguimiento.created_at }}</p>
+                                    <p class="chat-cont" [innerHTML]="seguimiento.seguimiento"></p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Terminar -->
             <div class="form-group group-div">
                 <label class="col-form-label col-sm-2">Terminar</label>
                 <div class="col-sm-10 inline-block">
@@ -424,17 +349,94 @@
                     ></ui-switch>
                 </div>
             </div>
+
+            <!-- Guardar -->
             <div class="form-group group-div">
                 <label class="col-form-label col-sm-2">&nbsp;</label>
                 <div class="col-sm-10 inline-block">
                     <button
                         class="btn btn-sm btn-block btn-info http-disabled"
                         style="margin: 10px"
-                        (click)="guardarDocumento()"
-                        [disabled]="
-                            final_data.seguimiento == '' ||
-                            final_data.tecnico == 0
-                        "
+                        (click)="guardarDocumento()
+            "
+                        [disabled]="final_data.seguimiento == '' || final_data.tecnico == 0"
+                    >
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Modal de Series -->
+<ng-template #modalserie let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Series</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal_serie"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body table-responsive">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group">
+                <label class="float-label ol-form-label col-sm-2">Serie</label>
+                <div class="col-sm-10 inline-block">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <input
+                                type="text"
+                                id="serie"
+                                name="serie"
+                                class="form-control"
+                                [(ngModel)]="data.serie"
+                                (keyup.enter)="agregarSerie()"
+                                placeholder="Captura una serie y presiona ENTER"
+                            />
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-sm btn-info" (click)="agregarSerie()" [disabled]="!data.serie">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        Permitidos: letras, números, guiones y guion bajo. Sin comillas.
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Series</label>
+                <div class="col-sm-10 inline-block">
+                    <ul class="list-group m-b-20" id="ul_series">
+                        <li class="list-group-item" *ngFor="let serie of data.series">
+                            {{ serie }}
+                            <span class="badge" style="cursor: pointer; float: right" (click)="eliminarSerie(serie)">X</span>
+                        </li>
+                    </ul>
+                    <div *ngIf="data.series.length === 0" class="text-muted">Sin series</div>
+
+                    <div *ngIf="seriesWarning" class="alert alert-warning m-t-10">
+                        {{ seriesWarning }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">&nbsp;</label>
+                <div class="col-sm-10 inline-block">
+                    <button
+                        class="btn btn-sm btn-info btn-block m-t-10 m-b-10 http-disabled"
+                        (click)="confirmarSeries()"
+                        id="button_confirmar_series"
                     >
                         Guardar
                     </button>
