@@ -248,103 +248,73 @@
         <div class="row">
             <div class="col-md-12">
                 <table
-                    id="venta-mercadolibre-publicacion-publicacion"
+                    id="venta-linio-publicacion-publicacion"
                     class="table table-striped"
                 >
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Publicación</th>
-                            <th>Total</th>
-                            <th>Tipo</th>
-                            <th>Envio</th>
-                            <th>Productos</th>
-                            <th></th>
-                        </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th style="width: 30%">Publicación</th>
+                        <th style="width: 15%">Total</th>
+                        <th style="width: 25%">SKUs</th>
+                        <th style="width: 6%">Productos</th>
+                        <th></th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <ng-container
-                            *ngFor="
-                                let publicacion of itemsML;
-                                let index = index
-                            "
-                        >
-                            <tr>
-                                <td>
-                                    <a
-                                        class="text-success"
-                                        href="{{ publicacion.url }}"
-                                        target="_blank"
-                                        *ngIf="publicacion.url != 'N/A'"
-                                        >{{ publicacion.publicacion_id }}</a
-                                    >
-                                    <ng-container
-                                        *ngIf="publicacion.url == 'N/A'"
-                                    >
-                                        {{
-                                            publicacion.publicacion_id
-                                        }}</ng-container
-                                    >
-                                </td>
-                                <td>
-                                    {{ publicacion.publicacion }}
-                                </td>
-                                <td class="no-wrap">
-                                    $
-                                    {{ commaNumber(publicacion.total) }}
-                                </td>
-                                <td>
-                                    {{ getItemTypeByTypeML(publicacion.tipo) }}
-                                </td>
-                                <td>
-                                    {{ publicacion.logistic_type }}
-                                </td>
-                                <td>
-                                    <i
-                                        class="fa fa-2x fa-{{
-                                            publicacion.productos
-                                                ? 'check'
-                                                : 'exclamation'
-                                        }} text-{{
-                                            publicacion.productos
-                                                ? 'success'
-                                                : 'danger'
-                                        }}"
-                                        placement="top"
-                                        ngbTooltip="La publicación{{
-                                            publicacion.productos ? ' ' : ' no '
-                                        }}cuenta con productos"
-                                    ></i>
-                                </td>
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-outline-info btn-block"
-                                        (click)="
-                                            viewItemDataCRMML(publicacion.id)
-                                        "
-                                        placement="top"
-                                        ngbTooltip="Editar Información CRM"
-                                    >
-                                        <i class="fa fa-pencil fa-2x"></i>
-                                    </button>
+                    <ng-container *ngFor="let publicacion of items; let index = index">
+                        <tr>
+                            <td>
+                                <a
+                                    class="text-success"
+                                    href="{{ publicacion.url }}"
+                                    target="_blank"
+                                    *ngIf="publicacion.url != 'N/A'"
+                                >
+                                    {{ publicacion.publicacion_id }}
+                                </a>
+                                <ng-container *ngIf="publicacion.url == 'N/A'">
+                                    {{ publicacion.publicacion_id }}
+                                </ng-container>
+                            </td>
 
-                                    <button
-                                        type="button"
-                                        class="btn btn-sm btn-outline-info btn-block"
-                                        (click)="
-                                            viewItemDataMarketplaceML(
-                                                publicacion.id
-                                            )
-                                        "
-                                        placement="top"
-                                        ngbTooltip="Editar Publicación Marketplace"
-                                    >
-                                        <i class="fa fa-store fa-2x"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </ng-container>
+                            <td>{{ publicacion.publicacion }}</td>
+
+                            <td class="no-wrap">
+                                $ {{ commaNumber(publicacion.total) }}
+                            </td>
+
+                            <!-- NUEVO: SKUs (separados por coma o 'SIN PRODUCTOS') -->
+                            <td class="skus-cell" style="max-width: 420px; white-space: normal; word-break: break-word;">
+                                {{
+                                    publicacion.skus && publicacion.skus.trim().length
+                                        ? publicacion.skus
+                                        : 'SIN PRODUCTOS'
+                                }}
+                            </td>
+
+                            <td>
+                                <i
+                                    class="fa fa-2x fa-{{ publicacion.productos ? 'check' : 'exclamation' }}
+                                    text-{{ publicacion.productos ? 'success' : 'danger' }}"
+                                    placement="top"
+                                    ngbTooltip="La publicación{{ publicacion.productos ? ' ' : ' no ' }}cuenta con productos"
+                                ></i>
+                            </td>
+
+                            <td>
+                                <button
+                                    type="button"
+                                    class="btn btn-sm btn-outline-info btn-block"
+                                    (click)="viewItemDataCRM(publicacion.id)"
+                                    placement="top"
+                                    ngbTooltip="Editar Información CRM"
+                                >
+                                    <i class="fa fa-pencil fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </ng-container>
                     </tbody>
                 </table>
             </div>
