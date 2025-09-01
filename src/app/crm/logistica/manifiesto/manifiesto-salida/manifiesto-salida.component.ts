@@ -1,49 +1,36 @@
-import {
-    backend_url,
-    raspberry_dyndns,
-    swalErrorHttpResponse,
-} from './../../../../../environments/environment';
-import {
-    Component,
-    OnInit,
-    ChangeDetectorRef,
-    Renderer2,
-    IterableDiffers,
-} from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { LogisticaService } from './../../../../services/http/logistica.service';
+import {swalErrorHttpResponse} from '@env/environment';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, Renderer2} from '@angular/core';
+import {LogisticaService} from '@services/http/logistica.service';
 import swal from 'sweetalert2';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'app-manifiesto-salida',
     templateUrl: './manifiesto-salida.component.html',
     styleUrls: ['./manifiesto-salida.component.scss'],
 })
-export class ManifiestoSalidaComponent implements OnInit {
-    iterableDiffer: any;
-
+export class ManifiestoSalidaComponent implements OnInit, OnDestroy {
     datatable: any;
-    datatable_name: string = '#logistica-manifiesto-manifiesto-salida';
+    datatable_name = '#logistica-manifiesto-manifiesto-salida';
 
     print = {
         shipping_provider: '',
         printer: '',
     };
 
-    label: string = '';
+    label = '';
     labels: any[] = [];
     printers: any[] = [];
     shipping_providers: any[] = [];
 
+    private destroy$ = new Subject<void>();
+
     constructor(
-        private iterableDiffers: IterableDiffers,
         private chRef: ChangeDetectorRef,
         private renderer: Renderer2,
         private logisticaService: LogisticaService,
-        private http: HttpClient
     ) {
-        this.iterableDiffer = this.iterableDiffers.find([]).create(null);
-
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
     }
@@ -52,10 +39,9 @@ export class ManifiestoSalidaComponent implements OnInit {
         this.initData();
     }
 
-    ngDoCheck() {
-        const changes = this.iterableDiffer.diff(this.labels);
-
-        if (changes) this.rebuildTable();
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     addLabel() {
@@ -65,29 +51,31 @@ export class ManifiestoSalidaComponent implements OnInit {
 
         const exits = this.labels.find((label) => label.guia == this.label);
 
-        if (!this.print.shipping_provider)
+        if (!this.print.shipping_provider) {
             return swal({
                 type: 'error',
                 html: `Selecciona una paquetería para agregar la guia al manifiesto de salida`,
             });
+        }
 
-        if (exits)
+        if (exits) {
             return swal({
                 type: 'error',
                 html: `La guía ya se encuentra en el manifiesto de salida`,
             });
+        }
 
         this.logisticaService
             .addLabelToOutputManifest(this.label, shipping_provider.id)
+            .pipe(takeUntil(this.destroy$))
             .subscribe(
                 (res: any) => {
                     this.label = '';
-
                     this.renderer
                         .selectRootElement('#manifiest-output-label')
                         .focus();
-
                     this.labels = this.labels.concat(res.label);
+                    this.rebuildTable();
                 },
                 (err: any) => {
                     swalErrorHttpResponse(err);
@@ -109,29 +97,30 @@ export class ManifiestoSalidaComponent implements OnInit {
         });
 
         if (delte) {
-            this.logisticaService.deleteLabelFromManifest(label).subscribe(
-                (res: any) => {
-                    const index = this.labels.findIndex(
-                        (lbl) => lbl.guia == label
-                    );
-
-                    this.labels.splice(index, 1);
-
-                    this.rebuildTable();
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
+            this.logisticaService.deleteLabelFromManifest(label)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe(
+                    () => {
+                        const index = this.labels.findIndex(
+                            (lbl) => lbl.guia == label
+                        );
+                        this.labels.splice(index, 1);
+                        this.rebuildTable();
+                    },
+                    (err: any) => {
+                        swalErrorHttpResponse(err);
+                    }
+                );
         }
     }
 
     printOutputManifest(impresion_reimpresion) {
-        if (!this.print.shipping_provider)
+        if (!this.print.shipping_provider) {
             return swal({
                 type: 'error',
                 html: `Selecciona una paquetería para generar el manifiesto`,
             });
+        }
 
         if (!this.print.printer) {
             return swal({
@@ -141,7 +130,7 @@ export class ManifiestoSalidaComponent implements OnInit {
         }
 
         const printer = this.printers.find(
-            (printer) => printer.id == this.print.printer
+            (p) => p.id == this.print.printer
         );
 
         const shipping_provider = this.shipping_providers.find(
@@ -155,96 +144,41 @@ export class ManifiestoSalidaComponent implements OnInit {
             type: impresion_reimpresion
         };
 
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(data));
-
-        this.http.post(`${backend_url}logistica/manifiesto/manifiesto-salida/imprimir`, form_data).subscribe(
-            (res) => {
-                console.log(res);
-            },
-            (response) => {
-                swal({
-                    type: 'error',
-                    html: response,
-                });
-            }
-        );
-
-        //A ver si ya se arreglo
-        this.logisticaService
-            .printOutputManifest(
-                printer.servidor,
-                printer.ip,
-                shipping_provider.paqueteria,
-                impresion_reimpresion
-            )
+        this.logisticaService.printOutputManifestNew(data)
+            .pipe(takeUntil(this.destroy$))
             .subscribe(
-                (res: any) => {
-                    console.log(res);
-
+                () => {
                     this.initData();
                 },
                 (err: any) => {
+                    swalErrorHttpResponse(err);
                     this.initData();
                 }
             );
     }
 
-    reimpresion() {
-        if (!this.print.shipping_provider)
-            return swal({
-                type: 'error',
-                html: `Selecciona una paquetería para generar el manifiesto`,
+    private initData() {
+        this.logisticaService.getOutputManifestData()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (res: any) => {
+                    this.labels = [...res.labels];
+                    this.printers = [...res.printers];
+                    this.shipping_providers = [...res.shipping_providers];
+                    this.rebuildTable();
+                },
+                error: swalErrorHttpResponse
             });
+    }
 
-        if (!this.print.printer) {
-            return swal({
-                type: 'error',
-                html: `Selecciona una impresora para generar el manifiesto`,
-            });
+    private rebuildTable() {
+        if (this.datatable) {
+            this.datatable.destroy();
         }
-
-        const printer = this.printers.find(
-            (printer) => printer.id == this.print.printer
-        );
-
-        const shipping_provider = this.shipping_providers.find(
-            (sp) => sp.id == this.print.shipping_provider
-        );
-
-        this.logisticaService
-            .reimpresion(
-                printer.servidor,
-                printer.ip,
-                shipping_provider.paqueteria
-            )
-            .subscribe(
-                (res: any) => {
-                    this.initData();
-                },
-                (err: any) => {
-                    this.initData();
-                }
-            );
-    }
-
-    initData() {
-        this.logisticaService.getOutputManifestData().subscribe(
-            (res: any) => {
-                this.labels = [...res.labels];
-                this.printers = [...res.printers];
-                this.shipping_providers = [...res.shipping_providers];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
-    }
-
-    rebuildTable() {
-        this.datatable.destroy();
         this.chRef.detectChanges();
-        const table: any = $(this.datatable_name);
-        this.datatable = table.DataTable();
+        setTimeout(() => {
+            const table: any = $(this.datatable_name);
+            this.datatable = table.DataTable();
+        });
     }
 }
