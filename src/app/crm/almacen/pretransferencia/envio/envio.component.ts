@@ -448,18 +448,6 @@ export class EnvioComponent implements OnInit {
             const form_data = new FormData();
             form_data.append('serie', serie);
 
-            const res = await this.http
-                .post(`${backend_url}developer/busquedaSerieVsSku`, form_data)
-                .toPromise();
-
-            if (!res['valido']) {
-                this.data.serie = '';
-                await swal({
-                    type: 'error',
-                    html: `La serie es un SKU`,
-                });
-                return;
-            }
             const repetida = this.detalle.productos.find((p) =>
                 p.series.find((serie_ip) => serie_ip == serie)
             );
@@ -486,7 +474,7 @@ export class EnvioComponent implements OnInit {
                 return;
             }
 
-            this.data.series.push($.trim(serie));
+            this.data.series.unshift($.trim(serie));
 
             this.data.serie = '';
 
