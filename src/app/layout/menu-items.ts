@@ -908,12 +908,6 @@ const MENUITEMS = [
                         level: [9],
                         sublevel: 0,
                     },
-                    {
-                        state: 'manifiesto-recoleccion',
-                        name: 'Manifiesto recoleccion',
-                        level: [9],
-                        sublevel: 0,
-                    },
                 ],
             },
             {
