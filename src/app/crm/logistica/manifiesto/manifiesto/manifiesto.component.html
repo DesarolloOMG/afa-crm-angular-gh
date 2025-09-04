@@ -1,5 +1,4 @@
 <div class="card">
-    <!-- <button class="btn btn-block btn-outline-danger" (click)="ngOnInit()">GET</button> -->
     <div class="card-header">
         <form class="md-float-material form-material m-t-10" autocomplete="off">
             <div class="row">
@@ -35,8 +34,6 @@
                                     [(ngModel)]="label.label"
                                     maxlength="50"
                                 />
-                                <!-- (keyup)="cambio_para_paqueteria()" -->
-
                                 <span class="form-bar"></span>
                                 <label class="float-label">Guía</label>
                             </div>
@@ -66,7 +63,6 @@
                                 [(ngModel)]="label.shipment"
                                 required
                             >
-                                <!-- (change)="cambio_para_drop()" -->
                                 <option value="" disabled selected>
                                     Selecciona una Opción
                                 </option>
@@ -78,7 +74,7 @@
                                 </option>
                             </select>
                             <span class="form-bar"></span>
-                            <label class="float-label">Paqueteria</label>
+                            <label class="float-label-read-only">Paqueteria</label>
                             <small class="text-danger messages block"
                                 >*Validar paqueteria*</small
                             >

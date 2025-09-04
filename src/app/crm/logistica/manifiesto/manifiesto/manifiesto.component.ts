@@ -1,43 +1,36 @@
-import { swalErrorHttpResponse } from './../../../../../environments/environment';
-import { LogisticaService } from './../../../../services/http/logistica.service';
-import {
-    Component,
-    OnInit,
-    ChangeDetectorRef,
-    IterableDiffers,
-    Renderer2,
-} from '@angular/core';
+import {swalErrorHttpResponse} from '@env/environment';
+import {LogisticaService} from '@services/http/logistica.service';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit, Renderer2} from '@angular/core';
 import swal from 'sweetalert2';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'app-manifiesto',
     templateUrl: './manifiesto.component.html',
     styleUrls: ['./manifiesto.component.scss'],
 })
-export class ManifiestoComponent implements OnInit {
-    iterableDiffer: any;
-
+export class ManifiestoComponent implements OnInit, OnDestroy {
     datatable: any;
-    datatable_name: string = '#logistica-manifiesto-manifiesto';
+    datatable_name = '#logistica-manifiesto-manifiesto';
 
     label = {
         label: '',
-        printer: '',
+        printer: '3',
         shipment: '',
     };
 
-    control_id = '';
     labels: any[] = [];
     printers: any[] = [];
     shipment: any[] = [];
 
+    private destroy$ = new Subject<void>();
+
     constructor(
         private chRef: ChangeDetectorRef,
         private renderer: Renderer2,
-        private iterableDiffers: IterableDiffers,
         private logisticaService: LogisticaService
     ) {
-        this.iterableDiffer = this.iterableDiffers.find([]).create(null);
 
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable();
@@ -47,51 +40,55 @@ export class ManifiestoComponent implements OnInit {
         this.initData();
     }
 
-    ngDoCheck() {
-        const changes = this.iterableDiffer.diff(this.labels);
-
-        if (changes) this.rebuildTable();
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     addLabel() {
-        if (!this.label.label)
+        if (!this.label.label) {
             return swal({
                 type: 'error',
                 html: `Escribe algo para agregar la guía`,
             });
+        }
 
-        if (!this.label.printer)
+        if (!this.label.printer) {
             return swal({
                 type: 'error',
                 html: `Selecciona una impresora para agregar la guía`,
             });
+        }
 
-        if (!this.label.shipment)
+        if (!this.label.shipment) {
             return swal({
                 type: 'error',
                 html: `Selecciona una pqueteria para agregar la guía`,
             });
+        }
 
         const exists = this.labels.find((l) => l.guia == this.label);
 
-        if (exists)
+        if (exists) {
             return swal({
                 type: 'error',
                 html: `Ya ingresaste una guía con ese número`,
             });
+        }
 
-        this.logisticaService.addLabelToManifest(this.label).subscribe(
-            (res: any) => {
-                this.label.label = '';
-                this.label.shipment = '';
-                this.renderer.selectRootElement('#manifest-label').focus();
+        this.logisticaService.addLabelToManifest(this.label)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (res: any) => {
+                    this.label.label = '';
+                    this.label.shipment = '';
+                    this.renderer.selectRootElement('#manifest-label').focus();
 
-                this.labels = this.labels.concat(res.label);
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
+                    this.labels = this.labels.concat(res.label);
+                    this.rebuildTable();
+                },
+                error: swalErrorHttpResponse
+            });
     }
 
     async deleteLabel(label) {
@@ -108,90 +105,44 @@ export class ManifiestoComponent implements OnInit {
         });
 
         if (delte) {
-            this.logisticaService.deleteLabelFromManifest(label).subscribe(
-                (res: any) => {
-                    const index = this.labels.findIndex(
-                        (lbl) => lbl.guia == label
-                    );
-
-                    this.labels.splice(index, 1);
-
-                    this.rebuildTable();
-                },
-                (err: any) => {
-                    swalErrorHttpResponse(err);
-                }
-            );
+            this.logisticaService.deleteLabelFromManifest(label)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                    next: () => {
+                        const index = this.labels.findIndex(
+                            (lbl) => lbl.guia == label
+                        );
+                        this.labels.splice(index, 1);
+                        this.rebuildTable();
+                    },
+                    error: swalErrorHttpResponse
+                });
         }
     }
 
-    initData() {
-        this.logisticaService.getManifestData().subscribe(
-            (res: any) => {
-                this.labels = [...res.labels];
-                this.printers = [...res.printers];
-                this.shipment = [...res.shipment];
-            },
-            (err: any) => {
-                swalErrorHttpResponse(err);
-            }
-        );
+    private initData() {
+        this.logisticaService.getManifestData()
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+                next: (res: any) => {
+                    console.log(res);
+                    this.labels = [...res.labels];
+                    this.printers = [...res.printers];
+                    this.shipment = [...res.shipment];
+                    this.rebuildTable();
+                },
+                error: swalErrorHttpResponse
+            });
     }
 
-    rebuildTable() {
-        this.datatable.destroy();
+    private rebuildTable() {
+        if (this.datatable) {
+            this.datatable.destroy();
+        }
         this.chRef.detectChanges();
-        const table: any = $(this.datatable_name);
-        this.datatable = table.DataTable();
+        setTimeout(() => {
+            const table: any = $(this.datatable_name);
+            this.datatable = table.DataTable();
+        });
     }
-
-    // cambio_para_paqueteria() {
-    //     let control;
-    //     // switch (this.label.label.length) {
-    //     //     case 7:
-    //     //         control = 12;
-    //     //         break;
-    //     //     case 8:
-    //     //         control = 11;
-    //     //         break;
-    //     //     case 9:
-    //     //         control = 5;
-    //     //         break;
-    //     //     case 10:
-    //     //         control = 2;
-    //     //         break;
-    //     //     case 11:
-    //     //         control = 14;
-    //     //         break;
-    //     //     case 12:
-    //     //         control = 17;
-    //     //         break;
-    //     //     case 15:
-    //     //         control = 16;
-    //     //         break;
-    //     //     case 18:
-    //     //         control = 18;
-    //     //         break;
-    //     //     case 20:
-    //     //         control = 4;
-    //     //         break;
-    //     //     case 22:
-    //     //         control = 1;
-    //     //         break;
-    //     //     case 30:
-    //     //         control = 11;
-    //     //         break;
-    //     //     case 34:
-    //     //         control = 3;
-    //     //         break;
-    //     //     default:
-    //     //         break;
-    //     // }
-
-    //     this.control_id = control;
-    //     this.label.shipment = control;
-    // }
-    // cambio_para_drop() {
-    //     console.log(this.label);
-    // }
 }
