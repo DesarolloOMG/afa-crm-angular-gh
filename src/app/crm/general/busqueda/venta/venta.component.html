@@ -759,65 +759,67 @@
             </div>
 
             <!-- Envío -->
+            <!-- Envío -->
             <div class="bg-white rounded-4 shadow-sm p-3 mb-3">
                 <div class="d-flex align-items-center gap-2 py-1 mb-2">
                     <i class="fas fa-truck text-warning"></i>
                     <span class="fw-bold text-secondary fs-6">Envío</span>
                 </div>
-                <div *ngIf="$any(data).extra_info.status != 'cancelled'; else cancelado">
+
+                <!-- primero validamos que exista extra_info.shipping -->
+                <div *ngIf="$any(data)?.extra_info?.status !== 'cancelled' && $any(data)?.extra_info?.shipping as ship; else sinEnvio">
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Estado:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.status || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Subestado:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.substatus }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.substatus || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Logística:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.tracking_method }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.tracking_method || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Guía:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.tracking_number }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.tracking_number || 'N/D' }}</span>
                     </div>
-                    <div>
-                        <span class="fs-6 text-secondary fw-bold">Tipo logística:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.logistic_type }}</span>
-                    </div>
+
+                    <!-- status_history puede NO existir: usa ?. y fallback -->
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Fecha creación:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.date_created }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.date_created || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Fecha primera impresión:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.date_first_printed }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.date_first_printed || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Fecha envío listo:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_ready_to_ship }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.status_history?.date_ready_to_ship || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Fecha envío:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_shipped }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.status_history?.date_shipped || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Última actualización:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.last_updated }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.last_updated || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Fecha entrega:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_delivered }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.status_history?.date_delivered || 'N/D' }}</span>
                     </div>
                     <div>
                         <span class="fs-6 text-secondary fw-bold">Fecha primera visita:</span>
-                        <span class="fw-semibold fs-6 text-dark">{{ $any(data).extra_info.shipping.status_history.date_first_visit }}</span>
+                        <span class="fw-semibold fs-6 text-dark">{{ ship?.status_history?.date_first_visit || 'N/D' }}</span>
                     </div>
                 </div>
-                <ng-template #cancelado>
+
+                <ng-template #sinEnvio>
                     <div class="text-center text-muted fst-italic py-2">
-                        <i class="fas fa-ban fa-2x mb-2"></i><br>
-                        Venta cancelada
+                        <i class="fas fa-truck-loading fa-2x mb-2"></i><br>
+                        Sin información de envío disponible
                     </div>
                 </ng-template>
             </div>
