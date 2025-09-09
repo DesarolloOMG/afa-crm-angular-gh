@@ -9,6 +9,15 @@ import {Observable} from 'rxjs/Observable';
 export class VentaService {
     constructor(private http: HttpClient) {
     }
+    // NEW
+
+    relacionarPDF_XML(data: any): Observable<any> {
+        const form_data = new FormData();
+        form_data.append('data', JSON.stringify(data));
+        return this.http.post(
+            `${backend_url}venta/venta/relacionar-pdf-xml`, form_data
+        );
+    }
 
     // SE USA
 

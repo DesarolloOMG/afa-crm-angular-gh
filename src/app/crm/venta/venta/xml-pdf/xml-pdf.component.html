@@ -1,0 +1,39 @@
+<div class="container-fluid py-4 px-3" style="background:#fff; border-radius:18px; box-shadow:0 0 18px #e8eef3;">
+    <form #f="ngForm" autocomplete="off">
+        <div class="row align-items-end mb-2">
+            <div class="col-md-6 mb-2">
+                <h5 class="mb-2 fw-bold text-primary">Documento</h5>
+                <label class="fw-semibold mb-1 text-secondary"># de documento CRM</label>
+                <input type="text" name="documento" class="form-control" [(ngModel)]="data.documento"/>
+            </div>
+            <div class="col-md-6 mb-2">
+                <h5 class="mb-2 fw-bold text-primary">Archivos</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>
+                            Archivo PDF:
+                            <input type="file" name="pdf" accept="application/pdf" (change)="archivoPDF($event)"/>
+                        </label>
+                    </div>
+                    <div class="col-md-6">
+                        <label>
+                            Archivo XML:
+                            <input type="file" name="xml" accept=".xml,application/xml" id="xml_factura"
+                                   (change)="archivoXML()"/>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <hr class="my-3"/>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary btn-lg w-100" (click)="relacionar()"
+                >
+                    <i class="fa fa-save me-2"></i>Relacionar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

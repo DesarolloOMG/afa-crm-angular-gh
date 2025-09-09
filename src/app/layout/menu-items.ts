@@ -465,6 +465,12 @@ const MENUITEMS = [
                         level: [8],
                         sublevel: 0,
                     },
+                    {
+                        state: 'xml-pdf',
+                        name: 'XML / PDF',
+                        level: [11, 6],
+                        sublevel: 0,
+                    },
                 ],
             },
             {
