@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {VentaService} from '@services/http/venta.service';
 import swal from 'sweetalert2';
-import {swalErrorHttpResponse, swalSuccessHttpResponse} from '@sharedUtils/shared';
 
 @Component({
     selector: 'app-xml-pdf',
@@ -13,7 +12,8 @@ export class XmlPdfComponent implements OnInit {
     data = {
         documento: '',
         pdf: '',
-        xml: ''
+        uuid: '',
+        xml: '',
     };
 
     constructor(public readonly ventaService: VentaService) {
@@ -34,7 +34,21 @@ export class XmlPdfComponent implements OnInit {
         }
     }
 
-    async archivoXML() {
+    async archivoXML(event: Event) {
+        await this.extraerUUIDL();
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.data.xml = reader.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
+
+    }
+
+    async extraerUUIDL() {
         const $xmlInput = $('#xml_factura');
         const files = $xmlInput.prop('files');
         const $this = this;
@@ -74,19 +88,19 @@ export class XmlPdfComponent implements OnInit {
     }
 
     relacionar() {
-        if (!this.data.documento || !this.data.pdf || !this.data.xml) {
-            swal('', 'Todos los campos (documento, PDF y XML) son obligatorios.', 'warning').then();
-            return;
-        }
-        this.ventaService.relacionarPDF_XML(this.data).subscribe({
-            next: (res) => {
-                console.log(res);
-                swalSuccessHttpResponse(res);
-            },
-            error:
-            swalErrorHttpResponse
-        });
-
+        console.log(this.data);
+        // if (!this.data.documento || !this.data.pdf || !this.data.xml) {
+        //     swal('', 'Todos los campos (documento, PDF y XML) son obligatorios.', 'warning').then();
+        //     return;
+        // }
+        // this.ventaService.relacionarPDF_XML(this.data).subscribe({
+        //     next: (res) => {
+        //         console.log(res);
+        //         swalSuccessHttpResponse(res);
+        //     },
+        //     error:
+        //     swalErrorHttpResponse
+        // });
 
     }
 
