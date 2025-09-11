@@ -89,7 +89,7 @@ export class GeneralService {
         form_data.append('data', JSON.stringify(data));
 
         return this.http.post(
-            `${backend_url}general/reporte/venta/producto/serie/reporte`,
+            `${backend_url}general/reporte/orden-compra/producto-transito`,
             form_data
         );
     }
