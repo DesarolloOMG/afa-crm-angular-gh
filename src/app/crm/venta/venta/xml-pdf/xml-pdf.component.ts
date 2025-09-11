@@ -1,20 +1,31 @@
 import {Component, OnInit} from '@angular/core';
 import {VentaService} from '@services/http/venta.service';
 import swal from 'sweetalert2';
+import {extractUuidFromCfdi, fileToDataURL, swalErrorHttpResponse, swalSuccessHttpResponse} from '@sharedUtils/shared';
+
+interface XmlPdfData {
+    documento: string;
+    pdf: string;
+    uuid: string;
+    xml: string;
+}
 
 @Component({
     selector: 'app-xml-pdf',
     templateUrl: './xml-pdf.component.html',
-    styleUrls: ['./xml-pdf.component.scss']
+    styleUrls: ['./xml-pdf.component.scss'],
 })
 export class XmlPdfComponent implements OnInit {
 
-    data = {
+    data: XmlPdfData = {
         documento: '',
         pdf: '',
         uuid: '',
         xml: '',
     };
+
+    readonly ALLOWED_PDF_MIMES = ['application/pdf'];
+    readonly ALLOWED_XML_MIMES = ['application/xml', 'text/xml'];
 
     constructor(public readonly ventaService: VentaService) {
     }
@@ -22,86 +33,76 @@ export class XmlPdfComponent implements OnInit {
     ngOnInit() {
     }
 
-    archivoPDF(event: Event) {
+    async archivoPDF(event: Event) {
         const input = event.target as HTMLInputElement;
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                this.data.pdf = reader.result as string;
-            };
-            reader.readAsDataURL(file);
+        const file = input.files[0];
+        if (!file) {
+            return;
+        }
+
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        const isMimeOk = this.ALLOWED_PDF_MIMES.includes(file.type);
+        const isExtOk = ext === 'pdf';
+
+        if (!isMimeOk || !isExtOk) {
+            await swal('', 'Debes proporcionar un archivo PDF válido.', 'error');
+            input.value = '';
+            return;
+        }
+        try {
+            this.data.pdf = await fileToDataURL(file);
+        } catch {
+            await swal('', 'Error al leer el PDF.', 'error');
+            input.value = '';
         }
     }
 
     async archivoXML(event: Event) {
-        await this.extraerUUIDL();
         const input = event.target as HTMLInputElement;
-        if (input.files && input.files[0]) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                this.data.xml = reader.result as string;
-            };
-            reader.readAsDataURL(file);
-        }
-
-    }
-
-    async extraerUUIDL() {
-        const $xmlInput = $('#xml_factura');
-        const files = $xmlInput.prop('files');
-        const $this = this;
-
-        if (!files || files.length === 0) {
+        const file = input.files[0] as any;
+        if (!file) {
             return;
         }
 
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
-            const extension = file.name.split('.').pop().toLowerCase();
+        const ext = (file.name.split('.').pop() || '').toLowerCase();
+        const isMimeOk = this.ALLOWED_XML_MIMES.includes(file.type) || !file.type; // algunos navegadores dejan vacío
+        const isExtOk = ext === 'xml';
 
-            if (extension !== 'xml') {
-                await swal('', 'Debes proporcionar un XML.', 'error');
-                $xmlInput.val('');
-                continue;
+        if (!isMimeOk || !isExtOk) {
+            await swal('', 'Debes proporcionar un XML válido.', 'error');
+            input.value = '';
+            return;
+        }
+
+        try {
+            this.data.xml = await fileToDataURL(file);
+
+            const xmlText = await file.text();
+            const uuid = extractUuidFromCfdi(xmlText);
+
+            if (uuid) {
+                this.data.uuid = uuid;
+            } else {
+                this.data.uuid = '';
+                await swal('', 'No se encontró el UUID en el XML.', 'error');
+                input.value = '';
             }
-
-            const reader = new FileReader();
-
-            reader.onload = function (e: any) {
-                const xml = $(e.target.result);
-
-                xml.children().each(function () {
-                    if ($(this).get(0).tagName === 'CFDI:COMPLEMENTO') {
-                        $this.data.xml = $(this).children().attr('uuid');
-                    }
-                });
-            };
-
-            reader.onerror = function () {
-                swal('', 'Error al leer el archivo XML.', 'error');
-            };
-
-            reader.readAsText(file);
+        } catch {
+            await swal('', 'Error al procesar el XML.', 'error');
+            input.value = '';
         }
     }
 
     relacionar() {
-        console.log(this.data);
-        // if (!this.data.documento || !this.data.pdf || !this.data.xml) {
-        //     swal('', 'Todos los campos (documento, PDF y XML) son obligatorios.', 'warning').then();
-        //     return;
-        // }
-        // this.ventaService.relacionarPDF_XML(this.data).subscribe({
-        //     next: (res) => {
-        //         console.log(res);
-        //         swalSuccessHttpResponse(res);
-        //     },
-        //     error:
-        //     swalErrorHttpResponse
-        // });
+        if (!this.data.documento || !this.data.pdf || !this.data.xml) {
+            void swal('', 'Todos los campos (documento, PDF y XML) son obligatorios.', 'warning');
+            return;
+        }
 
+        this.ventaService.relacionarPDF_XML(this.data).subscribe({
+            next: swalSuccessHttpResponse,
+            error: swalErrorHttpResponse
+        });
     }
 
 }

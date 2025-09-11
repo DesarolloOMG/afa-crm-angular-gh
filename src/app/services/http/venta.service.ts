@@ -19,6 +19,12 @@ export class VentaService {
         );
     }
 
+    descargarPDF_XML(type: string, documento: string): Observable<any> {
+        return this.http.get(
+            `${backend_url}venta/venta/descargar-pdf-xml/${type}/${documento}`
+        );
+    }
+
     // SE USA
 
     /* Venta > Venta */
@@ -327,6 +333,7 @@ export class VentaService {
             `${backend_url}venta/claroshop/publicaciones/data`
         );
     }
+
 
 
 }

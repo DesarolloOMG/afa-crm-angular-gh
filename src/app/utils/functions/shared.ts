@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import swal from 'sweetalert2';
 
 export function swalSuccessError(res): void {
@@ -62,4 +64,63 @@ export function downloadPDF(pdf_name: string, pdf_data: string) {
     a.setAttribute('id', 'etiqueta_descargar');
 
     a.click();
+}
+
+// -----
+
+export function fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+export function extractUuidFromCfdi(xmlText: string): string | null {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'application/xml');
+
+    if (doc.getElementsByTagName('parsererror').length) {
+        return null;
+    }
+
+    const selectByNs = (localName: string, ns: string) =>
+        Array.from(doc.getElementsByTagNameNS(ns, localName));
+
+    const TFD_NS = 'http://www.sat.gob.mx/TimbreFiscalDigital';
+    const CFDI_NS = 'http://www.sat.gob.mx/cfd/3';
+    const CFDI4_NS = 'http://www.sat.gob.mx/cfd/4';
+
+    const complementos = [
+        ...selectByNs('Complemento', CFDI_NS),
+        ...selectByNs('Complemento', CFDI4_NS),
+        ...Array.from(doc.getElementsByTagName('Complemento'))
+    ];
+
+    let uuid: string | null = null;
+
+    for (const comp of complementos) {
+        const timbres = [
+            ...selectByNs('TimbreFiscalDigital', TFD_NS),
+            ...Array.from(comp.getElementsByTagName('TimbreFiscalDigital'))
+        ];
+        if (timbres.length) {
+            const tfd = timbres[0] as Element;
+            uuid =
+                tfd.getAttribute('UUID') ||
+                tfd.getAttribute('Uuid') ||
+                tfd.getAttribute('uuid');
+            if (uuid) {
+                break;
+            }
+        }
+    }
+
+    if (!uuid) {
+        const m = xmlText.match(/UUID="([\w-]{36})"/i);
+        uuid = m[1] ? m[1] : null;
+    }
+
+    return uuid;
 }
