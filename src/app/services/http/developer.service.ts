@@ -13,10 +13,6 @@ export class DeveloperService {
         return this.http.get(`${backend_url}developer/test`);
     }
 
-    recalcularInventario() {
-        return this.http.get(`${backend_url}developer/recalcularInventario`);
-    }
-
     recalcularCosto(sku: string) {
         const form_data = new FormData();
         form_data.append('sku', sku);
@@ -37,4 +33,31 @@ export class DeveloperService {
         return this.http.post(`${backend_url}developer/aplicarCosto`, form);
     }
 
+    // developer.service.ts (añade estos métodos)
+
+    recalcularInventario(sku: string) {
+        const form = new FormData();
+        form.append('sku', sku.trim());
+        return this.http.post(`${backend_url}developer/recalcularInventario`, form);
+    }
+
+    getDocumentosPendientesExcel(sku: string) {
+        const form = new FormData();
+        form.append('sku', sku.trim());
+        // IMPORTANTE: pedir blob para Excel
+        return this.http.post(`${backend_url}developer/getDocumentosPendientes`, form, { responseType: 'blob' as 'json' });
+    }
+
+    /** Endpoint para aplicar (ajusta la URL cuando lo tengas listo) */
+    aplicarPendientes(sku: string) {
+        const form = new FormData();
+        form.append('sku', sku.trim());
+        return this.http.post(`${backend_url}developer/aplicarPendientes`, form);
+    }
+
+    afectarInventario(sku: string) {
+        const form = new FormData();
+        form.append('sku', sku.trim());
+        return this.http.post(`${backend_url}developer/afectarInventario`, form);
+    }
 }
