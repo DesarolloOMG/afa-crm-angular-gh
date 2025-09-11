@@ -8,6 +8,7 @@ import * as moment from 'moment';
 import {AuthService} from '@services/auth.service';
 import {createEmptyGBBArchivo, createEmptyGBBData, createEmptyGBBFinalData, GBBArchivo, GBBData, GBBFinalData} from '@interfaces/GBB';
 import {WhatsappService} from '@services/http/whatsapp.service';
+import {VentaService} from '@services/http/venta.service';
 
 @Component({
     selector: 'app-venta',
@@ -18,7 +19,6 @@ export class VentaComponent implements OnInit {
     @ViewChild('modalventa') modalventa: NgbModal;
 
     tablename = '#general_busqueda_venta';
-    desGlobalizarAutorizados: number[] = [90];
     seriesProductoSeleccionado: any[] = [];
     niveles: number[] = [];
     id_usuario: number;
@@ -51,6 +51,7 @@ export class VentaComponent implements OnInit {
         private readonly router: Router,
         private readonly auth: AuthService,
         private readonly whatsappService: WhatsappService,
+        private readonly ventaService: VentaService,
     ) {
         this.moment.locale('es_MX');
 
@@ -182,7 +183,9 @@ export class VentaComponent implements OnInit {
             documento_extra: venta.documento_extra,
             seguimiento_anterior: venta.seguimiento,
             garantia_devolucion: venta.garantia_devolucion,
-            nota_de_credito: venta.nota_de_credito
+            nota_de_credito: venta.nota_de_credito,
+            uuid: venta.uuid,
+            archivos_factura: venta.archivos_factura || [],
         });
 
         const getFileIcon = (ext) => {
@@ -239,7 +242,7 @@ export class VentaComponent implements OnInit {
             onOpen: () => {
                 swal.showLoading();
             }
-        });
+        }).then();
 
         // --- CAMBIO AQUÍ ---
         // Quitamos { responseType: 'blob' } para que Angular procese la respuesta como JSON.
@@ -259,7 +262,7 @@ export class VentaComponent implements OnInit {
                         a.click();
                         document.body.removeChild(a);
                     } else {
-                        swal('Error', 'El servidor no devolvió un archivo válido.', 'error');
+                        swal('Error', 'El servidor no devolvió un archivo válido.', 'error').then();
                     }
                 },
                 (error) => {
@@ -285,7 +288,7 @@ export class VentaComponent implements OnInit {
             onOpen: () => {
                 swal.showLoading();
             }
-        });
+        }).then();
 
         // --- CAMBIO AQUÍ ---
         // Quitamos { responseType: 'blob' } para que Angular procese la respuesta como JSON.
@@ -304,7 +307,7 @@ export class VentaComponent implements OnInit {
                         a.click();
                         document.body.removeChild(a);
                     } else {
-                        swal('Error', 'El servidor no devolvió un archivo válido.', 'error');
+                        swal('Error', 'El servidor no devolvió un archivo válido.', 'error').then();
                     }
                 },
                 (error) => {
@@ -571,12 +574,6 @@ export class VentaComponent implements OnInit {
         }
     }
 
-    async descargarDocumento(
-        _tipo_documento: number,
-        _documento_extra: string
-    ): Promise<void> {
-    }
-
     clearData(): void {
         this.data = createEmptyGBBData();
         this.final_data = createEmptyGBBFinalData();
@@ -661,18 +658,13 @@ export class VentaComponent implements OnInit {
         });
     }
 
-    private async mostrarConfirmacion(message: string): Promise<boolean> {
-        const {value} = await swal({
-            type: 'warning',
-            html: message,
-            showConfirmButton: true,
-            showCancelButton: true,
-            confirmButtonText: 'Sí, continuar',
-            cancelButtonText: 'No, regresar',
+    descargarArchivoFactura(documento: string, type: string) {
+
+        this.ventaService.descargarPDF_XML(type, documento).subscribe({
+            next: (res) => {
+                window.open(res, '_blank');
+            },
+            error: swalErrorHttpResponse
         });
-
-        return value;
     }
-
-
 }

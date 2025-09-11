@@ -17,6 +17,7 @@ import {ImportacionComponent} from './importacion/importacion.component';
 import {EditorSeguimientosModule} from 'app/utils/editor-seguimientos/editor-seguimientos.module';
 import {PendienteComponent} from './pendiente/pendiente.component';
 import {RouterModule, Routes} from '@angular/router';
+import {XmlPdfComponent} from './xml-pdf/xml-pdf.component';
 
 const routes: Routes = [
     {
@@ -99,6 +100,13 @@ const routes: Routes = [
                     title: 'Importación de venta masiva de un marketplace',
                 },
             },
+            {
+                path: 'xml-pdf',
+                component: XmlPdfComponent,
+                data: {
+                    title: 'Relacionar PDF y XML a documentos de venta',
+                },
+            },
         ],
     },
 ];
@@ -124,8 +132,10 @@ const routes: Routes = [
         EditarComponent,
         AutorizarComponent,
         ImportacionComponent,
-        PendienteComponent
+        PendienteComponent,
+        XmlPdfComponent
     ],
     exports: [RouterModule]
 })
-export class VentaModule {}
+export class VentaModule {
+}

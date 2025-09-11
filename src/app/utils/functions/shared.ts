@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 import swal from 'sweetalert2';
 
 export function swalSuccessError(res): void {
@@ -6,4 +8,119 @@ export function swalSuccessError(res): void {
         type: res['code'] === 200 ? 'success' : 'error',
         html: res['message'],
     }).then();
+}
+
+export function commaNumber(number) {
+    const parts = number.toString().split('.');
+
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ', ');
+
+    return parts.join('.');
+}
+
+export function swalErrorHttpResponse(err) {
+    console.log(err);
+    swal({
+        title: '',
+        type: 'error',
+        html:
+            err.status == 0
+                ? err.message
+                : typeof err.error === 'object'
+                    ? err.error.error_summary
+                        ? err.error.error_summary
+                        : err.error.message
+                    : err.error,
+    }).then();
+}
+
+export function swalSuccessHttpResponse(res) {
+    swal({
+        title: '',
+        type: 'success',
+        html: res.message,
+    }).then();
+}
+
+export function downloadExcelReport(excel_name: string, excel_data: string) {
+    const dataURI = 'data:application/vnd.ms-excel;base64, ' + excel_data;
+
+    const a = window.document.createElement('a');
+
+    a.href = dataURI;
+    a.download = excel_name;
+    a.setAttribute('id', 'etiqueta_descargar');
+
+    a.click();
+}
+
+export function downloadPDF(pdf_name: string, pdf_data: string) {
+    const dataURI = 'data:application/pdf;base64, ' + pdf_data;
+
+    const a = window.document.createElement('a');
+
+    a.href = dataURI;
+    a.download = pdf_name;
+    a.setAttribute('id', 'etiqueta_descargar');
+
+    a.click();
+}
+
+// -----
+
+export function fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+export function extractUuidFromCfdi(xmlText: string): string | null {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'application/xml');
+
+    if (doc.getElementsByTagName('parsererror').length) {
+        return null;
+    }
+
+    const selectByNs = (localName: string, ns: string) =>
+        Array.from(doc.getElementsByTagNameNS(ns, localName));
+
+    const TFD_NS = 'http://www.sat.gob.mx/TimbreFiscalDigital';
+    const CFDI_NS = 'http://www.sat.gob.mx/cfd/3';
+    const CFDI4_NS = 'http://www.sat.gob.mx/cfd/4';
+
+    const complementos = [
+        ...selectByNs('Complemento', CFDI_NS),
+        ...selectByNs('Complemento', CFDI4_NS),
+        ...Array.from(doc.getElementsByTagName('Complemento'))
+    ];
+
+    let uuid: string | null = null;
+
+    for (const comp of complementos) {
+        const timbres = [
+            ...selectByNs('TimbreFiscalDigital', TFD_NS),
+            ...Array.from(comp.getElementsByTagName('TimbreFiscalDigital'))
+        ];
+        if (timbres.length) {
+            const tfd = timbres[0] as Element;
+            uuid =
+                tfd.getAttribute('UUID') ||
+                tfd.getAttribute('Uuid') ||
+                tfd.getAttribute('uuid');
+            if (uuid) {
+                break;
+            }
+        }
+    }
+
+    if (!uuid) {
+        const m = xmlText.match(/UUID="([\w-]{36})"/i);
+        uuid = m[1] ? m[1] : null;
+    }
+
+    return uuid;
 }

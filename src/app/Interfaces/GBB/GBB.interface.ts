@@ -60,6 +60,8 @@ export interface GBBData {
     referencia: string;
     garantia_devolucion: any;
     nota_de_credito: any;
+    uuid: string;
+    archivos_factura: any[];
 }
 
 export interface GBBFinalData {

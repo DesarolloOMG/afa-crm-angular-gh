@@ -165,6 +165,32 @@
                 </div>
             </div>
 
+            <!-- Archivos Factura -->
+            <div *ngIf="data.uuid != 'N/A' && data.archivos_factura"
+                 class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <div class="small fw-bold text-secondary">UUID</div>
+                        <div class="fw-semibold text-dark">{{ data.uuid }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-sm btn-info btn-block http-disabled fw-bold"
+                                style="white-space:nowrap;"
+                                (click)="descargarArchivoFactura(final_data.documento, 'pdf')">
+                            <i class="fas fa-receipt me-1"></i> Descargar PDF
+                        </button>
+
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-sm btn-info btn-block http-disabled fw-bold"
+                                style="white-space:nowrap;"
+                                (click)="descargarArchivoFactura(final_data.documento, 'xml')">
+                            <i class="fas fa-file-invoice me-1"></i> Descargar XML
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- CLIENTE Y DIRECCIÓN -->
             <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
                 <div class="row">
