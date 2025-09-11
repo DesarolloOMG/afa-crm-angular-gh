@@ -16,4 +16,25 @@ export class DeveloperService {
     recalcularInventario() {
         return this.http.get(`${backend_url}developer/recalcularInventario`);
     }
+
+    recalcularCosto(sku: string) {
+        const form_data = new FormData();
+        form_data.append('sku', sku);
+        return this.http.post(`${backend_url}developer/recalculaCosto`, form_data);
+    }
+
+    // developer.service.ts
+    aplicarCosto(
+        sku: string,
+        costo: number,
+        tipo: 'calculado' | 'provisional' | 'editado'
+    ) {
+        const form = new FormData();
+        form.append('sku', sku.trim());
+        form.append('costo', String(costo));    // asegura formato texto (punto decimal)
+        form.append('tipo', tipo);              // 'calculado' | 'provisional' | 'editado'
+
+        return this.http.post(`${backend_url}developer/aplicarCosto`, form);
+    }
+
 }
