@@ -27,14 +27,36 @@
                     </button>
                 </div>
                 <div class="col-md-2">
-                    <button
-                        class="btn btn-sm btn-info btn-block http-disabled"
-                        type="button"
-                        (click)="generarEtiqueta()"
-                        [disabled]="serie_buscada == ''"
-                    >
-                        Etiqueta
-                    </button>
+                    <div class="row">
+                        <button
+                            class="btn btn-sm btn-info btn-block http-disabled"
+                            type="button"
+                            (click)="generarEtiqueta()"
+                            [disabled]="serie_buscada == ''"
+                        >
+                            Etiqueta
+                        </button>
+                    </div>
+                        <div class="row form-group form-primary mt-3" *ngIf="serie_buscada != ''">
+                            <select
+                                name="impresoraarchivo"
+                                id="impresoraarchivo"
+                                class="form-control"
+                                required
+                                [(ngModel)]="impresora"
+                            >
+                                <option
+                                    value="{{ impresora.id }}"
+                                    *ngFor="let impresora of impresoras"
+                                >
+                                    {{
+                                        impresora.tamanio + " | " + impresora.nombre
+                                    }}
+                                </option>
+                            </select>
+                            <span class="form-bar"></span>
+                            <label class="float-label-read-only">Impresora</label>
+                    </div>
                 </div>
             </div>
         </form>
