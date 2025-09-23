@@ -39,4 +39,8 @@ export class PrintService {
             form_data
         );
     }
+
+    getImpresoras() {
+        return this.http.get(`${backend_url}print/impresoras`);
+    }
 }

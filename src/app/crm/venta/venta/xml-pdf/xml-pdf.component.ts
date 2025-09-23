@@ -2,12 +2,14 @@ import {Component, OnInit} from '@angular/core';
 import {VentaService} from '@services/http/venta.service';
 import swal from 'sweetalert2';
 import {extractUuidFromCfdi, fileToDataURL, swalErrorHttpResponse, swalSuccessHttpResponse} from '@sharedUtils/shared';
+import {getXmlTotal, readFileAsText} from './xml-pdf.utils';
 
 interface XmlPdfData {
     documento: string;
     pdf: string;
     uuid: string;
     xml: string;
+    totalXml: any;
 }
 
 @Component({
@@ -22,6 +24,7 @@ export class XmlPdfComponent implements OnInit {
         pdf: '',
         uuid: '',
         xml: '',
+        totalXml: null,
     };
 
     readonly ALLOWED_PDF_MIMES = ['application/pdf'];
@@ -72,6 +75,24 @@ export class XmlPdfComponent implements OnInit {
             await swal('', 'Debes proporcionar un XML válido.', 'error');
             input.value = '';
             return;
+        }
+        try {
+            this.data.xml = file;
+
+            const xmlText = await readFileAsText(file);
+            const total = getXmlTotal(xmlText);
+
+            if (total == null) {
+                console.warn('No se pudo leer el atributo Total del XML');
+                this.data.totalXml = null;
+                return;
+            }
+
+            this.data.totalXml = total;
+            console.log('Total leído del XML:', total);
+        } catch (e) {
+            console.error('Error leyendo XML:', e);
+            this.data.totalXml = null;
         }
 
         try {

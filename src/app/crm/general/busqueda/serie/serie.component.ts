@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {GeneralService} from '@services/http/general.service';
 import {swalErrorHttpResponse} from '@env/environment';
 import {PrintService} from '@services/http/print.service';
@@ -9,7 +9,8 @@ import {FormFieldComponent} from '../../../../shared/form-field/form-field.compo
     templateUrl: './serie.component.html',
     styleUrls: ['./serie.component.scss'],
 })
-export class SerieComponent {
+export class SerieComponent implements OnInit {
+
     @ViewChild('serieInput') serieInput!: FormFieldComponent;
 
     datatable: any;
@@ -17,12 +18,14 @@ export class SerieComponent {
 
     serie = '';
     serie_buscada = '';
+    impresora = 5;
     empresas: any[] = [];
+    impresoras: any[] = [];
 
     constructor(
         private generalService: GeneralService,
         private printService: PrintService,
-        private chRef: ChangeDetectorRef
+        private chRef: ChangeDetectorRef,
     ) {
         const table: any = $(this.datatable);
         this.datatable = table.DataTable();
@@ -46,6 +49,15 @@ export class SerieComponent {
             return this.empresas[0].serie[0];
         }
         return null;
+    }
+
+    ngOnInit(): void {
+        this.printService.getImpresoras().subscribe({
+            next: (res: any) => {
+                this.impresoras = res || [];
+            },
+            error: swalErrorHttpResponse
+        });
     }
 
     buscarSerie() {
@@ -90,13 +102,14 @@ export class SerieComponent {
             serie: this.serie_buscada,
             codigo: ultimoMovimiento.sku,
             descripcion: ultimoMovimiento.descripcion,
+            impresora: this.impresora,
         };
+        console.log(data);
 
         this.printService.printSerieLabel(data).subscribe({
-            next: () => {},
-            error: (err: any) => {
-                swalErrorHttpResponse(err);
+            next: () => {
             },
+            error: swalErrorHttpResponse
         });
     }
 
