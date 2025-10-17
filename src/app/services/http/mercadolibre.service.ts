@@ -1,4 +1,4 @@
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Injectable} from '@angular/core';
 import {backend_url, mercadolibre_url} from '@env/environment';
 
@@ -39,9 +39,11 @@ export class MercadolibreService {
 
     // NO NECESITA AUTH
     getBrandsByUser(user_id: number) {
-        return this.http.get(`${mercadolibre_url}users/${user_id}/brands`);
-    }
+        const form_data = new FormData();
+        form_data.append('user_id', String(user_id));
 
+        return this.http.post(`${backend_url}venta/mercadolibre/api/brands`, form_data);
+    }
 
     getMarketplacetoken(marketplace_id: string) {
         return this.http.get(
