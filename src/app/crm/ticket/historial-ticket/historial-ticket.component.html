@@ -9,11 +9,7 @@
                     <button
                         type="button"
                         class="btn"
-                        [ngClass]="
-                            !estado
-                                ? 'btn-primary filtro-activo'
-                                : 'btn-outline-secondary'
-                        "
+                        [ngClass]="!estado ? 'btn-primary filtro-activo' : 'btn-outline-secondary'"
                         (click)="getTickets(null)"
                     >
                         Todos
@@ -22,11 +18,7 @@
                     <button
                         type="button"
                         class="btn"
-                        [ngClass]="
-                            estado === 'en_revision'
-                                ? 'btn-primary filtro-activo'
-                                : 'btn-outline-secondary'
-                        "
+                        [ngClass]="estado === 'en_revision' ? 'btn-primary filtro-activo' : 'btn-outline-secondary'"
                         (click)="getTickets(TicketEstadoEnum.EN_REVISION)"
                     >
                         En Revisión
@@ -35,11 +27,7 @@
                     <button
                         type="button"
                         class="btn"
-                        [ngClass]="
-                            estado === 'resuelto'
-                                ? 'btn-success filtro-activo'
-                                : 'btn-outline-secondary'
-                        "
+                        [ngClass]="estado === 'resuelto' ? 'btn-success filtro-activo' : 'btn-outline-secondary'"
                         (click)="getTickets(TicketEstadoEnum.RESUELTO)"
                     >
                         Resuelto
@@ -48,11 +36,7 @@
                     <button
                         type="button"
                         class="btn"
-                        [ngClass]="
-                            estado === 'cerrado'
-                                ? 'btn-secondary filtro-activo'
-                                : 'btn-outline-secondary'
-                        "
+                        [ngClass]="estado === 'cerrado' ? 'btn-secondary filtro-activo' : 'btn-outline-secondary'"
                         (click)="getTickets(TicketEstadoEnum.CERRADO)"
                     >
                         Cerrado
@@ -67,57 +51,43 @@
             <div class="col-md-12">
                 <table class="table table-striped" id="ticket_historial">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titulo</th>
-                            <th>Descripción</th>
-                            <th>Creador</th>
-                            <th>Fecha Creación</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titulo</th>
+                        <th>Descripción</th>
+                        <th>Creador</th>
+                        <th>Fecha Creación</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let ticket of tickets">
-                            <td>
-                                {{ ticket.id }}
-                            </td>
-                            <td>{{ ticket.titulo }}</td>
-                            <td>
-                                {{ ticket.descripcion }}
-                            </td>
-                            <td>{{ ticket.creador?.nombre }}</td>
-
-                            <td>
-                                {{ ticket.created_at | date : "dd/MM/yyyy" }}
-                            </td>
-                            <td>
-                                <h5
-                                    class="badge badge-{{
-                                        ticket.estado ==
-                                        TicketEstadoEnum.RESUELTO
-                                            ? 'success'
-                                            : 'warning'
-                                    }}"
-                                    style="
-                                        font-size: medium;
-                                        text-transform: capitalize;
-                                    "
-                                >
+                    <tr *ngFor="let ticket of tickets">
+                        <td>{{ ticket.id }}</td>
+                        <td>{{ ticket.titulo }}</td>
+                        <td>{{ ticket.descripcion }}</td>
+                        <td>{{ ticket.creador?.nombre }}</td>
+                        <td>{{ ticket.created_at | date : "dd/MM/yyyy" }}</td>
+                        <td>
+                                <span class="badge-estado" [ngClass]="{
+                                    'badge-success': ticket.estado === TicketEstadoEnum.RESUELTO,
+                                    'badge-warning': ticket.estado === TicketEstadoEnum.EN_REVISION,
+                                    'badge-secondary': ticket.estado === TicketEstadoEnum.CERRADO
+                                }">
                                     {{ ticket.estado }}
-                                </h5>
-                            </td>
-                            <td>
-                                <button
-                                    class="btn btn-outline-info btn-sm btn-block"
-                                    (click)="verTicket(ticket)"
-                                    ngbTooltip="Ver información"
-                                    placement="top"
-                                >
-                                    <i class="fa fa-eye fa-2x"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                </span>
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                (click)="verTicket(ticket)"
+                                ngbTooltip="Ver información"
+                                placement="top"
+                            >
+                                <i class="fa fa-eye fa-2x"></i>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -126,126 +96,113 @@
 </div>
 
 <ng-template #modal let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Informacion de la compra</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="modal-header modal-header-rmd">
+        <h4 class="modal-title">
+            <span class="dot"></span> Información del ticket #{{ ticket.id }}
+        </h4>
+
+        <div class="header-actions">
+            <button type="button" class="close" aria-label="Close" (click)="d('Cross click')" id="cerrar_modal">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     </div>
-    <div class="modal-body">
-        <div class="form-horizontal form-bordered">
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">ID</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.id }}</h5>
-                </div>
+
+    <div class="modal-body modal-body-rmd">
+        <!-- Tarjetas con info principal -->
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-card__label">Título</div>
+                <div class="info-card__value">{{ ticket.titulo || 'SIN REGISTRO' }}</div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Titulo</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.titulo }}</h5>
-                </div>
+            <div class="info-card">
+                <div class="info-card__label">Creador</div>
+                <div class="info-card__value">{{ ticket.creador?.nombre || 'SIN REGISTRO' }}</div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Descripción</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.descripcion }}</h5>
-                </div>
+            <div class="info-card">
+                <div class="info-card__label">Técnico</div>
+                <div class="info-card__value">{{ ticket.tecnico?.nombre || 'SIN REGISTRO' }}</div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Creador</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.creador?.nombre }}</h5>
-                </div>
+            <div class="info-card wide">
+                <div class="info-card__label">Descripción</div>
+                <div class="info-card__value multiline">{{ ticket.descripcion || 'SIN REGISTRO' }}</div>
+            </div>
+        </div>
+
+        <!-- Fechas -->
+        <div class="section-block">
+            <div class="section-title">
+                <i class="fa fa-calendar"></i> Fechas
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Técnico</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.tecnico?.nombre }}</h5>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card__label">Fecha de creación</div>
+                    <div class="info-card__value">{{ ticket.created_at | date : "dd/MM/yyyy HH:mm:ss" }}</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card__label">Fecha de asignación</div>
+                    <div class="info-card__value">{{ ticket.assigned_at ? (ticket.assigned_at | date : "dd/MM/yyyy HH:mm:ss") : 'SIN REGISTRO' }}</div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-card__label">Fecha de resolución</div>
+                    <div class="info-card__value">{{ ticket.resolved_at ? (ticket.resolved_at | date : "dd/MM/yyyy HH:mm:ss") : 'SIN REGISTRO' }}</div>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Fecha creación</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.created_at | date : "d MMM y HH:mm:ss" }}</h5>
-                </div>
+        <!-- Evidencias -->
+        <div class="section-block">
+            <div class="section-title">
+                <i class="fa fa-paperclip"></i> Evidencias
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Fecha asignación</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>
-                        {{ ticket.assigned_at | date : "d MMM y HH:mm:ss" }}
-                    </h5>
-                </div>
+            <div class="table-responsive soft">
+                <table class="table table-striped" *ngIf="ticket.archivos?.length; else noFiles">
+                    <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th style="width:180px">Fecha</th>
+                        <th style="width:90px" class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let archivo of ticket.archivos">
+                        <td class="truncate" [title]="archivo.nombre">{{ archivo.nombre }}</td>
+                        <td class="nowrap">{{ archivo.created_at | date : "dd/MM/yyyy HH:mm:ss" }}</td>
+                        <td class="text-center">
+                            <button
+                                class="btn btn-outline-info btn-sm icon-btn"
+                                (click)="verArchivo(archivo.dropbox)"
+                                ngbTooltip="Ver archivo"
+                                placement="top"
+                            >
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <ng-template #noFiles>
+                    <div class="empty-hint">No hay evidencias</div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Resolución -->
+        <div class="section-block">
+            <div class="section-title">
+                <i class="fa fa-check-circle-o"></i> Resolución
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Fecha resolución</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>
-                        {{ ticket.resolved_at | date : "d MMM y HH:mm:ss" }}
-                    </h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Evidencias</label>
-                <div class="col-sm-10 inline-block table-responsive">
-                    <table
-                        class="table table-striped"
-                        *ngIf="ticket.archivos?.length"
-                    >
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Fecha</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let archivo of ticket.archivos">
-                                <td>{{ archivo.nombre }}</td>
-                                <td>
-                                    {{
-                                        archivo.created_at
-                                            | date : "d MMM y HH:mm:ss"
-                                    }}
-                                </td>
-                                <td>
-                                    <button
-                                        class="btn btn-outline-info btn-sm btn-block"
-                                        (click)="verArchivo(archivo.dropbox)"
-                                        ngbTooltip="Ver archivo"
-                                        placement="top"
-                                    >
-                                        <i class="fa fa-eye fa-2x"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h5 *ngIf="!ticket.archivos.length">No hay evidencias</h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Resolución</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.resolucion }}</h5>
-                </div>
+            <div class="info-card wide">
+                <div class="info-card__value multiline">{{ ticket.resolucion || 'SIN REGISTRO' }}</div>
             </div>
         </div>
     </div>

@@ -243,13 +243,14 @@ $whatsapp-green: #25D366;
     &__label {
         font-size: .78rem;
         letter-spacing: .25px;
-        color: $rmd-text-2;
+        color: #4285f4;
         text-transform: uppercase;
         margin-bottom: 4px;
+        font-weight: 600;
     }
 
     &__value {
-        font-weight: 700;
+        font-weight: 500;
         color: $rmd-text-1;
         line-height: 1.35;
 
