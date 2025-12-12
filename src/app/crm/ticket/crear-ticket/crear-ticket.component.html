@@ -63,8 +63,32 @@
                                     type="file"
                                     class="form-control ngb-drop-zone text-center ripple light"
                                     id="archivos"
+                                    #archivos
                                     multiple
+                                    (change)="onFileChange($event)"
                                 />
+
+                                <div class="preview-grid mt-2" *ngIf="previews && previews.length">
+                                    <div class="preview-item" *ngFor="let p of previews; let i = index">
+                                        <div class="thumb" *ngIf="p.isImage; else noImg">
+                                            <img [src]="p.url" [alt]="p.name" />
+                                        </div>
+                                        <ng-template #noImg>
+                                            <div class="thumb icon">
+                                                <i class="fa fa-file"></i>
+                                            </div>
+                                        </ng-template>
+
+                                        <div class="meta">
+                                            <div class="name" [title]="p.name">{{ p.name }}</div>
+                                            <div class="size">{{ p.sizeKB }} KB</div>
+                                        </div>
+
+                                        <button type="button" class="remove" (click)="removePreview(i)">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

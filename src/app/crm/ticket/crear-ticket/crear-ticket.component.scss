@@ -1,0 +1,202 @@
+/* ====== Paleta RMD ====== */
+$rmd-primary: #073B60;
+$rmd-accent:  #00A5B8;
+$rmd-text-1:  #354052;
+$rmd-text-2:  #425266;
+$rmd-soft:    #fafbfc;
+
+/* ====== Card ====== */
+:host ::ng-deep .card {
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    overflow: hidden;
+}
+:host ::ng-deep .card-block,
+:host ::ng-deep .card-body {
+    padding: 18px 20px 8px;
+}
+
+/* ====== Títulos ====== */
+:host ::ng-deep h4.sub-title {
+    margin: 8px 0 14px;
+    font-weight: 700;
+    font-size: 1.02rem;
+    color: $rmd-text-1;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    padding-left: 9px;
+    border-left: 3px solid $rmd-accent;
+}
+
+/* ====== Inputs conservando tu HTML ====== */
+:host ::ng-deep .form-group.form-primary .form-control {
+    border-radius: 10px;
+    border: 1px solid #e6e8eb;
+    background: #fff;
+    box-shadow: none !important;
+    transition: border-color .2s, box-shadow .2s;
+    height: 40px;
+    padding: 6px 12px;
+}
+:host ::ng-deep .form-group.form-primary textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+:host ::ng-deep .form-group.form-primary .form-control:focus {
+    border-color: $rmd-accent;
+    box-shadow: 0 0 0 3px rgba(0,165,184,.12);
+}
+:host ::ng-deep .float-label {
+    color: $rmd-text-2;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    font-weight: 600;
+}
+:host ::ng-deep .messages.block {
+    display: block;
+    margin-top: 4px;
+    font-size: .82rem;
+    color: #c0392b !important;
+}
+
+/* ====== Drop zone (tu input actual) ====== */
+:host ::ng-deep .ngb-drop-zone {
+    border: 2px dashed #dfe3e8 !important;
+    background: $rmd-soft !important;
+    border-radius: 12px;
+    padding: 18px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* deja el botón de "Elegir archivos" a la izquierda */
+    gap: 10px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    font-weight: 600;
+    color: $rmd-text-2;
+    transition: border-color .2s, background .2s, box-shadow .2s;
+}
+:host ::ng-deep .ngb-drop-zone:hover,
+:host ::ng-deep .ngb-drop-zone:focus {
+    border-color: $rmd-accent !important;
+    background: #f0fbfd !important;
+    box-shadow: 0 0 0 3px rgba(0,165,184,.12) inset;
+    cursor: pointer;
+}
+
+/* Botón nativo del input (si se muestra) */
+:host ::ng-deep .ngb-drop-zone::-webkit-file-upload-button,
+:host ::ng-deep .ngb-drop-zone::file-selector-button {
+    border: 1px solid $rmd-primary;
+    border-radius: 10px;
+    padding: 6px 12px;
+    background: #fff;
+    color: $rmd-primary;
+    font-weight: 700;
+    letter-spacing: .3px;
+    margin-right: 8px;
+}
+
+/* ====== CTA inferior (tu botón actual) ====== */
+:host ::ng-deep .btn.btn-outline-info.btn-sm.btn-block {
+    background: $rmd-primary !important;
+    border-color: $rmd-primary !important;
+    color: #fff !important;
+    border-radius: 12px;
+    height: 48px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    font-size: .98rem;
+}
+:host ::ng-deep .btn[disabled] {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+/* ====== Contenedor general ====== */
+:host ::ng-deep .container { max-width: 1200px; }
+:host ::ng-deep .row.m-t-20 { margin-top: 16px !important; }
+:host ::ng-deep .m-b-20 { margin-bottom: 16px !important; }
+
+/* ====== Previews ====== */
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+
+    .preview-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid #eef1f4;
+        border-radius: 10px;
+        background: #fff;
+        padding: 8px;
+
+        .thumb {
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e6e8eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &.icon {
+                font-size: 22px;
+                color: $rmd-text-2;
+                background: $rmd-soft;
+            }
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+            }
+        }
+
+        .meta {
+            flex: 1;
+            min-width: 0;
+            .name {
+                font-weight: 600;
+                color: $rmd-text-1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 260px;
+                text-transform: none;
+            }
+            .size {
+                font-size: .8rem;
+                color: $rmd-text-2;
+                opacity: .9;
+            }
+        }
+
+        .remove {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #fff;
+            border: 1px solid #e6e8eb;
+            color: #c0392b;
+            line-height: 24px;
+            text-align: center;
+            padding: 0;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            i { pointer-events: none; }
+        }
+    }
+}
