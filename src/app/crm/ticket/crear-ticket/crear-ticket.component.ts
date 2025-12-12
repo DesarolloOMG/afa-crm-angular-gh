@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 declare var $: any;
 import { Ticket } from '@models/Ticket.model';
 import { TicketService } from '@services/http/ticket.service';
-import { swalErrorHttpResponse} from '@sharedUtils/shared';
+import { swalErrorHttpResponse} from '@env/environment';
 import swal from 'sweetalert2';
 
 @Component({

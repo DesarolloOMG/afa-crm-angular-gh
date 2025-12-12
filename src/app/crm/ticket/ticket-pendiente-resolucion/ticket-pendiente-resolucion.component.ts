@@ -12,7 +12,7 @@ import { TicketService } from '@services/http/ticket.service';
 import { TicketEstadoEnum } from '@models/Enums/TicketEstado.enum';
 import { Ticket } from '@models/Ticket.model';
 
-import { swalErrorHttpResponse} from '@sharedUtils/shared';
+import { swalErrorHttpResponse} from '@env/environment';
 import { forkJoin } from 'rxjs';
 import swal from 'sweetalert2';
 
