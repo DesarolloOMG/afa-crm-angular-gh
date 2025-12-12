@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 declare var $: any;
-import { swalErrorHttpResponse } from '@env/environment';
 import { Ticket } from '@models/Ticket.model';
 import { TicketService } from '@services/http/ticket.service';
-import { swalSuccessHttpResponse } from '@shared/utils';
+import { swalErrorHttpResponse} from '@sharedUtils/shared';
 import swal from 'sweetalert2';
 
 @Component({

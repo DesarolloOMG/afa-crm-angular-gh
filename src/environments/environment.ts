@@ -20,6 +20,7 @@ export const raspberry_dyndns =
     'http://wimtech-test.ddns.net:9181/raspberry-print-server/public/';
 export const mercadolibre_url = 'https://api.mercadolibre.com/';
 export const dropbox_api_url = 'https://api.dropboxapi.com/2/';
+export const whatsapp_me = 'https://wa.me/';
 
 export function commaNumber(number) {
     const parts = number.toString().split('.');
