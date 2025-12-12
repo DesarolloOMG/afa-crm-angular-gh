@@ -12,56 +12,50 @@
                     id="ticket_pendiente_resolucion"
                 >
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titulo</th>
-                            <th>Descripción</th>
-                            <th>Creador</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titulo</th>
+                        <th>Descripción</th>
+                        <th>Creador</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let ticket of tickets">
-                            <td>
-                                {{ ticket.id }}
-                            </td>
-                            <td>{{ ticket.titulo }}</td>
-                            <td>
-                                {{ ticket.descripcion }}
-                            </td>
-                            <td>{{ ticket.creador?.nombre }}</td>
-                            <td>
-                                {{ ticket.created_at | date : "dd/MM/yyyy" }}
-                            </td>
-                            <td>
-                                <button
-                                    class="btn btn-outline-info btn-sm btn-block"
-                                    (click)="verTicket(ticket)"
-                                    ngbTooltip="Ver información"
-                                    placement="top"
-                                    *ngIf="
-                                        ticket.estado ===
-                                        TicketEstadoEnum.EN_REVISION
-                                    "
-                                >
-                                    <i class="fa fa-eye fa-2x"></i>
-                                </button>
+                    <tr *ngFor="let ticket of tickets">
+                        <td>
+                            {{ ticket.id }}
+                        </td>
+                        <td>{{ ticket.titulo }}</td>
+                        <td>
+                            {{ ticket.descripcion }}
+                        </td>
+                        <td>{{ ticket.creador?.nombre }}</td>
+                        <td>
+                            {{ ticket.created_at | date : "dd/MM/yyyy" }}
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                (click)="verTicket(ticket)"
+                                ngbTooltip="Ver información"
+                                placement="top"
+                                *ngIf="ticket.estado === TicketEstadoEnum.EN_REVISION"
+                            >
+                                <i class="fa fa-eye fa-2x"></i>
+                            </button>
 
-                                <button
-                                    class="btn btn-outline-info btn-sm btn-block"
-                                    (click)="iniciarRevision(ticket)"
-                                    ngbTooltip="Iniciar revisión"
-                                    placement="top"
-                                    *ngIf="
-                                        ticket.estado ===
-                                        TicketEstadoEnum.ASIGNADO
-                                    "
-                                >
-                                    <i class="fa fa-play fa-2x"></i>
-                                </button>
-                            </td>
-                        </tr>
+                            <button
+                                class="btn btn-outline-info btn-sm btn-block"
+                                (click)="iniciarRevision(ticket)"
+                                ngbTooltip="Iniciar revisión"
+                                placement="top"
+                                *ngIf="ticket.estado === TicketEstadoEnum.ASIGNADO"
+                            >
+                                <i class="fa fa-play fa-2x"></i>
+                            </button>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -70,143 +64,116 @@
 </div>
 
 <ng-template #modal let-c="close" let-d="dismiss">
-    <div class="modal-header">
-        <h4 class="modal-title">Informacion de la compra</h4>
-        <button
-            type="button"
-            class="close"
-            aria-label="Close"
-            (click)="d('Cross click')"
-            id="cerrar_modal"
-        >
-            <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="modal-header modal-header-rmd">
+        <h4 class="modal-title">
+            <span class="dot"></span> Información del ticket #{{ ticket.id }}
+        </h4>
+
+        <div class="header-actions">
+            <ng-container *ngIf="ticket.creador?.celular">
+                <a class="btn btn-light btn-sm btn-wapp"
+                   href="{{ whatsapp_url }}{{ ticket.creador?.celular }}"
+                   target="_blank"
+                   ngbTooltip="Enviar WhatsApp"
+                   placement="bottom">
+                    <i class="fa fa-whatsapp"></i>
+                    <span>WhatsApp</span>
+                </a>
+            </ng-container>
+
+            <button type="button" class="close" aria-label="Close" (click)="d('Cross click')" id="cerrar_modal">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
     </div>
-    <div class="modal-body">
-        <div class="form-horizontal form-bordered">
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">ID</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.id }}</h5>
-                </div>
+
+    <div class="modal-body modal-body-rmd">
+        <!-- Tarjetas con info principal -->
+        <div class="info-cards">
+            <div class="info-card">
+                <div class="info-card__label">Título</div>
+                <div class="info-card__value">{{ ticket.titulo || 'SIN REGISTRO' }}</div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Titulo</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.titulo }}</h5>
-                </div>
+            <div class="info-card">
+                <div class="info-card__label">Creador</div>
+                <div class="info-card__value">{{ ticket.creador?.nombre || 'SIN REGISTRO' }}</div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Descripción</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.descripcion }}</h5>
-                </div>
+            <div class="info-card wide">
+                <div class="info-card__label">Descripción</div>
+                <div class="info-card__value multiline">{{ ticket.descripcion || 'SIN REGISTRO' }}</div>
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Creador</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.creador?.nombre }}</h5>
-                </div>
+            <div class="info-card">
+                <div class="info-card__label">Fecha de creación</div>
+                <div class="info-card__value">{{ ticket.created_at | date : "dd/MM/yyyy HH:mm:ss" }}</div>
+            </div>
+        </div>
+
+        <!-- Evidencias -->
+        <div class="section-block">
+            <div class="section-title">
+                <i class="fa fa-paperclip"></i> Evidencias
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Whatsapp</label>
-                <div class="col-sm-10 inline-block">
-                    <a
-                        href="{{ whatsapp_url }}{{ ticket.creador?.celular }}"
-                        target="_blank"
-                        class="btn btn-block btn-outline-info btn-sm m-t-10 m-b-10"
-                        ngbTooltip="Enviar mensaje"
-                        placement="left"
-                        ><i class="fa fa-send fa-2x"></i
-                    ></a>
-                </div>
+            <div class="table-responsive soft">
+                <table class="table table-striped" *ngIf="ticket.archivos?.length; else noFiles">
+                    <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th style="width:180px">Fecha</th>
+                        <th style="width:90px" class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr *ngFor="let archivo of ticket.archivos">
+                        <td class="truncate" [title]="archivo.nombre">{{ archivo.nombre }}</td>
+                        <td class="nowrap">{{ archivo.created_at | date : "dd/MM/yyyy HH:mm:ss" }}</td>
+                        <td class="text-center">
+                            <button
+                                class="btn btn-outline-info btn-sm icon-btn"
+                                (click)="verArchivo(archivo.dropbox)"
+                                ngbTooltip="Ver archivo"
+                                placement="top"
+                            >
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <ng-template #noFiles>
+                    <div class="empty-hint">No hay evidencias</div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Resolución -->
+        <div class="section-block">
+            <div class="section-title">
+                <i class="fa fa-check-circle-o"></i> Resolución
             </div>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Fecha</label>
-                <div class="col-sm-10 inline-block">
-                    <h5>{{ ticket.created_at | date : "d MMM y HH:mm:ss" }}</h5>
-                </div>
-            </div>
+            <textarea
+                class="form-control resolve-textarea"
+                [(ngModel)]="ticket.resolucion"
+                placeholder="Escribe la resolución del ticket"
+                rows="4"
+            ></textarea>
 
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Evidencias</label>
-                <div class="col-sm-10 inline-block table-responsive">
-                    <table
-                        class="table table-striped"
-                        *ngIf="ticket.archivos?.length"
-                    >
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Fecha</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let archivo of ticket.archivos">
-                                <td>{{ archivo.nombre }}</td>
-                                <td>
-                                    {{
-                                        archivo.created_at
-                                            | date : "d MMM y HH:mm:ss"
-                                    }}
-                                </td>
-                                <td>
-                                    <button
-                                        class="btn btn-outline-info btn-sm btn-block"
-                                        (click)="verArchivo(archivo.dropbox)"
-                                        ngbTooltip="Ver archivo"
-                                        placement="top"
-                                    >
-                                        <i class="fa fa-eye fa-2x"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <h5 *ngIf="!ticket.archivos.length">No hay evidencias</h5>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">Resolución</label>
-                <div class="col-sm-10 inline-block">
-                    <div class="md-float-material form-material">
-                        <div class="row">
-                            <div class="col-md-12 m-t-10">
-                                <div class="form-group form-primary">
-                                    <textarea
-                                        class="form-control"
-                                        [(ngModel)]="ticket.resolucion"
-                                        placeholder="Escribe la resolución del ticket"
-                                    ></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group group-div">
-                <label class="col-form-label col-sm-2">&nbsp;</label>
-                <div class="col-sm-10 inline-block">
-                    <button
-                        class="btn btn-sm btn-block btn-outline-info http-disabled"
-                        style="margin: 10px"
-                        (click)="guardarTicket()"
-                        [disabled]="!ticket.resolucion"
-                        ngbTooltip="Terminar ticket"
-                        placement="top"
-                    >
-                        <i class="fa fa-save fa-2x"></i>
-                    </button>
-                </div>
+            <div class="resolve-actions">
+                <button
+                    class="btn btn-primary btn-resolve"
+                    (click)="guardarTicket()"
+                    [disabled]="!ticket.resolucion"
+                    ngbTooltip="Terminar ticket"
+                    placement="top"
+                >
+                    <i class="fa fa-save"></i>
+                    <span>Terminar</span>
+                </button>
             </div>
         </div>
     </div>
