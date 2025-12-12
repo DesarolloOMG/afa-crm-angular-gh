@@ -1,0 +1,252 @@
+<!--suppress JSUnusedLocalSymbols -->
+<div class="card">
+    <div class="card-header">
+        <h5>Tickets pendientes de resolución</h5>
+
+        <div class="row">
+            <div class="col-md-8 offset-md-4 ticket-filtros">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="
+                            !estado
+                                ? 'btn-primary filtro-activo'
+                                : 'btn-outline-secondary'
+                        "
+                        (click)="getTickets(null)"
+                    >
+                        Todos
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="
+                            estado === 'en_revision'
+                                ? 'btn-primary filtro-activo'
+                                : 'btn-outline-secondary'
+                        "
+                        (click)="getTickets(TicketEstadoEnum.EN_REVISION)"
+                    >
+                        En Revisión
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="
+                            estado === 'resuelto'
+                                ? 'btn-success filtro-activo'
+                                : 'btn-outline-secondary'
+                        "
+                        (click)="getTickets(TicketEstadoEnum.RESUELTO)"
+                    >
+                        Resuelto
+                    </button>
+
+                    <button
+                        type="button"
+                        class="btn"
+                        [ngClass]="
+                            estado === 'cerrado'
+                                ? 'btn-secondary filtro-activo'
+                                : 'btn-outline-secondary'
+                        "
+                        (click)="getTickets(TicketEstadoEnum.CERRADO)"
+                    >
+                        Cerrado
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-block table-responsive">
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="ticket_historial">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Titulo</th>
+                            <th>Descripción</th>
+                            <th>Creador</th>
+                            <th>Fecha Creación</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let ticket of tickets">
+                            <td>
+                                {{ ticket.id }}
+                            </td>
+                            <td>{{ ticket.titulo }}</td>
+                            <td>
+                                {{ ticket.descripcion }}
+                            </td>
+                            <td>{{ ticket.creador?.nombre }}</td>
+
+                            <td>
+                                {{ ticket.created_at | date : "dd/MM/yyyy" }}
+                            </td>
+                            <td>
+                                <h5
+                                    class="badge badge-{{
+                                        ticket.estado ==
+                                        TicketEstadoEnum.RESUELTO
+                                            ? 'success'
+                                            : 'warning'
+                                    }}"
+                                    style="
+                                        font-size: medium;
+                                        text-transform: capitalize;
+                                    "
+                                >
+                                    {{ ticket.estado }}
+                                </h5>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn btn-outline-info btn-sm btn-block"
+                                    (click)="verTicket(ticket)"
+                                    ngbTooltip="Ver información"
+                                    placement="top"
+                                >
+                                    <i class="fa fa-eye fa-2x"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #modal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Informacion de la compra</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Close"
+            (click)="d('Cross click')"
+            id="cerrar_modal"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="form-horizontal form-bordered">
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">ID</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ ticket.id }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Titulo</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ ticket.titulo }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Descripción</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ ticket.descripcion }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Creador</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ ticket.creador?.nombre }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Técnico</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ ticket.tecnico?.nombre }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Fecha creación</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ ticket.created_at | date : "d MMM y HH:mm:ss" }}</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Fecha asignación</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{ ticket.assigned_at | date : "d MMM y HH:mm:ss" }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Fecha resolución</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>
+                        {{ ticket.resolved_at | date : "d MMM y HH:mm:ss" }}
+                    </h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Evidencias</label>
+                <div class="col-sm-10 inline-block table-responsive">
+                    <table
+                        class="table table-striped"
+                        *ngIf="ticket.archivos?.length"
+                    >
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let archivo of ticket.archivos">
+                                <td>{{ archivo.nombre }}</td>
+                                <td>
+                                    {{
+                                        archivo.created_at
+                                            | date : "d MMM y HH:mm:ss"
+                                    }}
+                                </td>
+                                <td>
+                                    <button
+                                        class="btn btn-outline-info btn-sm btn-block"
+                                        (click)="verArchivo(archivo.dropbox)"
+                                        ngbTooltip="Ver archivo"
+                                        placement="top"
+                                    >
+                                        <i class="fa fa-eye fa-2x"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h5 *ngIf="!ticket.archivos.length">No hay evidencias</h5>
+                </div>
+            </div>
+
+            <div class="form-group group-div">
+                <label class="col-form-label col-sm-2">Resolución</label>
+                <div class="col-sm-10 inline-block">
+                    <h5>{{ ticket.resolucion }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>

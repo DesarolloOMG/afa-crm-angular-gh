@@ -1,0 +1,16 @@
+.ticket-filtros .btn {
+    border-radius: 20px; /* pill */
+    padding: 4px 14px;
+    margin: 0 3px;
+    font-size: 12px;
+}
+
+.ticket-filtros .btn-outline-secondary {
+    background-color: #f7f9fc;
+    border-color: #d1d9e6;
+    color: #6c757d;
+}
+
+.ticket-filtros .btn.filtro-activo {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}

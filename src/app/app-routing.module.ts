@@ -22,6 +22,10 @@ const routes: Routes = [
                     './crm/dashboard/dashboard.module#DashboardModule',
             },
             {
+                path: 'ticket',
+                loadChildren: './crm/ticket/ticket.module#TicketModule',
+            },
+            {
                 path: 'general',
                 loadChildren: './crm/general/general.module#GeneralModule',
             },

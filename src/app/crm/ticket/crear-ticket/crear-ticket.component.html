@@ -1,0 +1,90 @@
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <form class="md-float-material form-material" #form="ngForm">
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="sub-title m-t-20">Información general</h4>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group form-primary">
+                                    <input
+                                        type="text"
+                                        name="ticket-titulo"
+                                        class="form-control"
+                                        #ticketitulo="ngModel"
+                                        [(ngModel)]="ticket.titulo"
+                                        maxlength="255"
+                                        required
+                                    />
+                                    <span class="form-bar"></span>
+                                    <label class="float-label">Titulo</label>
+                                    <small
+                                        class="text-danger messages block"
+                                        *ngIf="ticketitulo.errors?.required"
+                                        >El titulo es requerido</small
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group form-primary">
+                                    <textarea
+                                        class="form-control"
+                                        name="ticket-descripcion"
+                                        #ticketdescripcion="ngModel"
+                                        [(ngModel)]="ticket.descripcion"
+                                        required
+                                    >
+                                    </textarea>
+                                    <span class="form-bar"></span>
+                                    <label class="float-label"
+                                        >Descripción</label
+                                    >
+                                    <small
+                                        class="text-danger messages block"
+                                        *ngIf="
+                                            ticketdescripcion.errors?.required
+                                        "
+                                        >Campo requerido</small
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="sub-title m-t-20">Evidencia (Archivos)</h4>
+
+                        <div class="row m-t-20">
+                            <div class="col-md-12">
+                                <input
+                                    type="file"
+                                    class="form-control ngb-drop-zone text-center ripple light"
+                                    id="archivos"
+                                    multiple
+                                />
+                            </div>
+                        </div>
+
+                        <div class="row m-t-20">
+                            <div class="col-md-12">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-info btn-sm btn-block m-b-20 http-disabled"
+                                    placement="top"
+                                    ngbTooltip="Crear ticket"
+                                    (click)="crearTicket()"
+                                    [disabled]="form.invalid"
+                                >
+                                    <i class="fa fa-save fa-2x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
