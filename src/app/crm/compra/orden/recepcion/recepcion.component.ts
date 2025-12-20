@@ -5,7 +5,6 @@ import swal from 'sweetalert2';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AuthService} from '@services/auth.service';
 import {WhatsappService} from '@services/http/whatsapp.service';
-import {PrintService} from '@services/http/print.service';
 
 @Component({
     selector: 'app-recepcion',
@@ -95,6 +94,7 @@ export class RecepcionComponent implements OnInit {
     documentos: any[] = [];
     empresas: any[] = [];
     usuarios: any[] = [];
+    autorizados: any[] = [160, 51, 78];
 
     constructor(
         private http: HttpClient,
@@ -103,24 +103,14 @@ export class RecepcionComponent implements OnInit {
         private renderer: Renderer2,
         private auth: AuthService,
         private whatsappService: WhatsappService,
-        private printService: PrintService
     ) {
-        const table: any = $(this.datatable_name);
-        this.datatable = table.DataTable();
-
         const usuario = JSON.parse(this.auth.userData().sub);
 
-        this.http
-            .get(`${backend_url}dashboard/user/subnivel-nivel/${usuario.id}`)
-            .subscribe(
-                (res: any) => {
-                    const subniveles = [res][0];
-                    this.autorizado = subniveles.includes(74);
-                },
-                (response) => {
-                    swalErrorHttpResponse(response);
-                }
-            );
+        if (this.autorizados.includes(usuario.id)) {
+            this.autorizado = true;
+        }
+        const table: any = $(this.datatable_name);
+        this.datatable = table.DataTable();
     }
 
     ngOnInit() {
@@ -714,14 +704,18 @@ export class RecepcionComponent implements OnInit {
                 const etiqueta_serie = {
                     codigo: producto.codigo,
                     descripcion: producto.descripcion,
-                    cantidad: Number(confirm.value),
-                    impresora: '1',
+                    cantidad: confirm.value,
+                    impresora: '37',
+                    extra: this.series.extra,
                 };
 
-                this.printService.printEtiquetasSerie(etiqueta_serie)
+                const form_data = new FormData();
+                form_data.append('data', JSON.stringify(etiqueta_serie));
+
+                this.http
+                    .post(`${backend_url}almacen/etiqueta/serie`, form_data)
                     .subscribe(
-                        (res) => {
-                            console.log(res);
+                        () => {
                         },
                         (response) => {
                             swalErrorHttpResponse(response);
