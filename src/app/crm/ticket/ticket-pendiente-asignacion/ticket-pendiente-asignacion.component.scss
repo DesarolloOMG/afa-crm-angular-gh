@@ -72,9 +72,27 @@ $rmd-border:  #e8ecf0;
 :host ::ng-deep .table-responsive {
     border: 1px solid $rmd-border;
     border-radius: 12px;
-    overflow: hidden;
     background: #fff;
+
+    /* ✅ scroll horizontal en móvil */
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    /* ✅ scroll suave iOS/Android */
+    -webkit-overflow-scrolling: touch;
+
+    /* para que no se pase del contenedor */
+    max-width: 100%;
 }
+
+:host ::ng-deep .ticket-table-wrap > table.table {
+    min-width: 760px;   /* 6 columnas, con botón, suele ir bien */
+    width: max-content; /* la tabla crece según el contenido */
+}
+:host ::ng-deep .ticket-table-wrap th {
+    white-space: nowrap; /* headers en una línea */
+}
+
 :host ::ng-deep table.table {
     margin: 0;
     border-collapse: separate;

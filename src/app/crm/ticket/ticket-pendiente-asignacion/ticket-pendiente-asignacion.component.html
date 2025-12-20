@@ -1,53 +1,44 @@
 <!--suppress JSUnusedLocalSymbols -->
+<!--suppress JSUnusedLocalSymbols -->
 <div class="card">
     <div class="card-header">
         <h5>Tickets pendientes de asignación</h5>
     </div>
 
-    <div class="card-block table-responsive">
-        <div class="row">
-            <div class="col-md-12">
-                <table
-                    class="table table-striped"
-                    id="ticket_pendiente_asignacion"
-                >
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Titulo</th>
-                            <th>Descripción</th>
-                            <th>Creador</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let ticket of tickets">
-                            <td>
-                                {{ ticket.id }}
-                            </td>
-                            <td>{{ ticket.titulo }}</td>
-                            <td>
-                                {{ ticket.descripcion }}
-                            </td>
-                            <td>{{ ticket.creador?.nombre }}</td>
-                            <td>
-                                {{ ticket.created_at | date : "dd/MM/yyyy" }}
-                            </td>
-                            <td>
-                                <button
-                                    class="btn btn-outline-info btn-sm btn-block"
-                                    (click)="verTicket(ticket)"
-                                    ngbTooltip="Ver información"
-                                    placement="top"
-                                >
-                                    <i class="fa fa-eye fa-2x"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+    <div class="card-block">
+        <div class="table-responsive ticket-table-wrap">
+            <table class="table table-striped" id="ticket_pendiente_asignacion">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titulo</th>
+                    <th>Descripción</th>
+                    <th>Creador</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr *ngFor="let ticket of tickets">
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.titulo }}</td>
+                    <td>{{ ticket.descripcion }}</td>
+                    <td>{{ ticket.creador?.nombre }}</td>
+                    <td>{{ ticket.created_at | date : "dd/MM/yyyy" }}</td>
+                    <td>
+                        <button
+                            class="btn btn-outline-info btn-sm btn-block"
+                            (click)="verTicket(ticket)"
+                            ngbTooltip="Ver información"
+                            placement="top"
+                        >
+                            <i class="fa fa-eye fa-2x"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

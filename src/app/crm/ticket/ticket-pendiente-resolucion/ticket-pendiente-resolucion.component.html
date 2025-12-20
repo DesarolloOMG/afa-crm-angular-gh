@@ -4,64 +4,55 @@
         <h5>Tickets pendientes de resolución</h5>
     </div>
 
-    <div class="card-block table-responsive">
-        <div class="row">
-            <div class="col-md-12">
-                <table
-                    class="table table-striped"
-                    id="ticket_pendiente_resolucion"
-                >
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Titulo</th>
-                        <th>Descripción</th>
-                        <th>Creador</th>
-                        <th>Fecha</th>
-                        <th>Acciones</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr *ngFor="let ticket of tickets">
-                        <td>
-                            {{ ticket.id }}
-                        </td>
-                        <td>{{ ticket.titulo }}</td>
-                        <td>
-                            {{ ticket.descripcion }}
-                        </td>
-                        <td>{{ ticket.creador?.nombre }}</td>
-                        <td>
-                            {{ ticket.created_at | date : "dd/MM/yyyy" }}
-                        </td>
-                        <td>
-                            <button
-                                class="btn btn-outline-info btn-sm btn-block"
-                                (click)="verTicket(ticket)"
-                                ngbTooltip="Ver información"
-                                placement="top"
-                                *ngIf="ticket.estado === TicketEstadoEnum.EN_REVISION"
-                            >
-                                <i class="fa fa-eye fa-2x"></i>
-                            </button>
+    <div class="card-block">
+        <div class="table-responsive ticket-table-wrap">
+            <table class="table table-striped" id="ticket_pendiente_resolucion">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Titulo</th>
+                    <th>Descripción</th>
+                    <th>Creador</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
 
-                            <button
-                                class="btn btn-outline-info btn-sm btn-block"
-                                (click)="iniciarRevision(ticket)"
-                                ngbTooltip="Iniciar revisión"
-                                placement="top"
-                                *ngIf="ticket.estado === TicketEstadoEnum.ASIGNADO"
-                            >
-                                <i class="fa fa-play fa-2x"></i>
-                            </button>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+                <tbody>
+                <tr *ngFor="let ticket of tickets">
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.titulo }}</td>
+                    <td>{{ ticket.descripcion }}</td>
+                    <td>{{ ticket.creador?.nombre }}</td>
+                    <td>{{ ticket.created_at | date : "dd/MM/yyyy" }}</td>
+                    <td>
+                        <button
+                            class="btn btn-outline-info btn-sm btn-block"
+                            (click)="verTicket(ticket)"
+                            ngbTooltip="Ver información"
+                            placement="top"
+                            *ngIf="ticket.estado === TicketEstadoEnum.EN_REVISION"
+                        >
+                            <i class="fa fa-eye fa-2x"></i>
+                        </button>
+
+                        <button
+                            class="btn btn-outline-info btn-sm btn-block"
+                            (click)="iniciarRevision(ticket)"
+                            ngbTooltip="Iniciar revisión"
+                            placement="top"
+                            *ngIf="ticket.estado === TicketEstadoEnum.ASIGNADO"
+                        >
+                            <i class="fa fa-play fa-2x"></i>
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+
 
 <ng-template #modal let-c="close" let-d="dismiss">
     <div class="modal-header modal-header-rmd">

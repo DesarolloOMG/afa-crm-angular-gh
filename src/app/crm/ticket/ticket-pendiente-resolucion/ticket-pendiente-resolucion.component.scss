@@ -435,3 +435,23 @@ $whatsapp-green: #25D366;
         grid-column: span 1;
     }
 }
+
+/* ✅ SOLO tabla principal: scroll horizontal en móvil */
+:host ::ng-deep .ticket-table-wrap{
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+/* ✅ fuerza que la tabla “sea más ancha” y exista scroll */
+:host ::ng-deep .ticket-table-wrap > table.table{
+    min-width: 760px;   /* 6 columnas + botones */
+    width: max-content;
+}
+
+/* ✅ headers en una sola línea */
+:host ::ng-deep .ticket-table-wrap th{
+    white-space: nowrap;
+}
+
