@@ -102,11 +102,31 @@ $rmd-border: #e8ecf0;
 }
 
 /* ===== Tabla principal ===== */
-:host ::ng-deep .table-responsive {
+:host ::ng-deep .table-responsive.ticket-table-wrap {
     border: 1px solid $rmd-border;
     border-radius: 12px;
-    overflow: hidden;
     background: #fff;
+
+    /* ✅ habilita scroll horizontal en móvil */
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    /* ✅ iOS/Android: scroll suave */
+    -webkit-overflow-scrolling: touch;
+
+    /* opcional: evita que el contenedor “encoga” raro */
+    max-width: 100%;
+}
+
+/* ✅ haz que la tabla sea más ancha que el contenedor para que exista scroll */
+:host ::ng-deep .table-responsive.ticket-table-wrap > table.table {
+    min-width: 900px;   /* ajusta si quieres (7 columnas = suele ir bien) */
+    width: max-content; /* hace que el ancho se base en el contenido */
+}
+
+/* (opcional recomendado) evita que los headers se partan raro */
+:host ::ng-deep .table-responsive.ticket-table-wrap th {
+    white-space: nowrap;
 }
 
 :host ::ng-deep table.table {
