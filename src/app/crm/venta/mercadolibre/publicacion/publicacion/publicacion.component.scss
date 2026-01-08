@@ -1,3 +1,50 @@
 .item-description {
     height: 400px !important;
 }
+
+/* Permite scroll horizontal real en móvil */
+.mobile-scroll{
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch; /* scroll suave iOS/Android */
+}
+
+/* Asegura que la tabla pueda ser más ancha que el viewport */
+.table-mobile{
+    min-width: 900px;   /* ajusta según tus columnas */
+}
+
+/* Evita que ciertos campos se rompan feo y ensanchen raro */
+.no-wrap{
+    white-space: nowrap;
+}
+
+/* Modal: que el body tenga altura y scroll vertical */
+.modal-body{
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* En pantallas chicas dale un poco más de aire */
+@media (max-width: 576px){
+    .modal-body{
+        max-height: calc(100vh - 120px);
+        padding: 12px;
+    }
+}
+
+.item-description{
+    height: 400px;
+}
+
+/* En móvil: que use altura relativa al viewport */
+@media (max-width: 576px){
+    .item-description{
+        height: 35vh !important;
+        min-height: 160px;
+        max-height: 320px;
+    }
+}
+
