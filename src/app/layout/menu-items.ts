@@ -217,6 +217,22 @@ const MENUITEMS = [
                                 ],
                             },
                             {
+                                state: 'mercadolibre',
+                                name: 'Mercadolibre',
+                                type: 'sub',
+                                level: [0],
+                                except: [13],
+                                sublevel: 0,
+                                children: [
+                                    {
+                                        state: 'venta',
+                                        name: 'Ventas',
+                                        level: [0],
+                                        sublevel: 0,
+                                    },
+                                ],
+                            },
+                            {
                                 state: 'nota-credito',
                                 type: 'link',
                                 name: 'Notas de credito',
