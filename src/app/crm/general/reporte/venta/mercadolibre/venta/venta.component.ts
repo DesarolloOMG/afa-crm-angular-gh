@@ -245,7 +245,7 @@ export class VentaComponent implements OnInit {
                 .subscribe(
                     (res) => {
                         this.reporte = res['reporte'];
-
+                        this.errores = res['errores'] || [];
                         this.reporte_variables.rev = 2;
                         resolve(1);
                     },
@@ -445,6 +445,7 @@ export class VentaComponent implements OnInit {
                     .subscribe(
                         (res) => {
                             this.reporte = res['reporte'];
+                            this.errores = res['errores'] || [];
                             this.reporte_variables.rev = 2;
                             resolve(1);
                         },
