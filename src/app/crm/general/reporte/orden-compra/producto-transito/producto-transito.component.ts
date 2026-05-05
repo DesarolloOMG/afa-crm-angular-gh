@@ -97,13 +97,14 @@ export class ProductoTransitoComponent implements OnInit {
 
     rebuildTable() {
         const sort = this.busqueda.tipo == 'transito' ? 'asc' : 'desc';
+        const fechaOdcColumnIndex = 9;
 
         this.datatable.destroy();
         this.chRef.detectChanges();
         const table: any = $(this.datatable_name);
         this.datatable = table.DataTable({
             pageLength: 50,
-            order: [[7, sort]],
+            order: [[fechaOdcColumnIndex, sort]],
         });
     }
 }

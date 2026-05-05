@@ -106,6 +106,8 @@
                         <th>Almacén</th>
                         <th>Requisiciones</th>
                         <th>ODC</th>
+                        <th>Recepción</th>
+                        <th>Compra</th>
                         <th>Fecha ODC</th>
                         <th>ETA</th>
                     </tr>
@@ -121,11 +123,13 @@
                         </td>
                         <td>{{ row.almacen }}</td>
                         <td>
-                            {{ row.recepciones }}
+                            {{ row.requisiciones }}
                         </td>
                         <td>
                             {{ row.odc }}
                         </td>
+                        <td>{{ row.recepcion_id }}</td>
+                        <td>{{ row.compra_id }}</td>
                         <td class="no-wrap">{{ row.created_at }}</td>
                         <td>{{ row.arrived_at }}</td>
                     </tr>
