@@ -41,7 +41,6 @@ export class LoginComponent {
         if (rawValue.length === 1) {
             this.otpDigits[index] = rawValue;
             this.updateWaCode();
-            this.focusOtp(index < this.otpDigits.length - 1 ? index + 1 : index);
             return;
         }
 
@@ -49,9 +48,56 @@ export class LoginComponent {
     }
 
     onOtpKeydown(index: number, event: KeyboardEvent) {
-        if (event.key === 'Backspace' && !this.otpDigits[index] && index > 0) {
-            this.focusOtp(index - 1);
+        if (/^\d$/.test(event.key)) {
+            event.preventDefault();
+            this.otpDigits[index] = event.key;
+            this.updateWaCode();
+            this.focusOtp(index < this.otpDigits.length - 1 ? index + 1 : index);
+            return;
         }
+
+        if (event.key === 'Backspace') {
+            event.preventDefault();
+
+            if (this.otpDigits[index]) {
+                this.otpDigits[index] = '';
+                this.updateWaCode();
+                return;
+            }
+
+            if (index > 0) {
+                this.otpDigits[index - 1] = '';
+                this.updateWaCode();
+                this.focusOtp(index - 1);
+            }
+
+            return;
+        }
+
+        if (event.key === 'ArrowLeft' && index > 0) {
+            event.preventDefault();
+            this.focusOtp(index - 1);
+            return;
+        }
+
+        if (event.key === 'ArrowRight' && index < this.otpDigits.length - 1) {
+            event.preventDefault();
+            this.focusOtp(index + 1);
+            return;
+        }
+
+        if (
+            event.key === 'Tab' ||
+            event.key === 'Enter' ||
+            event.key === 'Shift' ||
+            event.key === 'Control' ||
+            event.key === 'Alt' ||
+            event.key === 'Meta'
+        ) {
+            return;
+        }
+
+        event.preventDefault();
     }
 
     onOtpPaste(event: ClipboardEvent) {
