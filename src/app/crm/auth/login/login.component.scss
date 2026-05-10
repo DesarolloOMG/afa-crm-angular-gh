@@ -179,36 +179,56 @@
     text-transform: uppercase;
 }
 
+.otp-wrap {
+    position: relative;
+    padding: 0;
+}
+
+.otp-hidden-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    border: 0;
+    padding: 0;
+    caret-color: transparent;
+}
+
 .otp-inputs {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(6, 48px);
     justify-content: center;
-    align-items: center;
-    flex-wrap: nowrap;
     gap: 10px;
 }
 
-.otp-box.form-control {
+.otp-box {
     box-sizing: border-box;
     width: 48px;
     min-width: 48px;
     height: 58px;
-    padding: 0 !important;
+    display: grid;
+    place-items: center;
+    padding: 0;
     border: 1px solid #d7e0ea;
     border-radius: 16px;
     background: #fff;
-    text-align: center;
-    text-indent: 0;
-    line-height: normal;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     font-size: 22px;
     font-weight: 700;
     letter-spacing: 0.02em;
-    vertical-align: middle;
+    color: #18314f;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
 
-    &:focus {
-        border-color: #247ba0;
-        box-shadow: 0 0 0 4px rgba(36, 123, 160, 0.12);
-        background: #fff;
-    }
+.otp-wrap:focus-within .otp-box {
+    border-color: #247ba0;
+    box-shadow: 0 0 0 4px rgba(36, 123, 160, 0.12);
+}
+
+.otp-box.filled {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(24, 49, 79, 0.08);
 }
 
 .login-submit {
@@ -252,13 +272,13 @@
 
     .otp-inputs {
         gap: 8px;
+        grid-template-columns: repeat(6, 42px);
     }
 
-    .otp-box.form-control {
+    .otp-box {
         width: 42px;
         min-width: 42px;
         height: 52px;
-        line-height: normal;
         font-size: 20px;
     }
 }

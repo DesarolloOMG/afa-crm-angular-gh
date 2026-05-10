@@ -114,22 +114,40 @@
                                 <label class="otp-label">
                                     Codigo de confirmacion (Whatsapp)
                                 </label>
-                                <div class="otp-inputs" (paste)="onOtpPaste($event)">
+                                <div class="otp-wrap">
                                     <input
-                                        *ngFor="let digit of otpDigits; let i = index"
-                                        [id]="'otp-' + i"
+                                        #otpInput
                                         type="text"
+                                        class="otp-hidden-input"
+                                        name="waCode"
+                                        [value]="user.wa_code"
+                                        maxlength="6"
                                         inputmode="numeric"
                                         pattern="[0-9]*"
-                                        maxlength="1"
-                                        class="form-control otp-box"
-                                        [name]="'waCode' + i"
-                                        [value]="otpDigits[i]"
-                                        (input)="onOtpInput(i, $event)"
-                                        (keydown)="onOtpKeydown(i, $event)"
-                                        (keyup.enter)="login()"
                                         autocomplete="one-time-code"
+                                        (input)="onOtpInput($event)"
+                                        (keyup.enter)="login()"
                                     />
+                                    <div class="otp-inputs" aria-hidden="true">
+                                        <div class="otp-box" [class.filled]="otpChar(0)">
+                                            {{ otpChar(0) || '' }}
+                                        </div>
+                                        <div class="otp-box" [class.filled]="otpChar(1)">
+                                            {{ otpChar(1) || '' }}
+                                        </div>
+                                        <div class="otp-box" [class.filled]="otpChar(2)">
+                                            {{ otpChar(2) || '' }}
+                                        </div>
+                                        <div class="otp-box" [class.filled]="otpChar(3)">
+                                            {{ otpChar(3) || '' }}
+                                        </div>
+                                        <div class="otp-box" [class.filled]="otpChar(4)">
+                                            {{ otpChar(4) || '' }}
+                                        </div>
+                                        <div class="otp-box" [class.filled]="otpChar(5)">
+                                            {{ otpChar(5) || '' }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

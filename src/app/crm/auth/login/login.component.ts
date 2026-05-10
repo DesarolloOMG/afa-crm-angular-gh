@@ -18,7 +18,6 @@ export class LoginComponent {
         email: '',
         code_sent: false,
     };
-    otpDigits: string[] = ['', '', '', '', '', ''];
     splashVisible = false;
     splashUserName = '';
     splashDateText = '';
@@ -29,86 +28,16 @@ export class LoginComponent {
         private sessionAuthService: SessionAuthService
     ) {}
 
-    onOtpInput(index: number, event: any) {
-        const rawValue = (event.target.value || '').replace(/\D/g, '');
-
-        if (!rawValue) {
-            this.otpDigits[index] = '';
-            this.updateWaCode();
-            return;
-        }
-
-        if (rawValue.length === 1) {
-            this.otpDigits[index] = rawValue;
-            this.updateWaCode();
-            return;
-        }
-
-        this.fillOtpDigits(index, rawValue);
-    }
-
-    onOtpKeydown(index: number, event: KeyboardEvent) {
-        if (/^\d$/.test(event.key)) {
-            event.preventDefault();
-            this.otpDigits[index] = event.key;
-            this.updateWaCode();
-            this.focusOtp(index < this.otpDigits.length - 1 ? index + 1 : index);
-            return;
-        }
-
-        if (event.key === 'Backspace') {
-            event.preventDefault();
-
-            if (this.otpDigits[index]) {
-                this.otpDigits[index] = '';
-                this.updateWaCode();
-                return;
-            }
-
-            if (index > 0) {
-                this.otpDigits[index - 1] = '';
-                this.updateWaCode();
-                this.focusOtp(index - 1);
-            }
-
-            return;
-        }
-
-        if (event.key === 'ArrowLeft' && index > 0) {
-            event.preventDefault();
-            this.focusOtp(index - 1);
-            return;
-        }
-
-        if (event.key === 'ArrowRight' && index < this.otpDigits.length - 1) {
-            event.preventDefault();
-            this.focusOtp(index + 1);
-            return;
-        }
-
-        if (
-            event.key === 'Tab' ||
-            event.key === 'Enter' ||
-            event.key === 'Shift' ||
-            event.key === 'Control' ||
-            event.key === 'Alt' ||
-            event.key === 'Meta'
-        ) {
-            return;
-        }
-
-        event.preventDefault();
-    }
-
-    onOtpPaste(event: ClipboardEvent) {
-        event.preventDefault();
-
-        const pastedValue = (event.clipboardData || (window as any).clipboardData)
-            .getData('text')
+    onOtpInput(event: any) {
+        this.user.wa_code = ((event.target.value || '') + '')
             .replace(/\D/g, '')
-            .slice(0, this.otpDigits.length);
+            .slice(0, 6);
 
-        this.fillOtpDigits(0, pastedValue);
+        event.target.value = this.user.wa_code;
+    }
+
+    otpChar(index: number) {
+        return (this.user.wa_code || '')[index] || '';
     }
 
     login() {
@@ -136,7 +65,7 @@ export class LoginComponent {
                     }
 
                     this.user.code_sent = true;
-                    this.otpDigits = ['', '', '', '', '', ''];
+                    this.user.wa_code = '';
 
                     return swal({
                         type: 'success',
@@ -153,18 +82,6 @@ export class LoginComponent {
         );
     }
 
-    private updateWaCode() {
-        this.user.wa_code = this.otpDigits.join('');
-    }
-
-    private focusOtp(index: number) {
-        const element = document.getElementById(`otp-${index}`);
-
-        if (element) {
-            element.focus();
-        }
-    }
-
     private resetUser() {
         this.user = {
             wa_code: '',
@@ -172,7 +89,6 @@ export class LoginComponent {
             email: '',
             code_sent: false,
         };
-        this.otpDigits = ['', '', '', '', '', ''];
     }
 
     private openWelcomeSplash() {
@@ -218,22 +134,6 @@ export class LoginComponent {
         } catch (e) {
             return null;
         }
-    }
-
-    private fillOtpDigits(startIndex: number, value: string) {
-        let nextIndex = startIndex;
-
-        value.split('').forEach((digit: string) => {
-            if (nextIndex < this.otpDigits.length) {
-                this.otpDigits[nextIndex] = digit;
-                nextIndex++;
-            }
-        });
-
-        this.updateWaCode();
-        this.focusOtp(
-            nextIndex < this.otpDigits.length ? nextIndex : this.otpDigits.length - 1
-        );
     }
 
     private buildSplashDateText() {
