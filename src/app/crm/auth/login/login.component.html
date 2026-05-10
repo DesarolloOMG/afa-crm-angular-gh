@@ -21,7 +21,10 @@
                             </div>
 
                             <ng-container *ngIf="!user.code_sent">
-                                <div class="form-group form-primary login-field">
+                                <div
+                                    class="form-group form-primary login-field"
+                                    [class.has-value]="user.email"
+                                >
                                     <input
                                         #email="ngModel"
                                         type="text"
@@ -58,7 +61,10 @@
                                     </small>
                                 </div>
 
-                                <div class="form-group form-primary login-field">
+                                <div
+                                    class="form-group form-primary login-field"
+                                    [class.has-value]="user.password"
+                                >
                                     <input
                                         #contrasena="ngModel"
                                         type="password"

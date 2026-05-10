@@ -143,6 +143,7 @@
         font-size: 12px;
     }
 
+    &.has-value .float-label,
     .form-control:focus ~ .float-label,
     .form-control.ng-dirty ~ .float-label,
     .form-control.ng-valid ~ .float-label {
@@ -180,7 +181,9 @@
 
 .otp-inputs {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
     gap: 10px;
 }
 
@@ -191,6 +194,7 @@
     padding: 0;
     border-radius: 16px;
     text-align: center;
+    line-height: 58px;
     font-size: 22px;
     font-weight: 700;
     letter-spacing: 0.02em;
