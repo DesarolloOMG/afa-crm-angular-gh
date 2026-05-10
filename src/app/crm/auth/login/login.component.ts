@@ -4,6 +4,7 @@ import {swalErrorHttpResponse} from '@env/environment';
 import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 import {ILogin} from '@interfaces/general.interface';
+import {AuthService as SessionAuthService} from '@services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -18,8 +19,15 @@ export class LoginComponent {
         code_sent: false,
     };
     otpDigits: string[] = ['', '', '', '', '', ''];
+    splashVisible = false;
+    splashUserName = '';
+    splashDateText = '';
 
-    constructor(private router: Router, private authService: AuthService) {}
+    constructor(
+        private router: Router,
+        private authService: AuthService,
+        private sessionAuthService: SessionAuthService
+    ) {}
 
     onOtpInput(index: number, event: any) {
         const rawValue = (event.target.value || '').replace(/\D/g, '');
@@ -103,14 +111,8 @@ export class LoginComponent {
                     });
                 }
 
-                swal({
-                    type: 'success',
-                    html: res.message,
-                }).then();
-
                 window.localStorage.setItem('crm_access_token', res.token);
-
-                this.router.navigate(['dashboard/general']).then();
+                this.openWelcomeSplash();
             },
             (err: any) => {
                 swalErrorHttpResponse(err);
@@ -138,5 +140,60 @@ export class LoginComponent {
             code_sent: false,
         };
         this.otpDigits = ['', '', '', '', '', ''];
+    }
+
+    private openWelcomeSplash() {
+        const payload = this.sessionAuthService.userData();
+        const userData = this.readUserData(payload);
+
+        this.splashUserName = this.resolveUserName(userData);
+        this.splashDateText = this.buildSplashDateText();
+        this.splashVisible = true;
+
+        setTimeout(() => {
+            this.router.navigate(['dashboard/general']).then();
+        }, 1900);
+    }
+
+    private resolveUserName(userData: any) {
+        if (userData && userData.nombre) {
+            return userData.nombre;
+        }
+
+        const emailPrefix = (this.user.email || '').split('@')[0];
+
+        if (!emailPrefix) {
+            return 'Usuario';
+        }
+
+        return emailPrefix
+            .replace(/[._-]+/g, ' ')
+            .replace(/\b\w/g, (letter: string) => letter.toUpperCase());
+    }
+
+    private readUserData(payload: any) {
+        if (!payload || !payload.sub) {
+            return null;
+        }
+
+        if (typeof payload.sub !== 'string') {
+            return payload.sub;
+        }
+
+        try {
+            return JSON.parse(payload.sub);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    private buildSplashDateText() {
+        return new Date().toLocaleString('es-MX', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
     }
 }

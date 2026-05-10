@@ -146,3 +146,27 @@
         </div>
     </div>
 </section>
+
+<div class="welcome-splash" *ngIf="splashVisible">
+    <div class="welcome-splash__glow"></div>
+    <div class="welcome-splash__card">
+        <div class="welcome-splash__logo-wrap">
+            <img
+                src="assets/images/logo_omg.png"
+                alt="AFA Innovations"
+                class="welcome-splash__logo"
+            />
+        </div>
+
+        <div class="welcome-splash__eyebrow">Bienvenido a</div>
+        <div class="welcome-splash__brand">AFA Innovations</div>
+        <div class="welcome-splash__user">{{ splashUserName }}</div>
+        <div class="welcome-splash__meta">{{ splashDateText }}</div>
+
+        <div class="welcome-splash__loader">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</div>
