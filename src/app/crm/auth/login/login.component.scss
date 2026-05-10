@@ -103,7 +103,7 @@
     margin-bottom: 26px;
     position: relative;
 
-    .form-control {
+    .form-control:not(.otp-box) {
         height: 54px;
         padding: 22px 14px 8px;
         border: 1px solid #d7e0ea;
@@ -144,9 +144,9 @@
     }
 
     &.has-value .float-label,
-    .form-control:focus ~ .float-label,
-    .form-control.ng-dirty ~ .float-label,
-    .form-control.ng-valid ~ .float-label {
+    .form-control:not(.otp-box):focus ~ .float-label,
+    .form-control:not(.otp-box).ng-dirty ~ .float-label,
+    .form-control:not(.otp-box).ng-valid ~ .float-label {
         top: 9px;
         transform: scale(0.85);
         color: #247ba0;
@@ -188,16 +188,27 @@
 }
 
 .otp-box.form-control {
+    box-sizing: border-box;
     width: 48px;
     min-width: 48px;
     height: 58px;
-    padding: 0;
+    padding: 0 !important;
+    border: 1px solid #d7e0ea;
     border-radius: 16px;
+    background: #fff;
     text-align: center;
-    line-height: 58px;
+    text-indent: 0;
+    line-height: normal;
     font-size: 22px;
     font-weight: 700;
     letter-spacing: 0.02em;
+    vertical-align: middle;
+
+    &:focus {
+        border-color: #247ba0;
+        box-shadow: 0 0 0 4px rgba(36, 123, 160, 0.12);
+        background: #fff;
+    }
 }
 
 .login-submit {
@@ -247,6 +258,7 @@
         width: 42px;
         min-width: 42px;
         height: 52px;
+        line-height: normal;
         font-size: 20px;
     }
 }

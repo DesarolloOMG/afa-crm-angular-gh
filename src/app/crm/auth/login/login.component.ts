@@ -38,19 +38,14 @@ export class LoginComponent {
             return;
         }
 
-        let nextIndex = index;
+        if (rawValue.length === 1) {
+            this.otpDigits[index] = rawValue;
+            this.updateWaCode();
+            this.focusOtp(index < this.otpDigits.length - 1 ? index + 1 : index);
+            return;
+        }
 
-        rawValue.split('').forEach((digit: string) => {
-            if (nextIndex < this.otpDigits.length) {
-                this.otpDigits[nextIndex] = digit;
-                nextIndex++;
-            }
-        });
-
-        this.updateWaCode();
-        this.focusOtp(
-            nextIndex < this.otpDigits.length ? nextIndex : this.otpDigits.length - 1
-        );
+        this.fillOtpDigits(index, rawValue);
     }
 
     onOtpKeydown(index: number, event: KeyboardEvent) {
@@ -67,15 +62,7 @@ export class LoginComponent {
             .replace(/\D/g, '')
             .slice(0, this.otpDigits.length);
 
-        this.otpDigits = this.otpDigits.map(
-            (_: string, otpIndex: number) => pastedValue[otpIndex] || ''
-        );
-        this.updateWaCode();
-        this.focusOtp(
-            pastedValue.length < this.otpDigits.length
-                ? pastedValue.length
-                : this.otpDigits.length - 1
-        );
+        this.fillOtpDigits(0, pastedValue);
     }
 
     login() {
@@ -185,6 +172,22 @@ export class LoginComponent {
         } catch (e) {
             return null;
         }
+    }
+
+    private fillOtpDigits(startIndex: number, value: string) {
+        let nextIndex = startIndex;
+
+        value.split('').forEach((digit: string) => {
+            if (nextIndex < this.otpDigits.length) {
+                this.otpDigits[nextIndex] = digit;
+                nextIndex++;
+            }
+        });
+
+        this.updateWaCode();
+        this.focusOtp(
+            nextIndex < this.otpDigits.length ? nextIndex : this.otpDigits.length - 1
+        );
     }
 
     private buildSplashDateText() {
