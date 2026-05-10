@@ -17,8 +17,58 @@ export class LoginComponent {
         email: '',
         code_sent: false,
     };
+    otpDigits: string[] = ['', '', '', '', '', ''];
 
     constructor(private router: Router, private authService: AuthService) {}
+
+    onOtpInput(index: number, event: any) {
+        const rawValue = (event.target.value || '').replace(/\D/g, '');
+
+        if (!rawValue) {
+            this.otpDigits[index] = '';
+            this.updateWaCode();
+            return;
+        }
+
+        let nextIndex = index;
+
+        rawValue.split('').forEach((digit: string) => {
+            if (nextIndex < this.otpDigits.length) {
+                this.otpDigits[nextIndex] = digit;
+                nextIndex++;
+            }
+        });
+
+        this.updateWaCode();
+        this.focusOtp(
+            nextIndex < this.otpDigits.length ? nextIndex : this.otpDigits.length - 1
+        );
+    }
+
+    onOtpKeydown(index: number, event: KeyboardEvent) {
+        if (event.key === 'Backspace' && !this.otpDigits[index] && index > 0) {
+            this.focusOtp(index - 1);
+        }
+    }
+
+    onOtpPaste(event: ClipboardEvent) {
+        event.preventDefault();
+
+        const pastedValue = (event.clipboardData || (window as any).clipboardData)
+            .getData('text')
+            .replace(/\D/g, '')
+            .slice(0, this.otpDigits.length);
+
+        this.otpDigits = this.otpDigits.map(
+            (_: string, otpIndex: number) => pastedValue[otpIndex] || ''
+        );
+        this.updateWaCode();
+        this.focusOtp(
+            pastedValue.length < this.otpDigits.length
+                ? pastedValue.length
+                : this.otpDigits.length - 1
+        );
+    }
 
     login() {
         if (!this.user.email || !this.user.password) {
@@ -39,17 +89,13 @@ export class LoginComponent {
             (res: any) => {
                 if (!res.token) {
                     if (res.expired) {
-                        this.user = {
-                            wa_code: '',
-                            password: '',
-                            email: '',
-                            code_sent: false,
-                        };
+                        this.resetUser();
 
                         return;
                     }
 
                     this.user.code_sent = true;
+                    this.otpDigits = ['', '', '', '', '', ''];
 
                     return swal({
                         type: 'success',
@@ -70,5 +116,27 @@ export class LoginComponent {
                 swalErrorHttpResponse(err);
             }
         );
+    }
+
+    private updateWaCode() {
+        this.user.wa_code = this.otpDigits.join('');
+    }
+
+    private focusOtp(index: number) {
+        const element = document.getElementById(`otp-${index}`);
+
+        if (element) {
+            element.focus();
+        }
+    }
+
+    private resetUser() {
+        this.user = {
+            wa_code: '',
+            password: '',
+            email: '',
+            code_sent: false,
+        };
+        this.otpDigits = ['', '', '', '', '', ''];
     }
 }
