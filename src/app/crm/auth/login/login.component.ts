@@ -29,15 +29,48 @@ export class LoginComponent {
     ) {}
 
     onOtpInput(event: any) {
-        this.user.wa_code = ((event.target.value || '') + '')
+        const input = event.target as HTMLInputElement;
+
+        this.user.wa_code = ((input.value || '') + '')
             .replace(/\D/g, '')
             .slice(0, 6);
 
-        event.target.value = this.user.wa_code;
+        this.syncOtpInputValue(input);
+    }
+
+    onOtpKeydown(event: KeyboardEvent) {
+        if (event.key !== 'Backspace') {
+            return;
+        }
+
+        event.preventDefault();
+
+        if (this.user.wa_code) {
+            this.user.wa_code = this.user.wa_code.slice(0, -1);
+        }
+
+        this.syncOtpInputValue(event.target as HTMLInputElement);
+    }
+
+    syncOtpCaret(event: any) {
+        this.syncOtpInputValue(event.target as HTMLInputElement);
     }
 
     otpChar(index: number) {
         return (this.user.wa_code || '')[index] || '';
+    }
+
+    private syncOtpInputValue(input: HTMLInputElement) {
+        if (!input) {
+            return;
+        }
+
+        input.value = this.user.wa_code || '';
+
+        const caretPosition = input.value.length;
+        setTimeout(() => {
+            input.setSelectionRange(caretPosition, caretPosition);
+        });
     }
 
     login() {
