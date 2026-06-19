@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 import { PackingV2Component } from './packing-v2/packing-v2.component';
+import { PickingPendienteComponent } from './picking-pendiente/picking-pendiente.component';
 
 const routes: Routes = [
     {
@@ -12,6 +13,13 @@ const routes: Routes = [
                 component: PackingV2Component,
                 data: {
                     title: 'Packing V2',
+                },
+            },
+            {
+                path: 'picking-pendiente',
+                component: PickingPendienteComponent,
+                data: {
+                    title: 'Pendientes de remision',
                 },
             },
             {

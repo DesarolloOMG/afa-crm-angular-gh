@@ -825,6 +825,16 @@ const MENUITEMS = [
             },
             {
                 main_state: 'almacen',
+                state: 'picking-pendiente',
+                short_label: 'PR',
+                name: 'Pendientes de remision',
+                type: 'link',
+                icon: 'fa fa-print',
+                level: [7],
+                sublevel: 0,
+            },
+            {
+                main_state: 'almacen',
                 state: 'movimiento',
                 short_label: 'PA',
                 name: 'Movimientos',

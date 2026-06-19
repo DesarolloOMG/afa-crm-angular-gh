@@ -1,0 +1,60 @@
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-8">
+                <h5>Pedidos pendientes de remisi&oacute;n</h5>
+            </div>
+            <div class="col-md-4 text-right">
+                <h5>Total: {{ total }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-block table-responsive">
+        <table class="table table-striped" id="almacen_picking_pendiente">
+            <thead>
+                <tr>
+                    <th>Documento</th>
+                    <th>Venta</th>
+                    <th>Almac&eacute;n</th>
+                    <th>Marketplace</th>
+                    <th>Cliente</th>
+                    <th>Paqueter&iacute;a</th>
+                    <th>Vendedor</th>
+                    <th>Picking</th>
+                    <th>Impresora</th>
+                    <th>Fecha</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let venta of ventas">
+                    <td>{{ venta.id }}</td>
+                    <td>{{ venta.no_venta }}</td>
+                    <td>{{ venta.almacen }}</td>
+                    <td>{{ venta.marketplace + ' / ' + venta.area }}</td>
+                    <td>{{ venta.cliente }}</td>
+                    <td>{{ venta.paqueteria }}</td>
+                    <td>{{ venta.usuario }}</td>
+                    <td>
+                        <span [class.text-success]="venta.puede_imprimir" [class.text-danger]="!venta.puede_imprimir">
+                            {{ venta.picking_estado }}
+                        </span>
+                    </td>
+                    <td>{{ venta.impresora_picking || 'Sin impresora' }}</td>
+                    <td>{{ venta.created_at }}</td>
+                    <td>
+                        <button
+                            class="btn btn-info btn-sm btn-block http-disabled"
+                            type="button"
+                            [disabled]="imprimiendo === venta.id"
+                            (click)="imprimirPicking(venta.id)"
+                        >
+                            <i class="fa fa-print"></i>
+                            {{ imprimiendo === venta.id ? 'Imprimiendo' : 'Imprimir picking' }}
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

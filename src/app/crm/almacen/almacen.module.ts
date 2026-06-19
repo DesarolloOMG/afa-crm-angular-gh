@@ -10,6 +10,7 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { PackingV2Component } from './packing-v2/packing-v2.component';
 import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-seguimientos.module';
+import { PickingPendienteComponent } from './picking-pendiente/picking-pendiente.component';
 
 @NgModule({
     imports: [
@@ -22,6 +23,6 @@ import { EditorSeguimientosModule } from 'app/utils/editor-seguimientos/editor-s
         NgbModule,
         EditorSeguimientosModule,
     ],
-    declarations: [PackingV2Component],
+    declarations: [PackingV2Component, PickingPendienteComponent],
 })
 export class AlmacenModule {}
