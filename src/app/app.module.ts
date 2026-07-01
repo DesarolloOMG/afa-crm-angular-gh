@@ -38,6 +38,7 @@ import {EditorSeguimientosModule} from './utils/editor-seguimientos/editor-segui
 import {EnConstruccionModule} from './utils/en-construccion/en-construccion.module';
 import {AvisoModule} from './utils/aviso/aviso.module';
 import {SharedModule} from './shared/shared.module';
+import {HelpTourModule} from './utils/help-tour/help-tour.module';
 
 export function tokenGetter() {
     return localStorage.getItem('crm_access_token');
@@ -84,7 +85,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
         EditorSeguimientosModule,
         EnConstruccionModule,
         SharedModule,
-        AvisoModule
+        AvisoModule,
+        HelpTourModule
     ],
     providers: [
         MenuItems,

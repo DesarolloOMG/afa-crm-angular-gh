@@ -657,12 +657,14 @@ const MENUITEMS = [
                 icon: 'fa fa-volume-control-phone',
                 level: [8, 10, 11],
                 sublevel: 0,
+                helpId: 'support-gd-menu',
                 children: [
                     {
                         state: 'garantia-devolucion',
                         name: 'Crear documento',
                         level: [8, 10],
                         sublevel: 0,
+                        helpId: 'support-gd-create',
                     },
                     {
                         state: 'devolucion',
@@ -670,6 +672,7 @@ const MENUITEMS = [
                         type: 'sub',
                         level: [8, 10, 11],
                         sublevel: 0,
+                        helpId: 'support-gd-devolucion',
                         children: [
                             {
                                 state: 'pendiente',
@@ -709,6 +712,7 @@ const MENUITEMS = [
                         type: 'sub',
                         level: [8, 9, 10],
                         sublevel: 0,
+                        helpId: 'support-gd-garantia',
                         children: [
                             {
                                 state: 'recibir',
@@ -748,6 +752,7 @@ const MENUITEMS = [
                         type: 'sub',
                         level: [10],
                         sublevel: 0,
+                        helpId: 'support-gd-servicio',
                         children: [
                             {
                                 state: 'crear',

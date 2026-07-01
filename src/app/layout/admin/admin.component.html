@@ -1,4 +1,5 @@
 <app-snow *ngIf="snowEffect"></app-snow>
+<app-help-tour></app-help-tour>
 
 <div
     id="pcoded"
@@ -569,6 +570,11 @@
                                                         'active'
                                                     ]"
                                                     href="javascript:;"
+                                                    [attr.data-help-id]="
+                                                        asideItem.helpId
+                                                            ? asideItem.helpId
+                                                            : null
+                                                    "
                                                     appAccordionToggle
                                                 >
                                                     <div
@@ -672,6 +678,11 @@
                                                                             ? '_blank'
                                                                             : '_self'
                                                                     }}"
+                                                                    [attr.data-help-id]="
+                                                                        asideChildren.helpId
+                                                                            ? asideChildren.helpId
+                                                                            : null
+                                                                    "
                                                                 >
                                                                     <span
                                                                         class="pcoded-micon"
@@ -725,6 +736,11 @@
                                                                         'active'
                                                                     ]"
                                                                     href="javascript:;"
+                                                                    [attr.data-help-id]="
+                                                                        asideChildren.helpId
+                                                                            ? asideChildren.helpId
+                                                                            : null
+                                                                    "
                                                                     appAccordionToggle
                                                                 >
                                                                     <div

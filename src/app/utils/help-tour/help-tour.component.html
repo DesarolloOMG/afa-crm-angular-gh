@@ -1,0 +1,63 @@
+<button
+    *ngIf="hasContext"
+    type="button"
+    class="help-tour-button"
+    title="Ayuda de esta pantalla"
+    (click)="startTour($event)"
+>
+    <i class="fa fa-question"></i>
+</button>
+
+<div
+    *ngIf="active && currentContext && currentStep"
+    class="help-tour-mask"
+></div>
+
+<div
+    *ngIf="active && currentContext && currentStep && targetFound"
+    class="help-tour-highlight"
+    [ngStyle]="highlightStyle"
+></div>
+
+<div
+    *ngIf="active && currentContext && currentStep"
+    class="help-tour-panel"
+    [ngStyle]="panelStyle"
+    (click)="stopEvent($event)"
+>
+    <div class="help-tour-header">
+        <span>{{ currentContext.title }}</span>
+        <button type="button" class="help-tour-close" (click)="closeTour($event)">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+
+    <div class="help-tour-body">
+        <div class="help-tour-count">
+            Paso {{ currentStepIndex + 1 }} de {{ currentContext.steps.length }}
+        </div>
+        <h5>{{ currentStep.title }}</h5>
+        <p>{{ currentStep.text }}</p>
+        <small *ngIf="currentStep.note" class="help-tour-note">
+            {{ currentStep.note }}
+        </small>
+    </div>
+
+    <div class="help-tour-actions">
+        <button
+            type="button"
+            class="btn btn-light btn-sm"
+            [disabled]="currentStepIndex === 0"
+            (click)="previousStep($event)"
+        >
+            Anterior
+        </button>
+        <button
+            type="button"
+            class="btn btn-primary btn-sm"
+            (click)="nextStep($event)"
+        >
+            {{ isLastStep() ? 'Cerrar' : 'Siguiente' }}
+        </button>
+    </div>
+</div>

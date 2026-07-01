@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-sm-12">
         <form class="md-float-material form-material" #f="ngForm">
-            <div class="auth-box card">
+            <div class="auth-box card" data-help-id="support-create-form">
                 <div class="card-block">
                     <h4 class="form-step-title">1. Datos de la Solicitud</h4>
 
@@ -14,6 +14,7 @@
                                     required
                                     #tipodocumento="ngModel"
                                     class="form-control"
+                                    data-help-id="support-create-type"
                                     [(ngModel)]="data.tipo"
                                     (ngModelChange)="onTipoDocumentoChange($event)"
                                 >
@@ -45,6 +46,7 @@
                                     required
                                     #causa="ngModel"
                                     class="form-control"
+                                    data-help-id="support-create-reason"
                                     [(ngModel)]="data.causa"
                                 >
                                     <option value="" disabled selected></option>
@@ -73,6 +75,7 @@
                                     type="text"
                                     name="venta"
                                     class="form-control"
+                                    data-help-id="support-create-sale"
                                     required
                                     #venta="ngModel"
                                     [(ngModel)]="data.venta"
@@ -99,6 +102,7 @@
                             <button
                                 type="button"
                                 class="btn btn-primary btn-sm btn-block m-t-10 http-disabled"
+                                data-help-id="support-create-search"
                                 (click)="buscarVenta()"
                             >
                                 Buscar
@@ -133,7 +137,7 @@
 
                     <div class="row" *ngIf="data.venta_id">
                         <div class="col-md-12">
-                            <div class="document-info-card">
+                            <div class="document-info-card" data-help-id="support-create-summary">
                                 <h5 class="document-info-title">Resumen del Pedido Original</h5>
                                 <div class="row">
                                     <div class="col-md-4">
@@ -173,7 +177,7 @@
                         <div class="col-md-12">
                             <h4 class="form-step-title">2. Productos a Devolver</h4>
                             <form class="md-float-material form-material">
-                                <div class="table-container">
+                                <div class="table-container" data-help-id="support-create-products">
                                     <table class="table"> <thead>
                                     <tr>
                                         <th class="col-seleccionar">Seleccionar</th>
@@ -249,6 +253,7 @@
                         <div class="col-md-12">
                             <app-new-editor
                                 class="m-t-20"
+                                data-help-id="support-create-followup"
                                 name="seguimiento"
                                 required
                                 #seguimiento="ngModel"
@@ -271,6 +276,7 @@
                             <input
                                 type="file"
                                 class="form-control ngb-drop-zone text-center ripple light"
+                                data-help-id="support-create-files"
                                 id="archivos"
                                 (change)="agregarArchivo()"
                                 multiple
@@ -283,6 +289,7 @@
                             <button
                                 type="button"
                                 class="btn btn-primary btn-sm btn-block m-b-20 http-disabled"
+                                data-help-id="support-create-save"
                                 [disabled]="!f.valid || data.terminar == 0"
                                 (click)="crearDocumento($event)"
                             >

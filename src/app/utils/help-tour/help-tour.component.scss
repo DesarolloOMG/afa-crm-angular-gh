@@ -1,0 +1,123 @@
+.help-tour-button {
+    align-items: center;
+    background: #0f766e;
+    border: 0;
+    border-radius: 50%;
+    bottom: 24px;
+    box-shadow: 0 10px 24px rgba(15, 118, 110, 0.28);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    height: 48px;
+    justify-content: center;
+    position: fixed;
+    right: 24px;
+    width: 48px;
+    z-index: 20050;
+}
+
+.help-tour-button:hover {
+    background: #115e59;
+}
+
+.help-tour-mask {
+    background: rgba(15, 23, 42, 0.32);
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 20020;
+}
+
+.help-tour-highlight {
+    border: 3px solid #14b8a6;
+    border-radius: 6px;
+    box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.18), 0 14px 32px rgba(15, 23, 42, 0.25);
+    pointer-events: none;
+    position: fixed;
+    z-index: 20030;
+}
+
+.help-tour-panel {
+    background: #fff;
+    border: 1px solid #d7dee8;
+    border-radius: 6px;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.28);
+    color: #263238;
+    max-width: calc(100vw - 32px);
+    position: fixed;
+    width: 360px;
+    z-index: 20040;
+}
+
+.help-tour-header {
+    align-items: center;
+    border-bottom: 1px solid #edf1f5;
+    display: flex;
+    font-weight: 600;
+    justify-content: space-between;
+    padding: 12px 14px;
+}
+
+.help-tour-close {
+    background: transparent;
+    border: 0;
+    color: #667085;
+    cursor: pointer;
+    line-height: 1;
+    padding: 2px 4px;
+}
+
+.help-tour-body {
+    padding: 14px;
+}
+
+.help-tour-body h5 {
+    color: #111827;
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+
+.help-tour-body p {
+    font-size: 13px;
+    line-height: 1.45;
+    margin: 0;
+}
+
+.help-tour-count {
+    color: #667085;
+    font-size: 11px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.help-tour-note {
+    color: #8a5a00;
+    display: block;
+    font-size: 12px;
+    margin-top: 10px;
+}
+
+.help-tour-actions {
+    align-items: center;
+    border-top: 1px solid #edf1f5;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 14px;
+}
+
+@media (max-width: 575px) {
+    .help-tour-button {
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .help-tour-panel {
+        left: 16px !important;
+        right: 16px;
+        width: auto;
+    }
+}
