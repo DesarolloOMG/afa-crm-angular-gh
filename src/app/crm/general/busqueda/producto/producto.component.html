@@ -121,20 +121,6 @@
                         </div>
                     </div>
 
-                    <div class="row" *ngIf="puedeRecalcularCostos">
-                        <div class="col-md-12">
-                            <button
-                                type="button"
-                                class="btn btn-sm btn-block btn-outline-warning m-t-10 http-disabled"
-                                (click)="abrirModalRecalculoCosto(recalcularCostoModal)"
-                                placement="top"
-                                ngbTooltip="Simular y aplicar costos promedio"
-                            >
-                                <i class="fa fa-calculator fa-2x"></i>
-                                <span class="d-block">Recalcular costo</span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
         </form>
@@ -255,6 +241,16 @@
                                     placement="top"
                                 >
                                     <i class="fa fa-2x fa-barcode"></i>
+                                </button>
+
+                                <button
+                                    *ngIf="puedeRecalcularCostos"
+                                    (click)="abrirModalRecalculoCosto(recalcularCostoModal, producto)"
+                                    class="btn btn-sm btn-outline-warning btn-margin-bottom http-disabled"
+                                    ngbTooltip="Recalcular costo promedio de este SKU"
+                                    placement="top"
+                                >
+                                    <i class="fa fa-2x fa-calculator"></i>
                                 </button>
                             </div>
                         </td>
@@ -556,7 +552,7 @@
 
 <ng-template #recalcularCostoModal let-c="close" let-d="dismiss">
     <div class="modal-header">
-        <h4 class="modal-title">Recalcular costos promedio</h4>
+        <h4 class="modal-title">Recalcular costo promedio del SKU</h4>
         <button
             type="button"
             class="close"
@@ -571,14 +567,39 @@
     <div class="modal-body">
         <div class="text-center p-4" *ngIf="costoRecalculo.cargando">
             <i class="fa fa-spinner fa-spin fa-2x"></i>
-            <p class="m-t-10">Calculando el historial de todos los productos...</p>
+            <p class="m-t-10">
+                Calculando el historial del SKU {{ costoRecalculo.sku }}...
+            </p>
         </div>
 
         <div *ngIf="!costoRecalculo.cargando && costoRecalculo.resultado as resultado">
             <div class="alert alert-info">
-                Esta es una simulación. Revisa el resumen antes de aplicar los cambios en
-                <strong>modelo_costo</strong>.
+                <strong>SKU:</strong> {{ costoRecalculo.sku }}<br>
+                {{ costoRecalculo.descripcion }}<br>
+                Esta es una simulación; únicamente se actualizará este producto.
             </div>
+
+            <table class="table table-sm table-bordered">
+                <thead>
+                <tr>
+                    <th>Dato</th>
+                    <th>Actual</th>
+                    <th>Calculado</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>Costo promedio</th>
+                    <td>${{ commaNumber(resultado.costo_promedio_anterior || 0) }}</td>
+                    <td>${{ commaNumber(resultado.costo_promedio_calculado || 0) }}</td>
+                </tr>
+                <tr>
+                    <th>Último costo</th>
+                    <td>${{ commaNumber(resultado.ultimo_costo_anterior || 0) }}</td>
+                    <td>${{ commaNumber(resultado.ultimo_costo_calculado || 0) }}</td>
+                </tr>
+                </tbody>
+            </table>
 
             <div class="row text-center">
                 <div class="col-md-4 m-b-15">

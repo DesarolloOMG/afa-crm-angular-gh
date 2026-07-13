@@ -50,6 +50,8 @@ export class ProductoComponent implements OnInit {
         cargando: false,
         aplicando: false,
         resultado: null,
+        sku: '',
+        descripcion: '',
     };
 
     data = {
@@ -111,8 +113,14 @@ export class ProductoComponent implements OnInit {
 
         const subnivelesAlmacen = this.subniveles['7'] || [];
         const nombreUsuario = String(usuario.nombre || '').trim().toUpperCase();
-        this.puedeRecalcularCostos = Number(usuario.id) === 160
-            || nombreUsuario === 'ROBERTO GARCIA HERNANDEZ'
+        const usuariosRecalculoIds = [160, 51, 78];
+        const usuariosRecalculoNombres = [
+            'ROBERTO GARCIA HERNANDEZ',
+            'SAUL ADRIAN ARIAS LORETO',
+            'EFREN ZAMORA GARZA',
+        ];
+        this.puedeRecalcularCostos = usuariosRecalculoIds.indexOf(Number(usuario.id)) >= 0
+            || usuariosRecalculoNombres.indexOf(nombreUsuario) >= 0
             || (Array.isArray(subnivelesAlmacen)
                 && subnivelesAlmacen.map((id) => Number(id)).indexOf(1) >= 0);
     }
@@ -367,11 +375,13 @@ export class ProductoComponent implements OnInit {
         }
     }
 
-    abrirModalRecalculoCosto(modal) {
+    abrirModalRecalculoCosto(modal, producto) {
         this.costoRecalculo = {
             cargando: true,
             aplicando: false,
             resultado: null,
+            sku: String(producto.codigo || '').trim(),
+            descripcion: String(producto.descripcion || '').trim(),
         };
 
         this.modalReference = this.modalService.open(modal, {
@@ -380,7 +390,7 @@ export class ProductoComponent implements OnInit {
             keyboard: false,
         });
 
-        this.generalService.recalcularCostos(false).subscribe(
+        this.generalService.recalcularCostos(false, this.costoRecalculo.sku).subscribe(
             (res: any) => {
                 this.costoRecalculo.cargando = false;
                 this.costoRecalculo.resultado = res.resultado || null;
@@ -402,7 +412,8 @@ export class ProductoComponent implements OnInit {
 
         swal({
             title: '¿Aplicar el recálculo?',
-            html: 'Se actualizará modelo_costo para todos los productos con el resultado de la simulación.',
+            html: 'Se actualizará únicamente el costo del SKU <strong>'
+                + this.costoRecalculo.sku + '</strong>.',
             type: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Sí, aplicar',
@@ -413,7 +424,7 @@ export class ProductoComponent implements OnInit {
             }
 
             this.costoRecalculo.aplicando = true;
-            this.generalService.recalcularCostos(true).subscribe(
+            this.generalService.recalcularCostos(true, this.costoRecalculo.sku).subscribe(
                 (res: any) => {
                     this.costoRecalculo.aplicando = false;
                     this.costoRecalculo.resultado = res.resultado || null;
