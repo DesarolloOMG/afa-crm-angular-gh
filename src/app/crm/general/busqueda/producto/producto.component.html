@@ -120,6 +120,21 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="row" *ngIf="puedeRecalcularCostos">
+                        <div class="col-md-12">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-block btn-outline-warning m-t-10 http-disabled"
+                                (click)="abrirModalRecalculoCosto(recalcularCostoModal)"
+                                placement="top"
+                                ngbTooltip="Simular y aplicar costos promedio"
+                            >
+                                <i class="fa fa-calculator fa-2x"></i>
+                                <span class="d-block">Recalcular costo</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -132,7 +147,7 @@
                     <tr>
                         <th>Código</th>
                         <th>Producto</th>
-                        <th>Último costo</th>
+                        <th>Costo promedio</th>
                         <th *ngIf="esAdmin()">Precio</th>
                         <th>Inventario</th>
                         <th>Pendientes</th>
@@ -536,6 +551,103 @@
                 </div>
             </div>
         </div>
+    </div>
+</ng-template>
+
+<ng-template #recalcularCostoModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Recalcular costos promedio</h4>
+        <button
+            type="button"
+            class="close"
+            aria-label="Cerrar"
+            [disabled]="costoRecalculo.aplicando"
+            (click)="d('cerrar')"
+        >
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <div class="text-center p-4" *ngIf="costoRecalculo.cargando">
+            <i class="fa fa-spinner fa-spin fa-2x"></i>
+            <p class="m-t-10">Calculando el historial de todos los productos...</p>
+        </div>
+
+        <div *ngIf="!costoRecalculo.cargando && costoRecalculo.resultado as resultado">
+            <div class="alert alert-info">
+                Esta es una simulación. Revisa el resumen antes de aplicar los cambios en
+                <strong>modelo_costo</strong>.
+            </div>
+
+            <div class="row text-center">
+                <div class="col-md-4 m-b-15">
+                    <strong>Modelos procesados</strong>
+                    <div class="h4">{{ resultado.modelos_procesados }}</div>
+                </div>
+                <div class="col-md-4 m-b-15">
+                    <strong>Con cambios</strong>
+                    <div class="h4 text-warning">{{ resultado.modelos_con_cambio }}</div>
+                </div>
+                <div class="col-md-4 m-b-15">
+                    <strong>Nuevos</strong>
+                    <div class="h4">{{ resultado.modelos_nuevos }}</div>
+                </div>
+            </div>
+
+            <table class="table table-sm table-bordered">
+                <tbody>
+                <tr>
+                    <th>Última recepción oficial</th>
+                    <td>{{ resultado.recepcion_oficial }}</td>
+                </tr>
+                <tr>
+                    <th>Última recepción provisional</th>
+                    <td>{{ resultado.recepcion_provisional }}</td>
+                </tr>
+                <tr>
+                    <th>Compra directa sin recepción</th>
+                    <td>{{ resultado.compra_directa }}</td>
+                </tr>
+                <tr>
+                    <th>Entrada inicial</th>
+                    <td>{{ resultado.entrada_inicial }}</td>
+                </tr>
+                <tr>
+                    <th>Costo base del modelo</th>
+                    <td>{{ resultado.costo_base }}</td>
+                </tr>
+                <tr>
+                    <th>Sin costo disponible</th>
+                    <td>{{ resultado.sin_costo }}</td>
+                </tr>
+                <tr>
+                    <th>Stock histórico negativo</th>
+                    <td>{{ resultado.stock_historico_negativo }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button
+            type="button"
+            class="btn btn-outline-secondary"
+            [disabled]="costoRecalculo.aplicando"
+            (click)="c('cancelar')"
+        >
+            Cancelar
+        </button>
+        <button
+            type="button"
+            class="btn btn-warning http-disabled"
+            [disabled]="costoRecalculo.cargando || costoRecalculo.aplicando || !costoRecalculo.resultado"
+            (click)="aplicarRecalculoCosto()"
+        >
+            <i class="fa" [ngClass]="costoRecalculo.aplicando ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+            {{ costoRecalculo.aplicando ? 'Aplicando...' : 'Aplicar costos' }}
+        </button>
     </div>
 </ng-template>
 

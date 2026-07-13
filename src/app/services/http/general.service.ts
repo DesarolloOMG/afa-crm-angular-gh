@@ -22,6 +22,19 @@ export class GeneralService {
         return this.http.post(`${backend_url}general/busqueda/producto/existencia`, form_data);
     }
 
+    recalcularCostos(aplicar: boolean, sku: string = '') {
+        const formData = new FormData();
+        formData.append('aplicar', aplicar ? '1' : '0');
+        if (sku) {
+            formData.append('sku', sku);
+        }
+
+        return this.http.post(
+            `${backend_url}general/busqueda/producto/costo/recalcular`,
+            formData
+        );
+    }
+
     getSinonimos(data: any) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));

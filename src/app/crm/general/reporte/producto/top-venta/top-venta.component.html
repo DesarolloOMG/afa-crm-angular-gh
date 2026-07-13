@@ -77,7 +77,7 @@
                     <th>Descripción</th>
                     <th>Cantidad</th>
                     <th>Total</th>
-                    <th>Ultimo costo</th>
+                    <th>Costo promedio</th>
                     <th>Almacenes</th>
                     <th>Inventario</th>
                 </tr>
@@ -88,7 +88,7 @@
                     <td>{{ row.descripcion }}</td>
                     <td>{{ row.cantidad }}</td>
                     <td>$ {{ commaNumber(row.total) }}</td>
-                    <td>$ {{ commaNumber(row.ultimo_costo) }}</td>
+                    <td>$ {{ commaNumber(row.costo_promedio) }}</td>
                     <td>
                         <ul style="list-style-type: none">
                             <li

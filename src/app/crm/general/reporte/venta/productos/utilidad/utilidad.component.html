@@ -148,7 +148,7 @@
                             <th>SKU</th>
                             <th>Descripcion</th>
                             <th>Cantidad de ventas</th>
-                            <th>Ultimo costo</th>
+                            <th>Costo promedio</th>
                             <th>Costo de ventas</th>
                             <th>Precio de ventas</th>
                             <th>Utilidad</th>
@@ -160,7 +160,7 @@
                             <td>{{ row.descripcion }}</td>
                             <td>{{ row.cantidad_venta }}</td>
                             <td class="no-wrap">
-                                $ {{ commaNumber(row.ultimo_costo) }}
+                                $ {{ commaNumber(row.costo_promedio) }}
                             </td>
                             <td class="no-wrap">
                                 $ {{ commaNumber(row.costo_venta) }}

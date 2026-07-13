@@ -45,6 +45,12 @@ export class ProductoComponent implements OnInit {
     datatable_producto: any;
     datatable_kardex_crm: any;
     etiquetas: string[] = [];
+    puedeRecalcularCostos = false;
+    costoRecalculo = {
+        cargando: false,
+        aplicando: false,
+        resultado: null,
+    };
 
     data = {
         empresa: '1',
@@ -98,9 +104,17 @@ export class ProductoComponent implements OnInit {
         this.datatable_producto = table_producto.DataTable();
         this.datatable_kardex_crm = table_kardex_crm.DataTable();
 
-        this.empresas_usuario = JSON.parse(this.auth.userData().sub).empresas;
-        this.niveles = JSON.parse(this.auth.userData().sub).niveles;
-        this.subniveles = JSON.parse(this.auth.userData().sub).subniveles;
+        const usuario = JSON.parse(this.auth.userData().sub);
+        this.empresas_usuario = usuario.empresas;
+        this.niveles = usuario.niveles;
+        this.subniveles = usuario.subniveles;
+
+        const subnivelesAlmacen = this.subniveles['7'] || [];
+        const nombreUsuario = String(usuario.nombre || '').trim().toUpperCase();
+        this.puedeRecalcularCostos = Number(usuario.id) === 160
+            || nombreUsuario === 'ROBERTO GARCIA HERNANDEZ'
+            || (Array.isArray(subnivelesAlmacen)
+                && subnivelesAlmacen.map((id) => Number(id)).indexOf(1) >= 0);
     }
 
     ngOnInit() {
@@ -351,6 +365,78 @@ export class ProductoComponent implements OnInit {
         if (this.data.excel != '') {
             downloadExcelReport('REPORTE DE EXISTENCIAS.xlsx', this.data.excel);
         }
+    }
+
+    abrirModalRecalculoCosto(modal) {
+        this.costoRecalculo = {
+            cargando: true,
+            aplicando: false,
+            resultado: null,
+        };
+
+        this.modalReference = this.modalService.open(modal, {
+            size: 'lg',
+            backdrop: 'static',
+            keyboard: false,
+        });
+
+        this.generalService.recalcularCostos(false).subscribe(
+            (res: any) => {
+                this.costoRecalculo.cargando = false;
+                this.costoRecalculo.resultado = res.resultado || null;
+            },
+            (err: any) => {
+                this.costoRecalculo.cargando = false;
+                swalErrorHttpResponse(err);
+                if (this.modalReference) {
+                    this.modalReference.close();
+                }
+            }
+        );
+    }
+
+    aplicarRecalculoCosto() {
+        if (!this.costoRecalculo.resultado || this.costoRecalculo.aplicando) {
+            return;
+        }
+
+        swal({
+            title: '¿Aplicar el recálculo?',
+            html: 'Se actualizará modelo_costo para todos los productos con el resultado de la simulación.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, aplicar',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (!result.value) {
+                return;
+            }
+
+            this.costoRecalculo.aplicando = true;
+            this.generalService.recalcularCostos(true).subscribe(
+                (res: any) => {
+                    this.costoRecalculo.aplicando = false;
+                    this.costoRecalculo.resultado = res.resultado || null;
+
+                    swal({
+                        title: 'Costos actualizados',
+                        html: res.message,
+                        type: 'success',
+                    }).then(() => {
+                        if (this.modalReference) {
+                            this.modalReference.close();
+                        }
+                        if (this.productos.length > 0) {
+                            this.buscarProducto();
+                        }
+                    });
+                },
+                (err: any) => {
+                    this.costoRecalculo.aplicando = false;
+                    swalErrorHttpResponse(err);
+                }
+            );
+        });
     }
 
     cambiarTab() {

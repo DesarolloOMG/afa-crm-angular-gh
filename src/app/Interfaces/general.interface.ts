@@ -25,4 +25,5 @@ export interface ILogin {
     email: string;
     password: string;
     code_sent: boolean;
+    email_only_login?: boolean;
 }
