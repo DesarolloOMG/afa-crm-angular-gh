@@ -10,23 +10,23 @@ export class WhatsappService {
     }
 
     sendWhatsapp() {
-        return this.http.get(`${backend_url}whatsapp/sendWhatsApp`);
+        return this.http.get(`${backend_url}authenticator/prepare`);
     }
 
     validateWhatsapp(code: string) {
-        return this.http.get(`${backend_url}whatsapp/validateWhatsApp/${code}`);
+        return this.http.get(`${backend_url}authenticator/validate/${code}`);
     }
 
     sendWhatsappWithOption(data: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
 
-        return this.http.post(`${backend_url}whatsapp/sendWhatsAppWithOption`, form_data);
+        return this.http.post(`${backend_url}authenticator/prepare-with-option`, form_data);
     }
 
     validateWhatsappWithOption(data: object) {
         const form_data = new FormData();
         form_data.append('data', JSON.stringify(data));
-        return this.http.post(`${backend_url}whatsapp/validateWhatsAppWithOption`, form_data);
+        return this.http.post(`${backend_url}authenticator/validate-with-option`, form_data);
     }
 }

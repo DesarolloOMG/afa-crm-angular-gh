@@ -113,8 +113,8 @@ export class PendienteComponent implements OnInit {
                 console.log(res);
                 swal({
                     type: 'warning',
-                    html: `Para finalizar la pretransferencia, escribe el código de autorización enviado a
-                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    html: `Para finalizar la pretransferencia, escribe el código actual de tu
+                            <b>aplicación autenticadora</b> en el recuadro de abajo.`,
                     input: 'text',
                 }).then((confirm) => {
                     if (!confirm.value) {
@@ -159,8 +159,8 @@ export class PendienteComponent implements OnInit {
                 console.log(res);
                 swal({
                     type: 'warning',
-                    html: `Para finalizar la pretransferencia, escribe el código de autorización enviado a
-                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    html: `Para finalizar la pretransferencia, escribe el código actual de tu
+                            <b>aplicación autenticadora</b> en el recuadro de abajo.`,
                     input: 'text',
                 }).then((confirm) => {
                     if (!confirm.value) {

@@ -1,26 +1,50 @@
-import {Component} from '@angular/core';
+import {
+    AfterViewChecked,
+    Component,
+    ElementRef,
+    OnDestroy,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+} from '@angular/core';
 import {AuthService} from '@services/http/auth.service';
 import {swalErrorHttpResponse} from '@env/environment';
 import {Router} from '@angular/router';
 import swal from 'sweetalert2';
 import {ILogin} from '@interfaces/general.interface';
 import {AuthService as SessionAuthService} from '@services/auth.service';
+import {BrowserQRCodeSvgWriter} from '@zxing/library/esm5/browser/BrowserQRCodeSvgWriter';
+import {Subscription} from 'rxjs';
+
+type MfaStep = 'credentials' | 'setup' | 'verify';
 
 @Component({
     selector: 'app-login',
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewChecked, OnDestroy {
+    @ViewChild('totpQr') totpQr: ElementRef;
+    @ViewChildren('totpCodeInput') totpCodeInputs: QueryList<ElementRef>;
+
+    readonly totpDigits = new Array(6);
+    totpCodeDigits: string[] = ['', '', '', '', '', ''];
+    mfaStep: MfaStep = 'credentials';
+    otpauthUri = '';
+    mfaMessage = '';
+    showPassword = false;
+    submitting = false;
     user: ILogin = {
-        wa_code: '',
         password: '',
         email: '',
-        code_sent: false,
     };
     splashVisible = false;
     splashUserName = '';
     splashDateText = '';
+    private renderedOtpAuthUri = '';
+    private mfaSetupTimer: any;
+    private mfaSetupExpiresAt = 0;
+    private loginSubscription: Subscription;
 
     constructor(
         private router: Router,
@@ -28,100 +52,238 @@ export class LoginComponent {
         private sessionAuthService: SessionAuthService
     ) {}
 
-    onOtpInput(event: any) {
-        const input = event.target as HTMLInputElement;
-
-        this.user.wa_code = ((input.value || '') + '')
-            .replace(/\D/g, '')
-            .slice(0, 6);
-
-        this.syncOtpInputValue(input);
-    }
-
-    onOtpKeydown(event: KeyboardEvent) {
-        if (event.key !== 'Backspace') {
-            return;
+    ngAfterViewChecked() {
+        if (
+            this.mfaStep === 'setup' &&
+            this.otpauthUri &&
+            this.otpauthUri !== this.renderedOtpAuthUri &&
+            this.totpQr
+        ) {
+            this.renderQr();
         }
-
-        event.preventDefault();
-
-        if (this.user.wa_code) {
-            this.user.wa_code = this.user.wa_code.slice(0, -1);
-        }
-
-        this.syncOtpInputValue(event.target as HTMLInputElement);
     }
 
-    syncOtpCaret(event: any) {
-        this.syncOtpInputValue(event.target as HTMLInputElement);
-    }
-
-    otpChar(index: number) {
-        return (this.user.wa_code || '')[index] || '';
-    }
-
-    private syncOtpInputValue(input: HTMLInputElement) {
-        if (!input) {
-            return;
-        }
-
-        input.value = this.user.wa_code || '';
-
-        const caretPosition = input.value.length;
-        setTimeout(() => {
-            input.setSelectionRange(caretPosition, caretPosition);
-        });
+    ngOnDestroy() {
+        this.cancelPendingLogin();
+        this.clearSensitiveState();
     }
 
     login() {
+        if (this.submitting) {
+            return;
+        }
+
         if (!this.user.email || !this.user.password) {
             return swal({
                 type: 'error',
-                html: `Favor de escribir todos los campos obligatorios`,
+                html: 'Favor de escribir todos los campos obligatorios',
             });
         }
 
-        if (this.user.code_sent && !this.user.wa_code) {
-            return swal({
-                type: 'error',
-                html: `Ingresa el codigo que te fue enviado a whatsapp para iniciar sesión`,
-            });
+        const loginData: ILogin = {
+            email: this.user.email,
+            password: this.user.password,
+        };
+
+        if (this.mfaStep === 'verify') {
+            const totpCode = this.totpCodeDigits.join('');
+            if (!/^\d{6}$/.test(totpCode)) {
+                return swal({
+                    type: 'error',
+                    html: 'Ingresa el código de seis dígitos de tu aplicación autenticadora',
+                });
+            }
+            loginData.totp_code = totpCode;
         }
 
-        this.authService.login(this.user).subscribe(
+        this.submitting = true;
+        this.loginSubscription = this.authService.login(loginData).subscribe(
             (res: any) => {
-                if (!res.token) {
-                    if (res.expired) {
-                        this.resetUser();
+                this.submitting = false;
 
-                        return;
-                    }
-
-                    this.user.code_sent = true;
-                    this.user.wa_code = '';
-
-                    return swal({
-                        type: 'success',
-                        html: res.message,
-                    });
+                if (res.token) {
+                    this.finishLogin(res);
+                    return;
                 }
 
-                window.localStorage.setItem('crm_access_token', res.token);
-                this.openWelcomeSplash();
+                if (res.mfa_setup && res.otpauth_uri) {
+                    this.showMfaSetup(res);
+                    return;
+                }
+
+                if (res.mfa_required) {
+                    this.showMfaVerification(res.message);
+                    return;
+                }
+
+                swal({
+                    type: 'error',
+                    text: res.message || 'No fue posible iniciar sesión',
+                }).then();
             },
             (err: any) => {
+                this.submitting = false;
+                if (err && err.error && err.error.expired) {
+                    this.expireMfaSetup();
+                    return;
+                }
                 swalErrorHttpResponse(err);
             }
         );
     }
 
-    private resetUser() {
-        this.user = {
-            wa_code: '',
-            password: '',
-            email: '',
-            code_sent: false,
-        };
+    continueMfaSetup() {
+        if (this.isMfaSetupExpired()) {
+            this.expireMfaSetup();
+            return;
+        }
+
+        this.otpauthUri = '';
+        this.renderedOtpAuthUri = '';
+        this.showMfaVerification('Ingresa el código de seis dígitos de tu aplicación autenticadora');
+    }
+
+    cancelMfa() {
+        this.cancelPendingLogin();
+        this.mfaStep = 'credentials';
+        this.mfaMessage = '';
+        this.clearSensitiveState();
+    }
+
+    expireMfaSetup() {
+        this.cancelMfa();
+        swal({
+            type: 'error',
+            text: 'La configuración expiró. Inicia sesión de nuevo para generar otro código QR.',
+        }).then();
+    }
+
+    onTotpDigitChange(value: string, index: number) {
+        let digit = String(value || '').replace(/\D/g, '');
+        if (digit.length > 1) {
+            digit = digit.charAt(digit.length - 1);
+        }
+
+        this.totpCodeDigits[index] = digit;
+        if (digit && index < 5) {
+            this.focusTotpIndex(index + 1);
+        }
+    }
+
+    onTotpKeydown(event: KeyboardEvent, index: number) {
+        const key = event.key;
+        if (
+            key === 'Tab' ||
+            key === 'Enter' ||
+            key === 'ArrowLeft' ||
+            key === 'ArrowRight' ||
+            ((event.ctrlKey || event.metaKey) && /^(a|c|v|x)$/i.test(key))
+        ) {
+            return;
+        }
+
+        if (key === 'Backspace') {
+            if (!this.totpCodeDigits[index] && index > 0) {
+                event.preventDefault();
+                this.totpCodeDigits[index - 1] = '';
+                this.focusTotpIndex(index - 1);
+            }
+            return;
+        }
+
+        if (!/^\d$/.test(key)) {
+            event.preventDefault();
+        }
+    }
+
+    onTotpPaste(event: ClipboardEvent) {
+        event.preventDefault();
+        const pasted =
+            (event.clipboardData && event.clipboardData.getData('text')) || '';
+        const digits = pasted.replace(/\D/g, '').slice(0, 6).split('');
+
+        for (let index = 0; index < 6; index++) {
+            this.totpCodeDigits[index] = digits[index] || '';
+        }
+
+        const nextIndex = this.totpCodeDigits.findIndex(digit => !digit);
+        this.focusTotpIndex(nextIndex === -1 ? 5 : nextIndex);
+    }
+
+    togglePassword() {
+        this.showPassword = !this.showPassword;
+    }
+
+    private showMfaSetup(res: any) {
+        this.clearMfaSetupTimer();
+        this.mfaStep = 'setup';
+        this.mfaMessage = res.message || 'Configura tu aplicación autenticadora.';
+        this.otpauthUri = res.otpauth_uri;
+        this.renderedOtpAuthUri = '';
+        const expiresIn = Number(res.expires_in);
+        if (expiresIn > 0) {
+            this.mfaSetupExpiresAt = Date.now() + expiresIn * 1000;
+            this.mfaSetupTimer = setTimeout(() => this.expireMfaSetup(), expiresIn * 1000);
+        }
+    }
+
+    private showMfaVerification(message: string) {
+        this.mfaStep = 'verify';
+        this.mfaMessage = message || 'Ingresa el código de tu aplicación autenticadora.';
+        setTimeout(() => this.focusTotpIndex(0), 0);
+    }
+
+    private finishLogin(res: any) {
+        window.localStorage.setItem('crm_access_token', res.token);
+        this.openWelcomeSplash();
+        this.clearSensitiveState();
+    }
+
+    private renderQr() {
+        const container = this.totpQr.nativeElement as HTMLElement;
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
+        new BrowserQRCodeSvgWriter().writeToDom(container, this.otpauthUri, 220, 220);
+        this.renderedOtpAuthUri = this.otpauthUri;
+    }
+
+    private focusTotpIndex(index: number) {
+        const inputs = this.totpCodeInputs && this.totpCodeInputs.toArray();
+        if (inputs && inputs[index]) {
+            inputs[index].nativeElement.focus();
+            inputs[index].nativeElement.select();
+        }
+    }
+
+    private clearMfaSetupTimer() {
+        if (this.mfaSetupTimer) {
+            clearTimeout(this.mfaSetupTimer);
+            this.mfaSetupTimer = undefined;
+        }
+    }
+
+    private isMfaSetupExpired(): boolean {
+        return !this.otpauthUri ||
+            (this.mfaSetupExpiresAt > 0 && Date.now() >= this.mfaSetupExpiresAt);
+    }
+
+    private cancelPendingLogin() {
+        if (this.loginSubscription) {
+            this.loginSubscription.unsubscribe();
+            this.loginSubscription = undefined;
+        }
+        this.submitting = false;
+    }
+
+    private clearSensitiveState() {
+        this.clearMfaSetupTimer();
+        this.otpauthUri = '';
+        this.renderedOtpAuthUri = '';
+        this.mfaSetupExpiresAt = 0;
+        this.totpCodeDigits = ['', '', '', '', '', ''];
+        this.user.email = '';
+        this.user.password = '';
     }
 
     private openWelcomeSplash() {

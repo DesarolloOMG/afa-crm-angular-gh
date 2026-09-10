@@ -20,7 +20,7 @@
                                 </div>
                             </div>
 
-                            <ng-container *ngIf="!user.code_sent">
+                            <ng-container *ngIf="mfaStep === 'credentials'">
                                 <div
                                     class="form-group form-primary login-field"
                                     [class.has-value]="user.email"
@@ -33,6 +33,7 @@
                                         [(ngModel)]="user.email"
                                         required
                                         email
+                                        (keyup.enter)="login()"
                                     />
                                     <span class="form-bar"></span>
                                     <label class="float-label">
@@ -67,13 +68,22 @@
                                 >
                                     <input
                                         #contrasena="ngModel"
-                                        type="password"
+                                        [type]="showPassword ? 'text' : 'password'"
                                         name="contrasena"
                                         class="form-control"
                                         [(ngModel)]="user.password"
                                         (keyup.enter)="login()"
                                         required
                                     />
+                                    <button
+                                        type="button"
+                                        class="toggle-password"
+                                        (click)="togglePassword()"
+                                        [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                                    >
+                                        <span *ngIf="!showPassword">🔒</span>
+                                        <span *ngIf="showPassword">🔓</span>
+                                    </button>
                                     <span class="form-bar"></span>
                                     <label class="float-label">
                                         Contrasena
@@ -107,61 +117,76 @@
                                 </div>
                             </ng-container>
 
-                            <div
-                                class="form-group form-primary login-field otp-group"
-                                *ngIf="user.code_sent"
-                            >
-                                <label class="otp-label">
-                                    Codigo de confirmacion (Whatsapp)
-                                </label>
-                                <div class="otp-wrap">
-                                    <input
-                                        #otpInput
-                                        type="text"
-                                        class="otp-hidden-input"
-                                        name="waCode"
-                                        [value]="user.wa_code"
-                                        maxlength="6"
-                                        inputmode="numeric"
-                                        pattern="[0-9]*"
-                                        autocomplete="one-time-code"
-                                        (focus)="syncOtpCaret($event)"
-                                        (click)="syncOtpCaret($event)"
-                                        (keydown)="onOtpKeydown($event)"
-                                        (input)="onOtpInput($event)"
-                                        (keyup.enter)="login()"
-                                    />
-                                    <div class="otp-inputs" aria-hidden="true">
-                                        <div class="otp-box" [class.filled]="otpChar(0)">
-                                            {{ otpChar(0) || '' }}
-                                        </div>
-                                        <div class="otp-box" [class.filled]="otpChar(1)">
-                                            {{ otpChar(1) || '' }}
-                                        </div>
-                                        <div class="otp-box" [class.filled]="otpChar(2)">
-                                            {{ otpChar(2) || '' }}
-                                        </div>
-                                        <div class="otp-box" [class.filled]="otpChar(3)">
-                                            {{ otpChar(3) || '' }}
-                                        </div>
-                                        <div class="otp-box" [class.filled]="otpChar(4)">
-                                            {{ otpChar(4) || '' }}
-                                        </div>
-                                        <div class="otp-box" [class.filled]="otpChar(5)">
-                                            {{ otpChar(5) || '' }}
-                                        </div>
+                            <ng-container *ngIf="mfaStep === 'setup'">
+                                <p class="text-center">{{ mfaMessage }}</p>
+                                <p class="text-center">
+                                    Escanea el código QR con una aplicación compatible.
+                                </p>
+                                <div #totpQr data-testid="totp-qr" class="totp-qr"></div>
+                                <p class="text-center m-t-15">Aplicaciones compatibles:</p>
+                                <div class="totp-app-links text-center">
+                                    <a href="https://www.google.com/mobile/authenticator/" target="_blank" rel="noopener noreferrer">
+                                        Google Authenticator
+                                    </a>
+                                    <a href="https://support.microsoft.com/es-es/authenticator/download-microsoft-authenticator" target="_blank" rel="noopener noreferrer">
+                                        Microsoft Authenticator
+                                    </a>
+                                    <a href="https://www.authy.com/download/" target="_blank" rel="noopener noreferrer">
+                                        Authy
+                                    </a>
+                                </div>
+                            </ng-container>
+
+                            <ng-container *ngIf="mfaStep === 'verify'">
+                                <p class="text-center">{{ mfaMessage }}</p>
+                                <div class="form-group form-primary login-field otp-group">
+                                    <label class="otp-label">Código de seis dígitos</label>
+                                    <div class="otp-inputs">
+                                        <input
+                                            *ngFor="let _ of totpDigits; let i = index"
+                                            #totpCodeInput
+                                            type="text"
+                                            inputmode="numeric"
+                                            maxlength="1"
+                                            class="form-control otp-box"
+                                            name="totp-code-{{ i }}"
+                                            [ngModel]="totpCodeDigits[i]"
+                                            (ngModelChange)="onTotpDigitChange($event, i)"
+                                            (keydown)="onTotpKeydown($event, i)"
+                                            (paste)="onTotpPaste($event)"
+                                            (keyup.enter)="login()"
+                                            autocomplete="one-time-code"
+                                        />
                                     </div>
                                 </div>
-                            </div>
+                            </ng-container>
 
                             <div class="row m-t-30">
                                 <div class="col-md-12">
                                     <button
+                                        *ngIf="mfaStep !== 'setup'"
                                         type="button"
                                         class="btn btn-outline-primary btn-sm btn-block m-b-20 http-disabled login-submit"
                                         (click)="login()"
+                                        [disabled]="submitting"
                                     >
-                                        Iniciar sesion
+                                        {{ mfaStep === 'verify' ? 'Verificar código' : 'Iniciar sesion' }}
+                                    </button>
+                                    <button
+                                        *ngIf="mfaStep === 'setup'"
+                                        type="button"
+                                        class="btn btn-outline-primary btn-sm btn-block m-b-20 login-submit"
+                                        (click)="continueMfaSetup()"
+                                    >
+                                        Ya configuré mi aplicación
+                                    </button>
+                                    <button
+                                        *ngIf="mfaStep !== 'credentials'"
+                                        type="button"
+                                        class="btn btn-link btn-sm btn-block"
+                                        (click)="cancelMfa()"
+                                    >
+                                        Volver al inicio de sesión
                                     </button>
                                 </div>
                             </div>

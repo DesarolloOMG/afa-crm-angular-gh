@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "files": ["test-totp.ts", "polyfills.ts"],
+  "include": [
+    "app/crm/auth/login/login-totp.component.spec.ts",
+    "app/crm/auth/forgot/forgot-totp.component.spec.ts",
+    "**/*.d.ts"
+  ]
+}

@@ -12,7 +12,7 @@ import swal from 'sweetalert2';
 export class ForgotComponent {
     data = {
         email: '',
-        wa_code: '',
+        totp_code: '',
         code_sent: false
     };
 
@@ -26,14 +26,19 @@ export class ForgotComponent {
             });
         }
 
-        if (this.data.code_sent && !this.data.wa_code) {
+        if (this.data.code_sent && !/^\d{6}$/.test(this.data.totp_code)) {
             return swal({
                 type: 'error',
-                html: 'Escribe el codigo que recibiste en whatsapp',
+                html: 'Escribe el código de seis dígitos de tu aplicación autenticadora',
             });
         }
 
-        this.authService.reset(this.data).subscribe(
+        const resetData: any = {email: this.data.email};
+        if (this.data.code_sent) {
+            resetData.totp_code = this.data.totp_code;
+        }
+
+        this.authService.reset(resetData).subscribe(
             (res: any) => {
                 swal({
                     type: 'success',
@@ -42,7 +47,7 @@ export class ForgotComponent {
 
                 if (res.expired) {
                     this.data = {
-                        wa_code: '',
+                        totp_code: '',
                         email: '',
                         code_sent: false,
                     };
@@ -52,7 +57,7 @@ export class ForgotComponent {
 
                 if (res.email_sent) {
                     this.router.navigate(['/auth/login']).then();
-                } else {
+                } else if (res.mfa_required) {
                     this.data.code_sent = true;
                 }
             },

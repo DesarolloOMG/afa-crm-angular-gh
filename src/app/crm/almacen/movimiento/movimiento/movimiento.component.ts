@@ -252,7 +252,7 @@ export class MovimientoComponent implements OnInit {
                                     await swal({
                                         type: 'error',
                                         html: 'Las series marcadas en rojo no fueron encontradas,' +
-                                            ' por favor escribe el código de autorización enviado a WhatsApp en el recuadro de abajo.',
+                                            ' por favor escribe el código actual de tu aplicación autenticadora en el recuadro de abajo.',
                                         input: 'text',
                                     }).then((confirm) => {
                                         if (!confirm.value) {

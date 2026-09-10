@@ -49,24 +49,27 @@
 
                             <div class="form-group form-primary" *ngIf="data.code_sent">
                                 <input
-                                    #waCode="ngModel"
+                                    #totpCode="ngModel"
                                     type="text"
-                                    [(ngModel)]="data.wa_code"
+                                    [(ngModel)]="data.totp_code"
                                     class="form-control"
                                     (keyup.enter)="reset()"
-                                    name="waCode"
+                                    name="totpCode"
+                                    inputmode="numeric"
+                                    maxlength="6"
+                                    pattern="[0-9]{6}"
+                                    autocomplete="one-time-code"
                                     required
                                 />
                                 <span class="form-bar"></span>
                                 <label class="float-label"
-                                >Código de confirmación (Whatsapp)</label
+                                >Código de la aplicación autenticadora</label
                                 >
                                 <small
                                     class="text-danger messages"
                                     *ngIf="
-                                        waCode.invalid &&
-                                        (waCode.dirty || waCode.touched) &&
-                                        waCode.errors?.required
+                                        totpCode.invalid &&
+                                        (totpCode.dirty || totpCode.touched)
                                     "
                                 >Campo requerido</small
                                 >

@@ -335,8 +335,8 @@ export class HistorialComponent implements OnInit {
             next: () => {
                 swal({
                     type: 'warning',
-                    html: `Para afectar el documento escribe el código de autorización enviado a
-                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                    html: `Para afectar el documento escribe el código actual de tu
+                            <b>aplicación autenticadora</b> en el recuadro de abajo.`,
                     input: 'text',
                 }).then((confirm) => {
                     if (!confirm.value) {

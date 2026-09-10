@@ -244,15 +244,15 @@ export class RecibirComponent implements OnInit {
     }
 
     // =======================
-    // Eliminar documento (con WhatsApp OTP)
+    // Eliminar documento (con código TOTP)
     // =======================
     eliminarDocumento(documento: any) {
         this.whatsappService.sendWhatsapp().subscribe({
             next: () => {
                 swal({
                     type: 'warning',
-                    html: `Para eliminar el documento, escribe el código de autorización enviado a
-                 <b>WhatsApp</b> en el recuadro de abajo.`,
+                html: `Para eliminar el documento, escribe el código actual de tu
+                 <b>aplicación autenticadora</b> en el recuadro de abajo.`,
                     input: 'text',
                 }).then((confirm: any) => {
                     if (!confirm.value) return;

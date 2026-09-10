@@ -21,9 +21,7 @@ export interface Usuario {
 }
 
 export interface ILogin {
-    wa_code: string;
     email: string;
     password: string;
-    code_sent: boolean;
-    email_only_login?: boolean;
+    totp_code?: string;
 }

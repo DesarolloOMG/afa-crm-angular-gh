@@ -521,16 +521,15 @@ export class EnvioComponent implements OnInit {
             );
     }
 
-    enviarCodigoWhatsApp() {
+    prepararCodigoAutenticador() {
         if (this.whats.usuario === '') {
             return swal({
                 type: 'error',
-                html: 'Selecciona al usuario para enviar el token.',
+                html: 'Selecciona al usuario que autorizará con su aplicación autenticadora.',
             });
         }
         this.whatsappService.sendWhatsappWithOption(this.whats).subscribe(
             () => {
-                this.iniciarTemporizador();
                 this.whats.token = '';
             },
             (response) => {
@@ -550,7 +549,7 @@ export class EnvioComponent implements OnInit {
         if (this.whats.token === '') {
             return swal({
                 type: 'error',
-                html: 'Tienes que escribir el token que Whatsapp te proporciona',
+                html: 'Escribe el código de seis dígitos de la aplicación autenticadora',
             });
         }
 

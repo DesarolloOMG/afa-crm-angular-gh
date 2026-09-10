@@ -97,7 +97,7 @@ export class HelpTourComponent implements OnInit, OnDestroy {
                 },
                 {
                     title: 'Eliminar',
-                    text: 'El boton rojo elimina el documento de soporte. El sistema pide codigo de autorizacion por WhatsApp antes de borrarlo.',
+                    text: 'El boton rojo elimina el documento de soporte. El sistema pide el codigo de la aplicacion autenticadora antes de borrarlo.',
                     selector: '[data-help-id="refund-pending-delete"]',
                     note: 'Es una accion sensible; no se debe usar para avanzar el flujo normal.',
                 },

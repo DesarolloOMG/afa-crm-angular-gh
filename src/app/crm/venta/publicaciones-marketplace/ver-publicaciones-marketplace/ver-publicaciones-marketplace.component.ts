@@ -908,8 +908,8 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                 next: async () => {
                     await swal({
                         type: 'warning',
-                        html: `Para actualizar la publicación, escribe el código de autorización enviado a
-                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        html: `Para actualizar la publicación, escribe el código actual de tu
+                            <b>aplicación autenticadora</b> en el recuadro de abajo.`,
                         input: 'text',
                     }).then((confirm) => {
                         if (!confirm.value) {
@@ -1977,8 +1977,8 @@ export class VerPublicacionesMarketplaceComponent implements OnInit, DoCheck {
                 next: async () => {
                     await swal({
                         type: 'warning',
-                        html: `Para actualizar la publicación, escribe el código de autorización enviado a
-                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        html: `Para actualizar la publicación, escribe el código actual de tu
+                            <b>aplicación autenticadora</b> en el recuadro de abajo.`,
                         input: 'text',
                     }).then((confirm) => {
                         if (!confirm.value) {

@@ -458,8 +458,8 @@ export class VentaComponent implements OnInit {
                 next: async () => {
                     await swal({
                         type: 'warning',
-                        html: `Para realizar la facturación, escribe el código de autorización enviado a
-                            <b>WhatsApp</b> en el recuadro de abajo.<br><br>
+                        html: `Para realizar la facturación, escribe el código actual de tu
+                            <b>aplicación autenticadora</b> en el recuadro de abajo.<br><br>
                Esto se debe a que la factura no es del mismo mes. Sí tienes alguna duda, favor de contactar a administración.`,
                         input: 'text',
                     }).then((confirm) => {

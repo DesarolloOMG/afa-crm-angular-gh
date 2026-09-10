@@ -85,12 +85,11 @@
                         <label class="float-label">Usuario</label>
                     </div>
                     <button
-                        (click)="enviarCodigoWhatsApp()"
-                        [disabled]="isTimerActive"
+                        (click)="prepararCodigoAutenticador()"
                         class="btn btn-outline-info btn-block mt-2"
                         type="button"
                     >
-                        {{ isTimerActive ? ('Reenviar en ' + timer + 's') : 'Enviar código' }}
+                        Usar aplicación autenticadora
                     </button>
                 </div>
             </div>
@@ -104,13 +103,16 @@
                             id="token"
                             name="token"
                             pattern="^[0-9]+$"
+                            maxlength="6"
+                            inputmode="numeric"
+                            autocomplete="one-time-code"
                             type="text"
                         />
                         <span class="form-bar"></span>
-                        <label class="float-label">Token</label>
+                        <label class="float-label">Código de autenticador</label>
                     </div>
                     <button class="btn btn-outline-success btn-block mt-2" type="submit">
-                        Validar token
+                        Validar código
                     </button>
                 </div>
             </div>

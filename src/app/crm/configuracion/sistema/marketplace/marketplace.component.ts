@@ -70,8 +70,8 @@ export class MarketplaceComponent implements OnInit {
                     console.log(res);
                     swal({
                         type: 'warning',
-                        html: `Para ver y/o editar las credenciales del marketplace, escribe el código de autorización enviado a
-                            <b>WhatsApp</b> en el recuadro de abajo.`,
+                        html: `Para ver y/o editar las credenciales del marketplace, escribe el código actual de tu
+                            <b>aplicación autenticadora</b> en el recuadro de abajo.`,
                         input: 'text',
                         inputAttributes: {
                             maxlength: '7',
