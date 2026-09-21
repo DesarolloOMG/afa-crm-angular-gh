@@ -30,7 +30,42 @@ export class FacturacionComponent implements OnInit {
     totalPages = 1;
     readonly globalPaymentMethod = 'PUE';
     readonly globalPaymentForm = '31';
+    readonly currentYear = new Date().getFullYear();
+    readonly globalPeriodicityOptions = [
+        {value: '01', label: 'Diaria'},
+        {value: '02', label: 'Semanal'},
+        {value: '03', label: 'Quincenal'},
+        {value: '04', label: 'Mensual'},
+        {value: '05', label: 'Bimestral'},
+    ];
+    readonly globalMonthOptions = [
+        {value: '01', label: 'Enero'},
+        {value: '02', label: 'Febrero'},
+        {value: '03', label: 'Marzo'},
+        {value: '04', label: 'Abril'},
+        {value: '05', label: 'Mayo'},
+        {value: '06', label: 'Junio'},
+        {value: '07', label: 'Julio'},
+        {value: '08', label: 'Agosto'},
+        {value: '09', label: 'Septiembre'},
+        {value: '10', label: 'Octubre'},
+        {value: '11', label: 'Noviembre'},
+        {value: '12', label: 'Diciembre'},
+    ];
+    readonly globalBimesterOptions = [
+        {value: '13', label: 'Enero - Febrero'},
+        {value: '14', label: 'Marzo - Abril'},
+        {value: '15', label: 'Mayo - Junio'},
+        {value: '16', label: 'Julio - Agosto'},
+        {value: '17', label: 'Septiembre - Octubre'},
+        {value: '18', label: 'Noviembre - Diciembre'},
+    ];
     globalGrouping: 'ventas' | 'productos' = 'ventas';
+    globalInformation = {
+        periodicity: '04',
+        months: ('0' + (new Date().getMonth() + 1)).slice(-2),
+        year: this.currentYear,
+    };
     external = {uuid: '', pdf: '', xml: ''};
     externalXmlName = '';
     externalPdfName = '';
@@ -233,6 +268,10 @@ export class FacturacionComponent implements OnInit {
             void swal('', 'La global por productos sólo puede incluir ventas del mismo receptor fiscal.', 'warning');
             return;
         }
+        if (!this.globalInformationValid()) {
+            void swal('', 'Selecciona una periodicidad, mes o bimestre y año válidos para la factura global.', 'warning');
+            return;
+        }
 
         const detail = this.globalGrouping === 'productos'
             ? 'Se enviará cada producto como una partida independiente, incluso cuando se repita.'
@@ -248,15 +287,54 @@ export class FacturacionComponent implements OnInit {
             if (!confirm.value) {
                 return;
             }
-            this.runRequest(this.ventaService.solicitarFacturaGlobal({
+            const payload: any = {
                 documentos,
                 agrupacion: this.globalGrouping,
-            }), false, true);
+            };
+            if (this.globalGrouping === 'ventas') {
+                payload.informacionGlobal = {
+                    periodicity: this.globalInformation.periodicity,
+                    months: this.globalInformation.months,
+                    year: Number(this.globalInformation.year),
+                };
+            }
+            this.runRequest(this.ventaService.solicitarFacturaGlobal(payload), false, true);
         });
     }
 
     selectGlobalGrouping(grouping: 'ventas' | 'productos') {
         this.globalGrouping = grouping;
+    }
+
+    globalPeriodOptions(): Array<{value: string, label: string}> {
+        return this.globalInformation.periodicity === '05'
+            ? this.globalBimesterOptions
+            : this.globalMonthOptions;
+    }
+
+    onGlobalPeriodicityChange() {
+        const month = new Date().getMonth() + 1;
+        this.globalInformation.months = this.globalInformation.periodicity === '05'
+            ? String(13 + Math.floor((month - 1) / 2))
+            : ('0' + month).slice(-2);
+    }
+
+    globalInformationValid(): boolean {
+        if (this.globalGrouping !== 'ventas') {
+            return true;
+        }
+
+        const periodicity = this.globalInformation.periodicity;
+        const months = this.globalInformation.months;
+        const year = Number(this.globalInformation.year);
+        const validPeriodicity = this.globalPeriodicityOptions.some((option) => option.value === periodicity);
+        const validMonth = this.globalPeriodOptions().some((option) => option.value === months);
+
+        return validPeriodicity
+            && validMonth
+            && Number.isInteger(year)
+            && year >= 2021
+            && year <= this.currentYear;
     }
 
     productGroupingReceiverMismatch(): boolean {
@@ -279,7 +357,8 @@ export class FacturacionComponent implements OnInit {
         return this.hubSelectedIds().length >= 2
             && !this.loading
             && this.configured
-            && !this.productGroupingReceiverMismatch();
+            && !this.productGroupingReceiverMismatch()
+            && this.globalInformationValid();
     }
 
     refreshRequest(documento: any) {

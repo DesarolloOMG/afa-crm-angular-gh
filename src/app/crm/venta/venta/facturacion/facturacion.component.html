@@ -308,6 +308,59 @@
             <div *ngIf="globalGrouping === 'ventas'" class="alert alert-info">
                 Nexfira recibirá una partida por pedido: clave 01010101, unidad ACT, ID interno como operación y descripción Venta.
             </div>
+            <div *ngIf="globalGrouping === 'ventas'" class="billing-global-information">
+                <div class="billing-global-information-title">
+                    <div>
+                        <strong>Información global SAT</strong>
+                        <small>Datos obligatorios para emitir el CFDI global.</small>
+                    </div>
+                    <span class="badge badge-primary">Obligatoria</span>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 form-group">
+                        <label for="globalPeriodicity">Periodicidad</label>
+                        <select
+                            id="globalPeriodicity"
+                            class="form-control"
+                            [(ngModel)]="globalInformation.periodicity"
+                            (change)="onGlobalPeriodicityChange()"
+                        >
+                            <option *ngFor="let option of globalPeriodicityOptions" [value]="option.value">
+                                {{ option.value }} — {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label for="globalMonths">
+                            {{ globalInformation.periodicity === '05' ? 'Bimestre' : 'Mes' }}
+                        </label>
+                        <select
+                            id="globalMonths"
+                            class="form-control"
+                            [(ngModel)]="globalInformation.months"
+                        >
+                            <option *ngFor="let option of globalPeriodOptions()" [value]="option.value">
+                                {{ option.value }} — {{ option.label }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 form-group">
+                        <label for="globalYear">Año</label>
+                        <input
+                            id="globalYear"
+                            class="form-control"
+                            type="number"
+                            min="2021"
+                            [max]="currentYear"
+                            step="1"
+                            [(ngModel)]="globalInformation.year"
+                        >
+                    </div>
+                </div>
+                <small *ngIf="!globalInformationValid()" class="text-danger">
+                    Selecciona una combinación SAT válida antes de solicitar la factura.
+                </small>
+            </div>
             <div *ngIf="globalGrouping === 'productos' && !productGroupingReceiverMismatch()" class="alert alert-info">
                 Nexfira recibirá todos los productos de las ventas seleccionadas sin consolidarlos, aunque se repitan o tengan precios distintos.
             </div>
