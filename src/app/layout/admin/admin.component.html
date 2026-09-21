@@ -350,6 +350,16 @@
                                         <!-- Segundo nivel -->
                                         <ng-container
                                             *ngIf="
+                                                (!asideItem.strict_sublevel ||
+                                                    (elementInArray(
+                                                        asideItem.level,
+                                                        user.niveles
+                                                    ) &&
+                                                        sublevelInArray(
+                                                            asideItem.sublevel,
+                                                            user.subniveles,
+                                                            asideItem.level
+                                                        ))) &&
                                                 ((user.niveles.indexOf(6) >=
                                                     0 &&
                                                     sublevelInArray(

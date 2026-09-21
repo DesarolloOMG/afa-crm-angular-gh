@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerService} from 'ngx-spinner';
 import swal from 'sweetalert2';
 
@@ -15,19 +16,30 @@ import {readFileAsText} from '../xml-pdf/xml-pdf.utils';
 export class FacturacionComponent implements OnInit {
     mode: 'individual' | 'global' | 'external' = 'individual';
     documentos: any[] = [];
+    visibleDocumentos: any[] = [];
     counts = {drop: 0, full: 0};
     configured = false;
     fulfillment = false;
     selected: {[id: number]: boolean} = {};
     loading = false;
+    searchTerm = '';
+    page = 1;
+    pageSize = 25;
+    pageSizeOptions = [10, 25, 50, 100];
+    filteredCount = 0;
+    totalPages = 1;
     paymentMethod = 'PUE';
     paymentForm = '01';
     external = {uuid: '', pdf: '', xml: ''};
+    externalXmlName = '';
+    externalPdfName = '';
+    private actionModalRef: any;
 
     constructor(
         private readonly ventaService: VentaService,
         private readonly spinner: NgxSpinnerService,
-        private readonly route: ActivatedRoute
+        private readonly route: ActivatedRoute,
+        private readonly modalService: NgbModal
     ) {
     }
 
@@ -36,7 +48,9 @@ export class FacturacionComponent implements OnInit {
             this.mode = data.mode || 'individual';
             this.fulfillment = this.mode === 'external';
             this.selected = {};
-            this.external = {uuid: '', pdf: '', xml: ''};
+            this.resetExternalFiles();
+            this.searchTerm = '';
+            this.page = 1;
             this.load();
         });
     }
@@ -69,7 +83,8 @@ export class FacturacionComponent implements OnInit {
                 this.documentos = data.documents || [];
                 this.counts = data.counts || {drop: 0, full: 0};
                 this.configured = !!data.configured;
-                this.selected = {};
+                this.keepAvailableSelections();
+                this.applyFilters(false);
                 this.finishLoading();
             },
             error: (error: any) => {
@@ -86,7 +101,94 @@ export class FacturacionComponent implements OnInit {
 
         this.fulfillment = fulfillment;
         this.selected = {};
+        this.searchTerm = '';
+        this.page = 1;
         this.load();
+    }
+
+    onSearchChange(value: string) {
+        this.searchTerm = value || '';
+        this.applyFilters(true);
+    }
+
+    clearSearch() {
+        this.searchTerm = '';
+        this.applyFilters(true);
+    }
+
+    onPageSizeChange() {
+        this.pageSize = Number(this.pageSize) || 25;
+        this.applyFilters(true);
+    }
+
+    goToPage(page: number) {
+        if (page < 1 || page > this.totalPages || page === this.page) {
+            return;
+        }
+
+        this.page = page;
+        this.updateVisibleDocuments();
+    }
+
+    pageStart(): number {
+        return this.filteredCount ? ((this.page - 1) * this.pageSize) + 1 : 0;
+    }
+
+    pageEnd(): number {
+        return Math.min(this.page * this.pageSize, this.filteredCount);
+    }
+
+    isSelectable(documento: any): boolean {
+        if (documento.request && documento.request.is_active) {
+            return false;
+        }
+
+        return this.mode !== 'global' || !!documento.can_hub;
+    }
+
+    togglePageSelection(checked: boolean) {
+        this.visibleDocumentos.forEach((documento) => {
+            if (this.isSelectable(documento)) {
+                this.selected[documento.id] = checked;
+            }
+        });
+    }
+
+    isPageSelected(): boolean {
+        const selectable = this.visibleDocumentos.filter((documento) => this.isSelectable(documento));
+        return !!selectable.length && selectable.every((documento) => !!this.selected[documento.id]);
+    }
+
+    isPagePartiallySelected(): boolean {
+        const selectable = this.visibleDocumentos.filter((documento) => this.isSelectable(documento));
+        const selected = selectable.filter((documento) => !!this.selected[documento.id]).length;
+        return selected > 0 && selected < selectable.length;
+    }
+
+    trackByDocumentId(_index: number, documento: any): number {
+        return documento.id;
+    }
+
+    openActionModal(content: any) {
+        if (this.mode === 'global' && this.hubSelectedIds().length < 2) {
+            void swal('', 'Selecciona al menos dos ventas habilitadas para Nexfira.', 'warning');
+            return;
+        }
+        if (this.mode === 'external' && !this.selectedIds().length) {
+            void swal('', 'Selecciona al menos una venta para relacionar el CFDI.', 'warning');
+            return;
+        }
+
+        const modalRef = this.modalService.open(content, {
+            size: 'lg',
+            backdrop: 'static',
+            keyboard: !this.loading,
+        });
+        this.actionModalRef = modalRef;
+        modalRef.result.then(
+            () => this.clearActionModalReference(modalRef),
+            () => this.clearActionModalReference(modalRef)
+        );
     }
 
     selectedIds(): number[] {
@@ -140,7 +242,7 @@ export class FacturacionComponent implements OnInit {
             this.runRequest(this.ventaService.solicitarFacturaGlobal({
                 documentos,
                 ...this.paymentData()
-            }));
+            }), false, true);
         });
     }
 
@@ -165,8 +267,10 @@ export class FacturacionComponent implements OnInit {
         }
         try {
             this.external.pdf = await fileToDataURL(file);
+            this.externalPdfName = file.name;
         } catch (error) {
             input.value = '';
+            this.externalPdfName = '';
             void swal('', 'No fue posible leer el PDF.', 'error');
         }
     }
@@ -191,10 +295,12 @@ export class FacturacionComponent implements OnInit {
             }
             this.external.uuid = uuid;
             this.external.xml = await fileToDataURL(file);
+            this.externalXmlName = file.name;
         } catch (error) {
             input.value = '';
             this.external.uuid = '';
             this.external.xml = '';
+            this.externalXmlName = '';
             void swal('', 'El XML no contiene un Timbre Fiscal Digital válido.', 'error');
         }
     }
@@ -221,7 +327,7 @@ export class FacturacionComponent implements OnInit {
                 uuid: this.external.uuid,
                 pdf: this.external.pdf,
                 xml: this.external.xml,
-            }), true);
+            }), true, true);
         });
     }
 
@@ -242,13 +348,90 @@ export class FacturacionComponent implements OnInit {
         };
     }
 
-    private runRequest(observable: any, resetExternal = false) {
+    private applyFilters(resetPage: boolean) {
+        const query = this.normalizeSearchValue(this.searchTerm);
+        const filtered = query
+            ? this.documentos.filter((documento) => this.matchesSearch(documento, query))
+            : this.documentos.slice();
+
+        this.filteredCount = filtered.length;
+        this.totalPages = Math.max(1, Math.ceil(this.filteredCount / this.pageSize));
+        this.page = resetPage ? 1 : Math.min(this.page, this.totalPages);
+        this.updateVisibleDocuments(filtered);
+    }
+
+    private updateVisibleDocuments(filtered?: any[]) {
+        const source = filtered || this.getFilteredDocuments();
+        const start = (this.page - 1) * this.pageSize;
+        this.visibleDocumentos = source.slice(start, start + this.pageSize);
+    }
+
+    private getFilteredDocuments(): any[] {
+        const query = this.normalizeSearchValue(this.searchTerm);
+        if (!query) {
+            return this.documentos.slice();
+        }
+
+        return this.documentos.filter((documento) => this.matchesSearch(documento, query));
+    }
+
+    private matchesSearch(documento: any, query: string): boolean {
+        const searchable = [
+            documento.id,
+            documento.folio,
+            documento.tipo_logistica,
+            documento.marketplace,
+            documento.cliente,
+            documento.rfc,
+            documento.total,
+            documento.request && documento.request.status,
+            documento.request && documento.request.error_message,
+            documento.blockers && documento.blockers.join(' '),
+        ].map((value) => this.normalizeSearchValue(value)).join(' ');
+
+        return searchable.indexOf(query) !== -1;
+    }
+
+    private normalizeSearchValue(value: any): string {
+        return String(value === undefined || value === null ? '' : value)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    private keepAvailableSelections() {
+        const available: {[id: number]: boolean} = {};
+        this.documentos.forEach((documento) => {
+            if (this.selected[documento.id] && this.isSelectable(documento)) {
+                available[documento.id] = true;
+            }
+        });
+        this.selected = available;
+    }
+
+    private resetExternalFiles() {
+        this.external = {uuid: '', pdf: '', xml: ''};
+        this.externalXmlName = '';
+        this.externalPdfName = '';
+    }
+
+    private clearActionModalReference(modalRef: any) {
+        if (this.actionModalRef === modalRef) {
+            this.actionModalRef = null;
+        }
+    }
+
+    private runRequest(observable: any, resetExternal = false, closeModal = false) {
         this.loading = true;
         this.spinner.show();
         observable.subscribe({
             next: (response: any) => {
                 if (resetExternal) {
-                    this.external = {uuid: '', pdf: '', xml: ''};
+                    this.resetExternalFiles();
+                }
+                if (closeModal && this.actionModalRef) {
+                    this.actionModalRef.close();
+                    this.actionModalRef = null;
                 }
                 swal({title: '', type: 'success', html: response.message}).then();
                 this.load();

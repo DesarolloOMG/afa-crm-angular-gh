@@ -53,20 +53,94 @@
                     </button>
                 </li>
             </ul>
-            <button class="btn btn-sm btn-outline-primary" type="button" (click)="load()">
-                <i class="fa fa-refresh"></i> Actualizar
-            </button>
+            <div class="billing-toolbar-actions">
+                <button
+                    *ngIf="mode === 'global'"
+                    class="btn btn-primary"
+                    type="button"
+                    [disabled]="hubSelectedIds().length < 2 || loading || !configured"
+                    (click)="openActionModal(billingActionModal)"
+                >
+                    <i class="fa fa-object-group"></i>
+                    Preparar factura global
+                    <span class="badge badge-light">{{ hubSelectedIds().length }}</span>
+                </button>
+                <button
+                    *ngIf="mode === 'external'"
+                    class="btn btn-success"
+                    type="button"
+                    [disabled]="!selectedIds().length || loading"
+                    (click)="openActionModal(billingActionModal)"
+                >
+                    <i class="fa fa-paperclip"></i>
+                    Relacionar CFDI
+                    <span class="badge badge-light">{{ selectedIds().length }}</span>
+                </button>
+                <button class="btn btn-outline-primary" type="button" [disabled]="loading" (click)="load()">
+                    <i class="fa fa-refresh"></i> Actualizar
+                </button>
+            </div>
         </div>
 
         <div *ngIf="!configured" class="alert alert-warning m-t-15">
             Nexfira aún no está configurado. Define token de integración, issuerId y código postal de expedición antes de solicitar facturas.
         </div>
 
+        <div class="billing-table-tools m-t-15">
+            <div class="input-group billing-search">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fa fa-search"></i></span>
+                </div>
+                <input
+                    class="form-control"
+                    type="search"
+                    [(ngModel)]="searchTerm"
+                    (ngModelChange)="onSearchChange($event)"
+                    placeholder="Buscar por folio, documento, marketplace, cliente, RFC o estado"
+                    aria-label="Buscar ventas"
+                >
+                <div class="input-group-append" *ngIf="searchTerm">
+                    <button class="btn btn-outline-secondary" type="button" (click)="clearSearch()" aria-label="Limpiar búsqueda">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="billing-page-size">
+                <label for="billingPageSize">Mostrar</label>
+                <select
+                    id="billingPageSize"
+                    class="form-control"
+                    [(ngModel)]="pageSize"
+                    (change)="onPageSizeChange()"
+                >
+                    <option *ngFor="let option of pageSizeOptions" [ngValue]="option">{{ option }}</option>
+                </select>
+                <span>por página</span>
+            </div>
+        </div>
+
+        <div *ngIf="mode !== 'individual' && selectedIds().length" class="billing-selection-summary">
+            <i class="fa fa-check-square-o"></i>
+            <strong>{{ mode === 'global' ? hubSelectedIds().length : selectedIds().length }}</strong>
+            venta(s) seleccionada(s) en total.
+            <span>La selección se conserva al buscar o cambiar de página.</span>
+        </div>
+
         <div class="table-responsive m-t-15">
             <table class="table table-sm table-hover">
                 <thead>
                 <tr>
-                    <th></th>
+                    <th class="billing-selection-column">
+                        <input
+                            *ngIf="mode !== 'individual'"
+                            type="checkbox"
+                            [checked]="isPageSelected()"
+                            [indeterminate]="isPagePartiallySelected()"
+                            (change)="togglePageSelection($event.target.checked)"
+                            aria-label="Seleccionar ventas visibles"
+                            title="Seleccionar ventas visibles"
+                        >
+                    </th>
                     <th>Documento / folio</th>
                     <th>Tipo</th>
                     <th>Marketplace</th>
@@ -77,13 +151,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let documento of documentos">
+                <tr *ngFor="let documento of visibleDocumentos; trackBy: trackByDocumentId" [class.billing-row-selected]="selected[documento.id]">
                     <td>
                         <input
                             *ngIf="mode !== 'individual'"
                             type="checkbox"
                             [(ngModel)]="selected[documento.id]"
-                            [disabled]="documento.request && documento.request.is_active"
+                            [disabled]="!isSelectable(documento)"
                             [attr.aria-label]="'Seleccionar ' + documento.folio"
                         >
                     </td>
@@ -130,72 +204,157 @@
                         >Consultar</button>
                     </td>
                 </tr>
-                <tr *ngIf="!documentos.length">
+                <tr *ngIf="!visibleDocumentos.length">
                     <td colspan="8" class="text-center text-muted p-4">
-                        No hay ventas {{ fulfillment ? 'FULL' : 'DROP' }} pendientes de factura.
+                        <ng-container *ngIf="searchTerm; else noPendingDocuments">
+                            No encontramos ventas que coincidan con “{{ searchTerm }}”.
+                        </ng-container>
+                        <ng-template #noPendingDocuments>
+                            No hay ventas {{ fulfillment ? 'FULL' : 'DROP' }} pendientes de factura.
+                        </ng-template>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-    </div>
-</div>
 
-<div class="row" *ngIf="mode === 'global' || mode === 'external'">
-    <div class="col-lg-8 offset-lg-2" *ngIf="mode === 'global'">
-        <div class="card">
-            <div class="card-header"><h5>Factura global por Nexfira</h5></div>
-            <div class="card-block">
-                <p>Selecciona dos o más ventas habilitadas. Se generará una partida por folio.</p>
-                <div class="row">
-                    <div class="col-md-6 form-group">
-                        <label>Método de pago</label>
-                        <select class="form-control" [(ngModel)]="paymentMethod">
-                            <option value="PUE">PUE</option>
-                            <option value="PPD">PPD</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 form-group">
-                        <label>Forma de pago SAT</label>
-                        <input class="form-control" maxlength="2" [(ngModel)]="paymentForm">
-                    </div>
-                </div>
-                <button
-                    class="btn btn-primary btn-block"
-                    type="button"
-                    [disabled]="hubSelectedIds().length < 2 || loading || !configured"
-                    (click)="requestGlobal()"
-                >Solicitar factura global ({{ hubSelectedIds().length }})</button>
+        <div class="billing-table-footer" *ngIf="filteredCount">
+            <div class="billing-results">
+                Mostrando <strong>{{ pageStart() }}–{{ pageEnd() }}</strong> de <strong>{{ filteredCount }}</strong> ventas
             </div>
-        </div>
-    </div>
-
-    <div class="col-lg-8 offset-lg-2" *ngIf="mode === 'external'">
-        <div class="card">
-            <div class="card-header"><h5>Relacionar CFDI externo / Mercado Libre FULL</h5></div>
-            <div class="card-block">
-                <p>Selecciona una o varias ventas que pertenezcan al mismo CFDI y carga sus archivos.</p>
-                <div class="form-group">
-                    <label>XML timbrado</label>
-                    <input class="form-control" type="file" accept=".xml,text/xml,application/xml" (change)="readXml($event)">
-                </div>
-                <div class="form-group">
-                    <label>PDF</label>
-                    <input class="form-control" type="file" accept=".pdf,application/pdf" (change)="readPdf($event)">
-                </div>
-                <div class="form-group">
-                    <label>UUID detectado</label>
-                    <input class="form-control" [value]="external.uuid" readonly>
-                </div>
+            <nav class="billing-pagination" aria-label="Paginación de ventas">
                 <button
-                    class="btn btn-success btn-block"
+                    class="btn btn-outline-secondary"
                     type="button"
-                    [disabled]="!selectedIds().length || !external.uuid || !external.pdf || !external.xml || loading"
-                    (click)="attachExternal()"
-                >Validar y relacionar ({{ selectedIds().length }})</button>
-            </div>
+                    [disabled]="page === 1"
+                    (click)="goToPage(page - 1)"
+                    aria-label="Página anterior"
+                >
+                    <i class="fa fa-chevron-left"></i>
+                    Anterior
+                </button>
+                <span>Página <strong>{{ page }}</strong> de <strong>{{ totalPages }}</strong></span>
+                <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    [disabled]="page === totalPages"
+                    (click)="goToPage(page + 1)"
+                    aria-label="Página siguiente"
+                >
+                    Siguiente
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </nav>
         </div>
     </div>
 </div>
+
+<ng-template #billingActionModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <div>
+            <h4 class="modal-title">
+                {{ mode === 'global' ? 'Preparar factura global' : 'Relacionar CFDI externo' }}
+            </h4>
+            <small class="text-muted">
+                {{ mode === 'global' ? hubSelectedIds().length : selectedIds().length }} venta(s) seleccionada(s)
+            </small>
+        </div>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="loading" (click)="d('close')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <ng-container *ngIf="mode === 'global'">
+            <div class="alert alert-info">
+                Nexfira recibirá una partida por cada venta y el folio quedará como descripción de la partida.
+            </div>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    <label for="globalPaymentMethod">Método de pago</label>
+                    <select id="globalPaymentMethod" class="form-control" [(ngModel)]="paymentMethod">
+                        <option value="PUE">PUE — Pago en una sola exhibición</option>
+                        <option value="PPD">PPD — Pago en parcialidades o diferido</option>
+                    </select>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="globalPaymentForm">Forma de pago SAT</label>
+                    <input id="globalPaymentForm" class="form-control" maxlength="2" [(ngModel)]="paymentForm">
+                    <small class="form-text text-muted">Clave SAT de dos caracteres, por ejemplo 01.</small>
+                </div>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="mode === 'external'">
+            <p>Adjunta el XML timbrado y su PDF. El UUID se obtiene y valida directamente desde el XML.</p>
+            <div class="form-group">
+                <label for="externalXml">XML timbrado</label>
+                <div class="custom-file">
+                    <input
+                        id="externalXml"
+                        class="custom-file-input"
+                        type="file"
+                        accept=".xml,text/xml,application/xml"
+                        (change)="readXml($event)"
+                    >
+                    <label class="custom-file-label" for="externalXml">
+                        {{ externalXmlName || 'Seleccionar archivo XML' }}
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="externalPdf">PDF</label>
+                <div class="custom-file">
+                    <input
+                        id="externalPdf"
+                        class="custom-file-input"
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        (change)="readPdf($event)"
+                    >
+                    <label class="custom-file-label" for="externalPdf">
+                        {{ externalPdfName || 'Seleccionar archivo PDF' }}
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="externalUuid">UUID detectado</label>
+                <input
+                    id="externalUuid"
+                    class="form-control"
+                    [value]="external.uuid"
+                    placeholder="Se completará al cargar un XML válido"
+                    readonly
+                >
+            </div>
+        </ng-container>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn btn-outline-secondary" type="button" [disabled]="loading" (click)="c('cancel')">
+            Cancelar
+        </button>
+        <button
+            *ngIf="mode === 'global'"
+            class="btn btn-primary"
+            type="button"
+            [disabled]="hubSelectedIds().length < 2 || loading || !configured"
+            (click)="requestGlobal()"
+        >
+            <i class="fa fa-paper-plane"></i>
+            Solicitar factura global ({{ hubSelectedIds().length }})
+        </button>
+        <button
+            *ngIf="mode === 'external'"
+            class="btn btn-success"
+            type="button"
+            [disabled]="!selectedIds().length || !external.uuid || !external.pdf || !external.xml || loading"
+            (click)="attachExternal()"
+        >
+            <i class="fa fa-check"></i>
+            Validar y relacionar ({{ selectedIds().length }})
+        </button>
+    </div>
+</ng-template>
 
 <ngx-spinner bdColor="rgba(0,0,0,0.45)" size="medium" color="#fff" type="ball-scale-multiple"></ngx-spinner>

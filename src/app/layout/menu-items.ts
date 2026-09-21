@@ -16,6 +16,7 @@ export interface ChildrenItems {
 export interface MainMenuItems {
     state: string;
     route?: string;
+    strict_sublevel?: boolean;
     short_label?: string;
     main_state?: string;
     target?: boolean;
@@ -1032,8 +1033,9 @@ const MENUITEMS = [
                 name: 'Facturación / Timbrado',
                 type: 'link',
                 icon: 'fa fa-file-text-o',
-                level: [11, 6],
-                sublevel: 0,
+                level: [11],
+                sublevel: 36,
+                strict_sublevel: true,
             },
             // {
             //     main_state: 'contabilidad',

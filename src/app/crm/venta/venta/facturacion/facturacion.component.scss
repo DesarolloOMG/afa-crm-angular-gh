@@ -1,7 +1,20 @@
 .billing-toolbar {
     align-items: center;
     display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
     justify-content: space-between;
+}
+
+.billing-toolbar-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.billing-toolbar-actions .badge {
+    margin-left: 5px;
 }
 
 .billing-fulfillment-tabs {
@@ -50,6 +63,96 @@
     padding-left: 16px;
 }
 
+.billing-table-tools {
+    align-items: center;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+}
+
+.billing-search {
+    flex: 1 1 520px;
+    max-width: 720px;
+}
+
+.billing-page-size {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.billing-page-size label {
+    margin: 0;
+}
+
+.billing-page-size .form-control {
+    min-width: 76px;
+    width: auto;
+}
+
+.billing-selection-summary {
+    background: #eef4ff;
+    border: 1px solid #cbdcff;
+    border-radius: 4px;
+    color: #294d8f;
+    margin-top: 12px;
+    padding: 9px 12px;
+}
+
+.billing-selection-summary .fa {
+    margin-right: 6px;
+}
+
+.billing-selection-summary span {
+    color: #5e6b7a;
+    margin-left: 4px;
+}
+
+.billing-selection-column {
+    text-align: center;
+    width: 44px;
+}
+
+.billing-row-selected {
+    background: #f2f7ff;
+}
+
+.billing-table-footer {
+    align-items: center;
+    border-top: 1px solid #e5e5e5;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    padding-top: 14px;
+}
+
+.billing-results {
+    color: #6c757d;
+}
+
+.billing-pagination {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+}
+
+.billing-pagination .btn {
+    min-width: 104px;
+}
+
+.custom-file-label {
+    overflow: hidden;
+    padding-right: 112px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.modal-title {
+    margin-bottom: 2px;
+}
+
 td {
     vertical-align: middle;
 }
@@ -60,8 +163,12 @@ td {
         flex-direction: column;
     }
 
-    .billing-toolbar button {
-        margin-top: 12px;
+    .billing-toolbar-actions {
+        width: 100%;
+    }
+
+    .billing-toolbar-actions .btn {
+        flex: 1 1 auto;
     }
 
     .billing-fulfillment-tabs {
@@ -80,5 +187,39 @@ td {
 
     .billing-views .btn {
         flex: 1 0 100%;
+    }
+
+    .billing-table-tools,
+    .billing-table-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .billing-search {
+        flex-basis: auto;
+        max-width: none;
+        width: 100%;
+    }
+
+    .billing-page-size {
+        justify-content: flex-end;
+    }
+
+    .billing-pagination {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .billing-pagination span {
+        text-align: center;
+    }
+
+    .billing-pagination .btn {
+        min-width: auto;
+    }
+
+    .billing-selection-summary span {
+        display: block;
+        margin: 4px 0 0 24px;
     }
 }
