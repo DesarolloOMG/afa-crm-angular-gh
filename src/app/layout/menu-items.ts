@@ -15,6 +15,7 @@ export interface ChildrenItems {
 
 export interface MainMenuItems {
     state: string;
+    route?: string;
     short_label?: string;
     main_state?: string;
     target?: boolean;
@@ -534,12 +535,6 @@ const MENUITEMS = [
                         level: [11, 6],
                         sublevel: 0,
                     },
-                    {
-                        state: 'facturacion/individual',
-                        name: 'Facturación',
-                        level: [11, 6],
-                        sublevel: 0,
-                    },
                 ],
             },
             {
@@ -1030,6 +1025,16 @@ const MENUITEMS = [
         label: 'Contabilidad',
         levels: [11, 12],
         main: [
+            {
+                state: 'facturacion',
+                route: '/venta/venta/facturacion',
+                short_label: 'FT',
+                name: 'Facturación / Timbrado',
+                type: 'link',
+                icon: 'fa fa-file-text-o',
+                level: [11, 6],
+                sublevel: 0,
+            },
             // {
             //     main_state: 'contabilidad',
             //     state: 'pago',

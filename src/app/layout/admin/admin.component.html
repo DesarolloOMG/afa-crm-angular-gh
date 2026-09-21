@@ -504,10 +504,14 @@
                                                             'active'
                                                         ]"
                                                         class="ripple"
-                                                        [routerLink]="[
-                                                            '/',
-                                                            asideItem.state
-                                                        ]"
+                                                        [routerLink]="
+                                                            asideItem.route
+                                                                ? asideItem.route
+                                                                : [
+                                                                      '/',
+                                                                      asideItem.state
+                                                                  ]
+                                                        "
                                                         target="{{
                                                             asideItem.target
                                                                 ? '_blank'
