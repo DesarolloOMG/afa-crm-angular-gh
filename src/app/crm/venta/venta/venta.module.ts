@@ -18,6 +18,7 @@ import {EditorSeguimientosModule} from 'app/utils/editor-seguimientos/editor-seg
 import {PendienteComponent} from './pendiente/pendiente.component';
 import {RouterModule, Routes} from '@angular/router';
 import {XmlPdfComponent} from './xml-pdf/xml-pdf.component';
+import {FacturacionComponent} from './facturacion/facturacion.component';
 
 const routes: Routes = [
     {
@@ -107,6 +108,35 @@ const routes: Routes = [
                     title: 'Relacionar PDF y XML a documentos de venta',
                 },
             },
+            {
+                path: 'facturacion',
+                redirectTo: 'facturacion/individual',
+                pathMatch: 'full',
+            },
+            {
+                path: 'facturacion/individual',
+                component: FacturacionComponent,
+                data: {
+                    title: 'Facturación individual',
+                    mode: 'individual',
+                },
+            },
+            {
+                path: 'facturacion/global',
+                component: FacturacionComponent,
+                data: {
+                    title: 'Facturación global',
+                    mode: 'global',
+                },
+            },
+            {
+                path: 'facturacion/externa',
+                component: FacturacionComponent,
+                data: {
+                    title: 'Facturación fuera del Hub',
+                    mode: 'external',
+                },
+            },
         ],
     },
 ];
@@ -133,7 +163,8 @@ const routes: Routes = [
         AutorizarComponent,
         ImportacionComponent,
         PendienteComponent,
-        XmlPdfComponent
+        XmlPdfComponent,
+        FacturacionComponent
     ],
     exports: [RouterModule]
 })

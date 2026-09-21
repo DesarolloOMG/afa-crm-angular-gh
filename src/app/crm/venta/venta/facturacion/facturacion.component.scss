@@ -1,0 +1,43 @@
+.billing-toolbar {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.billing-views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.billing-views .btn.active {
+    background: #4680ff;
+    color: #fff;
+}
+
+.billing-blockers {
+    color: #d9534f;
+    font-size: 11px;
+    margin: 6px 0 0;
+    max-width: 320px;
+    padding-left: 16px;
+}
+
+td {
+    vertical-align: middle;
+}
+
+@media (max-width: 767px) {
+    .billing-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .billing-toolbar button {
+        margin-top: 12px;
+    }
+
+    .billing-views .btn {
+        flex: 1 0 100%;
+    }
+}

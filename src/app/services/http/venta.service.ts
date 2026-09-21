@@ -25,6 +25,46 @@ export class VentaService {
         );
     }
 
+    getFacturacionPendientes(fulfillment: boolean): Observable<any> {
+        return this.http.get(
+            `${backend_url}venta/venta/facturacion/pendientes?fulfillment=${fulfillment ? 1 : 0}`
+        );
+    }
+
+    previsualizarFactura(documento: number): Observable<any> {
+        return this.http.get(
+            `${backend_url}venta/venta/facturacion/previsualizar/${documento}`
+        );
+    }
+
+    solicitarFacturaIndividual(documento: number, data: any): Observable<any> {
+        return this.http.post(
+            `${backend_url}venta/venta/facturacion/individual/${documento}`,
+            data
+        );
+    }
+
+    solicitarFacturaGlobal(data: any): Observable<any> {
+        return this.http.post(
+            `${backend_url}venta/venta/facturacion/global`,
+            data
+        );
+    }
+
+    actualizarSolicitudFactura(solicitud: number): Observable<any> {
+        return this.http.post(
+            `${backend_url}venta/venta/facturacion/solicitud/${solicitud}/actualizar`,
+            {}
+        );
+    }
+
+    relacionarFacturaExterna(data: any): Observable<any> {
+        return this.http.post(
+            `${backend_url}venta/venta/facturacion/externa`,
+            data
+        );
+    }
+
     // SE USA
 
     /* Venta > Venta */

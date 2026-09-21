@@ -534,6 +534,12 @@ const MENUITEMS = [
                         level: [11, 6],
                         sublevel: 0,
                     },
+                    {
+                        state: 'facturacion/individual',
+                        name: 'Facturación',
+                        level: [11, 6],
+                        sublevel: 0,
+                    },
                 ],
             },
             {
