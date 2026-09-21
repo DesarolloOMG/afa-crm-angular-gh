@@ -79,6 +79,16 @@ export class FacturacionComponent implements OnInit {
         });
     }
 
+    selectFulfillment(fulfillment: boolean) {
+        if (this.fulfillment === fulfillment) {
+            return;
+        }
+
+        this.fulfillment = fulfillment;
+        this.selected = {};
+        this.load();
+    }
+
     selectedIds(): number[] {
         return this.documentos
             .filter((documento) => !!this.selected[documento.id])

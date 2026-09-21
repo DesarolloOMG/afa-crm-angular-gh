@@ -4,6 +4,33 @@
     justify-content: space-between;
 }
 
+.billing-fulfillment-tabs {
+    border-bottom: 0;
+}
+
+.billing-fulfillment-tabs .nav-link {
+    background: transparent;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    color: #555;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 10px 18px;
+}
+
+.billing-fulfillment-tabs .nav-link.active {
+    border-bottom-color: #4680ff;
+    color: #4680ff;
+}
+
+.billing-fulfillment-tabs .nav-link .badge {
+    margin-left: 5px;
+}
+
+.billing-fulfillment-tabs .nav-link.active .badge {
+    background: #4680ff;
+}
+
 .billing-views {
     display: flex;
     flex-wrap: wrap;
@@ -35,6 +62,20 @@ td {
 
     .billing-toolbar button {
         margin-top: 12px;
+    }
+
+    .billing-fulfillment-tabs {
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    .billing-fulfillment-tabs .nav-item {
+        flex: 1;
+    }
+
+    .billing-fulfillment-tabs .nav-link {
+        margin-top: 0;
+        width: 100%;
     }
 
     .billing-views .btn {

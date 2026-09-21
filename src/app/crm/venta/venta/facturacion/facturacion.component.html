@@ -27,18 +27,32 @@
         </div>
 
         <div class="billing-toolbar">
-            <div>
-                <strong>DROP ({{ counts.drop }})</strong>
-                <ui-switch
-                    [(ngModel)]="fulfillment"
-                    (change)="load()"
-                    class="m-l-10 m-r-10"
-                    color="#4680ff"
-                    switchColor="#fff"
-                    size="medium"
-                ></ui-switch>
-                <strong>FULL ({{ counts.full }})</strong>
-            </div>
+            <ul class="nav nav-tabs billing-fulfillment-tabs" role="tablist">
+                <li class="nav-item">
+                    <button
+                        class="nav-link"
+                        type="button"
+                        role="tab"
+                        [class.active]="!fulfillment"
+                        [attr.aria-selected]="!fulfillment"
+                        (click)="selectFulfillment(false)"
+                    >
+                        DROP <span class="badge badge-secondary">{{ counts.drop }}</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button
+                        class="nav-link"
+                        type="button"
+                        role="tab"
+                        [class.active]="fulfillment"
+                        [attr.aria-selected]="fulfillment"
+                        (click)="selectFulfillment(true)"
+                    >
+                        FULL <span class="badge badge-secondary">{{ counts.full }}</span>
+                    </button>
+                </li>
+            </ul>
             <button class="btn btn-sm btn-outline-primary" type="button" (click)="load()">
                 <i class="fa fa-refresh"></i> Actualizar
             </button>
