@@ -105,8 +105,9 @@
                             </div>
                         </ng-container>
                         <ng-template #pendingStatus>
-                            <span *ngIf="documento.requires_external" class="badge badge-warning">CFDI externo</span>
-                            <span *ngIf="documento.can_hub" class="badge badge-success">Listo para Nexfira</span>
+                            <span *ngIf="documento.already_invoiced" class="badge badge-danger">Ya facturada</span>
+                            <span *ngIf="!documento.already_invoiced && documento.requires_external" class="badge badge-warning">CFDI externo</span>
+                            <span *ngIf="!documento.already_invoiced && documento.can_hub" class="badge badge-success">Listo para Nexfira</span>
                             <ul *ngIf="documento.blockers && documento.blockers.length" class="billing-blockers">
                                 <li *ngFor="let blocker of documento.blockers">{{ blocker }}</li>
                             </ul>
