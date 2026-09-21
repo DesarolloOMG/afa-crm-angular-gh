@@ -177,6 +177,14 @@
                             <div *ngIf="documento.request.error_message" class="text-danger small">
                                 {{ documento.request.error_message }}
                             </div>
+                            <ul *ngIf="documento.request.errors && documento.request.errors.length" class="billing-blockers">
+                                <li *ngFor="let error of documento.request.errors">
+                                    {{ requestErrorLabel(error) }}
+                                </li>
+                            </ul>
+                            <small *ngIf="documento.request.correlation_id" class="text-muted d-block">
+                                Referencia Nexfira: {{ documento.request.correlation_id }}
+                            </small>
                         </ng-container>
                         <ng-template #pendingStatus>
                             <span *ngIf="documento.already_invoiced" class="badge badge-danger">Ya facturada</span>
@@ -266,21 +274,54 @@
 
     <div class="modal-body">
         <ng-container *ngIf="mode === 'global'">
-            <div class="alert alert-info">
-                Nexfira recibirá una partida por cada venta y el folio quedará como descripción de la partida.
+            <div class="billing-global-grouping" role="radiogroup" aria-label="Forma de construir la factura global">
+                <button
+                    class="billing-grouping-option"
+                    type="button"
+                    role="radio"
+                    [class.active]="globalGrouping === 'ventas'"
+                    [attr.aria-checked]="globalGrouping === 'ventas'"
+                    (click)="selectGlobalGrouping('ventas')"
+                >
+                    <i class="fa fa-file-text-o"></i>
+                    <span>
+                        <strong>Global por ventas</strong>
+                        <small>Una partida por pedido con su ID interno.</small>
+                    </span>
+                </button>
+                <button
+                    class="billing-grouping-option"
+                    type="button"
+                    role="radio"
+                    [class.active]="globalGrouping === 'productos'"
+                    [attr.aria-checked]="globalGrouping === 'productos'"
+                    (click)="selectGlobalGrouping('productos')"
+                >
+                    <i class="fa fa-cubes"></i>
+                    <span>
+                        <strong>Global por productos</strong>
+                        <small>Cada producto conserva cantidad, precio y clave SAT.</small>
+                    </span>
+                </button>
             </div>
-            <div class="row">
-                <div class="col-md-6 form-group">
-                    <label for="globalPaymentMethod">Método de pago</label>
-                    <select id="globalPaymentMethod" class="form-control" [(ngModel)]="paymentMethod">
-                        <option value="PUE">PUE — Pago en una sola exhibición</option>
-                        <option value="PPD">PPD — Pago en parcialidades o diferido</option>
-                    </select>
+
+            <div *ngIf="globalGrouping === 'ventas'" class="alert alert-info">
+                Nexfira recibirá una partida por pedido: clave 01010101, unidad ACT, ID interno como operación y descripción Venta.
+            </div>
+            <div *ngIf="globalGrouping === 'productos' && !productGroupingReceiverMismatch()" class="alert alert-info">
+                Nexfira recibirá todos los productos de las ventas seleccionadas sin consolidarlos, aunque se repitan o tengan precios distintos.
+            </div>
+            <div *ngIf="productGroupingReceiverMismatch()" class="alert alert-danger">
+                Las ventas seleccionadas no pertenecen al mismo receptor fiscal. Ajusta la selección para usar la global por productos.
+            </div>
+            <div class="row billing-global-summary">
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Método de pago</small>
+                    <strong>{{ globalPaymentMethod }} — Pago en una sola exhibición</strong>
                 </div>
-                <div class="col-md-6 form-group">
-                    <label for="globalPaymentForm">Forma de pago SAT</label>
-                    <input id="globalPaymentForm" class="form-control" maxlength="2" [(ngModel)]="paymentForm">
-                    <small class="form-text text-muted">Clave SAT de dos caracteres, por ejemplo 01.</small>
+                <div class="col-md-6">
+                    <small class="text-muted d-block">Forma de pago</small>
+                    <strong>{{ globalPaymentForm }} — Intermediario pagos</strong>
                 </div>
             </div>
         </ng-container>
@@ -338,11 +379,11 @@
             *ngIf="mode === 'global'"
             class="btn btn-primary"
             type="button"
-            [disabled]="hubSelectedIds().length < 2 || loading || !configured"
+            [disabled]="!canRequestGlobal()"
             (click)="requestGlobal()"
         >
             <i class="fa fa-paper-plane"></i>
-            Solicitar factura global ({{ hubSelectedIds().length }})
+            Solicitar global por {{ globalGrouping }} ({{ hubSelectedIds().length }})
         </button>
         <button
             *ngIf="mode === 'external'"

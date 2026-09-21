@@ -28,8 +28,9 @@ export class FacturacionComponent implements OnInit {
     pageSizeOptions = [10, 25, 50, 100];
     filteredCount = 0;
     totalPages = 1;
-    paymentMethod = 'PUE';
-    paymentForm = '01';
+    readonly globalPaymentMethod = 'PUE';
+    readonly globalPaymentForm = '31';
+    globalGrouping: 'ventas' | 'productos' = 'ventas';
     external = {uuid: '', pdf: '', xml: ''};
     externalXmlName = '';
     externalPdfName = '';
@@ -66,7 +67,7 @@ export class FacturacionComponent implements OnInit {
     viewDescription(): string {
         switch (this.mode) {
             case 'global':
-                return 'Selecciona dos o más ventas. Nexfira recibirá una partida por venta con su folio como descripción.';
+                return 'Selecciona dos o más ventas y elige si Nexfira recibirá una partida por pedido o una por cada producto.';
             case 'external':
                 return 'Selecciona las ventas incluidas en el mismo CFDI y adjunta el XML y PDF emitidos externamente.';
             default:
@@ -228,10 +229,18 @@ export class FacturacionComponent implements OnInit {
             void swal('', 'Selecciona al menos dos ventas habilitadas para Nexfira.', 'warning');
             return;
         }
+        if (this.productGroupingReceiverMismatch()) {
+            void swal('', 'La global por productos sólo puede incluir ventas del mismo receptor fiscal.', 'warning');
+            return;
+        }
+
+        const detail = this.globalGrouping === 'productos'
+            ? 'Se enviará cada producto como una partida independiente, incluso cuando se repita.'
+            : 'Cada partida llevará el ID interno del pedido como operación y la descripción Venta.';
 
         swal({
             type: 'warning',
-            html: `¿Crear una factura global con <b>${documentos.length}</b> ventas? Cada partida llevará el folio de su venta.`,
+            html: `¿Crear una factura global por <b>${this.globalGrouping}</b> con <b>${documentos.length}</b> ventas? ${detail}`,
             showCancelButton: true,
             confirmButtonText: 'Sí, solicitar',
             cancelButtonText: 'Cancelar',
@@ -241,9 +250,36 @@ export class FacturacionComponent implements OnInit {
             }
             this.runRequest(this.ventaService.solicitarFacturaGlobal({
                 documentos,
-                ...this.paymentData()
+                agrupacion: this.globalGrouping,
             }), false, true);
         });
+    }
+
+    selectGlobalGrouping(grouping: 'ventas' | 'productos') {
+        this.globalGrouping = grouping;
+    }
+
+    productGroupingReceiverMismatch(): boolean {
+        if (this.globalGrouping !== 'productos') {
+            return false;
+        }
+
+        const receivers: {[rfc: string]: boolean} = {};
+        this.documentos
+            .filter((documento) => !!this.selected[documento.id] && documento.can_hub)
+            .forEach((documento) => {
+                const rfc = this.normalizeSearchValue(documento.rfc);
+                receivers[rfc || `sin-rfc-${documento.id}`] = true;
+            });
+
+        return Object.keys(receivers).length > 1;
+    }
+
+    canRequestGlobal(): boolean {
+        return this.hubSelectedIds().length >= 2
+            && !this.loading
+            && this.configured
+            && !this.productGroupingReceiverMismatch();
     }
 
     refreshRequest(documento: any) {
@@ -341,11 +377,17 @@ export class FacturacionComponent implements OnInit {
         }
     }
 
-    private paymentData() {
-        return {
-            paymentMethod: this.paymentMethod,
-            paymentForm: this.paymentForm,
-        };
+    requestErrorLabel(error: any): string {
+        if (typeof error === 'string') {
+            return error;
+        }
+
+        const path = error && error.path ? String(error.path) : '';
+        const detail = error && (error.message || error.code)
+            ? String(error.message || error.code)
+            : 'Validación rechazada por Nexfira';
+
+        return path ? `${path}: ${detail}` : detail;
     }
 
     private applyFilters(resetPage: boolean) {
@@ -386,6 +428,10 @@ export class FacturacionComponent implements OnInit {
             documento.total,
             documento.request && documento.request.status,
             documento.request && documento.request.error_message,
+            documento.request && documento.request.correlation_id,
+            documento.request && documento.request.errors
+                ? documento.request.errors.map((error: any) => this.requestErrorLabel(error)).join(' ')
+                : '',
             documento.blockers && documento.blockers.join(' '),
         ].map((value) => this.normalizeSearchValue(value)).join(' ');
 
@@ -438,9 +484,33 @@ export class FacturacionComponent implements OnInit {
             },
             error: (error: any) => {
                 this.finishLoading();
-                swalErrorHttpResponse(error);
+                if (!this.showNexfiraErrors(error)) {
+                    swalErrorHttpResponse(error);
+                }
             }
         });
+    }
+
+    private showNexfiraErrors(error: any): boolean {
+        const body = error && error.error ? error.error : {};
+        const errors = body && Array.isArray(body.errors) ? body.errors : [];
+        if (!errors.length) {
+            return false;
+        }
+
+        const lines = [body.message || 'Nexfira rechazó la solicitud.']
+            .concat(errors.map((detail: any) => this.requestErrorLabel(detail)));
+        if (body.correlation_id) {
+            lines.push(`Referencia Nexfira: ${body.correlation_id}`);
+        }
+
+        swal({
+            title: 'No se pudo crear la factura',
+            type: 'error',
+            text: lines.join('\n'),
+        }).then();
+
+        return true;
     }
 
     private finishLoading() {

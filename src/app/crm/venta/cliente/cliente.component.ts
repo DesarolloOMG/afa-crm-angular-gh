@@ -69,8 +69,15 @@ export class ClienteComponent implements OnInit, AfterViewInit {
             if (!cliente) {
                 return;
             }
+            const regimen = this.findRegimenFiscal(
+                cliente.regimen,
+                cliente.regimen_id,
+                cliente.regimen_letra,
+                cliente.fiscal
+            );
             this.cliente = new Cliente({
                 ...cliente,
+                regimen: regimen ? String(regimen.codigo) : '',
                 alt: cliente.tipo === 1 || cliente.tipo === 3
             });
 
@@ -97,7 +104,13 @@ export class ClienteComponent implements OnInit, AfterViewInit {
             return console.log($invalidFields);
         }
 
-        const regimen = this.regimenes.find(r => r.id == this.cliente.regimen);
+        const regimen = this.findRegimenFiscal(this.cliente.regimen);
+        if (!regimen) {
+            void swal('', 'Selecciona un régimen fiscal válido del catálogo SAT.', 'warning');
+            return;
+        }
+
+        this.cliente.regimen = String(regimen.codigo);
         this.cliente.fiscal = regimen.regimen || '';
 
         this.compraService.guardarCliente(this.cliente).subscribe({
@@ -116,6 +129,19 @@ export class ClienteComponent implements OnInit, AfterViewInit {
     regimenPorTamanioRFC() {
         const tipo = this.cliente.rfc.length < 13 ? 'M' : 'F';
         return this.regimenes.filter(r => r.condicion.includes(tipo));
+    }
+
+    private findRegimenFiscal(...values: any[]): any {
+        return this.regimenes.find((regimen) => values.some((value) => {
+            const normalized = String(value === undefined || value === null ? '' : value).trim();
+            if (!normalized) {
+                return false;
+            }
+
+            return String(regimen.codigo) === normalized
+                || String(regimen.id) === normalized
+                || String(regimen.regimen) === normalized;
+        }));
     }
 
 

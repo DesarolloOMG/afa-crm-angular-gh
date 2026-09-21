@@ -242,7 +242,7 @@
                         >
                             <option value="" disabled></option>
                             <option
-                                value="{{ row.id }}"
+                                [value]="row.codigo"
                                 *ngFor="let row of regimenPorTamanioRFC()"
                             >
                                 {{ row.regimen }}
