@@ -166,7 +166,12 @@
                         <small>{{ documento.folio }}</small>
                     </td>
                     <td><span class="badge badge-secondary">{{ documento.tipo_logistica }}</span></td>
-                    <td>{{ documento.marketplace }}</td>
+                    <td>
+                        {{ documento.marketplace }}
+                        <small *ngIf="documento.billing_series" class="text-muted d-block">
+                            Serie fiscal: {{ documento.billing_series }}
+                        </small>
+                    </td>
                     <td>{{ documento.cliente || 'Público general' }}<br><small>{{ documento.rfc }}</small></td>
                     <td class="text-right">{{ documento.total | currency:'MXN':'symbol':'1.2-2' }}</td>
                     <td>
@@ -184,6 +189,9 @@
                             </ul>
                             <small *ngIf="documento.request.correlation_id" class="text-muted d-block">
                                 Referencia Nexfira: {{ documento.request.correlation_id }}
+                            </small>
+                            <small *ngIf="documento.request.series && documento.request.folio" class="text-muted d-block">
+                                CFDI: {{ documento.request.series }}-{{ documento.request.folio }}
                             </small>
                         </ng-container>
                         <ng-template #pendingStatus>
@@ -364,6 +372,12 @@
             <div *ngIf="globalGrouping === 'productos' && !productGroupingReceiverMismatch()" class="alert alert-info">
                 Nexfira recibirá todos los productos de las ventas seleccionadas sin consolidarlos, aunque se repitan o tengan precios distintos.
             </div>
+            <div *ngIf="!globalSeriesMismatch() && selectedBillingSeries().length === 1" class="alert alert-info">
+                Serie fiscal: <strong>{{ selectedBillingSeries()[0] }}</strong>. El folio incremental se reservará al solicitar.
+            </div>
+            <div *ngIf="globalSeriesMismatch()" class="alert alert-danger">
+                La selección mezcla marketplaces con series fiscales distintas. Crea una factura por cada serie.
+            </div>
             <div *ngIf="productGroupingReceiverMismatch()" class="alert alert-danger">
                 Las ventas seleccionadas no pertenecen al mismo receptor fiscal. Ajusta la selección para usar la global por productos.
             </div>
@@ -380,7 +394,7 @@
         </ng-container>
 
         <ng-container *ngIf="mode === 'external'">
-            <p>Adjunta el XML timbrado y su PDF. El UUID se obtiene y valida directamente desde el XML.</p>
+            <p>Adjunta el XML timbrado y su PDF. UUID, Serie y Folio se obtienen y validan directamente desde el XML.</p>
             <div class="form-group">
                 <label for="externalXml">XML timbrado</label>
                 <div class="custom-file">
@@ -410,6 +424,15 @@
                         {{ externalPdfName || 'Seleccionar archivo PDF' }}
                     </label>
                 </div>
+            </div>
+            <div class="form-group">
+                <label>Serie y Folio detectados</label>
+                <input
+                    class="form-control"
+                    [value]="external.series && external.folio ? external.series + '-' + external.folio : ''"
+                    placeholder="Se completarán al cargar un XML válido"
+                    readonly
+                >
             </div>
             <div class="form-group">
                 <label for="externalUuid">UUID detectado</label>
@@ -442,7 +465,7 @@
             *ngIf="mode === 'external'"
             class="btn btn-success"
             type="button"
-            [disabled]="!selectedIds().length || !external.uuid || !external.pdf || !external.xml || loading"
+            [disabled]="!selectedIds().length || !external.uuid || !external.series || !external.folio || !external.pdf || !external.xml || loading"
             (click)="attachExternal()"
         >
             <i class="fa fa-check"></i>

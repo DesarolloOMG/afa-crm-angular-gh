@@ -66,7 +66,7 @@ export class FacturacionComponent implements OnInit {
         months: ('0' + (new Date().getMonth() + 1)).slice(-2),
         year: this.currentYear,
     };
-    external = {uuid: '', pdf: '', xml: ''};
+    external = {uuid: '', series: '', folio: '', pdf: '', xml: ''};
     externalXmlName = '';
     externalPdfName = '';
     private actionModalRef: any;
@@ -246,7 +246,8 @@ export class FacturacionComponent implements OnInit {
 
         swal({
             type: 'warning',
-            html: `¿Enviar el folio <b>${documento.folio}</b> a Nexfira? La venta seguirá en fase 5 hasta recuperar y validar XML y PDF.`,
+            html: `¿Facturar la venta interna <b>#${documento.id}</b> en la serie <b>${documento.billing_series}</b>? `
+                + 'El sistema reservará el siguiente folio incremental y la venta seguirá en fase 5 hasta recuperar XML y PDF.',
             showCancelButton: true,
             confirmButtonText: 'Sí, solicitar',
             cancelButtonText: 'Cancelar',
@@ -262,6 +263,10 @@ export class FacturacionComponent implements OnInit {
         const documentos = this.hubSelectedIds();
         if (documentos.length < 2) {
             void swal('', 'Selecciona al menos dos ventas habilitadas para Nexfira.', 'warning');
+            return;
+        }
+        if (this.globalSeriesMismatch()) {
+            void swal('', 'Selecciona únicamente ventas del mismo marketplace y serie fiscal.', 'warning');
             return;
         }
         if (this.productGroupingReceiverMismatch()) {
@@ -353,10 +358,28 @@ export class FacturacionComponent implements OnInit {
         return Object.keys(receivers).length > 1;
     }
 
+    selectedBillingSeries(): string[] {
+        const series: {[value: string]: boolean} = {};
+        this.documentos
+            .filter((documento) => !!this.selected[documento.id] && documento.can_hub)
+            .forEach((documento) => {
+                if (documento.billing_series) {
+                    series[String(documento.billing_series)] = true;
+                }
+            });
+
+        return Object.keys(series);
+    }
+
+    globalSeriesMismatch(): boolean {
+        return this.selectedBillingSeries().length > 1;
+    }
+
     canRequestGlobal(): boolean {
         return this.hubSelectedIds().length >= 2
             && !this.loading
             && this.configured
+            && !this.globalSeriesMismatch()
             && !this.productGroupingReceiverMismatch()
             && this.globalInformationValid();
     }
@@ -405,31 +428,38 @@ export class FacturacionComponent implements OnInit {
         try {
             const text = await readFileAsText(file);
             const uuid = extractUuidFromCfdi(text);
-            if (!uuid) {
-                throw new Error('UUID ausente');
+            const fiscalIdentity = this.extractFiscalIdentity(text);
+            if (!uuid || !fiscalIdentity) {
+                throw new Error('UUID, Serie o Folio ausente');
             }
             this.external.uuid = uuid;
+            this.external.series = fiscalIdentity.series;
+            this.external.folio = fiscalIdentity.folio;
             this.external.xml = await fileToDataURL(file);
             this.externalXmlName = file.name;
         } catch (error) {
             input.value = '';
             this.external.uuid = '';
+            this.external.series = '';
+            this.external.folio = '';
             this.external.xml = '';
             this.externalXmlName = '';
-            void swal('', 'El XML no contiene un Timbre Fiscal Digital válido.', 'error');
+            void swal('', 'El XML debe contener Timbre Fiscal Digital, Serie y Folio válidos.', 'error');
         }
     }
 
     attachExternal() {
         const documentos = this.selectedIds();
-        if (!documentos.length || !this.external.uuid || !this.external.pdf || !this.external.xml) {
+        if (!documentos.length || !this.external.uuid || !this.external.series || !this.external.folio
+            || !this.external.pdf || !this.external.xml) {
             void swal('', 'Selecciona ventas y carga el XML y PDF del CFDI.', 'warning');
             return;
         }
 
         swal({
             type: 'warning',
-            html: `¿Relacionar el CFDI <b>${this.external.uuid}</b> con <b>${documentos.length}</b> venta(s)?`,
+            html: `¿Relacionar el CFDI <b>${this.external.series}-${this.external.folio}</b> `
+                + `con <b>${documentos.length}</b> venta(s)?<br><small>UUID ${this.external.uuid}</small>`,
             showCancelButton: true,
             confirmButtonText: 'Sí, relacionar',
             cancelButtonText: 'Cancelar',
@@ -535,7 +565,7 @@ export class FacturacionComponent implements OnInit {
     }
 
     private resetExternalFiles() {
-        this.external = {uuid: '', pdf: '', xml: ''};
+        this.external = {uuid: '', series: '', folio: '', pdf: '', xml: ''};
         this.externalXmlName = '';
         this.externalPdfName = '';
     }
@@ -590,6 +620,18 @@ export class FacturacionComponent implements OnInit {
         }).then();
 
         return true;
+    }
+
+    private extractFiscalIdentity(xmlText: string): {series: string, folio: string} | null {
+        const documentXml = new DOMParser().parseFromString(xmlText, 'application/xml');
+        if (documentXml.getElementsByTagName('parsererror').length) {
+            return null;
+        }
+        const root = documentXml.documentElement;
+        const series = (root.getAttribute('Serie') || '').trim();
+        const folio = (root.getAttribute('Folio') || '').trim();
+
+        return series && folio ? {series, folio} : null;
     }
 
     private finishLoading() {
