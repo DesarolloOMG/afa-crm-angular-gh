@@ -55,6 +55,16 @@
             </ul>
             <div class="billing-toolbar-actions">
                 <button
+                    *ngIf="mode !== 'individual'"
+                    class="btn btn-outline-primary"
+                    type="button"
+                    [disabled]="loading"
+                    (click)="openQuickSelectionModal(quickSelectionModal)"
+                >
+                    <i class="fa fa-list-ol"></i>
+                    Carga rápida
+                </button>
+                <button
                     *ngIf="mode === 'global'"
                     class="btn btn-primary"
                     type="button"
@@ -120,10 +130,15 @@
         </div>
 
         <div *ngIf="mode !== 'individual' && selectedIds().length" class="billing-selection-summary">
-            <i class="fa fa-check-square-o"></i>
-            <strong>{{ mode === 'global' ? hubSelectedIds().length : selectedIds().length }}</strong>
-            venta(s) seleccionada(s) en total.
-            <span>La selección se conserva al buscar o cambiar de página.</span>
+            <div>
+                <i class="fa fa-check-square-o"></i>
+                <strong>{{ mode === 'global' ? hubSelectedIds().length : selectedIds().length }}</strong>
+                venta(s) seleccionada(s) en total.
+                <span>La selección se conserva al buscar o cambiar de página.</span>
+            </div>
+            <button class="btn btn-sm btn-outline-secondary" type="button" (click)="clearSelection()">
+                Limpiar selección
+            </button>
         </div>
 
         <div class="table-responsive m-t-15">
@@ -156,7 +171,8 @@
                         <input
                             *ngIf="mode !== 'individual'"
                             type="checkbox"
-                            [(ngModel)]="selected[documento.id]"
+                            [ngModel]="!!selected[documento.id]"
+                            (ngModelChange)="setDocumentSelection(documento, $event)"
                             [disabled]="!isSelectable(documento)"
                             [attr.aria-label]="'Seleccionar ' + documento.folio"
                         >
@@ -264,6 +280,50 @@
         </div>
     </div>
 </div>
+
+<ng-template #quickSelectionModal let-c="close" let-d="dismiss">
+    <div class="modal-header">
+        <div>
+            <h4 class="modal-title">Carga rápida de documentos</h4>
+            <small class="text-muted">Selecciona muchas ventas sin buscarlas una por una.</small>
+        </div>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="quickSelectionLoading" (click)="d('close')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <div class="alert alert-info">
+            Pega los <strong>IDs internos de documento</strong>. Puedes separarlos por coma, tabulador, espacio o salto de línea.
+            Sólo se seleccionarán ventas disponibles en la pestaña {{ fulfillment ? 'FULL' : 'DROP' }}.
+        </div>
+        <div class="form-group mb-0">
+            <label for="quickSelectionDocuments">Documentos</label>
+            <textarea
+                id="quickSelectionDocuments"
+                class="form-control billing-quick-selection-input"
+                rows="10"
+                [(ngModel)]="quickSelectionText"
+                placeholder="35196, 35197, 35198&#10;35201&#9;35202"
+                [disabled]="quickSelectionLoading"
+            ></textarea>
+            <small class="form-text text-muted">Máximo 500 documentos por carga. Los duplicados se eliminan automáticamente.</small>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-outline-secondary" type="button" [disabled]="quickSelectionLoading" (click)="d('cancel')">
+            Cancelar
+        </button>
+        <button
+            class="btn btn-primary"
+            type="button"
+            [disabled]="quickSelectionLoading || !quickSelectionText"
+            (click)="applyQuickSelection(c)"
+        >
+            <i class="fa" [ngClass]="quickSelectionLoading ? 'fa-spinner fa-spin' : 'fa-check-square-o'"></i>
+            Buscar y seleccionar
+        </button>
+    </div>
+</ng-template>
 
 <ng-template #billingActionModal let-c="close" let-d="dismiss">
     <div class="modal-header">

@@ -21,8 +21,11 @@ export class FacturacionComponent implements OnInit {
     configured = false;
     fulfillment = false;
     selected: {[id: number]: boolean} = {};
+    selectedDocuments: {[id: number]: any} = {};
     loading = false;
     searchTerm = '';
+    quickSelectionText = '';
+    quickSelectionLoading = false;
     page = 1;
     pageSize = 25;
     pageSizeOptions = [10, 25, 50, 100];
@@ -70,6 +73,8 @@ export class FacturacionComponent implements OnInit {
     externalXmlName = '';
     externalPdfName = '';
     private actionModalRef: any;
+    private searchDebounceTimer: any;
+    private loadSequence = 0;
 
     constructor(
         private readonly ventaService: VentaService,
@@ -83,7 +88,7 @@ export class FacturacionComponent implements OnInit {
         this.route.data.subscribe((data: any) => {
             this.mode = data.mode || 'individual';
             this.fulfillment = this.mode === 'external';
-            this.selected = {};
+            this.clearSelection();
             this.resetExternalFiles();
             this.searchTerm = '';
             this.page = 1;
@@ -111,19 +116,36 @@ export class FacturacionComponent implements OnInit {
     }
 
     load() {
+        const sequence = ++this.loadSequence;
         this.loading = true;
         this.spinner.show();
-        this.ventaService.getFacturacionPendientes(this.fulfillment).subscribe({
+        this.ventaService.getFacturacionPendientes(
+            this.fulfillment,
+            this.page,
+            this.pageSize,
+            this.searchTerm
+        ).subscribe({
             next: (response: any) => {
+                if (sequence !== this.loadSequence) {
+                    return;
+                }
                 const data = response.data || {};
+                const pagination = data.pagination || {};
                 this.documentos = data.documents || [];
+                this.visibleDocumentos = this.documentos.slice();
                 this.counts = data.counts || {drop: 0, full: 0};
                 this.configured = !!data.configured;
-                this.keepAvailableSelections();
-                this.applyFilters(false);
+                this.page = Number(pagination.page) || 1;
+                this.pageSize = Number(pagination.per_page) || this.pageSize;
+                this.filteredCount = Number(pagination.total) || 0;
+                this.totalPages = Number(pagination.last_page) || 1;
+                this.syncLoadedSelections();
                 this.finishLoading();
             },
             error: (error: any) => {
+                if (sequence !== this.loadSequence) {
+                    return;
+                }
                 this.finishLoading();
                 swalErrorHttpResponse(error);
             }
@@ -136,7 +158,7 @@ export class FacturacionComponent implements OnInit {
         }
 
         this.fulfillment = fulfillment;
-        this.selected = {};
+        this.clearSelection();
         this.searchTerm = '';
         this.page = 1;
         this.load();
@@ -144,17 +166,26 @@ export class FacturacionComponent implements OnInit {
 
     onSearchChange(value: string) {
         this.searchTerm = value || '';
-        this.applyFilters(true);
+        this.page = 1;
+        if (this.searchDebounceTimer) {
+            clearTimeout(this.searchDebounceTimer);
+        }
+        this.searchDebounceTimer = setTimeout(() => this.load(), 350);
     }
 
     clearSearch() {
+        if (this.searchDebounceTimer) {
+            clearTimeout(this.searchDebounceTimer);
+        }
         this.searchTerm = '';
-        this.applyFilters(true);
+        this.page = 1;
+        this.load();
     }
 
     onPageSizeChange() {
         this.pageSize = Number(this.pageSize) || 25;
-        this.applyFilters(true);
+        this.page = 1;
+        this.load();
     }
 
     goToPage(page: number) {
@@ -163,7 +194,7 @@ export class FacturacionComponent implements OnInit {
         }
 
         this.page = page;
-        this.updateVisibleDocuments();
+        this.load();
     }
 
     pageStart(): number {
@@ -185,9 +216,26 @@ export class FacturacionComponent implements OnInit {
     togglePageSelection(checked: boolean) {
         this.visibleDocumentos.forEach((documento) => {
             if (this.isSelectable(documento)) {
-                this.selected[documento.id] = checked;
+                this.setDocumentSelection(documento, checked);
             }
         });
+    }
+
+    setDocumentSelection(documento: any, checked: boolean) {
+        const id = Number(documento.id);
+        if (checked && this.isSelectable(documento)) {
+            this.selected[id] = true;
+            this.selectedDocuments[id] = documento;
+            return;
+        }
+
+        delete this.selected[id];
+        delete this.selectedDocuments[id];
+    }
+
+    clearSelection() {
+        this.selected = {};
+        this.selectedDocuments = {};
     }
 
     isPageSelected(): boolean {
@@ -203,6 +251,101 @@ export class FacturacionComponent implements OnInit {
 
     trackByDocumentId(_index: number, documento: any): number {
         return documento.id;
+    }
+
+    openQuickSelectionModal(content: any) {
+        this.quickSelectionText = '';
+        this.quickSelectionLoading = false;
+        this.modalService.open(content, {
+            size: 'lg',
+            backdrop: 'static',
+            keyboard: true,
+        });
+    }
+
+    applyQuickSelection(closeModal: () => void) {
+        const parsed = this.parseQuickSelection();
+        if (!parsed.ids.length) {
+            void swal('', 'Pega al menos un ID interno de documento válido.', 'warning');
+            return;
+        }
+        if (parsed.ids.length > 500) {
+            void swal('', 'La carga rápida admite hasta 500 documentos por operación.', 'warning');
+            return;
+        }
+
+        this.quickSelectionLoading = true;
+        this.ventaService.resolverSeleccionFacturacion(parsed.ids, this.fulfillment).subscribe({
+            next: (response: any) => {
+                const data = response.data || {};
+                const documents = data.documents || [];
+                const notAvailable = (data.not_available || []).map((id: any) => Number(id));
+                const added: number[] = [];
+                const alreadySelected: number[] = [];
+                const blocked: number[] = [];
+                let allowedSeries = this.mode === 'global'
+                    ? (this.selectedBillingSeries()[0] || '')
+                    : '';
+
+                documents.forEach((documento: any) => {
+                    const id = Number(documento.id);
+                    if (!this.isSelectable(documento)) {
+                        blocked.push(id);
+                        return;
+                    }
+                    if (this.mode === 'global') {
+                        const series = String(documento.billing_series || '');
+                        if (allowedSeries && series !== allowedSeries) {
+                            blocked.push(id);
+                            return;
+                        }
+                        allowedSeries = allowedSeries || series;
+                    }
+                    if (this.selected[id]) {
+                        this.selectedDocuments[id] = documento;
+                        alreadySelected.push(id);
+                        return;
+                    }
+
+                    this.setDocumentSelection(documento, true);
+                    added.push(id);
+                });
+
+                this.quickSelectionLoading = false;
+                closeModal();
+                const details = [
+                    `<p><strong>${added.length}</strong> venta(s) agregada(s) a la selección.</p>`,
+                ];
+                if (alreadySelected.length) {
+                    details.push(`<p>${alreadySelected.length} ya estaban seleccionadas.</p>`);
+                }
+                if (notAvailable.length) {
+                    details.push(
+                        `<p><strong>${notAvailable.length}</strong> no están disponibles en la pestaña `
+                        + `${this.fulfillment ? 'FULL' : 'DROP'}: ${this.formatIdList(notAvailable)}</p>`
+                    );
+                }
+                if (blocked.length) {
+                    details.push(
+                        `<p><strong>${blocked.length}</strong> no se seleccionaron por validación o serie fiscal: `
+                        + `${this.formatIdList(blocked)}</p>`
+                    );
+                }
+                if (parsed.invalidCount) {
+                    details.push(`<p>${parsed.invalidCount} valor(es) no eran IDs numéricos y se ignoraron.</p>`);
+                }
+
+                swal({
+                    title: 'Carga rápida completada',
+                    type: added.length ? 'success' : 'warning',
+                    html: details.join(''),
+                }).then();
+            },
+            error: (error: any) => {
+                this.quickSelectionLoading = false;
+                swalErrorHttpResponse(error);
+            }
+        });
     }
 
     openActionModal(content: any) {
@@ -228,14 +371,12 @@ export class FacturacionComponent implements OnInit {
     }
 
     selectedIds(): number[] {
-        return this.documentos
-            .filter((documento) => !!this.selected[documento.id])
-            .map((documento) => Number(documento.id));
+        return this.selectedDocumentValues().map((documento) => Number(documento.id));
     }
 
     hubSelectedIds(): number[] {
-        return this.documentos
-            .filter((documento) => !!this.selected[documento.id] && documento.can_hub)
+        return this.selectedDocumentValues()
+            .filter((documento) => documento.can_hub)
             .map((documento) => Number(documento.id));
     }
 
@@ -348,8 +489,8 @@ export class FacturacionComponent implements OnInit {
         }
 
         const receivers: {[rfc: string]: boolean} = {};
-        this.documentos
-            .filter((documento) => !!this.selected[documento.id] && documento.can_hub)
+        this.selectedDocumentValues()
+            .filter((documento) => documento.can_hub)
             .forEach((documento) => {
                 const rfc = this.normalizeSearchValue(documento.rfc);
                 receivers[rfc || `sin-rfc-${documento.id}`] = true;
@@ -360,8 +501,8 @@ export class FacturacionComponent implements OnInit {
 
     selectedBillingSeries(): string[] {
         const series: {[value: string]: boolean} = {};
-        this.documentos
-            .filter((documento) => !!this.selected[documento.id] && documento.can_hub)
+        this.selectedDocumentValues()
+            .filter((documento) => documento.can_hub)
             .forEach((documento) => {
                 if (documento.billing_series) {
                     series[String(documento.billing_series)] = true;
@@ -499,52 +640,40 @@ export class FacturacionComponent implements OnInit {
         return path ? `${path}: ${detail}` : detail;
     }
 
-    private applyFilters(resetPage: boolean) {
-        const query = this.normalizeSearchValue(this.searchTerm);
-        const filtered = query
-            ? this.documentos.filter((documento) => this.matchesSearch(documento, query))
-            : this.documentos.slice();
-
-        this.filteredCount = filtered.length;
-        this.totalPages = Math.max(1, Math.ceil(this.filteredCount / this.pageSize));
-        this.page = resetPage ? 1 : Math.min(this.page, this.totalPages);
-        this.updateVisibleDocuments(filtered);
+    private selectedDocumentValues(): any[] {
+        return Object.keys(this.selected)
+            .filter((id) => !!this.selected[Number(id)] && !!this.selectedDocuments[Number(id)])
+            .map((id) => this.selectedDocuments[Number(id)]);
     }
 
-    private updateVisibleDocuments(filtered?: any[]) {
-        const source = filtered || this.getFilteredDocuments();
-        const start = (this.page - 1) * this.pageSize;
-        this.visibleDocumentos = source.slice(start, start + this.pageSize);
+    private parseQuickSelection(): {ids: number[], invalidCount: number} {
+        const tokens = String(this.quickSelectionText || '')
+            .split(/[,;\s]+/)
+            .map((token) => token.trim())
+            .filter((token) => !!token);
+        const unique: {[id: number]: boolean} = {};
+        const ids: number[] = [];
+        let invalidCount = 0;
+
+        tokens.forEach((token) => {
+            const normalized = token.replace(/^#/, '');
+            if (!/^\d+$/.test(normalized) || Number(normalized) <= 0) {
+                invalidCount++;
+                return;
+            }
+            const id = Number(normalized);
+            if (!unique[id]) {
+                unique[id] = true;
+                ids.push(id);
+            }
+        });
+
+        return {ids, invalidCount};
     }
 
-    private getFilteredDocuments(): any[] {
-        const query = this.normalizeSearchValue(this.searchTerm);
-        if (!query) {
-            return this.documentos.slice();
-        }
-
-        return this.documentos.filter((documento) => this.matchesSearch(documento, query));
-    }
-
-    private matchesSearch(documento: any, query: string): boolean {
-        const searchable = [
-            documento.id,
-            documento.folio,
-            documento.tipo_logistica,
-            documento.marketplace,
-            documento.cliente,
-            documento.rfc,
-            documento.total,
-            documento.request && documento.request.status,
-            documento.request && documento.request.error_message,
-            documento.request && documento.request.correlation_id,
-            documento.request && documento.request.errors
-                ? documento.request.errors.map((error: any) => this.requestErrorLabel(error)).join(' ')
-                : '',
-            documento.blockers && documento.blockers.join(' '),
-        ].map((value) => this.normalizeSearchValue(value)).join(' ');
-
-        return searchable.indexOf(query) !== -1;
+    private formatIdList(ids: number[]): string {
+        const visible = ids.slice(0, 12).join(', ');
+        return ids.length > 12 ? `${visible}…` : visible;
     }
 
     private normalizeSearchValue(value: any): string {
@@ -554,14 +683,19 @@ export class FacturacionComponent implements OnInit {
             .replace(/[\u0300-\u036f]/g, '');
     }
 
-    private keepAvailableSelections() {
-        const available: {[id: number]: boolean} = {};
+    private syncLoadedSelections() {
         this.documentos.forEach((documento) => {
-            if (this.selected[documento.id] && this.isSelectable(documento)) {
-                available[documento.id] = true;
+            const id = Number(documento.id);
+            if (!this.selected[id]) {
+                return;
+            }
+            if (this.isSelectable(documento)) {
+                this.selectedDocuments[id] = documento;
+            } else {
+                delete this.selected[id];
+                delete this.selectedDocuments[id];
             }
         });
-        this.selected = available;
     }
 
     private resetExternalFiles() {
@@ -587,6 +721,7 @@ export class FacturacionComponent implements OnInit {
                 if (closeModal && this.actionModalRef) {
                     this.actionModalRef.close();
                     this.actionModalRef = null;
+                    this.clearSelection();
                 }
                 swal({title: '', type: 'success', html: response.message}).then();
                 this.load();

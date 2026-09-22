@@ -25,9 +25,25 @@ export class VentaService {
         );
     }
 
-    getFacturacionPendientes(fulfillment: boolean): Observable<any> {
+    getFacturacionPendientes(
+        fulfillment: boolean,
+        page: number,
+        perPage: number,
+        search: string
+    ): Observable<any> {
+        const query = `fulfillment=${fulfillment ? 1 : 0}`
+            + `&page=${page}`
+            + `&per_page=${perPage}`
+            + `&search=${encodeURIComponent(search || '')}`;
         return this.http.get(
-            `${backend_url}venta/venta/facturacion/pendientes?fulfillment=${fulfillment ? 1 : 0}`
+            `${backend_url}venta/venta/facturacion/pendientes?${query}`
+        );
+    }
+
+    resolverSeleccionFacturacion(documentos: number[], fulfillment: boolean): Observable<any> {
+        return this.http.post(
+            `${backend_url}venta/venta/facturacion/seleccion`,
+            {documentos, fulfillment: fulfillment ? 1 : 0}
         );
     }
 

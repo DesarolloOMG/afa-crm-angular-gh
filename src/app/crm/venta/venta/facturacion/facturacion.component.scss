@@ -93,10 +93,14 @@
 }
 
 .billing-selection-summary {
+    align-items: center;
     background: #eef4ff;
     border: 1px solid #cbdcff;
     border-radius: 4px;
     color: #294d8f;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
     margin-top: 12px;
     padding: 9px 12px;
 }
@@ -117,6 +121,12 @@
 
 .billing-row-selected {
     background: #f2f7ff;
+}
+
+.billing-quick-selection-input {
+    font-family: Consolas, Monaco, monospace;
+    min-height: 210px;
+    resize: vertical;
 }
 
 .billing-table-footer {
@@ -291,6 +301,11 @@ td {
     .billing-selection-summary span {
         display: block;
         margin: 4px 0 0 24px;
+    }
+
+    .billing-selection-summary {
+        align-items: stretch;
+        flex-direction: column;
     }
 
     .billing-global-grouping {
