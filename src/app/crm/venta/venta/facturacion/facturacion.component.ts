@@ -17,7 +17,24 @@ export class FacturacionComponent implements OnInit {
     mode: 'individual' | 'global' | 'external' = 'individual';
     documentos: any[] = [];
     visibleDocumentos: any[] = [];
-    counts = {drop: 0, full: 0};
+    counts = {drop: 0, full: 0, credit_notes: 0};
+    creditNotes = false;
+    individualDocument: any = null;
+    payment = {method: 'PUE', form: '31'};
+    relationshipCode = '03';
+    readonly paymentForms = [
+        {value: '01', label: 'Efectivo'}, {value: '02', label: 'Cheque nominativo'},
+        {value: '03', label: 'Transferencia electrónica de fondos'}, {value: '04', label: 'Tarjeta de crédito'},
+        {value: '05', label: 'Monedero electrónico'}, {value: '06', label: 'Dinero electrónico'},
+        {value: '08', label: 'Vales de despensa'}, {value: '12', label: 'Dación en pago'},
+        {value: '13', label: 'Pago por subrogación'}, {value: '14', label: 'Pago por consignación'},
+        {value: '15', label: 'Condonación'}, {value: '17', label: 'Compensación'},
+        {value: '23', label: 'Novación'}, {value: '24', label: 'Confusión'},
+        {value: '25', label: 'Remisión de deuda'}, {value: '26', label: 'Prescripción o caducidad'},
+        {value: '27', label: 'A satisfacción del acreedor'}, {value: '28', label: 'Tarjeta de débito'},
+        {value: '29', label: 'Tarjeta de servicios'}, {value: '30', label: 'Aplicación de anticipos'},
+        {value: '31', label: 'Intermediario pagos'}, {value: '99', label: 'Por definir'},
+    ];
     configured = false;
     fulfillment = false;
     selected: {[id: number]: boolean} = {};
@@ -31,8 +48,6 @@ export class FacturacionComponent implements OnInit {
     pageSizeOptions = [10, 25, 50, 100];
     filteredCount = 0;
     totalPages = 1;
-    readonly globalPaymentMethod = 'PUE';
-    readonly globalPaymentForm = '31';
     readonly currentYear = new Date().getFullYear();
     readonly globalPeriodicityOptions = [
         {value: '01', label: 'Diaria'},
@@ -88,6 +103,7 @@ export class FacturacionComponent implements OnInit {
         this.route.data.subscribe((data: any) => {
             this.mode = data.mode || 'individual';
             this.fulfillment = this.mode === 'external';
+            this.creditNotes = false;
             this.clearSelection();
             this.resetExternalFiles();
             this.searchTerm = '';
@@ -97,6 +113,9 @@ export class FacturacionComponent implements OnInit {
     }
 
     viewTitle(): string {
+        if (this.creditNotes) {
+            return this.mode === 'external' ? 'Relacionar notas de crédito externas' : 'Timbrar notas de crédito individuales';
+        }
         switch (this.mode) {
             case 'global': return 'Agrupar ventas para factura global';
             case 'external': return 'Relacionar CFDI emitido fuera del Hub';
@@ -105,6 +124,9 @@ export class FacturacionComponent implements OnInit {
     }
 
     viewDescription(): string {
+        if (this.creditNotes) {
+            return 'Documentos tipo nota de crédito vinculados a la venta original, con su propio UUID, serie, folio y archivos.';
+        }
         switch (this.mode) {
             case 'global':
                 return 'Selecciona dos o más ventas y elige si Nexfira recibirá una partida por pedido o una por cada producto.';
@@ -123,7 +145,8 @@ export class FacturacionComponent implements OnInit {
             this.fulfillment,
             this.page,
             this.pageSize,
-            this.searchTerm
+            this.searchTerm,
+            this.creditNotes ? 6 : 2
         ).subscribe({
             next: (response: any) => {
                 if (sequence !== this.loadSequence) {
@@ -133,7 +156,7 @@ export class FacturacionComponent implements OnInit {
                 const pagination = data.pagination || {};
                 this.documentos = data.documents || [];
                 this.visibleDocumentos = this.documentos.slice();
-                this.counts = data.counts || {drop: 0, full: 0};
+                this.counts = data.counts || {drop: 0, full: 0, credit_notes: 0};
                 this.configured = !!data.configured;
                 this.page = Number(pagination.page) || 1;
                 this.pageSize = Number(pagination.per_page) || this.pageSize;
@@ -153,11 +176,13 @@ export class FacturacionComponent implements OnInit {
     }
 
     selectFulfillment(fulfillment: boolean) {
-        if (this.fulfillment === fulfillment) {
+        if (!this.creditNotes && this.fulfillment === fulfillment) {
             return;
         }
 
         this.fulfillment = fulfillment;
+        this.creditNotes = false;
+        this.resetExternalFiles();
         this.clearSelection();
         this.searchTerm = '';
         this.page = 1;
@@ -171,6 +196,45 @@ export class FacturacionComponent implements OnInit {
             clearTimeout(this.searchDebounceTimer);
         }
         this.searchDebounceTimer = setTimeout(() => this.load(), 350);
+    }
+
+    selectCreditNotes() {
+        if (this.mode === 'global' || this.creditNotes) {
+            return;
+        }
+        this.creditNotes = true;
+        this.clearSelection();
+        this.resetExternalFiles();
+        this.searchTerm = '';
+        this.page = 1;
+        this.load();
+    }
+
+    tabLabel(): string {
+        return this.creditNotes ? 'Notas de crédito' : (this.fulfillment ? 'FULL' : 'DROP');
+    }
+
+    documentLabel(): string {
+        return this.creditNotes ? 'nota(s) de crédito' : 'venta(s)';
+    }
+
+    paymentError(): string {
+        if (!['PUE', 'PPD'].includes(this.payment.method)
+            || !this.paymentForms.some((form) => form.value === this.payment.form)) {
+            return 'Selecciona un método y una forma de pago válidos.';
+        }
+        if (this.creditNotes && this.payment.method !== 'PUE') {
+            return 'El contrato de Nexfira exige PUE para notas de crédito.';
+        }
+        if (this.mode === 'global' && this.globalGrouping === 'ventas'
+            && (this.payment.method !== 'PUE' || this.payment.form === '99')) {
+            return 'El contrato de Nexfira exige PUE y forma distinta de 99 para global por ventas.';
+        }
+        return '';
+    }
+
+    documentBlockers(documento: any): string[] {
+        return (this.mode === 'external' ? documento.external_blockers : documento.blockers) || [];
     }
 
     clearSearch() {
@@ -206,7 +270,10 @@ export class FacturacionComponent implements OnInit {
     }
 
     isSelectable(documento: any): boolean {
-        if (documento.request && documento.request.is_active) {
+        if (documento.already_invoiced || (documento.request && documento.request.is_active)) {
+            return false;
+        }
+        if (this.mode === 'external' && documento.can_external === false) {
             return false;
         }
 
@@ -275,7 +342,7 @@ export class FacturacionComponent implements OnInit {
         }
 
         this.quickSelectionLoading = true;
-        this.ventaService.resolverSeleccionFacturacion(parsed.ids, this.fulfillment).subscribe({
+        this.ventaService.resolverSeleccionFacturacion(parsed.ids, this.fulfillment, this.creditNotes ? 6 : 2).subscribe({
             next: (response: any) => {
                 const data = response.data || {};
                 const documents = data.documents || [];
@@ -322,7 +389,7 @@ export class FacturacionComponent implements OnInit {
                 if (notAvailable.length) {
                     details.push(
                         `<p><strong>${notAvailable.length}</strong> no están disponibles en la pestaña `
-                        + `${this.fulfillment ? 'FULL' : 'DROP'}: ${this.formatIdList(notAvailable)}</p>`
+                        + `${this.tabLabel()}: ${this.formatIdList(notAvailable)}</p>`
                     );
                 }
                 if (blocked.length) {
@@ -380,15 +447,38 @@ export class FacturacionComponent implements OnInit {
             .map((documento) => Number(documento.id));
     }
 
-    requestIndividual(documento: any) {
-        if (!documento.can_hub || documento.request) {
+    openIndividualModal(documento: any, content: any) {
+        if (!documento.can_hub || (documento.request && documento.request.is_active) || !this.configured) {
+            return;
+        }
+        this.individualDocument = documento;
+        this.loading = true;
+        this.ventaService.previsualizarFactura(documento.id).subscribe({
+            next: (response: any) => {
+                this.loading = false;
+                const data = response.data || {};
+                if (!data.valid || !data.payload) {
+                    void swal('', (data.blockers || ['No se pudo preparar el documento.']).join('\n'), 'warning');
+                    return;
+                }
+                this.payment = {method: data.payload.content.paymentMethod, form: data.payload.content.paymentForm};
+                this.relationshipCode = '03';
+                this.openActionModal(content);
+            },
+            error: (error: any) => { this.loading = false; swalErrorHttpResponse(error); },
+        });
+    }
+
+    requestIndividual() {
+        const documento = this.individualDocument;
+        if (!documento || !documento.can_hub || this.paymentError() || this.loading) {
             return;
         }
 
         swal({
             type: 'warning',
-            html: `¿Facturar la venta interna <b>#${documento.id}</b> en la serie <b>${documento.billing_series}</b>? `
-                + 'El sistema reservará el siguiente folio incremental y la venta seguirá en fase 5 hasta recuperar XML y PDF.',
+            html: `¿Solicitar el timbrado del documento <b>#${documento.id}</b> en la serie <b>${documento.billing_series}</b>? `
+                + 'Se reservará el siguiente folio incremental. El timbrado se confirmará al recuperar UUID, XML y PDF.',
             showCancelButton: true,
             confirmButtonText: 'Sí, solicitar',
             cancelButtonText: 'Cancelar',
@@ -396,11 +486,19 @@ export class FacturacionComponent implements OnInit {
             if (!confirm.value) {
                 return;
             }
-            this.runRequest(this.ventaService.solicitarFacturaIndividual(documento.id, {}));
+            this.runRequest(this.ventaService.solicitarFacturaIndividual(documento.id, {
+                paymentMethod: this.payment.method,
+                paymentForm: this.payment.form,
+                relationshipCode: this.relationshipCode,
+            }), false, true);
         });
     }
 
     requestGlobal() {
+        if (this.paymentError()) {
+            void swal('', this.paymentError(), 'warning');
+            return;
+        }
         const documentos = this.hubSelectedIds();
         if (documentos.length < 2) {
             void swal('', 'Selecciona al menos dos ventas habilitadas para Nexfira.', 'warning');
@@ -436,6 +534,8 @@ export class FacturacionComponent implements OnInit {
             const payload: any = {
                 documentos,
                 agrupacion: this.globalGrouping,
+                paymentMethod: this.payment.method,
+                paymentForm: this.payment.form,
             };
             if (this.globalGrouping === 'ventas') {
                 payload.informacionGlobal = {
@@ -522,7 +622,8 @@ export class FacturacionComponent implements OnInit {
             && this.configured
             && !this.globalSeriesMismatch()
             && !this.productGroupingReceiverMismatch()
-            && this.globalInformationValid();
+            && this.globalInformationValid()
+            && !this.paymentError();
     }
 
     refreshRequest(documento: any) {
@@ -585,7 +686,8 @@ export class FacturacionComponent implements OnInit {
             this.external.folio = '';
             this.external.xml = '';
             this.externalXmlName = '';
-            void swal('', 'El XML debe contener Timbre Fiscal Digital, Serie y Folio válidos.', 'error');
+            void swal('', 'El XML debe contener Timbre, Serie y Folio válidos y ser de tipo '
+                + (this.creditNotes ? 'E (egreso).' : 'I (ingreso).'), 'error');
         }
     }
 
@@ -763,6 +865,9 @@ export class FacturacionComponent implements OnInit {
             return null;
         }
         const root = documentXml.documentElement;
+        if (root.getAttribute('TipoDeComprobante') !== (this.creditNotes ? 'E' : 'I')) {
+            return null;
+        }
         const series = (root.getAttribute('Serie') || '').trim();
         const folio = (root.getAttribute('Folio') || '').trim();
 

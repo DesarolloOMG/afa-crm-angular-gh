@@ -29,9 +29,11 @@ export class VentaService {
         fulfillment: boolean,
         page: number,
         perPage: number,
-        search: string
+        search: string,
+        documentType = 2
     ): Observable<any> {
         const query = `fulfillment=${fulfillment ? 1 : 0}`
+            + `&document_type=${documentType}`
             + `&page=${page}`
             + `&per_page=${perPage}`
             + `&search=${encodeURIComponent(search || '')}`;
@@ -40,10 +42,10 @@ export class VentaService {
         );
     }
 
-    resolverSeleccionFacturacion(documentos: number[], fulfillment: boolean): Observable<any> {
+    resolverSeleccionFacturacion(documentos: number[], fulfillment: boolean, documentType = 2): Observable<any> {
         return this.http.post(
             `${backend_url}venta/venta/facturacion/seleccion`,
-            {documentos, fulfillment: fulfillment ? 1 : 0}
+            {documentos, fulfillment: fulfillment ? 1 : 0, document_type: documentType}
         );
     }
 

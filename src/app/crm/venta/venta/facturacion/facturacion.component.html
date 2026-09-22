@@ -22,8 +22,13 @@
             >3. Fuera del Hub</a>
         </nav>
 
-        <div class="alert alert-info m-t-15">
+        <div *ngIf="!creditNotes" class="alert alert-info m-t-15">
             Todas las ventas de esta lista están en fase 5. Pasan a fase 6 sólo después de validar y guardar UUID, XML y PDF.
+        </div>
+        <div *ngIf="creditNotes" class="alert alert-info m-t-15">
+            Notas de crédito activas pendientes de timbrado, vinculadas desde la venta por su ID interno.
+            Se timbran individualmente en Nexfira. Fuera del Hub puedes relacionar varias NC incluidas en un mismo CFDI de egreso.
+            La factura de la venta original no se modifica.
         </div>
 
         <div class="billing-toolbar">
@@ -33,8 +38,8 @@
                         class="nav-link"
                         type="button"
                         role="tab"
-                        [class.active]="!fulfillment"
-                        [attr.aria-selected]="!fulfillment"
+                        [class.active]="!creditNotes && !fulfillment"
+                        [attr.aria-selected]="!creditNotes && !fulfillment"
                         (click)="selectFulfillment(false)"
                     >
                         DROP <span class="badge badge-secondary">{{ counts.drop }}</span>
@@ -45,11 +50,18 @@
                         class="nav-link"
                         type="button"
                         role="tab"
-                        [class.active]="fulfillment"
-                        [attr.aria-selected]="fulfillment"
+                        [class.active]="!creditNotes && fulfillment"
+                        [attr.aria-selected]="!creditNotes && fulfillment"
                         (click)="selectFulfillment(true)"
                     >
                         FULL <span class="badge badge-secondary">{{ counts.full }}</span>
+                    </button>
+                </li>
+                <li *ngIf="mode !== 'global'" class="nav-item">
+                    <button class="nav-link" type="button" role="tab"
+                            [class.active]="creditNotes" [attr.aria-selected]="creditNotes"
+                            (click)="selectCreditNotes()">
+                        Notas de crédito <span class="badge badge-secondary">{{ counts.credit_notes || 0 }}</span>
                     </button>
                 </li>
             </ul>
@@ -133,7 +145,7 @@
             <div>
                 <i class="fa fa-check-square-o"></i>
                 <strong>{{ mode === 'global' ? hubSelectedIds().length : selectedIds().length }}</strong>
-                venta(s) seleccionada(s) en total.
+                {{ documentLabel() }} seleccionada(s) en total.
                 <span>La selección se conserva al buscar o cambiar de página.</span>
             </div>
             <button class="btn btn-sm btn-outline-secondary" type="button" (click)="clearSelection()">
@@ -212,10 +224,11 @@
                         </ng-container>
                         <ng-template #pendingStatus>
                             <span *ngIf="documento.already_invoiced" class="badge badge-danger">Ya facturada</span>
-                            <span *ngIf="!documento.already_invoiced && documento.requires_external" class="badge badge-warning">CFDI externo</span>
-                            <span *ngIf="!documento.already_invoiced && documento.can_hub" class="badge badge-success">Listo para Nexfira</span>
-                            <ul *ngIf="documento.blockers && documento.blockers.length" class="billing-blockers">
-                                <li *ngFor="let blocker of documento.blockers">{{ blocker }}</li>
+                            <span *ngIf="mode !== 'external' && !documento.already_invoiced && documento.requires_external" class="badge badge-warning">CFDI externo</span>
+                            <span *ngIf="mode !== 'external' && !documento.already_invoiced && documento.can_hub" class="badge badge-success">Listo para Nexfira</span>
+                            <span *ngIf="mode === 'external' && documento.can_external" class="badge badge-success">Listo para relacionar XML</span>
+                            <ul *ngIf="documentBlockers(documento).length" class="billing-blockers">
+                                <li *ngFor="let blocker of documentBlockers(documento)">{{ blocker }}</li>
                             </ul>
                         </ng-template>
                     </td>
@@ -224,9 +237,9 @@
                             *ngIf="mode === 'individual' && (!documento.request || !documento.request.is_active)"
                             class="btn btn-sm btn-primary"
                             type="button"
-                            [disabled]="!documento.can_hub || loading"
-                            (click)="requestIndividual(documento)"
-                        >Individual</button>
+                            [disabled]="!documento.can_hub || loading || !configured"
+                            (click)="openIndividualModal(documento, billingActionModal)"
+                        >{{ creditNotes ? 'Timbrar NC' : 'Individual' }}</button>
                         <button
                             *ngIf="documento.request && documento.request.is_active"
                             class="btn btn-sm btn-info"
@@ -239,10 +252,10 @@
                 <tr *ngIf="!visibleDocumentos.length">
                     <td colspan="8" class="text-center text-muted p-4">
                         <ng-container *ngIf="searchTerm; else noPendingDocuments">
-                            No encontramos ventas que coincidan con “{{ searchTerm }}”.
+                            No encontramos documentos que coincidan con “{{ searchTerm }}”.
                         </ng-container>
                         <ng-template #noPendingDocuments>
-                            No hay ventas {{ fulfillment ? 'FULL' : 'DROP' }} pendientes de factura.
+                            No hay documentos de {{ tabLabel() }} pendientes de timbrado.
                         </ng-template>
                     </td>
                 </tr>
@@ -252,7 +265,7 @@
 
         <div class="billing-table-footer" *ngIf="filteredCount">
             <div class="billing-results">
-                Mostrando <strong>{{ pageStart() }}–{{ pageEnd() }}</strong> de <strong>{{ filteredCount }}</strong> ventas
+                Mostrando <strong>{{ pageStart() }}–{{ pageEnd() }}</strong> de <strong>{{ filteredCount }}</strong> documentos
             </div>
             <nav class="billing-pagination" aria-label="Paginación de ventas">
                 <button
@@ -285,7 +298,7 @@
     <div class="modal-header">
         <div>
             <h4 class="modal-title">Carga rápida de documentos</h4>
-            <small class="text-muted">Selecciona muchas ventas sin buscarlas una por una.</small>
+            <small class="text-muted">Selecciona documentos sin buscarlos uno por uno.</small>
         </div>
         <button type="button" class="close" aria-label="Cerrar" [disabled]="quickSelectionLoading" (click)="d('close')">
             <span aria-hidden="true">&times;</span>
@@ -294,7 +307,7 @@
     <div class="modal-body">
         <div class="alert alert-info">
             Pega los <strong>IDs internos de documento</strong>. Puedes separarlos por coma, tabulador, espacio o salto de línea.
-            Sólo se seleccionarán ventas disponibles en la pestaña {{ fulfillment ? 'FULL' : 'DROP' }}.
+            Sólo se seleccionarán documentos disponibles en la pestaña {{ tabLabel() }}.
         </div>
         <div class="form-group mb-0">
             <label for="quickSelectionDocuments">Documentos</label>
@@ -329,10 +342,10 @@
     <div class="modal-header">
         <div>
             <h4 class="modal-title">
-                {{ mode === 'global' ? 'Preparar factura global' : 'Relacionar CFDI externo' }}
+                {{ mode === 'global' ? 'Preparar factura global' : (mode === 'individual' ? (creditNotes ? 'Timbrar nota de crédito' : 'Preparar factura individual') : 'Relacionar CFDI externo') }}
             </h4>
             <small class="text-muted">
-                {{ mode === 'global' ? hubSelectedIds().length : selectedIds().length }} venta(s) seleccionada(s)
+                {{ mode === 'individual' ? 1 : (mode === 'global' ? hubSelectedIds().length : selectedIds().length) }} {{ documentLabel() }} seleccionada(s)
             </small>
         </div>
         <button type="button" class="close" aria-label="Cerrar" [disabled]="loading" (click)="d('close')">
@@ -441,20 +454,45 @@
             <div *ngIf="productGroupingReceiverMismatch()" class="alert alert-danger">
                 Las ventas seleccionadas no pertenecen al mismo receptor fiscal. Ajusta la selección para usar la global por productos.
             </div>
+        </ng-container>
+
+        <div *ngIf="mode === 'individual' && individualDocument" class="alert alert-info">
+            Documento <strong>#{{ individualDocument.id }}</strong> · Serie <strong>{{ individualDocument.billing_series }}</strong>.
+            El folio se asignará con el consecutivo fiscal al solicitar. Los adjuntos se guardarán en este documento.
+        </div>
+        <div *ngIf="mode === 'individual' && creditNotes" class="form-group">
+            <label for="creditRelationship">Motivo y relación con la factura origen</label>
+            <select id="creditRelationship" class="form-control" [(ngModel)]="relationshipCode" [disabled]="loading">
+                <option value="03">03 — Devolución de mercancía</option>
+                <option value="01">01 — Nota de crédito por descuento o bonificación</option>
+            </select>
+            <small class="form-text text-muted">La factura origen debe estar timbrada en Nexfira. El uso CFDI de la NC será G02.</small>
+        </div>
+        <ng-container *ngIf="mode !== 'external'">
             <div class="row billing-global-summary">
-                <div class="col-md-6">
-                    <small class="text-muted d-block">Método de pago</small>
-                    <strong>{{ globalPaymentMethod }} — Pago en una sola exhibición</strong>
+                <div class="col-md-6 form-group">
+                    <label for="billingPaymentMethod">Método de pago</label>
+                    <select id="billingPaymentMethod" class="form-control" [(ngModel)]="payment.method" [disabled]="loading">
+                        <option value="PUE">PUE — Pago en una sola exhibición</option>
+                        <option value="PPD">PPD — Pago en parcialidades o diferido</option>
+                    </select>
                 </div>
-                <div class="col-md-6">
-                    <small class="text-muted d-block">Forma de pago</small>
-                    <strong>{{ globalPaymentForm }} — Intermediario pagos</strong>
+                <div class="col-md-6 form-group">
+                    <label for="billingPaymentForm">Forma de pago SAT</label>
+                    <select id="billingPaymentForm" class="form-control" [(ngModel)]="payment.form" [disabled]="loading">
+                        <option *ngFor="let option of paymentForms" [value]="option.value">{{ option.value }} — {{ option.label }}</option>
+                    </select>
                 </div>
             </div>
+            <small class="text-muted d-block">Verifica ambos datos antes de confirmar. Se enviarán tal como los selecciones, sujetos a las validaciones de Nexfira.</small>
+            <div *ngIf="paymentError()" class="alert alert-warning m-t-15" role="alert">{{ paymentError() }}</div>
         </ng-container>
 
         <ng-container *ngIf="mode === 'external'">
             <p>Adjunta el XML timbrado y su PDF. UUID, Serie y Folio se obtienen y validan directamente desde el XML.</p>
+            <p *ngIf="creditNotes" class="alert alert-info">
+                El XML debe ser tipo E. Las NC deben corresponder al mismo receptor y moneda, sumar el total del XML y relacionar las facturas origen.
+            </p>
             <div class="form-group">
                 <label for="externalXml">XML timbrado</label>
                 <div class="custom-file">
@@ -510,6 +548,13 @@
     <div class="modal-footer">
         <button class="btn btn-outline-secondary" type="button" [disabled]="loading" (click)="c('cancel')">
             Cancelar
+        </button>
+        <button
+            *ngIf="mode === 'individual'"
+            class="btn btn-primary" type="button"
+            [disabled]="!individualDocument || loading || !configured || !!paymentError()"
+            (click)="requestIndividual()">
+            <i class="fa fa-paper-plane"></i> {{ creditNotes ? 'Solicitar timbrado de NC' : 'Solicitar factura individual' }}
         </button>
         <button
             *ngIf="mode === 'global'"
