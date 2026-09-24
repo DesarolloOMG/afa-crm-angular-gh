@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.spec.json",
+  "files": ["test-facturacion.ts", "polyfills.ts"],
+  "include": [
+    "app/crm/venta/venta/facturacion/facturacion.component.spec.ts",
+    "**/*.d.ts"
+  ]
+}

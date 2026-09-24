@@ -672,7 +672,7 @@ export class FacturacionComponent implements OnInit {
             const uuid = extractUuidFromCfdi(text);
             const fiscalIdentity = this.extractFiscalIdentity(text);
             if (!uuid || !fiscalIdentity) {
-                throw new Error('UUID, Serie o Folio ausente');
+                throw new Error('UUID o tipo de comprobante inválido');
             }
             this.external.uuid = uuid;
             this.external.series = fiscalIdentity.series;
@@ -686,14 +686,14 @@ export class FacturacionComponent implements OnInit {
             this.external.folio = '';
             this.external.xml = '';
             this.externalXmlName = '';
-            void swal('', 'El XML debe contener Timbre, Serie y Folio válidos y ser de tipo '
+            void swal('', 'El XML debe contener un Timbre con UUID válido y ser de tipo '
                 + (this.creditNotes ? 'E (egreso).' : 'I (ingreso).'), 'error');
         }
     }
 
     attachExternal() {
         const documentos = this.selectedIds();
-        if (!documentos.length || !this.external.uuid || !this.external.series || !this.external.folio
+        if (!documentos.length || !this.external.uuid
             || !this.external.pdf || !this.external.xml) {
             void swal('', 'Selecciona ventas y carga el XML y PDF del CFDI.', 'warning');
             return;
@@ -701,8 +701,8 @@ export class FacturacionComponent implements OnInit {
 
         swal({
             type: 'warning',
-            html: `¿Relacionar el CFDI <b>${this.external.series}-${this.external.folio}</b> `
-                + `con <b>${documentos.length}</b> venta(s)?<br><small>UUID ${this.external.uuid}</small>`,
+            text: `¿Relacionar el CFDI ${this.fiscalIdentityLabel(this.external.series, this.external.folio)} `
+                + `con ${documentos.length} documento(s)? UUID ${this.external.uuid}`,
             showCancelButton: true,
             confirmButtonText: 'Sí, relacionar',
             cancelButtonText: 'Cancelar',
@@ -859,6 +859,16 @@ export class FacturacionComponent implements OnInit {
         return true;
     }
 
+    fiscalIdentityLabel(series: string, folio: string): string {
+        if (series && folio) {
+            return series + '-' + folio;
+        }
+        if (folio) {
+            return 'Folio ' + folio + ' (sin serie)';
+        }
+        return series ? 'Serie ' + series + ' (sin folio)' : 'Sin serie ni folio; identificado por UUID';
+    }
+
     private extractFiscalIdentity(xmlText: string): {series: string, folio: string} | null {
         const documentXml = new DOMParser().parseFromString(xmlText, 'application/xml');
         if (documentXml.getElementsByTagName('parsererror').length) {
@@ -871,7 +881,8 @@ export class FacturacionComponent implements OnInit {
         const series = (root.getAttribute('Serie') || '').trim();
         const folio = (root.getAttribute('Folio') || '').trim();
 
-        return series && folio ? {series, folio} : null;
+        // No inferir Serie/Folio del marketplace: deben reflejar el XML externo original.
+        return {series, folio};
     }
 
     private finishLoading() {

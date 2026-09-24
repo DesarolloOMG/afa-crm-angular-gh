@@ -218,8 +218,8 @@
                             <small *ngIf="documento.request.correlation_id" class="text-muted d-block">
                                 Referencia Nexfira: {{ documento.request.correlation_id }}
                             </small>
-                            <small *ngIf="documento.request.series && documento.request.folio" class="text-muted d-block">
-                                CFDI: {{ documento.request.series }}-{{ documento.request.folio }}
+                            <small *ngIf="documento.request.fiscal_uuid || documento.request.series || documento.request.folio" class="text-muted d-block">
+                                CFDI: {{ fiscalIdentityLabel(documento.request.series, documento.request.folio) }}
                             </small>
                         </ng-container>
                         <ng-template #pendingStatus>
@@ -489,7 +489,7 @@
         </ng-container>
 
         <ng-container *ngIf="mode === 'external'">
-            <p>Adjunta el XML timbrado y su PDF. UUID, Serie y Folio se obtienen y validan directamente desde el XML.</p>
+            <p>Adjunta el XML timbrado y su PDF. El UUID es obligatorio. Serie y Folio se conservan si vienen en el XML; si no, permanecen vacíos. No se modifica el comprobante ni se vuelve a timbrar.</p>
             <p *ngIf="creditNotes" class="alert alert-info">
                 El XML debe ser tipo E. Las NC deben corresponder al mismo receptor y moneda, sumar el total del XML y relacionar las facturas origen.
             </p>
@@ -527,7 +527,7 @@
                 <label>Serie y Folio detectados</label>
                 <input
                     class="form-control"
-                    [value]="external.series && external.folio ? external.series + '-' + external.folio : ''"
+                    [value]="external.uuid ? fiscalIdentityLabel(external.series, external.folio) : ''"
                     placeholder="Se completarán al cargar un XML válido"
                     readonly
                 >
@@ -570,7 +570,7 @@
             *ngIf="mode === 'external'"
             class="btn btn-success"
             type="button"
-            [disabled]="!selectedIds().length || !external.uuid || !external.series || !external.folio || !external.pdf || !external.xml || loading"
+            [disabled]="!selectedIds().length || !external.uuid || !external.pdf || !external.xml || loading"
             (click)="attachExternal()"
         >
             <i class="fa fa-check"></i>
