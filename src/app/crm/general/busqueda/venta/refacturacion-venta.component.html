@@ -50,12 +50,14 @@
                         <small class="text-muted">La venta corresponde a otro mes y requiere autorización.</small>
                     </div>
                     <div *ngIf="!soloCliente" class="alert alert-info">Se crearán un pedido y una nota de crédito, sin movimiento de inventario.
+                        <div *ngIf="preview.contabilidad?.sin_ingresos">No hay ingresos aplicados: la NC saldará el original y el pedido nuevo quedará pendiente de cobro por {{ preview.contabilidad.saldo_nuevo | number:'1.2-4' }}. No se creará ningún ingreso.</div>
+                        <div *ngIf="!preview.contabilidad?.sin_ingresos">Los ingresos aplicados se trasladarán al pedido nuevo; la NC saldará el original.</div>
                         Después podrás solicitar el timbrado individual de ambos aquí mismo.</div>
                     <div *ngIf="soloCliente" class="alert alert-info">Se guardará el receptor de esta venta para su factura individual.
                         El pedido permanece en fase 5. Sus ingresos exclusivos se actualizarán al mismo cliente.</div>
                     <div class="form-check">
                         <input id="rf-confirm" name="confirmado" type="checkbox" class="form-check-input" [(ngModel)]="confirmado" required>
-                        <label for="rf-confirm" class="form-check-label">{{ soloCliente ? 'Revisé los datos y autorizo actualizar el cliente fiscal de este pedido y sus ingresos.' : 'Revisé los datos y autorizo reasignar el ingreso y compensar la venta original con la nota de crédito.' }}</label>
+                        <label for="rf-confirm" class="form-check-label">{{ soloCliente ? 'Revisé los datos y autorizo actualizar el cliente fiscal de este pedido y sus ingresos.' : (preview.contabilidad?.sin_ingresos ? 'Autorizo saldar el original con la NC y dejar el pedido nuevo pendiente de cobro, sin crear ingresos.' : 'Revisé los datos y autorizo reasignar el ingreso y compensar la venta original con la nota de crédito.') }}</label>
                     </div>
                 </fieldset>
             </ng-container>
@@ -70,8 +72,11 @@
 <div *ngIf="resultado" class="modal-body" style="max-height:70vh;overflow-y:auto;">
     <div class="alert alert-success" role="status" *ngIf="soloCliente">Cliente fiscal actualizado. La venta #{{ documento }} permanece pendiente de timbrar.</div>
     <ng-container *ngIf="!soloCliente">
-        <div class="alert alert-success">Refacturación contable preparada. El ingreso salda el pedido #{{ resultado.documento_nuevo }}
-            y la NC #{{ resultado.nota_credito }} compensa el pedido original #{{ resultado.documento_original }}.</div>
+        <div class="alert alert-success">Refacturación contable preparada. La NC #{{ resultado.nota_credito }} salda el pedido original #{{ resultado.documento_original }}.
+            <div *ngIf="resultado.contabilidad?.sin_ingresos">No se trasladaron ni crearon ingresos.</div>
+            <div *ngIf="resultado.contabilidad">Saldo actual del pedido nuevo #{{ resultado.documento_nuevo }}: <strong>{{ resultado.contabilidad.saldo_nuevo | number:'1.2-4' }}</strong>
+                ({{ resultado.contabilidad.pagado ? 'saldado' : 'pendiente de cobro' }}).</div>
+        </div>
         <p>Revisa método y forma de pago de cada documento y solicita su timbrado. El folio se asigna automáticamente al enviar.
             Puedes cerrar y continuar después desde “Ver refacturación”.</p>
         <section *ngFor="let doc of documentosFiscales" class="border rounded p-3 mb-3">

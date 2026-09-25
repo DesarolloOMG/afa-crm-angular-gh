@@ -504,7 +504,7 @@
         </ng-container>
 
         <ng-container *ngIf="mode === 'external'">
-            <p>Adjunta el XML timbrado y su PDF. El UUID es obligatorio. Serie y Folio se conservan si vienen en el XML; si no, permanecen vacíos. No se modifica el comprobante ni se vuelve a timbrar.</p>
+            <p>Adjunta el XML timbrado y su PDF. El UUID es obligatorio. Se guardan la Serie y el Folio del XML. Si falta la Serie, AFA usará la del marketplace de cada pedido como referencia local. Si falta el Folio, se conserva vacío y el CFDI se identifica por UUID. No se modifica el comprobante ni se vuelve a timbrar.</p>
             <p *ngIf="creditNotes" class="alert alert-info">
                 El XML debe ser tipo E. Las NC deben corresponder al mismo receptor y moneda, sumar el total del XML y relacionar las facturas origen.
             </p>
@@ -539,7 +539,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Serie y Folio detectados</label>
+                <label>Serie y Folio originales del XML</label>
                 <input
                     class="form-control"
                     [value]="external.uuid ? fiscalIdentityLabel(external.series, external.folio) : ''"

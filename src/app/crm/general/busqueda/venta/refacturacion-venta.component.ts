@@ -82,6 +82,11 @@ export class RefacturacionVentaComponent implements OnInit {
                 if (content && !doc.options) {
                     doc.options = {paymentMethod: content.paymentMethod, paymentForm: doc.esNota ? '17' : content.paymentForm,
                         series: doc.preview.billing_series || '', folio: '', relationshipCode: '01'};
+                    if (!doc.esNota && !doc.request && this.resultado.contabilidad
+                        && this.resultado.contabilidad.sin_ingresos && !this.resultado.contabilidad.pagado) {
+                        // Propuesta editable para el pedido nuevo pendiente de cobro.
+                        doc.options.paymentMethod = 'PPD'; doc.options.paymentForm = '99';
+                    }
                 }
                 doc.cargando = false;
             }, error => { doc.error = this.errorMessage(error); doc.cargando = false; }

@@ -92,4 +92,47 @@ describe('Refacturación: modal de timbrado', () => {
         expect(http.post.calls.mostRecent().args[0]).toContain('/cliente-fiscal/38217');
         expect(component.documentosFiscales.length).toBe(0);
     });
+
+    it('explica antes de confirmar que sin ingreso el pedido nuevo queda pendiente', async () => {
+        http.get.and.returnValue({subscribe: (ok: any) => ok({data: {puede_refacturar: true,
+            resultado: null, total: '4799.0000', bloqueos: [], cliente_actual: {rfc: 'MLG100224TC1'},
+            contabilidad: {sin_ingresos: true, saldo_nuevo: '4799.0000'}}})});
+        const fixture = TestBed.createComponent(RefacturacionVentaComponent);
+        fixture.componentInstance.documento = '37524'; fixture.detectChanges();
+        await fixture.whenStable(); fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('No hay ingresos aplicados');
+        expect(fixture.nativeElement.textContent).toContain('No se creará ningún ingreso');
+        expect(fixture.nativeElement.querySelector('label[for="rf-confirm"]').textContent).toContain('pendiente de cobro');
+        expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
+        expect(http.post).not.toHaveBeenCalled();
+        fixture.destroy();
+    });
+
+    it('reabre sin ingreso con saldo pendiente y propone PPD/99 editable para la factura nueva', async () => {
+        http.get.and.callFake((url: string) => ({subscribe: (ok: any) => {
+            if (url.indexOf('refacturacion/') >= 0) {
+                ok({data: {resultado: Object.assign({}, result, {contabilidad: {sin_ingresos: true, saldo_nuevo: '4799.0000', pagado: 0}})}});
+                return;
+            }
+            ok({data: {valid: true, completed: false, billing_series: 'MLG', request: null,
+                payload: {content: {paymentMethod: 'PUE', paymentForm: '31'}}}});
+        }}));
+        const fixture = TestBed.createComponent(RefacturacionVentaComponent);
+        const component = fixture.componentInstance;
+        component.documento = '37524'; fixture.detectChanges();
+        await fixture.whenStable(); fixture.detectChanges();
+        expect(fixture.nativeElement.textContent).toContain('No se trasladaron ni crearon ingresos');
+        expect(fixture.nativeElement.textContent).toContain('pendiente de cobro');
+        expect(fixture.nativeElement.textContent).not.toContain('El ingreso salda');
+        const note = component.documentosFiscales[0];
+        const sale = component.documentosFiscales[1];
+        expect(note.options.paymentForm).toBe('17');
+        expect(sale.options.paymentMethod).toBe('PPD');
+        expect(sale.options.paymentForm).toBe('99');
+        sale.options.paymentForm = '03'; sale.options.paymentMethod = 'PUE';
+        component.solicitarTimbrado(sale, {valid: true});
+        expect(http.post.calls.mostRecent().args[0]).toContain('/individual/40001');
+        expect(http.post.calls.mostRecent().args[1].paymentForm).toBe('03');
+        fixture.destroy();
+    });
 });

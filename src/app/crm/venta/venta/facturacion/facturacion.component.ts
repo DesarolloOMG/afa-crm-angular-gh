@@ -922,7 +922,7 @@ export class FacturacionComponent implements OnInit {
         const series = (root.getAttribute('Serie') || '').trim();
         const folio = (root.getAttribute('Folio') || '').trim();
 
-        // No inferir Serie/Folio del marketplace: deben reflejar el XML externo original.
+        // Mostrar el XML original; el servidor completa sólo la serie local por marketplace si falta.
         return {series, folio};
     }
 
