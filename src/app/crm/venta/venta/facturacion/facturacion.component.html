@@ -389,13 +389,13 @@
             <div *ngIf="globalGrouping === 'ventas'" class="alert alert-info">
                 Nexfira recibirá una partida por pedido: clave 01010101, unidad ACT, ID interno como operación y descripción Venta.
             </div>
-            <div *ngIf="globalGrouping === 'ventas'" class="billing-global-information">
+            <div class="billing-global-information">
                 <div class="billing-global-information-title">
                     <div>
                         <strong>Información global SAT</strong>
-                        <small>Datos obligatorios para emitir el CFDI global.</small>
+                        <small>Selecciona el periodo real de las ventas. Se envía a Nexfira cuando el receptor es público en general.</small>
                     </div>
-                    <span class="badge badge-primary">Obligatoria</span>
+                    <span *ngIf="globalReceiverIsPublic()" class="badge badge-primary">Obligatoria</span>
                 </div>
                 <div class="row">
                     <div class="col-md-4 form-group">
@@ -486,6 +486,9 @@
             </div>
             <small class="text-muted d-block">Verifica ambos datos antes de confirmar. Se enviarán tal como los selecciones, sujetos a las validaciones de Nexfira.</small>
             <div *ngIf="paymentError()" class="alert alert-warning m-t-15" role="alert">{{ paymentError() }}</div>
+            <div *ngIf="globalContractWarning()" class="alert alert-warning m-t-15" role="alert">
+                {{ globalContractWarning() }} Puedes continuar bajo confirmación; Nexfira validará los datos seleccionados.
+            </div>
         </ng-container>
 
         <ng-container *ngIf="mode === 'external'">

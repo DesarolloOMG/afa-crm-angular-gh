@@ -80,7 +80,7 @@ export class FacturacionComponent implements OnInit {
     ];
     globalGrouping: 'ventas' | 'productos' = 'ventas';
     globalInformation = {
-        periodicity: '04',
+        periodicity: '01',
         months: ('0' + (new Date().getMonth() + 1)).slice(-2),
         year: this.currentYear,
     };
@@ -226,9 +226,13 @@ export class FacturacionComponent implements OnInit {
         if (this.creditNotes && this.payment.method !== 'PUE') {
             return 'El contrato de Nexfira exige PUE para notas de crédito.';
         }
-        if (this.mode === 'global' && this.globalGrouping === 'ventas'
+        return '';
+    }
+
+    globalContractWarning(): string {
+        if (this.mode === 'global' && this.globalReceiverIsPublic()
             && (this.payment.method !== 'PUE' || this.payment.form === '99')) {
-            return 'El contrato de Nexfira exige PUE y forma distinta de 99 para global por ventas.';
+            return 'Nexfira exige PUE y forma distinta de 99 para la factura global a público en general.';
         }
         return '';
     }
@@ -521,11 +525,15 @@ export class FacturacionComponent implements OnInit {
             ? 'Se enviará cada producto como una partida independiente, incluso cuando se repita.'
             : 'Cada partida llevará el ID interno del pedido como operación y la descripción Venta.';
 
+        const contractWarning = this.globalContractWarning();
         swal({
             type: 'warning',
-            html: `¿Crear una factura global por <b>${this.globalGrouping}</b> con <b>${documentos.length}</b> ventas? ${detail}`,
+            title: contractWarning ? 'Revisa la combinación seleccionada' : '',
+            html: `¿Crear una factura global por <b>${this.globalGrouping}</b> con <b>${documentos.length}</b> ventas? ${detail}`
+                + (contractWarning ? `<p>${contractWarning}</p><p>Se enviarán el método <b>${this.payment.method}</b> `
+                    + `y la forma <b>${this.payment.form}</b> que seleccionaste. Nexfira puede rechazar la solicitud. ¿Deseas continuar?</p>` : ''),
             showCancelButton: true,
-            confirmButtonText: 'Sí, solicitar',
+            confirmButtonText: contractWarning ? 'Continuar de todos modos' : 'Sí, solicitar',
             cancelButtonText: 'Cancelar',
         }).then((confirm) => {
             if (!confirm.value) {
@@ -536,14 +544,12 @@ export class FacturacionComponent implements OnInit {
                 agrupacion: this.globalGrouping,
                 paymentMethod: this.payment.method,
                 paymentForm: this.payment.form,
-            };
-            if (this.globalGrouping === 'ventas') {
-                payload.informacionGlobal = {
+                informacionGlobal: {
                     periodicity: this.globalInformation.periodicity,
                     months: this.globalInformation.months,
                     year: Number(this.globalInformation.year),
-                };
-            }
+                },
+            };
             this.runRequest(this.ventaService.solicitarFacturaGlobal(payload), false, true);
         });
     }
@@ -565,11 +571,14 @@ export class FacturacionComponent implements OnInit {
             : ('0' + month).slice(-2);
     }
 
-    globalInformationValid(): boolean {
-        if (this.globalGrouping !== 'ventas') {
-            return true;
-        }
+    globalReceiverIsPublic(): boolean {
+        return this.globalGrouping === 'ventas' || this.selectedDocumentValues()
+            .filter((documento) => documento.can_hub)
+            .some((documento) => Number(documento.publico) === 1
+                || String(documento.rfc || '').trim().toUpperCase() === 'XAXX010101000');
+    }
 
+    globalInformationValid(): boolean {
         const periodicity = this.globalInformation.periodicity;
         const months = this.globalInformation.months;
         const year = Number(this.globalInformation.year);

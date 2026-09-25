@@ -49,3 +49,142 @@ describe('FacturacionComponent: identidad de CFDI externo', () => {
         expect((component as any).extractFiscalIdentity(xml('', 'I'))).toBeNull();
     });
 });
+
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {FormsModule} from '@angular/forms';
+import {RouterTestingModule} from '@angular/router/testing';
+import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgxSpinnerModule} from 'ngx-spinner';
+import {VentaService} from '@services/http/venta.service';
+import swal from 'sweetalert2';
+
+describe('FacturacionComponent: periodo global y confirmación de pago', () => {
+    let fixture: ComponentFixture<FacturacionComponent>;
+    let component: FacturacionComponent;
+    let service: any;
+
+    beforeEach(async(() => {
+        service = {solicitarFacturaGlobal: jasmine.createSpy('solicitarFacturaGlobal')
+            .and.returnValue({subscribe: () => {}})};
+        TestBed.configureTestingModule({
+            declarations: [FacturacionComponent],
+            imports: [FormsModule, RouterTestingModule, NgbModule.forRoot(), NgxSpinnerModule],
+            providers: [
+                {provide: VentaService, useValue: service},
+            ],
+        }).compileComponents();
+    }));
+
+    beforeEach(async () => {
+        fixture = TestBed.createComponent(FacturacionComponent);
+        component = fixture.componentInstance;
+        spyOn(component, 'ngOnInit');
+        component.mode = 'global';
+        component.configured = true;
+        component.selected = {41: true, 42: true};
+        component.selectedDocuments = {
+            41: {id: 41, can_hub: true, rfc: 'XAXX010101000', billing_series: 'ELK'},
+            42: {id: 42, can_hub: true, rfc: 'XAXX010101000', billing_series: 'ELK'},
+        };
+        fixture.detectChanges();
+        const prepare = Array.from(fixture.nativeElement.querySelectorAll('button'))
+            .find((button: HTMLButtonElement) => button.textContent.indexOf('Preparar factura global') >= 0) as HTMLButtonElement;
+        prepare.click();
+        fixture.detectChanges();
+        await fixture.whenStable();
+    });
+
+    afterEach(() => {
+        swal.close();
+        const modal = component && (component as any).actionModalRef;
+        if (modal) { modal.dismiss('test-complete'); }
+        if (fixture) { fixture.destroy(); }
+    });
+
+    const select = (id: string, value: string) => {
+        const field = document.getElementById(id) as HTMLSelectElement;
+        field.value = value;
+        field.dispatchEvent(new Event('change', {bubbles: true}));
+    };
+    const submit = () => (document.querySelector('.modal-footer .btn-primary') as HTMLButtonElement).click();
+
+    ['ventas', 'productos'].forEach((grouping: 'ventas' | 'productos') => {
+        it('muestra el periodo con 01 por defecto y envía la selección en ' + grouping, async () => {
+            (document.querySelectorAll('.billing-grouping-option')[grouping === 'ventas' ? 0 : 1] as HTMLButtonElement).click();
+            fixture.detectChanges();
+            await fixture.whenStable();
+            expect((document.getElementById('globalPeriodicity') as HTMLSelectElement).value).toBe('01');
+            expect(document.getElementById('globalMonths')).not.toBeNull();
+            expect(document.getElementById('globalYear')).not.toBeNull();
+            select('globalPeriodicity', '02');
+            fixture.detectChanges();
+            await fixture.whenStable();
+            select('globalMonths', '08');
+            const year = document.getElementById('globalYear') as HTMLInputElement;
+            year.value = '2025';
+            year.dispatchEvent(new Event('input', {bubbles: true}));
+            fixture.detectChanges();
+            submit();
+            expect(swal.getConfirmButton().textContent).toBe('Sí, solicitar');
+            swal.clickConfirm();
+            await fixture.whenStable();
+            expect(service.solicitarFacturaGlobal).toHaveBeenCalledWith({
+                documentos: [41, 42], agrupacion: grouping, paymentMethod: 'PUE', paymentForm: '31',
+                informacionGlobal: {periodicity: '02', months: '08', year: 2025},
+            });
+        });
+
+        it('advierte y permite confirmar PPD/99 sin reemplazarlo en ' + grouping, async () => {
+            component.selectGlobalGrouping(grouping);
+            fixture.detectChanges();
+            await fixture.whenStable();
+            select('billingPaymentMethod', 'PPD');
+            select('billingPaymentForm', '99');
+            fixture.detectChanges();
+            expect(component.paymentError()).toBe('');
+            expect(component.canRequestGlobal()).toBe(true);
+            expect(component.globalContractWarning()).toContain('PUE');
+            submit();
+            expect(swal.getConfirmButton().textContent).toBe('Continuar de todos modos');
+            expect(service.solicitarFacturaGlobal).not.toHaveBeenCalled();
+            swal.clickConfirm();
+            await fixture.whenStable();
+            const payload = service.solicitarFacturaGlobal.calls.mostRecent().args[0];
+            expect(payload.paymentMethod).toBe('PPD');
+            expect(payload.paymentForm).toBe('99');
+            expect(payload.informacionGlobal.periodicity).toBe('01');
+        });
+    });
+
+    it('cancelar la advertencia no envía ninguna solicitud', async () => {
+        component.payment = {method: 'PPD', form: '99'};
+        fixture.detectChanges();
+        submit();
+        swal.clickCancel();
+        await fixture.whenStable();
+        expect(service.solicitarFacturaGlobal).not.toHaveBeenCalled();
+        expect(component.selectedIds()).toEqual([41, 42]);
+    });
+
+    it('conserva el periodo al alternar agrupaciones y acepta bimestre SAT', async () => {
+        component.globalInformation = {periodicity: '05', months: '17', year: 2025};
+        component.selectGlobalGrouping('productos');
+        fixture.detectChanges();
+        await fixture.whenStable();
+        expect((document.getElementById('globalMonths') as HTMLSelectElement).value).toBe('17');
+        expect(component.globalInformationValid()).toBe(true);
+        component.selectGlobalGrouping('ventas');
+        expect(component.globalInformation).toEqual({periodicity: '05', months: '17', year: 2025});
+    });
+
+    it('no aplica la advertencia de público general a un receptor empresarial', () => {
+        component.selectGlobalGrouping('productos');
+        component.selectedDocuments[41].rfc = 'MLG100224TC1';
+        component.selectedDocuments[42].rfc = 'MLG100224TC1';
+        component.payment = {method: 'PPD', form: '99'};
+        expect(component.globalContractWarning()).toBe('');
+        expect(component.canRequestGlobal()).toBe(true);
+        component.selectedDocuments[41].publico = true;
+        expect(component.globalContractWarning()).toContain('PUE');
+    });
+});
