@@ -1,6 +1,6 @@
 <div class="card">
     <div class="card-header">
-        <h5>Ventas encontradas</h5>
+        <h5>{{ documentos.length > ventas.length ? 'Documentos encontrados' : 'Ventas encontradas' }}</h5>
     </div>
     <div class="card-block table-responsive">
         <div class="row">
@@ -12,6 +12,7 @@
                     <thead>
                     <tr>
                         <th>Documento</th>
+                        <th>Tipo</th>
                         <th>Venta</th>
                         <th>Marketplace</th>
                         <th>Cliente</th>
@@ -23,7 +24,7 @@
                     </thead>
                     <tbody>
                     <tr
-                        *ngFor="let venta of ventas"
+                        *ngFor="let venta of documentos"
                         class="{{
                                         venta.status == 0 ? 'cancelado' : ''
                                     }}"
@@ -31,27 +32,30 @@
                         <td>
                             <button
                                 (click)="
-                                                detalleVenta(modalventa,venta.id)
+                                                venta.id_tipo == 6 ? detalleNotaCredito(modalnotacredito, venta.id) : detalleVenta(modalventa,venta.id)
                                             "
-                                class="btn btn-info btn-sm"
+                                class="btn btn-sm"
+                                [ngClass]="venta.id_tipo == 6 ? 'btn-primary' : 'btn-info'"
+                                [attr.aria-label]="(venta.id_tipo == 6 ? 'Ver nota de crédito ' : 'Ver pedido ') + venta.id"
                             >
                                 {{ venta.id }}
                             </button>
                         </td>
-                        <td>{{ venta.no_venta }}</td>
+                        <td>{{ venta.id_tipo == 6 ? 'Nota de crédito' : 'Pedido' }}</td>
+                        <td>{{ venta.id_tipo == 6 ? '—' : venta.no_venta }}</td>
                         <td>
                             {{
-                                venta.marketplace +
+                                (venta.marketplace || '—') +
                                 " / " +
-                                venta.area
+                                (venta.area || '—')
                             }}
                         </td>
                         <td>{{ venta.cliente }}</td>
-                        <td>{{ venta.paqueteria }}</td>
+                        <td>{{ venta.id_tipo == 6 ? '—' : venta.paqueteria }}</td>
                         <td>{{ venta.usuario }}</td>
                         <td>
                             {{
-                                venta.modificacion &&
+                                venta.id_tipo == 6 ? (venta.status == 0 ? 'Cancelada' : 'Activa') : venta.modificacion &&
                                 venta.id_fase == 2
                                     ? "Pendiente de revisión por Soporte"
                                     : venta.id_fase == 6
@@ -74,6 +78,79 @@
     </div>
 </div>
 
+<ng-template #modalnotacredito let-c="close">
+    <div class="modal-header">
+        <h5 class="modal-title">Nota de crédito<span *ngIf="notaCredito"> #{{ notaCredito.id }}</span></h5>
+        <button type="button" class="close" aria-label="Cerrar" (click)="c()"><span aria-hidden="true">&times;</span></button>
+    </div>
+    <div class="modal-body nota-credito-body">
+        <p *ngIf="cargandoNotaCredito" role="status" class="text-muted mb-0">Cargando nota de crédito...</p>
+        <div *ngIf="errorNotaCredito" role="alert" class="alert alert-danger mb-0">{{ errorNotaCredito }}</div>
+        <div *ngIf="notaCredito">
+            <div class="row mb-3">
+                <div class="col-sm-6">
+                    <strong>Fecha de emisión</strong>
+                    <p>{{ notaCredito.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+                    <strong>Cliente</strong>
+                    <p class="mb-1">{{ notaCredito.cliente || 'Sin registro' }}</p>
+                    <p class="mb-1">RFC: {{ notaCredito.rfc || 'Sin registro' }}</p>
+                    <p class="mb-1" *ngIf="notaCredito.correo && notaCredito.correo != '0'">{{ notaCredito.correo }}</p>
+                    <p *ngIf="notaCredito.telefono">{{ notaCredito.telefono }}</p>
+                </div>
+                <div class="col-sm-6">
+                    <strong>Estado</strong>
+                    <p [class.text-danger]="notaCredito.status == 0">{{ notaCredito.status == 0 ? 'Cancelada' : 'Activa' }}</p>
+                    <strong>Moneda / Tipo de cambio</strong>
+                    <p>{{ notaCredito.moneda || 'Sin registro' }} / {{ notaCredito.tipo_cambio | number:'1.2-4' }}</p>
+                    <div *ngIf="notaCredito.factura_folio && notaCredito.factura_folio != 'N/A'">
+                        <strong>Serie / folio de la nota</strong>
+                        <p>{{ notaCredito.factura_serie }} {{ notaCredito.factura_folio }}</p>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="notaCredito.uuid && notaCredito.uuid != 'N/A'" class="mb-3">
+                <strong>UUID</strong><div class="text-break">{{ notaCredito.uuid }}</div>
+            </div>
+            <div *ngIf="notaCredito.referencia && notaCredito.referencia != 'N/A'" class="mb-3">
+                <strong>Referencia</strong><div>{{ notaCredito.referencia }}</div>
+            </div>
+            <div *ngIf="notaCredito.observacion && notaCredito.observacion != 'N/A'" class="mb-3">
+                <strong>Observaciones</strong><div style="white-space: pre-wrap">{{ notaCredito.observacion }}</div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered nota-credito-productos">
+                    <thead><tr><th>SKU</th><th>Descripción</th><th class="text-right">Cantidad</th><th class="text-right">Precio con IVA</th><th class="text-right">Importe con IVA</th></tr></thead>
+                    <tbody>
+                        <tr *ngFor="let producto of notaCredito.productos">
+                            <td>{{ producto.sku || 'Sin registro' }}</td><td>{{ producto.descripcion || 'Sin registro' }}</td>
+                            <td class="text-right">{{ producto.cantidad | number:'1.0-4' }}</td>
+                            <td class="text-right">$ {{ producto.precio | number:'1.2-2' }}</td>
+                            <td class="text-right">$ {{ producto.importe | number:'1.2-2' }}</td>
+                        </tr>
+                        <tr *ngIf="!notaCredito.productos.length"><td colspan="5" class="text-center">Sin productos registrados.</td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr><th colspan="4" class="text-right">Subtotal</th><td class="text-right">$ {{ notaCredito.subtotal | number:'1.2-2' }}</td></tr>
+                        <tr><th colspan="4" class="text-right">IVA (16%)</th><td class="text-right">$ {{ notaCredito.iva | number:'1.2-2' }}</td></tr>
+                        <tr><th colspan="4" class="text-right">Total {{ notaCredito.moneda }}</th><th class="text-right">$ {{ notaCredito.total | number:'1.2-2' }}</th></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" *ngIf="notaCredito" (click)="descargarNotaCreditoPDF(notaCredito.id)">
+            <i class="fa fa-download mr-1" aria-hidden="true"></i> Descargar PDF
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="c()">Cerrar</button>
+    </div>
+</ng-template>
+
+<ng-template #modalrefacturacion let-c="close">
+    <app-refacturacion-venta [documento]="final_data.documento" [soloCliente]="editarSoloCliente" (cerrar)="c()"
+        (completada)="refacturacionCompletada($event)"></app-refacturacion-venta>
+</ng-template>
+
 <ng-template #modalventa let-d="dismiss">
     <!-- CABECERA -->
     <div class="modal-header d-flex align-items-center justify-content-between"
@@ -95,10 +172,13 @@
                 <i class="fas fa-receipt me-1"></i> Generar Nota de Crédito
             </button>
             <button class="btn btn-primary btn-sm fw-bold"
+                    *ngIf="puedeRefacturar && data.id_fase == 6 && tieneUuidFiscal()"
                     style="white-space:nowrap;"
-                    (click)="crearRefacturacion(final_data.documento)">
-                <i class="fas fa-file-invoice me-1"></i> Crear Refacturación
+                    (click)="abrirRefacturacion(modalrefacturacion)">
+                <i class="fas fa-file-invoice me-1"></i> {{ data.refacturado ? 'Ver refacturación' : 'Refacturar / cambiar cliente' }}
             </button>
+            <button *ngIf="puedeRefacturar && data.id_fase == 5 && !tieneUuidFiscal()" class="btn btn-primary btn-sm"
+                    (click)="abrirRefacturacion(modalrefacturacion, true)">Editar cliente fiscal</button>
             <button type="button"
                     class="btn p-0 text-secondary"
                     aria-label="Close"
@@ -172,6 +252,9 @@
                     <div class="col-md-4">
                         <div class="small fw-bold text-secondary">UUID</div>
                         <div class="fw-semibold text-dark">{{ data.uuid }}</div>
+                        <div class="small fw-bold text-secondary mt-2">Serie / Folio de factura</div>
+                        <div>{{ data.factura_serie && data.factura_serie != 'N/A' ? data.factura_serie : 'Sin serie' }} /
+                            {{ data.factura_folio && data.factura_folio != 'N/A' ? data.factura_folio : 'Sin folio' }}</div>
                     </div>
                     <div class="col-md-4">
                         <button class="btn btn-sm btn-info btn-block http-disabled fw-bold"
@@ -258,7 +341,9 @@
                                     <span class="fw-bold text-secondary">Nota de Crédito Generada</span>
                                 </div>
                                 <div class="fw-semibold text-dark">
-                                    Folio #{{ data.nota_de_credito.id }}
+                                    <button type="button" class="btn btn-link p-0" (click)="detalleNotaCredito(modalnotacredito, data.nota_de_credito.id)">
+                                        Folio #{{ data.nota_de_credito.id }}
+                                    </button>
                                 </div>
                                 <div class="text-muted small">
                                     Fecha: {{ data.nota_de_credito.created_at | date:'yyyy-MM-dd HH:mm' }}

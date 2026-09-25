@@ -18,3 +18,25 @@
 .pendiente {
     color: green;
 }
+
+.nota-credito-body {
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    overflow-wrap: break-word;
+}
+
+.nota-credito-productos {
+    th, td {
+        padding: .5rem;
+        vertical-align: top;
+    }
+
+    th:nth-child(2) {
+        width: 42%;
+        min-width: 220px;
+    }
+
+    td:nth-child(1), td:nth-child(3), td:nth-child(4), td:nth-child(5) {
+        white-space: nowrap;
+    }
+}

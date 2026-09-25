@@ -11,6 +11,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 import {SerieComponent} from './serie/serie.component';
 import {VentaComponent} from './venta/venta.component';
+import {RefacturacionVentaComponent} from './venta/refacturacion-venta.component';
 import {EditorSeguimientosModule} from 'app/utils/editor-seguimientos/editor-seguimientos.module';
 import {ProductoComponent} from './producto/producto.component';
 import {RouterModule, Routes} from '@angular/router';
@@ -59,7 +60,7 @@ const routes: Routes = [
         RouterModule.forChild(routes),
         SharedModule
     ],
-    declarations: [SerieComponent, VentaComponent, ProductoComponent,],
+    declarations: [SerieComponent, VentaComponent, ProductoComponent, RefacturacionVentaComponent],
     exports: [RouterModule]
 })
 export class BusquedaModule {}

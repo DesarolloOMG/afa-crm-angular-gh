@@ -3,6 +3,7 @@
   "files": ["test-facturacion.ts", "polyfills.ts"],
   "include": [
     "app/crm/venta/venta/facturacion/facturacion.component.spec.ts",
+    "app/crm/general/busqueda/venta/refacturacion-venta.component.spec.ts",
     "**/*.d.ts"
   ]
 }

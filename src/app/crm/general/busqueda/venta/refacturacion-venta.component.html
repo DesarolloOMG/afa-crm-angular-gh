@@ -1,0 +1,115 @@
+<div class="modal-header">
+    <div><h5 class="modal-title">{{ soloCliente ? 'Editar cliente fiscal' : 'Refacturar venta' }} #{{ documento }}</h5>
+        <small class="text-muted">{{ soloCliente ? 'Venta pendiente de timbrar' : 'Cambio de cliente y reasignación contable' }}</small></div>
+    <button type="button" class="close" aria-label="Cerrar refacturación" [disabled]="guardando" (click)="salir()"><span aria-hidden="true">&times;</span></button>
+</div>
+<form *ngIf="!resultado" #form="ngForm" (ngSubmit)="guardar(form)" novalidate>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+        <p *ngIf="cargando" role="status">Consultando la venta y sus ingresos…</p>
+        <div *ngIf="error" class="alert alert-danger" role="alert">{{ error }}</div>
+        <button *ngIf="!preview && !cargando" type="button" class="btn btn-outline-primary" (click)="cargar()">Volver a consultar</button>
+
+        <ng-container *ngIf="preview && !resultado">
+            <div class="border rounded p-3 mb-3 bg-light">
+                <small class="text-muted">Cliente actual (se conserva en la venta original)</small>
+                <div>{{ preview.cliente_actual?.razon_social }} · {{ preview.cliente_actual?.rfc }}</div>
+                <small *ngIf="!soloCliente" class="text-muted">Receptor de la factura original{{ preview.receptor_cfdi_original?.verificado ? ' (registrado en la solicitud fiscal)' : ' (según el pedido)' }}</small>
+                <div>{{ preview.receptor_cfdi_original?.nombre }} · {{ preview.receptor_cfdi_original?.rfc }}</div>
+                <div>Total del pedido: <strong>{{ preview.total | number:'1.2-4' }}</strong> en la moneda de la venta.</div>
+            </div>
+            <div *ngFor="let bloqueo of preview.bloqueos" class="alert alert-warning" role="alert">{{ bloqueo }}</div>
+            <ng-container *ngIf="preview.puede_refacturar">
+                <h6>Datos fiscales del cliente</h6>
+                <p class="text-muted">Captura los datos de su constancia fiscal. No se modificará el cliente anterior.</p>
+                <fieldset [disabled]="guardando">
+                    <div class="row">
+                        <div class="form-group col-md-5"><label for="rf-rfc">RFC *</label>
+                            <input id="rf-rfc" name="rfc" class="form-control text-uppercase" [(ngModel)]="receptor.rfc" required minlength="12" maxlength="13" autocomplete="off"></div>
+                        <div class="form-group col-md-7"><label for="rf-name">Nombre o razón social *</label>
+                            <input id="rf-name" name="razon_social" class="form-control" [(ngModel)]="receptor.razon_social" required minlength="2" maxlength="150" autocomplete="off"></div>
+                        <div class="form-group col-md-4"><label for="rf-cp">Código postal fiscal *</label>
+                            <input id="rf-cp" name="codigo_postal_fiscal" class="form-control" [(ngModel)]="receptor.codigo_postal_fiscal" required pattern="[0-9]{5}" maxlength="5" inputmode="numeric"></div>
+                        <div class="form-group col-md-8"><label for="rf-regime">Régimen fiscal *</label>
+                            <select id="rf-regime" name="regimen" class="form-control" [(ngModel)]="receptor.regimen" required>
+                                <option value="" disabled>Selecciona un régimen</option>
+                                <option *ngFor="let regimen of preview.regimenes" [value]="regimen.codigo">{{ regimen.codigo }} — {{ regimen.regimen }}</option>
+                            </select></div>
+                        <div class="form-group col-12"><label for="rf-use">Uso del CFDI *</label>
+                            <select id="rf-use" name="id_cfdi" class="form-control" [(ngModel)]="receptor.id_cfdi" required>
+                                <option value="" disabled>Selecciona el uso</option>
+                                <option *ngFor="let uso of preview.usos_cfdi" [value]="uso.id">{{ uso.codigo }} — {{ uso.descripcion }}</option>
+                            </select></div>
+                        <div class="form-group col-md-7"><label for="rf-email">Correo (opcional)</label>
+                            <input id="rf-email" name="correo" type="email" class="form-control" [(ngModel)]="receptor.correo" maxlength="200"></div>
+                        <div class="form-group col-md-5"><label for="rf-phone">Teléfono (opcional)</label>
+                            <input id="rf-phone" name="telefono" type="tel" class="form-control" [(ngModel)]="receptor.telefono" maxlength="50"></div>
+                    </div>
+                    <div *ngIf="preview.requiere_token" class="form-group">
+                        <label for="rf-token">Código de tu aplicación autenticadora *</label>
+                        <input id="rf-token" name="token" class="form-control" [(ngModel)]="token" required pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" inputmode="numeric">
+                        <small class="text-muted">La venta corresponde a otro mes y requiere autorización.</small>
+                    </div>
+                    <div *ngIf="!soloCliente" class="alert alert-info">Se crearán un pedido y una nota de crédito, sin movimiento de inventario.
+                        Después podrás solicitar el timbrado individual de ambos aquí mismo.</div>
+                    <div *ngIf="soloCliente" class="alert alert-info">Se guardará el receptor de esta venta para su factura individual.
+                        El pedido permanece en fase 5. Sus ingresos exclusivos se actualizarán al mismo cliente.</div>
+                    <div class="form-check">
+                        <input id="rf-confirm" name="confirmado" type="checkbox" class="form-check-input" [(ngModel)]="confirmado" required>
+                        <label for="rf-confirm" class="form-check-label">{{ soloCliente ? 'Revisé los datos y autorizo actualizar el cliente fiscal de este pedido y sus ingresos.' : 'Revisé los datos y autorizo reasignar el ingreso y compensar la venta original con la nota de crédito.' }}</label>
+                    </div>
+                </fieldset>
+            </ng-container>
+        </ng-container>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" [disabled]="guardando" (click)="salir()">{{ resultado ? 'Cerrar' : 'Cancelar' }}</button>
+        <button *ngIf="preview?.puede_refacturar && !resultado" type="submit" class="btn btn-primary" [disabled]="guardando || !form.valid || !confirmado">
+            {{ guardando ? 'Guardando…' : (soloCliente ? 'Guardar cliente fiscal' : 'Crear y continuar al timbrado') }}</button>
+    </div>
+</form>
+<div *ngIf="resultado" class="modal-body" style="max-height:70vh;overflow-y:auto;">
+    <div class="alert alert-success" role="status" *ngIf="soloCliente">Cliente fiscal actualizado. La venta #{{ documento }} permanece pendiente de timbrar.</div>
+    <ng-container *ngIf="!soloCliente">
+        <div class="alert alert-success">Refacturación contable preparada. El ingreso salda el pedido #{{ resultado.documento_nuevo }}
+            y la NC #{{ resultado.nota_credito }} compensa el pedido original #{{ resultado.documento_original }}.</div>
+        <p>Revisa método y forma de pago de cada documento y solicita su timbrado. El folio se asigna automáticamente al enviar.
+            Puedes cerrar y continuar después desde “Ver refacturación”.</p>
+        <section *ngFor="let doc of documentosFiscales" class="border rounded p-3 mb-3">
+            <h6>{{ doc.titulo }} #{{ doc.id }}</h6>
+            <div *ngIf="doc.cargando" role="status">Consultando…</div>
+            <div *ngIf="doc.error" class="alert alert-danger" role="alert">{{ doc.error }}</div>
+            <ng-container *ngIf="doc.preview">
+                <div *ngIf="doc.preview.completed" class="alert alert-success">Timbrado: {{ doc.preview.series }} {{ doc.preview.folio }}<br>UUID: {{ doc.preview.uuid }}. XML y PDF guardados.</div>
+                <ng-container *ngIf="!doc.preview.completed">
+                    <div *ngIf="doc.request" class="alert alert-info">Estado: {{ doc.request.status }} · {{ doc.request.series }} {{ doc.request.folio }}
+                        <div *ngIf="doc.request.error_message">{{ doc.request.error_message }}</div>
+                        <small *ngIf="doc.request.correlation_id">Referencia Nexfira: {{ doc.request.correlation_id }}</small></div>
+                    <div *ngIf="!doc.preview.valid && !doc.request?.is_active" class="alert alert-warning">{{ doc.preview.blockers?.join(' ') }}</div>
+                    <form *ngIf="doc.preview.valid && doc.options && !doc.request?.is_active" #fiscalForm="ngForm" (ngSubmit)="solicitarTimbrado(doc, fiscalForm)">
+                        <fieldset [disabled]="guardando || doc.cargando">
+                            <div class="row">
+                                <div class="form-group col-sm-6"><label [for]="'rf-method-' + doc.id">Método de pago</label>
+                                    <select [id]="'rf-method-' + doc.id" name="paymentMethod" class="form-control" [(ngModel)]="doc.options.paymentMethod" required>
+                                        <option value="PUE">PUE — Pago en una sola exhibición</option><option value="PPD">PPD — Pago en parcialidades o diferido</option>
+                                    </select></div>
+                                <div class="form-group col-sm-6"><label [for]="'rf-payment-' + doc.id">Forma de pago SAT</label>
+                                    <input [id]="'rf-payment-' + doc.id" name="paymentForm" class="form-control" [(ngModel)]="doc.options.paymentForm" required pattern="[0-9]{2}" maxlength="2" list="rf-payment-forms">
+                                    <small>Clave de dos dígitos, por ejemplo 03 (transferencia), 17 (compensación) o 99 (por definir).</small></div>
+                                <div class="form-group col-sm-6"><label [for]="'rf-series-' + doc.id">Serie</label>
+                                    <input [id]="'rf-series-' + doc.id" name="series" class="form-control" [(ngModel)]="doc.options.series" required pattern="[A-Za-z0-9]{1,25}" maxlength="25"></div>
+                                <div class="form-group col-sm-6"><label [for]="'rf-folio-' + doc.id">Folio (opcional)</label>
+                                    <input [id]="'rf-folio-' + doc.id" name="folio" class="form-control" [(ngModel)]="doc.options.folio" pattern="[0-9]+" placeholder="Automático"></div>
+                            </div>
+                            <p *ngIf="doc.esNota" class="text-muted">La NC relacionará la factura original. No representa devolución de productos.</p>
+                            <button type="submit" class="btn btn-primary" [disabled]="!fiscalForm.valid || guardando || doc.cargando">Solicitar timbrado de {{ doc.esNota ? 'NC' : 'factura' }} #{{ doc.id }}</button>
+                        </fieldset>
+                    </form>
+                    <button *ngIf="doc.request?.is_active" type="button" class="btn btn-outline-primary" [disabled]="guardando || doc.cargando" (click)="actualizarTimbrado(doc)">Actualizar estado y recuperar XML/PDF</button>
+                </ng-container>
+            </ng-container>
+            <button *ngIf="!doc.preview && !doc.cargando" type="button" class="btn btn-outline-primary" (click)="cargarFiscal(doc)">Volver a consultar</button>
+        </section>
+        <datalist id="rf-payment-forms"><option value="01">Efectivo</option><option value="03">Transferencia</option><option value="04">Tarjeta de crédito</option><option value="17">Compensación</option><option value="28">Tarjeta de débito</option><option value="31">Intermediario pagos</option><option value="99">Por definir</option></datalist>
+    </ng-container>
+</div>
+<div *ngIf="resultado" class="modal-footer"><button type="button" class="btn btn-outline-secondary" [disabled]="guardando" (click)="salir()">Cerrar</button></div>

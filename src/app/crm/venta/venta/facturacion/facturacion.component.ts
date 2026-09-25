@@ -485,7 +485,8 @@ export class FacturacionComponent implements OnInit {
                     return;
                 }
                 this.payment = {method: data.payload.content.paymentMethod, form: data.payload.content.paymentForm};
-                this.relationshipCode = '03';
+                this.relationshipCode = data.payload.content.relations && data.payload.content.relations.length
+                    ? data.payload.content.relations[0].relationshipCode : '03';
                 this.openActionModal(content);
             },
             error: (error: any) => { this.loading = false; swalErrorHttpResponse(error); },

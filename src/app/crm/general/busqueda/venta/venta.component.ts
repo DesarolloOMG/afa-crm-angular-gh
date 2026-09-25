@@ -21,6 +21,8 @@ export class VentaComponent implements OnInit {
     tablename = '#general_busqueda_venta';
     seriesProductoSeleccionado: any[] = [];
     niveles: number[] = [];
+    puedeRefacturar = false;
+    editarSoloCliente = false;
     id_usuario: number;
     busqueda: string;
 
@@ -36,6 +38,11 @@ export class VentaComponent implements OnInit {
 
     impresoras: any[] = [];
     ventas: any[] = [];
+    documentos: any[] = [];
+    notaCredito: any = null;
+    cargandoNotaCredito = false;
+    errorNotaCredito = '';
+    private consultaNotaCredito = 0;
     pagos: any[] = [];
     notas: any[] = [];
     empresas: any[] = [];
@@ -68,6 +75,8 @@ export class VentaComponent implements OnInit {
 
         this.niveles = JSON.parse(this.auth.userData().sub).niveles;
         this.id_usuario = JSON.parse(this.auth.userData().sub).id;
+        const permisos = JSON.parse(this.auth.userData().sub).subniveles || {};
+        this.puedeRefacturar = Array.isArray(permisos[11]) && permisos[11].map(Number).indexOf(36) >= 0;
     }
 
     ngOnInit() {
@@ -102,6 +111,7 @@ export class VentaComponent implements OnInit {
             return;
         }
         this.ventas = resInfo['ventas'];
+        this.documentos = this.ventas.concat(resInfo['notas_credito'] || []);
         this.rebuildTable();
 
         const resNotaInfo = await this.http
@@ -218,6 +228,39 @@ export class VentaComponent implements OnInit {
             windowClass: 'bigger-modal',
             backdrop: 'static',
         });
+    }
+
+    async detalleNotaCredito(modal: any, documento: number): Promise<void> {
+        const consulta = ++this.consultaNotaCredito;
+        this.notaCredito = null;
+        this.errorNotaCredito = '';
+        this.cargandoNotaCredito = true;
+        this.modalService.open(modal, {size: 'lg', backdrop: 'static'});
+
+        const formData = new FormData();
+        formData.append('data', JSON.stringify({documento}));
+        try {
+            const res: any = await this.http.post(
+                `${backend_url}general/busqueda/venta/nota/informacion`, formData
+            ).toPromise();
+            if (consulta !== this.consultaNotaCredito) {
+                return;
+            }
+            if (res.code === 200 && res.nota) {
+                this.notaCredito = res.nota;
+            } else {
+                this.errorNotaCredito = res.message || 'No se pudo cargar la nota de crédito.';
+            }
+        } catch (error) {
+            if (consulta === this.consultaNotaCredito) {
+                this.errorNotaCredito = error.error && error.error.message
+                    ? error.error.message : 'No se pudo cargar la nota de crédito. Intenta nuevamente.';
+            }
+        } finally {
+            if (consulta === this.consultaNotaCredito) {
+                this.cargandoNotaCredito = false;
+            }
+        }
     }
 
     verSeries(series: any[], modal) {
@@ -448,65 +491,34 @@ export class VentaComponent implements OnInit {
     //     this.modalService.open(modal, {backdrop: 'static'});
     // }
 
-    async crearRefacturacion($option: any): Promise<void | SweetAlertResult> {
-        const currentDate = moment();
-        const documentDate = moment(this.data.created_at);
+    tieneUuidFiscal(): boolean {
+        return /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(this.data.uuid || '').trim());
+    }
 
-        if (!currentDate.isSame(documentDate, 'month')) {
-            this.final_data.necesita_token = true;
-            this.whatsappService.sendWhatsapp().subscribe({
-                next: async () => {
-                    await swal({
-                        type: 'warning',
-                        html: `Para realizar la facturación, escribe el código actual de tu
-                            <b>aplicación autenticadora</b> en el recuadro de abajo.<br><br>
-               Esto se debe a que la factura no es del mismo mes. Sí tienes alguna duda, favor de contactar a administración.`,
-                        input: 'text',
-                    }).then((confirm) => {
-                        if (!confirm.value) {
-                            return;
-                        }
-                        this.final_data.token = confirm.value;
-                    });
-                },
-                error: (error) => {
-                    swalErrorHttpResponse(error);
-                },
-            });
+    abrirRefacturacion(modal: any, soloCliente = false): void {
+        if (!this.puedeRefacturar) { return; }
+        if (soloCliente ? (Number(this.data.id_fase) !== 5 || this.tieneUuidFiscal())
+            : (Number(this.data.id_fase) !== 6 || !this.tieneUuidFiscal())) { return; }
+        this.editarSoloCliente = soloCliente;
+        // El modalReference del detalle permanece intacto debajo del formulario.
+        this.modalService.open(modal, {size: 'lg', backdrop: 'static', keyboard: false});
+    }
+
+    refacturacionCompletada(resultado: any): void {
+        if (resultado.cliente_actualizado) {
+            Object.assign(this.data, {cliente: resultado.receptor.razon_social, rfc: resultado.receptor.rfc,
+                correo: resultado.receptor.correo, telefono: resultado.receptor.telefono});
+            this.buscarVenta().catch(() => {});
+            return;
         }
-
-        if (this.final_data.necesita_token && !this.final_data.token) {
-            return this.swalResponse(
-                'error',
-                'Error',
-                'Necesitas escribir un token para poder autorizar la refacturación'
-            );
-        }
-
-        const form_data = new FormData();
-        form_data.append('data', JSON.stringify(this.final_data));
-        form_data.append('option', JSON.stringify($option));
-
-        try {
-            const res: any = await this.http
-                .post(
-                    `${backend_url}general/busqueda/venta/refacturacion`,
-                    form_data
-                )
-                .toPromise();
-            this.mostrarResultado(res);
-            if (res.code == 200) {
-                const venta = this.ventas.find(
-                    (ventaFind) => ventaFind.id == this.final_data.documento
-                );
-                if (venta) {
-                    venta.refacturado = 1;
-                    this.data.refacturado = 1;
-                }
-            }
-        } catch (response) {
-            swalErrorHttpResponse(response);
-        }
+        this.data.refacturado = 1;
+        this.data.nota = resultado.nota_credito;
+        const venta = this.ventas.find(item => item.id == this.final_data.documento);
+        if (venta) { venta.refacturado = 1; venta.nota = resultado.nota_credito; }
+        this.buscarVenta().then(() => {
+            const actualizada = this.ventas.find(item => item.id == this.final_data.documento);
+            if (actualizada) { this.data.movimientos_contables = actualizada.movimientos_contables || []; }
+        }).catch(() => {});
     }
 
     async crearNotaCredito(

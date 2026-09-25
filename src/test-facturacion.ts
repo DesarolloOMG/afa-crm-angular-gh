@@ -4,3 +4,4 @@ import {BrowserDynamicTestingModule, platformBrowserDynamicTesting} from '@angul
 
 getTestBed().initTestEnvironment(BrowserDynamicTestingModule, platformBrowserDynamicTesting());
 import './app/crm/venta/venta/facturacion/facturacion.component.spec';
+import './app/crm/general/busqueda/venta/refacturacion-venta.component.spec';
