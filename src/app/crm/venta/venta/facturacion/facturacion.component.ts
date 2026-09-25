@@ -21,6 +21,7 @@ export class FacturacionComponent implements OnInit {
     creditNotes = false;
     individualDocument: any = null;
     payment = {method: 'PUE', form: '31'};
+    fiscal = {series: '', folio: ''};
     relationshipCode = '03';
     readonly paymentForms = [
         {value: '01', label: 'Efectivo'}, {value: '02', label: 'Cheque nominativo'},
@@ -229,6 +230,16 @@ export class FacturacionComponent implements OnInit {
         return '';
     }
 
+    fiscalIdentityError(): string {
+        if (!/^[A-Za-z0-9]{1,25}$/.test(this.fiscal.series)) {
+            return 'La serie debe tener de 1 a 25 letras o números, sin guiones ni espacios.';
+        }
+        if (this.fiscal.folio && !/^[A-Za-z0-9_-]{1,40}$/.test(this.fiscal.folio)) {
+            return 'El folio debe tener de 1 a 40 letras, números, guiones o guiones bajos, sin espacios.';
+        }
+        return '';
+    }
+
     globalContractWarning(): string {
         if (this.mode === 'global' && this.globalReceiverIsPublic()
             && (this.payment.method !== 'PUE' || this.payment.form === '99')) {
@@ -429,6 +440,14 @@ export class FacturacionComponent implements OnInit {
             return;
         }
 
+        if (this.mode !== 'external') {
+            this.fiscal = {
+                series: this.mode === 'individual'
+                    ? String(this.individualDocument.billing_series || '')
+                    : (this.selectedBillingSeries()[0] || ''),
+                folio: '',
+            };
+        }
         const modalRef = this.modalService.open(content, {
             size: 'lg',
             backdrop: 'static',
@@ -475,14 +494,15 @@ export class FacturacionComponent implements OnInit {
 
     requestIndividual() {
         const documento = this.individualDocument;
-        if (!documento || !documento.can_hub || this.paymentError() || this.loading) {
+        if (!documento || !documento.can_hub || this.paymentError() || this.fiscalIdentityError() || this.loading) {
             return;
         }
 
         swal({
             type: 'warning',
-            html: `¿Solicitar el timbrado del documento <b>#${documento.id}</b> en la serie <b>${documento.billing_series}</b>? `
-                + 'Se reservará el siguiente folio incremental. El timbrado se confirmará al recuperar UUID, XML y PDF.',
+            html: `¿Solicitar el timbrado del documento <b>#${documento.id}</b>? `
+                + `<p>Serie: <b>${this.fiscal.series}</b>. Folio: <b>${this.fiscal.folio || 'Automático'}</b>.</p>`
+                + 'El timbrado se confirmará al recuperar UUID, XML y PDF.',
             showCancelButton: true,
             confirmButtonText: 'Sí, solicitar',
             cancelButtonText: 'Cancelar',
@@ -494,11 +514,18 @@ export class FacturacionComponent implements OnInit {
                 paymentMethod: this.payment.method,
                 paymentForm: this.payment.form,
                 relationshipCode: this.relationshipCode,
+                series: this.fiscal.series,
+                folio: this.fiscal.folio,
             }), false, true);
         });
     }
 
     requestGlobal() {
+        if (this.loading) { return; }
+        if (this.fiscalIdentityError()) {
+            void swal('', this.fiscalIdentityError(), 'warning');
+            return;
+        }
         if (this.paymentError()) {
             void swal('', this.paymentError(), 'warning');
             return;
@@ -530,6 +557,7 @@ export class FacturacionComponent implements OnInit {
             type: 'warning',
             title: contractWarning ? 'Revisa la combinación seleccionada' : '',
             html: `¿Crear una factura global por <b>${this.globalGrouping}</b> con <b>${documentos.length}</b> ventas? ${detail}`
+                + `<p>Serie: <b>${this.fiscal.series}</b>. Folio: <b>${this.fiscal.folio || 'Automático'}</b>.</p>`
                 + (contractWarning ? `<p>${contractWarning}</p><p>Se enviarán el método <b>${this.payment.method}</b> `
                     + `y la forma <b>${this.payment.form}</b> que seleccionaste. Nexfira puede rechazar la solicitud. ¿Deseas continuar?</p>` : ''),
             showCancelButton: true,
@@ -542,6 +570,8 @@ export class FacturacionComponent implements OnInit {
             const payload: any = {
                 documentos,
                 agrupacion: this.globalGrouping,
+                series: this.fiscal.series,
+                folio: this.fiscal.folio,
                 paymentMethod: this.payment.method,
                 paymentForm: this.payment.form,
                 informacionGlobal: {
@@ -632,7 +662,8 @@ export class FacturacionComponent implements OnInit {
             && !this.globalSeriesMismatch()
             && !this.productGroupingReceiverMismatch()
             && this.globalInformationValid()
-            && !this.paymentError();
+            && !this.paymentError()
+            && !this.fiscalIdentityError();
     }
 
     refreshRequest(documento: any) {

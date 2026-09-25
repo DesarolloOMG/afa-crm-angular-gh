@@ -53,7 +53,7 @@ describe('FacturacionComponent: identidad de CFDI externo', () => {
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import {FormsModule} from '@angular/forms';
 import {RouterTestingModule} from '@angular/router/testing';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerModule} from 'ngx-spinner';
 import {VentaService} from '@services/http/venta.service';
 import swal from 'sweetalert2';
@@ -62,10 +62,18 @@ describe('FacturacionComponent: periodo global y confirmación de pago', () => {
     let fixture: ComponentFixture<FacturacionComponent>;
     let component: FacturacionComponent;
     let service: any;
+    let actionTemplate: any;
 
     beforeEach(async(() => {
-        service = {solicitarFacturaGlobal: jasmine.createSpy('solicitarFacturaGlobal')
-            .and.returnValue({subscribe: () => {}})};
+        service = {
+            solicitarFacturaGlobal: jasmine.createSpy('solicitarFacturaGlobal').and.returnValue({subscribe: () => {}}),
+            solicitarFacturaIndividual: jasmine.createSpy('solicitarFacturaIndividual').and.returnValue({subscribe: () => {}}),
+            previsualizarFactura: jasmine.createSpy('previsualizarFactura').and.returnValue({
+                subscribe: (observer: any) => observer.next({data: {valid: true, payload: {
+                    content: {paymentMethod: 'PUE', paymentForm: '31'},
+                }}}),
+            }),
+        };
         TestBed.configureTestingModule({
             declarations: [FacturacionComponent],
             imports: [FormsModule, RouterTestingModule, NgbModule.forRoot(), NgxSpinnerModule],
@@ -83,13 +91,15 @@ describe('FacturacionComponent: periodo global y confirmación de pago', () => {
         component.configured = true;
         component.selected = {41: true, 42: true};
         component.selectedDocuments = {
-            41: {id: 41, can_hub: true, rfc: 'XAXX010101000', billing_series: 'ELK'},
-            42: {id: 42, can_hub: true, rfc: 'XAXX010101000', billing_series: 'ELK'},
+            41: {id: 41, can_hub: true, rfc: 'XAXX010101000', billing_series: 'FML'},
+            42: {id: 42, can_hub: true, rfc: 'XAXX010101000', billing_series: 'FML'},
         };
         fixture.detectChanges();
         const prepare = Array.from(fixture.nativeElement.querySelectorAll('button'))
             .find((button: HTMLButtonElement) => button.textContent.indexOf('Preparar factura global') >= 0) as HTMLButtonElement;
+        const modalOpen = spyOn(TestBed.get(NgbModal), 'open').and.callThrough();
         prepare.click();
+        actionTemplate = modalOpen.calls.mostRecent().args[0];
         fixture.detectChanges();
         await fixture.whenStable();
     });
@@ -129,7 +139,7 @@ describe('FacturacionComponent: periodo global y confirmación de pago', () => {
             swal.clickConfirm();
             await fixture.whenStable();
             expect(service.solicitarFacturaGlobal).toHaveBeenCalledWith({
-                documentos: [41, 42], agrupacion: grouping, paymentMethod: 'PUE', paymentForm: '31',
+                documentos: [41, 42], agrupacion: grouping, series: 'FML', folio: '', paymentMethod: 'PUE', paymentForm: '31',
                 informacionGlobal: {periodicity: '02', months: '08', year: 2025},
             });
         });
@@ -154,6 +164,78 @@ describe('FacturacionComponent: periodo global y confirmación de pago', () => {
             expect(payload.paymentForm).toBe('99');
             expect(payload.informacionGlobal.periodicity).toBe('01');
         });
+    });
+
+    ['ventas', 'productos'].forEach((grouping: 'ventas' | 'productos') => {
+        it('permite editar serie y folio sin perder pago ni periodo en ' + grouping, async () => {
+            component.selectGlobalGrouping(grouping);
+            fixture.detectChanges();
+            await fixture.whenStable();
+            const series = document.getElementById('billingSeries') as HTMLInputElement;
+            const folio = document.getElementById('billingFolio') as HTMLInputElement;
+            expect(series.value).toBe('FML');
+            expect(series.disabled).toBe(false);
+            expect(folio.value).toBe('');
+            expect(folio.disabled).toBe(false);
+            series.value = 'FML2';
+            series.dispatchEvent(new Event('input', {bubbles: true}));
+            folio.value = '0040034';
+            folio.dispatchEvent(new Event('input', {bubbles: true}));
+            select('billingPaymentMethod', 'PPD');
+            select('billingPaymentForm', '99');
+            fixture.detectChanges();
+            submit();
+            expect(swal.getContent().textContent).toContain('FML2');
+            expect(swal.getContent().textContent).toContain('0040034');
+            expect(swal.getConfirmButton().textContent).toBe('Continuar de todos modos');
+            swal.clickConfirm();
+            await fixture.whenStable();
+            const payload = service.solicitarFacturaGlobal.calls.mostRecent().args[0];
+            expect(payload.series).toBe('FML2');
+            expect(payload.folio).toBe('0040034');
+            expect(payload.paymentMethod).toBe('PPD');
+            expect(payload.paymentForm).toBe('99');
+            expect(payload.informacionGlobal.periodicity).toBe('01');
+        });
+    });
+
+    it('permite editar serie y folio en la factura individual y los envía', async () => {
+        (component as any).actionModalRef.dismiss('change-mode');
+        component.mode = 'individual';
+        component.openIndividualModal({id: 41, can_hub: true, billing_series: 'FML'}, actionTemplate);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        const series = document.getElementById('billingSeries') as HTMLInputElement;
+        const folio = document.getElementById('billingFolio') as HTMLInputElement;
+        expect(series.value).toBe('FML');
+        series.value = 'CORREGIDA';
+        series.dispatchEvent(new Event('input', {bubbles: true}));
+        folio.value = '00047';
+        folio.dispatchEvent(new Event('input', {bubbles: true}));
+        select('billingPaymentForm', '03');
+        fixture.detectChanges();
+        submit();
+        expect(swal.getContent().textContent).toContain('CORREGIDA');
+        expect(swal.getContent().textContent).toContain('00047');
+        swal.clickConfirm();
+        await fixture.whenStable();
+        expect(service.solicitarFacturaIndividual).toHaveBeenCalledWith(41, {
+            paymentMethod: 'PUE', paymentForm: '03', relationshipCode: '03', series: 'CORREGIDA', folio: '00047',
+        });
+    });
+
+    it('muestra cómo corregir una serie con guion antes de enviarla', async () => {
+        const series = document.getElementById('billingSeries') as HTMLInputElement;
+        series.value = 'F-ML';
+        series.dispatchEvent(new Event('input', {bubbles: true}));
+        fixture.detectChanges();
+        expect(component.fiscalIdentityError()).toContain('sin guiones ni espacios');
+        expect(component.canRequestGlobal()).toBe(false);
+        expect(service.solicitarFacturaGlobal).not.toHaveBeenCalled();
+        series.value = 'FML';
+        series.dispatchEvent(new Event('input', {bubbles: true}));
+        fixture.detectChanges();
+        expect(component.canRequestGlobal()).toBe(true);
     });
 
     it('cancelar la advertencia no envía ninguna solicitud', async () => {

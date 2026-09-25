@@ -445,9 +445,7 @@
             <div *ngIf="globalGrouping === 'productos' && !productGroupingReceiverMismatch()" class="alert alert-info">
                 Nexfira recibirá todos los productos de las ventas seleccionadas sin consolidarlos, aunque se repitan o tengan precios distintos.
             </div>
-            <div *ngIf="!globalSeriesMismatch() && selectedBillingSeries().length === 1" class="alert alert-info">
-                Serie fiscal: <strong>{{ selectedBillingSeries()[0] }}</strong>. El folio incremental se reservará al solicitar.
-            </div>
+
             <div *ngIf="globalSeriesMismatch()" class="alert alert-danger">
                 La selección mezcla marketplaces con series fiscales distintas. Crea una factura por cada serie.
             </div>
@@ -457,8 +455,7 @@
         </ng-container>
 
         <div *ngIf="mode === 'individual' && individualDocument" class="alert alert-info">
-            Documento <strong>#{{ individualDocument.id }}</strong> · Serie <strong>{{ individualDocument.billing_series }}</strong>.
-            El folio se asignará con el consecutivo fiscal al solicitar. Los adjuntos se guardarán en este documento.
+            Documento <strong>#{{ individualDocument.id }}</strong>. Los adjuntos se guardarán en este documento.
         </div>
         <div *ngIf="mode === 'individual' && creditNotes" class="form-group">
             <label for="creditRelationship">Motivo y relación con la factura origen</label>
@@ -469,6 +466,21 @@
             <small class="form-text text-muted">La factura origen debe estar timbrada en Nexfira. El uso CFDI de la NC será G02.</small>
         </div>
         <ng-container *ngIf="mode !== 'external'">
+            <div class="row billing-global-summary">
+                <div class="col-md-6 form-group">
+                    <label for="billingSeries">Serie fiscal</label>
+                    <input id="billingSeries" class="form-control" type="text" maxlength="25"
+                           [(ngModel)]="fiscal.series" [disabled]="loading" autocomplete="off">
+                    <small class="form-text text-muted">Editable. Sólo letras y números, sin guiones ni espacios.</small>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label for="billingFolio">Folio fiscal</label>
+                    <input id="billingFolio" class="form-control" type="text" maxlength="40"
+                           [(ngModel)]="fiscal.folio" [disabled]="loading" placeholder="Automático" autocomplete="off">
+                    <small class="form-text text-muted">Déjalo vacío para usar el siguiente consecutivo o captura el folio que necesitas.</small>
+                </div>
+            </div>
+            <div *ngIf="fiscalIdentityError()" class="alert alert-warning" role="alert">{{ fiscalIdentityError() }}</div>
             <div class="row billing-global-summary">
                 <div class="col-md-6 form-group">
                     <label for="billingPaymentMethod">Método de pago</label>
@@ -555,7 +567,7 @@
         <button
             *ngIf="mode === 'individual'"
             class="btn btn-primary" type="button"
-            [disabled]="!individualDocument || loading || !configured || !!paymentError()"
+            [disabled]="!individualDocument || loading || !configured || !!paymentError() || !!fiscalIdentityError()"
             (click)="requestIndividual()">
             <i class="fa fa-paper-plane"></i> {{ creditNotes ? 'Solicitar timbrado de NC' : 'Solicitar factura individual' }}
         </button>
