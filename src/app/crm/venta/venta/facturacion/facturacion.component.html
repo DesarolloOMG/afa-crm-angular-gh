@@ -389,13 +389,14 @@
             <div *ngIf="globalGrouping === 'ventas'" class="alert alert-info">
                 Nexfira recibirá una partida por pedido: clave 01010101, unidad ACT, ID interno como operación y descripción Venta.
             </div>
-            <div class="billing-global-information">
+        </ng-container>
+            <div *ngIf="requiresGlobalInformation()" class="billing-global-information">
                 <div class="billing-global-information-title">
                     <div>
                         <strong>Información global SAT</strong>
                         <small>Selecciona el periodo real de las ventas. Se envía a Nexfira cuando el receptor es público en general.</small>
                     </div>
-                    <span *ngIf="globalReceiverIsPublic()" class="badge badge-primary">Obligatoria</span>
+                    <span class="badge badge-primary">Obligatoria para este receptor</span>
                 </div>
                 <div class="row">
                     <div class="col-md-4 form-group">
@@ -442,6 +443,7 @@
                     Selecciona una combinación SAT válida antes de solicitar la factura.
                 </small>
             </div>
+        <ng-container *ngIf="mode === 'global'">
             <div *ngIf="globalGrouping === 'productos' && !productGroupingReceiverMismatch()" class="alert alert-info">
                 Nexfira recibirá todos los productos de las ventas seleccionadas sin consolidarlos, aunque se repitan o tengan precios distintos.
             </div>
@@ -450,12 +452,13 @@
                 La selección mezcla marketplaces con series fiscales distintas. Crea una factura por cada serie.
             </div>
             <div *ngIf="productGroupingReceiverMismatch()" class="alert alert-danger">
-                Las ventas seleccionadas no pertenecen al mismo receptor fiscal. Ajusta la selección para usar la global por productos.
+                Las ventas seleccionadas no pertenecen al mismo receptor fiscal. Ajusta la selección; agrupar ventas o productos no cambia al cliente.
             </div>
         </ng-container>
 
         <div *ngIf="mode === 'individual' && individualDocument" class="alert alert-info">
             Documento <strong>#{{ individualDocument.id }}</strong>. Los adjuntos se guardarán en este documento.
+            <div *ngIf="individualReceiver">Receptor fiscal: <strong>{{ individualReceiver.name }}</strong> · {{ individualReceiver.rfc }}.</div>
         </div>
         <div *ngIf="mode === 'individual' && creditNotes" class="form-group">
             <label for="creditRelationship">Motivo y relación con la factura origen</label>
@@ -567,7 +570,7 @@
         <button
             *ngIf="mode === 'individual'"
             class="btn btn-primary" type="button"
-            [disabled]="!individualDocument || loading || !configured || !!paymentError() || !!fiscalIdentityError()"
+            [disabled]="!individualDocument || loading || !configured || !!paymentError() || !!fiscalIdentityError() || (requiresGlobalInformation() && !globalInformationValid())"
             (click)="requestIndividual()">
             <i class="fa fa-paper-plane"></i> {{ creditNotes ? 'Solicitar timbrado de NC' : 'Solicitar factura individual' }}
         </button>

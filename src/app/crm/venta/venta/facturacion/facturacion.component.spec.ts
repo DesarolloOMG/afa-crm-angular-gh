@@ -267,6 +267,63 @@ describe('FacturacionComponent: periodo global y confirmación de pago', () => {
         expect(component.globalContractWarning()).toBe('');
         expect(component.canRequestGlobal()).toBe(true);
         component.selectedDocuments[41].publico = true;
+        expect(component.globalContractWarning()).toBe('');
+        component.selectedDocuments[41].rfc = 'XAXX010101000';
         expect(component.globalContractWarning()).toContain('PUE');
+    });
+
+    ['ventas', 'productos'].forEach((grouping: 'ventas' | 'productos') => {
+        it('respeta el RFC empresarial aun con marketplace público en ' + grouping, async () => {
+            component.selectGlobalGrouping(grouping);
+            [41, 42].forEach(id => {
+                component.selectedDocuments[id].rfc = 'ASS180119A20';
+                component.selectedDocuments[id].publico = true;
+            });
+            component.payment = {method: 'PPD', form: '99'};
+            fixture.detectChanges(); await fixture.whenStable();
+            expect(document.getElementById('globalPeriodicity')).toBeNull();
+            expect(component.requiresGlobalInformation()).toBe(false);
+            expect(component.canRequestGlobal()).toBe(true);
+            submit(); swal.clickConfirm(); await fixture.whenStable();
+            const payload = service.solicitarFacturaGlobal.calls.mostRecent().args[0];
+            expect(payload.informacionGlobal).toBeUndefined();
+            expect(payload.paymentMethod).toBe('PPD');
+        });
+
+        it('bloquea mezclar entidades en ' + grouping, () => {
+            component.selectGlobalGrouping(grouping);
+            component.selectedDocuments[41].rfc = 'ASS180119A20';
+            expect(component.productGroupingReceiverMismatch()).toBe(true);
+            expect(component.canRequestGlobal()).toBe(false);
+        });
+    });
+
+    it('muestra Assurant como receptor individual y no pide periodo global', async () => {
+        (component as any).actionModalRef.dismiss('change-mode');
+        component.mode = 'individual';
+        service.previsualizarFactura.and.returnValue({subscribe: (observer: any) => observer.next({data: {valid: true,
+            payload: {content: {paymentMethod: 'PUE', paymentForm: '03', receiver: {name: 'Assurant S.A de C.V', rfc: 'ASS180119A20'}}}}})});
+        component.openIndividualModal({id: 37802, can_hub: true, billing_series: 'FML', publico: true, rfc: 'ASS180119A20'}, actionTemplate);
+        fixture.detectChanges(); await fixture.whenStable();
+        expect(document.getElementById('globalPeriodicity')).toBeNull();
+        expect(document.querySelector('.modal-body').textContent).toContain('ASS180119A20');
+        submit(); swal.clickConfirm(); await fixture.whenStable();
+        expect(service.solicitarFacturaIndividual.calls.mostRecent().args[1].informacionGlobal).toBeUndefined();
+    });
+
+    it('permite seleccionar y envía el periodo de una individual realmente a público general', async () => {
+        (component as any).actionModalRef.dismiss('change-mode');
+        component.mode = 'individual';
+        service.previsualizarFactura.and.returnValue({subscribe: (observer: any) => observer.next({data: {valid: true,
+            payload: {content: {paymentMethod: 'PUE', paymentForm: '03', receiver: {name: 'PUBLICO EN GENERAL', rfc: 'XAXX010101000'},
+                globalInformation: {periodicity: '01', months: '09', year: 2026}}}}})});
+        component.openIndividualModal({id: 37803, can_hub: true, billing_series: 'FML', publico: false}, actionTemplate);
+        fixture.detectChanges(); await fixture.whenStable();
+        expect(document.getElementById('globalPeriodicity')).not.toBeNull();
+        expect(component.requiresGlobalInformation()).toBe(true);
+        select('globalPeriodicity', '04'); fixture.detectChanges(); await fixture.whenStable();
+        select('globalMonths', '08'); fixture.detectChanges();
+        submit(); swal.clickConfirm(); await fixture.whenStable();
+        expect(service.solicitarFacturaIndividual.calls.mostRecent().args[1].informacionGlobal).toEqual({periodicity: '04', months: '08', year: 2026});
     });
 });

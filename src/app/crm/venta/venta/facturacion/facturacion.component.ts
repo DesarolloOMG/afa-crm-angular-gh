@@ -20,6 +20,7 @@ export class FacturacionComponent implements OnInit {
     counts = {drop: 0, full: 0, credit_notes: 0};
     creditNotes = false;
     individualDocument: any = null;
+    individualReceiver: any = null;
     payment = {method: 'PUE', form: '31'};
     fiscal = {series: '', folio: ''};
     relationshipCode = '03';
@@ -241,7 +242,7 @@ export class FacturacionComponent implements OnInit {
     }
 
     globalContractWarning(): string {
-        if (this.mode === 'global' && this.globalReceiverIsPublic()
+        if (this.requiresGlobalInformation()
             && (this.payment.method !== 'PUE' || this.payment.form === '99')) {
             return 'Nexfira exige PUE y forma distinta de 99 para la factura global a público en general.';
         }
@@ -475,6 +476,7 @@ export class FacturacionComponent implements OnInit {
             return;
         }
         this.individualDocument = documento;
+        this.individualReceiver = null;
         this.loading = true;
         this.ventaService.previsualizarFactura(documento.id).subscribe({
             next: (response: any) => {
@@ -485,6 +487,10 @@ export class FacturacionComponent implements OnInit {
                     return;
                 }
                 this.payment = {method: data.payload.content.paymentMethod, form: data.payload.content.paymentForm};
+                this.individualReceiver = data.payload.content.receiver || {rfc: documento.rfc, name: documento.cliente};
+                if (data.payload.content.globalInformation) {
+                    this.globalInformation = Object.assign({}, data.payload.content.globalInformation);
+                }
                 this.relationshipCode = data.payload.content.relations && data.payload.content.relations.length
                     ? data.payload.content.relations[0].relationshipCode : '03';
                 this.openActionModal(content);
@@ -495,14 +501,17 @@ export class FacturacionComponent implements OnInit {
 
     requestIndividual() {
         const documento = this.individualDocument;
-        if (!documento || !documento.can_hub || this.paymentError() || this.fiscalIdentityError() || this.loading) {
+        if (!documento || !documento.can_hub || this.paymentError() || this.fiscalIdentityError() || this.loading
+            || (this.requiresGlobalInformation() && !this.globalInformationValid())) {
             return;
         }
 
+        const contractWarning = this.globalContractWarning();
         swal({
             type: 'warning',
             html: `¿Solicitar el timbrado del documento <b>#${documento.id}</b>? `
                 + `<p>Serie: <b>${this.fiscal.series}</b>. Folio: <b>${this.fiscal.folio || 'Automático'}</b>.</p>`
+                + (contractWarning ? `<p>${contractWarning} Se conservará tu selección; Nexfira puede rechazarla.</p>` : '')
                 + 'El timbrado se confirmará al recuperar UUID, XML y PDF.',
             showCancelButton: true,
             confirmButtonText: 'Sí, solicitar',
@@ -511,13 +520,17 @@ export class FacturacionComponent implements OnInit {
             if (!confirm.value) {
                 return;
             }
-            this.runRequest(this.ventaService.solicitarFacturaIndividual(documento.id, {
+            const payload: any = {
                 paymentMethod: this.payment.method,
                 paymentForm: this.payment.form,
                 relationshipCode: this.relationshipCode,
                 series: this.fiscal.series,
                 folio: this.fiscal.folio,
-            }), false, true);
+            };
+            if (this.requiresGlobalInformation()) {
+                payload.informacionGlobal = Object.assign({}, this.globalInformation, {year: Number(this.globalInformation.year)});
+            }
+            this.runRequest(this.ventaService.solicitarFacturaIndividual(documento.id, payload), false, true);
         });
     }
 
@@ -541,10 +554,10 @@ export class FacturacionComponent implements OnInit {
             return;
         }
         if (this.productGroupingReceiverMismatch()) {
-            void swal('', 'La global por productos sólo puede incluir ventas del mismo receptor fiscal.', 'warning');
+            void swal('', 'Una factura agrupada sólo puede incluir ventas del mismo receptor fiscal.', 'warning');
             return;
         }
-        if (!this.globalInformationValid()) {
+        if (this.globalReceiverIsPublic() && !this.globalInformationValid()) {
             void swal('', 'Selecciona una periodicidad, mes o bimestre y año válidos para la factura global.', 'warning');
             return;
         }
@@ -575,12 +588,10 @@ export class FacturacionComponent implements OnInit {
                 folio: this.fiscal.folio,
                 paymentMethod: this.payment.method,
                 paymentForm: this.payment.form,
-                informacionGlobal: {
-                    periodicity: this.globalInformation.periodicity,
-                    months: this.globalInformation.months,
-                    year: Number(this.globalInformation.year),
-                },
             };
+            if (this.globalReceiverIsPublic()) {
+                payload.informacionGlobal = Object.assign({}, this.globalInformation, {year: Number(this.globalInformation.year)});
+            }
             this.runRequest(this.ventaService.solicitarFacturaGlobal(payload), false, true);
         });
     }
@@ -603,10 +614,15 @@ export class FacturacionComponent implements OnInit {
     }
 
     globalReceiverIsPublic(): boolean {
-        return this.globalGrouping === 'ventas' || this.selectedDocumentValues()
+        return this.selectedDocumentValues()
             .filter((documento) => documento.can_hub)
-            .some((documento) => Number(documento.publico) === 1
-                || String(documento.rfc || '').trim().toUpperCase() === 'XAXX010101000');
+            .some((documento) => String(documento.rfc || '').trim().toUpperCase() === 'XAXX010101000');
+    }
+
+    requiresGlobalInformation(): boolean {
+        return this.mode === 'global' ? this.globalReceiverIsPublic()
+            : this.mode === 'individual' && !this.creditNotes && !!this.individualReceiver
+                && String(this.individualReceiver.rfc || '').trim().toUpperCase() === 'XAXX010101000';
     }
 
     globalInformationValid(): boolean {
@@ -624,10 +640,6 @@ export class FacturacionComponent implements OnInit {
     }
 
     productGroupingReceiverMismatch(): boolean {
-        if (this.globalGrouping !== 'productos') {
-            return false;
-        }
-
         const receivers: {[rfc: string]: boolean} = {};
         this.selectedDocumentValues()
             .filter((documento) => documento.can_hub)
@@ -662,7 +674,7 @@ export class FacturacionComponent implements OnInit {
             && this.configured
             && !this.globalSeriesMismatch()
             && !this.productGroupingReceiverMismatch()
-            && this.globalInformationValid()
+            && (!this.globalReceiverIsPublic() || this.globalInformationValid())
             && !this.paymentError()
             && !this.fiscalIdentityError();
     }
