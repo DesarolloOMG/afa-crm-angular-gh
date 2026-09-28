@@ -5,6 +5,9 @@
     </div>
     <div class="card-body">
         <div class="actions-row">
+            <button type="button" class="btn-action btn-action--teal" (click)="abrirNexfira(nexfiraTpl)" data-testid="open-nexfira">
+                <i class="fa fa-unlock-alt"></i> Liberar intento Nexfira
+            </button>
             <!-- Botón existente: Recalcular costo -->
             <button class="btn-action btn-action--amber" (click)="abrirModal(recalcularCosto)">
                 <i class="fa fa-credit-card"></i> Recalcular costo
@@ -19,6 +22,58 @@
 </div>
 
 <!-- ================== MÓDULO EXISTENTE: COSTO ================== -->
+<ng-template #nexfiraTpl let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Liberar intento local de Nexfira</h4>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="nexfiraBusy" (click)="d()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <p>Consulta el intento antes de liberarlo. No cancela ni modifica Nexfira y no emite otra factura.</p>
+        <label for="nexfira-document">ID interno del documento</label>
+        <div class="input-group mb-3">
+            <input id="nexfira-document" class="form-control" type="text" inputmode="numeric" placeholder="Ej. 37802"
+                   [(ngModel)]="nexfiraDocument" (ngModelChange)="cambiarDocumentoNexfira()" (keyup.enter)="consultarNexfira()" [disabled]="nexfiraBusy">
+            <button type="button" class="btn btn-info" (click)="consultarNexfira()" [disabled]="nexfiraBusy" data-testid="inspect-nexfira">
+                {{ nexfiraBusy ? 'Verificando…' : 'Consultar Nexfira' }}
+            </button>
+        </div>
+        <div *ngIf="nexfiraError" class="alert alert-danger" role="alert">{{ nexfiraError }}</div>
+        <div *ngIf="nexfiraSuccess" class="alert alert-success" role="status">{{ nexfiraSuccess }}</div>
+        <ng-container *ngIf="nexfiraReview">
+            <p><strong>Intento #{{ nexfiraReview.request_id }}</strong> · {{ nexfiraReview.series }}-{{ nexfiraReview.folio }}</p>
+            <p>Estado local: <strong>{{ nexfiraReview.status }}</strong>. Nexfira: <strong>{{ nexfiraReview.remote_status || 'Sin identificación remota' }}</strong>.</p>
+            <p class="text-muted" *ngIf="nexfiraReview.remote_request_id">Referencia Nexfira: {{ nexfiraReview.remote_request_id }}</p>
+            <p *ngIf="nexfiraReview.sent_receiver">Receptor enviado: <strong>{{ nexfiraReview.sent_receiver.name }}</strong> · {{ nexfiraReview.sent_receiver.rfc }}</p>
+            <div class="alert alert-warning" *ngIf="nexfiraReview.provider_error">{{ nexfiraReview.provider_error }}</div>
+            <div class="table-responsive" style="max-height: 220px; overflow-y: auto">
+                <table class="table table-sm">
+                    <thead><tr><th>Documento afectado</th><th>Cliente actual</th><th>RFC actual</th></tr></thead>
+                    <tbody><tr *ngFor="let doc of nexfiraReview.documents"><td>#{{ doc.id }}</td><td>{{ doc.razon_social }}</td><td>{{ doc.rfc }}</td></tr></tbody>
+                </table>
+            </div>
+            <div *ngFor="let blocker of nexfiraReview.blockers" class="alert alert-danger" role="alert">{{ blocker }}</div>
+            <ng-container *ngIf="nexfiraReview.can_reset || nexfiraReview.can_manual_reset">
+                <div class="alert alert-info">Se archivará el intento de todos los documentos mostrados, conservando JSON, errores y número de intento. No se borran ventas, adjuntos ni consecutivos.</div>
+                <label for="nexfira-reason">Motivo de liberación</label>
+                <textarea id="nexfira-reason" class="form-control mb-3" rows="2" maxlength="500" [(ngModel)]="nexfiraReason" [disabled]="nexfiraBusy" placeholder="Ej. Se corrigió la razón social fiscal en Clientes"></textarea>
+                <div *ngIf="nexfiraReview.can_manual_reset" class="alert alert-warning">
+                    <strong>Liberación manual bajo confirmación del operador</strong>
+                    <p>El Hub todavía no confirma el rechazo. Otro envío podría duplicar la factura. Este botón no cancela ni modifica el intento remoto.</p>
+                    <label class="d-block"><input type="checkbox" [(ngModel)]="nexfiraRejectedConfirmed" [disabled]="nexfiraBusy"> El equipo de Nexfira me confirmó que este intento fue rechazado.</label>
+                    <label class="d-block"><input type="checkbox" [(ngModel)]="nexfiraDuplicateRiskAccepted" [disabled]="nexfiraBusy"> Acepto el riesgo de duplicidad y autorizo habilitar un nuevo envío con otro folio.</label>
+                    <label for="nexfira-confirmation-text">Escribe LIBERAR {{ nexfiraReview.document_id }} para confirmar</label>
+                    <input id="nexfira-confirmation-text" class="form-control" autocomplete="off" [(ngModel)]="nexfiraConfirmationText" [disabled]="nexfiraBusy">
+                </div>
+                <label><input type="checkbox" [(ngModel)]="nexfiraConfirmed" [disabled]="nexfiraBusy"> Confirmo liberar los {{ nexfiraReview.document_ids.length }} documentos mostrados. El siguiente envío será manual desde Facturación.</label>
+            </ng-container>
+        </ng-container>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" [disabled]="nexfiraBusy" (click)="d()">Cerrar</button>
+        <button type="button" class="btn btn-warning" [disabled]="!puedeLiberarNexfira()" (click)="liberarNexfira()" data-testid="reset-nexfira">Archivar intento y habilitar reenvío</button>
+    </div>
+</ng-template>
+
 <!-- Modal 1: pedir SKU -->
 <ng-template #recalcularCosto let-c="close" let-d="dismiss">
     <div class="modal-header modal-header-soft">

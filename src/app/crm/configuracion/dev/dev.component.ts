@@ -23,6 +23,98 @@ interface InvNuevoItem {
 })
 export class DevComponent implements OnInit {
     modalReference: any;
+    nexfiraDocument = '';
+    nexfiraReview: any = null;
+    nexfiraReason = '';
+    nexfiraConfirmed = false;
+    nexfiraRejectedConfirmed = false;
+    nexfiraDuplicateRiskAccepted = false;
+    nexfiraConfirmationText = '';
+    nexfiraBusy = false;
+    nexfiraError = '';
+    nexfiraSuccess = '';
+
+    abrirNexfira(template: TemplateRef<any>) {
+        this.nexfiraDocument = '';
+        this.nexfiraReview = null;
+        this.nexfiraReason = '';
+        this.nexfiraConfirmed = false;
+        this.nexfiraRejectedConfirmed = false;
+        this.nexfiraDuplicateRiskAccepted = false;
+        this.nexfiraConfirmationText = '';
+        this.nexfiraError = '';
+        this.nexfiraSuccess = '';
+        this.modalReference = this.modalService.open(template, {size: 'lg', backdrop: 'static'});
+        this.modalReference.result.catch(() => {});
+    }
+
+    cambiarDocumentoNexfira() {
+        this.nexfiraReview = null;
+        this.nexfiraConfirmed = false;
+        this.nexfiraRejectedConfirmed = false;
+        this.nexfiraDuplicateRiskAccepted = false;
+        this.nexfiraConfirmationText = '';
+        this.nexfiraError = '';
+        this.nexfiraSuccess = '';
+    }
+
+    consultarNexfira() {
+        if (this.nexfiraBusy) { return; }
+        this.cambiarDocumentoNexfira();
+        if (!/^[1-9][0-9]*$/.test(String(this.nexfiraDocument).trim())) {
+            this.nexfiraError = 'Ingresa el ID interno del documento, por ejemplo 37802.';
+            return;
+        }
+        this.nexfiraBusy = true;
+        this.developerService.consultarIntentoNexfira(Number(this.nexfiraDocument)).subscribe({
+            next: (response: any) => { this.nexfiraReview = response.data; this.nexfiraBusy = false; },
+            error: (error: any) => {
+                this.nexfiraBusy = false;
+                this.nexfiraError = error.error && error.error.message || 'No se pudo verificar el intento. No se modificó nada.';
+            },
+        });
+    }
+
+    puedeLiberarNexfira(): boolean {
+        return !!this.nexfiraReview && !this.nexfiraBusy
+            && (this.nexfiraReview.can_reset === true || (this.nexfiraReview.can_manual_reset === true
+                && this.nexfiraRejectedConfirmed && this.nexfiraDuplicateRiskAccepted
+                && this.nexfiraConfirmationText === 'LIBERAR ' + this.nexfiraReview.document_id))
+            && Number(this.nexfiraDocument) === this.nexfiraReview.document_id
+            && this.nexfiraConfirmed && this.nexfiraReason.trim().length >= 10 && this.nexfiraReason.length <= 500;
+    }
+
+    liberarNexfira() {
+        if (!this.puedeLiberarNexfira()) { return; }
+        this.nexfiraBusy = true;
+        this.nexfiraError = '';
+        const data: any = {
+            request_id: this.nexfiraReview.request_id,
+            confirmation_token: this.nexfiraReview.confirmation_token,
+            reason: this.nexfiraReason.trim(),
+        };
+        if (!this.nexfiraReview.can_reset && this.nexfiraReview.can_manual_reset) {
+            data.manual_confirmation = {
+                rejected_confirmed: this.nexfiraRejectedConfirmed,
+                duplicate_risk_accepted: this.nexfiraDuplicateRiskAccepted,
+                document_confirmation: this.nexfiraConfirmationText,
+            };
+        }
+        this.developerService.liberarIntentoNexfira(this.nexfiraReview.document_id, data).subscribe({
+            next: (response: any) => {
+                this.nexfiraBusy = false;
+                this.nexfiraSuccess = response.data.message;
+                this.nexfiraReview = null;
+                this.nexfiraConfirmed = false;
+            },
+            error: (error: any) => {
+                this.nexfiraBusy = false;
+                this.nexfiraReview = null;
+                this.nexfiraConfirmed = false;
+                this.nexfiraError = error.error && error.error.message || 'No se pudo liberar. Consulta de nuevo para confirmar el estado.';
+            },
+        });
+    }
 
     // ====== ESTADO MÓDULO COSTO (existente) ======
     dataCosto: {

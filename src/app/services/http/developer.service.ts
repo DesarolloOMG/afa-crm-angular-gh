@@ -9,6 +9,14 @@ export class DeveloperService {
     constructor(private http: HttpClient) {
     }
 
+    consultarIntentoNexfira(documento: number) {
+        return this.http.get(`${backend_url}developer/nexfira/${documento}`);
+    }
+
+    liberarIntentoNexfira(documento: number, data: any) {
+        return this.http.post(`${backend_url}developer/nexfira/${documento}/liberar`, data);
+    }
+
     test() {
         return this.http.get(`${backend_url}developer/test`);
     }
