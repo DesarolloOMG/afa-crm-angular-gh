@@ -225,7 +225,7 @@ export class VentaComponent implements OnInit {
         this.archivos_guia = archivos_guia;
 
         this.modalReference = this.modalService.open(modal, {
-            windowClass: 'bigger-modal',
+            windowClass: 'bigger-modal venta-detail-modal',
             backdrop: 'static',
         });
     }

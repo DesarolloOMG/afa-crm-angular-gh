@@ -12,3 +12,38 @@
     max-width: 75vw !important;
     width: 75vw !important;
 }
+
+
+// ng-bootstrap appends the modal shell to body, outside component encapsulation.
+// Scope viewport sizing to sale details so other CRM dialogs keep their layout.
+.venta-detail-modal {
+    .modal-dialog {
+        width: calc(100% - 2rem);
+        max-width: 1000px;
+        margin: 1rem auto;
+    }
+
+    .modal-content {
+        max-height: calc(100vh - 2rem);
+        max-height: calc(100dvh - 2rem);
+    }
+
+    @media (max-width: 767.98px) {
+        height: 100vh;
+        height: 100dvh;
+
+        .modal-dialog {
+            width: 100%;
+            max-width: none;
+            height: 100%;
+            margin: 0;
+        }
+
+        .modal-content {
+            height: 100%;
+            max-height: 100%;
+            border: 0;
+            border-radius: 0;
+        }
+    }
+}
