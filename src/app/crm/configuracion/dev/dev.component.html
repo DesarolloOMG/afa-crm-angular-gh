@@ -18,6 +18,20 @@
                 <i class="fa fa-database"></i> Recalcular inventario
             </button>
         </div>
+        <div class="mt-4 border-top pt-3">
+            <h6>Simular aprobación de cancelación Nexfira</h6>
+            <p class="text-muted">Sólo para una factura cuya cancelación ya indique cancelled en Nexfira y siga pendiente de aprobación SAT. La simulación queda registrada en el seguimiento de cada venta.</p>
+            <div class="form-row align-items-end">
+                <div class="form-group col-md-3"><label for="dev-cancel-serie">Serie</label>
+                    <input id="dev-cancel-serie" class="form-control" [(ngModel)]="cancelSerie" [disabled]="cancelBusy"></div>
+                <div class="form-group col-md-3"><label for="dev-cancel-folio">Folio de factura</label>
+                    <input id="dev-cancel-folio" class="form-control" [(ngModel)]="cancelFolio" [disabled]="cancelBusy"></div>
+                <div class="form-group col-md-4"><button class="btn btn-warning" (click)="simularCancelacion()"
+                    [disabled]="cancelBusy || !cancelFolio.trim()">Simular aprobación para este folio</button></div>
+            </div>
+            <div *ngIf="cancelError" class="alert alert-danger" role="alert">{{cancelError}}</div>
+            <div *ngIf="cancelSuccess" class="alert alert-success" role="status">{{cancelSuccess}}</div>
+        </div>
     </div>
 </div>
 

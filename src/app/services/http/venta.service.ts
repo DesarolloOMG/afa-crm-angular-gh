@@ -9,6 +9,17 @@ import {Observable} from 'rxjs/Observable';
 export class VentaService {
     constructor(private http: HttpClient) {
     }
+    previsualizarCancelacion(folio: string, serie: string): Observable<any> {
+        return this.http.get(`${backend_url}venta/venta/facturacion/cancelacion?folio=${encodeURIComponent(folio)}&serie=${encodeURIComponent(serie)}`);
+    }
+
+    solicitarCancelacion(data: any): Observable<any> {
+        return this.http.post(`${backend_url}venta/venta/facturacion/cancelacion`, data);
+    }
+
+    actualizarCancelacion(folio: string, serie: string): Observable<any> {
+        return this.http.post(`${backend_url}venta/venta/facturacion/cancelacion/actualizar`, {folio, serie});
+    }
     // NEW
 
     relacionarPDF_XML(data: any): Observable<any> {

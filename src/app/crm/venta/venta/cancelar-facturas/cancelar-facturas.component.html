@@ -1,0 +1,91 @@
+<div class="card">
+    <div class="card-header"><h4 class="mb-0">Cancelar facturas de Nexfira</h4></div>
+    <div class="card-body">
+        <div class="form-row align-items-end">
+            <div class="form-group col-md-3">
+                <label for="cancel-serie">Serie (si el folio se repite)</label>
+                <input id="cancel-serie" class="form-control" [(ngModel)]="serie" [disabled]="busy" maxlength="25">
+            </div>
+            <div class="form-group col-md-3">
+                <label for="cancel-folio">Folio de factura</label>
+                <input id="cancel-folio" class="form-control" [(ngModel)]="folio" [disabled]="busy" (keyup.enter)="buscar()" maxlength="40">
+            </div>
+            <div class="form-group col-md-3">
+                <button class="btn btn-info" (click)="buscar()" [disabled]="busy || !folio.trim()">Buscar factura</button>
+            </div>
+        </div>
+        <div *ngIf="error" class="alert alert-danger" role="alert">{{error}}</div>
+        <div *ngIf="message" class="alert alert-info" role="status">{{message}}</div>
+        <ng-container *ngIf="detail">
+            <h5>Factura {{detail.factura.serie}}-{{detail.factura.folio}}</h5>
+            <dl class="row">
+                <dt class="col-sm-3">UUID</dt><dd class="col-sm-9">{{detail.factura.fiscal_uuid}}</dd>
+                <dt class="col-sm-3">Solicitud Nexfira</dt><dd class="col-sm-9">{{detail.factura.remote_request_id}}</dd>
+                <dt class="col-sm-3">Modo</dt><dd class="col-sm-9">{{detail.factura.modo}}</dd>
+                <dt class="col-sm-3">Documentos</dt><dd class="col-sm-9">{{detail.factura.documents_status || 'Sin dato'}}</dd>
+                <dt class="col-sm-3">Estado fiscal</dt><dd class="col-sm-9">{{detail.factura.status}}</dd>
+                <dt class="col-sm-3">Estado Nexfira</dt><dd class="col-sm-9">{{detail.cancelacion?.provider_status || 'Sin solicitar'}}</dd>
+                <dt class="col-sm-3">Aprobación SAT</dt><dd class="col-sm-9">{{detail.cancelacion?.status || 'Sin solicitar'}}</dd>
+                <dt class="col-sm-3" *ngIf="detail.cancelacion?.approval_source">Aprobación</dt>
+                <dd class="col-sm-9" *ngIf="detail.cancelacion?.approval_source">{{detail.cancelacion.approval_source === 'dev_simulation' ? 'Simulada en DEV' : 'Confirmada por Nexfira'}}</dd>
+                <dt class="col-sm-3">Fecha de factura</dt><dd class="col-sm-9">{{detail.factura.updated_at}}</dd>
+            </dl>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead><tr><th>Pedido</th><th>No. venta</th><th>Cliente</th><th>RFC</th><th>Entidad</th><th>Fase</th><th>Total</th><th>PDF</th><th>XML</th></tr></thead>
+                    <tbody><tr *ngFor="let venta of detail.ventas">
+                        <td>{{venta.id}}</td><td>{{venta.no_venta}}</td><td>{{venta.razon_social}}</td>
+                        <td>{{venta.rfc}}</td><td>{{venta.id_entidad}}</td><td>{{venta.id_fase}}</td><td>{{venta.total | currency:'MXN'}}</td>
+                        <td>{{venta.pdf || '—'}}</td><td>{{venta.xml || '—'}}</td>
+                    </tr></tbody>
+                </table>
+            </div>
+            <details class="mb-3"><summary>Información fiscal enviada y respuesta guardada</summary>
+                <h6 class="mt-2">Solicitud</h6><pre class="small" style="white-space: pre-wrap">{{detail.factura.request_payload}}</pre>
+                <h6>Respuesta</h6><pre class="small" style="white-space: pre-wrap">{{detail.factura.response_payload}}</pre>
+            </details>
+            <ng-container *ngIf="!detail.cancelacion && detail.factura.status === 'stamped'">
+                <div class="form-row">
+                    <div class="form-group col-md-4"><label for="cancel-motivo">Motivo SAT</label>
+                        <select id="cancel-motivo" class="form-control" [(ngModel)]="motivo">
+                            <option value="01">01 - Comprobante emitido con errores con relación</option>
+                            <option value="02">02 - Comprobante emitido con errores sin relación</option>
+                            <option value="03">03 - No se llevó a cabo la operación</option>
+                            <option value="04">04 - Operación nominativa relacionada en factura global</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-4" *ngIf="motivo === '01'"><label for="cancel-sustitucion">UUID sustituto</label>
+                        <input id="cancel-sustitucion" class="form-control" [(ngModel)]="uuidSustitucion"></div>
+                </div>
+                <button class="btn btn-danger" [disabled]="busy || (motivo === '01' && !uuidSustitucion.trim())"
+                        (click)="pedirCodigo(authModalTpl)">Cancelar factura</button>
+            </ng-container>
+            <button *ngIf="detail.cancelacion && detail.cancelacion.status !== 'approved'" class="btn btn-primary mt-3"
+                    [disabled]="busy" (click)="actualizar()">Actualizar estado de Nexfira</button>
+            <p *ngIf="detail.cancelacion && detail.cancelacion.status === 'pending_approval'" class="text-warning mt-2">
+                Pendiente de aprobación SAT. Aunque Nexfira indique cancelled, los pedidos siguen en fase 6 hasta la simulación en DEV.
+            </p>
+        </ng-container>
+    </div>
+</div>
+
+<ng-template #authModalTpl let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Confirmar cancelación</h4>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="busy" (click)="d()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <p>Vas a solicitar la cancelación de <strong>{{detail?.factura?.serie}}-{{detail?.factura?.folio}}</strong>,
+            con {{detail?.ventas?.length}} venta(s). Permanecerán en fase 6 pendientes de aprobación SAT.</p>
+        <label for="cancel-auth-code">Código de tu aplicación autenticadora</label>
+        <input id="cancel-auth-code" class="form-control" type="text" inputmode="numeric" autocomplete="one-time-code"
+               maxlength="6" pattern="[0-9]{6}" [(ngModel)]="authCode" [disabled]="busy" (keyup.enter)="cancelar()">
+        <small class="text-muted">Escribe los seis dígitos actuales para confirmar esta solicitud.</small>
+        <div *ngIf="error" class="alert alert-danger mt-2" role="alert">{{error}}</div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" [disabled]="busy" (click)="d()">Volver</button>
+        <button type="button" class="btn btn-danger" [disabled]="busy || !authCode.match('^[0-9]{6}$')"
+                (click)="cancelar()">{{busy ? 'Validando…' : 'Validar código y solicitar cancelación'}}</button>
+    </div>
+</ng-template>

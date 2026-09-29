@@ -1037,6 +1037,17 @@ const MENUITEMS = [
                 sublevel: 36,
                 strict_sublevel: true,
             },
+            {
+                state: 'cancelar-facturas',
+                route: '/venta/venta/cancelar-facturas',
+                short_label: 'CF',
+                name: 'Cancelar facturas',
+                type: 'link',
+                icon: 'fa fa-ban',
+                level: [11],
+                sublevel: 36,
+                strict_sublevel: true,
+            },
             // {
             //     main_state: 'contabilidad',
             //     state: 'pago',

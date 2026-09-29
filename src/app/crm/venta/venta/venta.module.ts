@@ -19,6 +19,7 @@ import {PendienteComponent} from './pendiente/pendiente.component';
 import {RouterModule, Routes} from '@angular/router';
 import {XmlPdfComponent} from './xml-pdf/xml-pdf.component';
 import {FacturacionComponent} from './facturacion/facturacion.component';
+import {CancelarFacturasComponent} from './cancelar-facturas/cancelar-facturas.component';
 
 const routes: Routes = [
     {
@@ -114,6 +115,11 @@ const routes: Routes = [
                 pathMatch: 'full',
             },
             {
+                path: 'cancelar-facturas',
+                component: CancelarFacturasComponent,
+                data: {title: 'Cancelar facturas'},
+            },
+            {
                 path: 'facturacion/individual',
                 component: FacturacionComponent,
                 data: {
@@ -164,7 +170,8 @@ const routes: Routes = [
         ImportacionComponent,
         PendienteComponent,
         XmlPdfComponent,
-        FacturacionComponent
+        FacturacionComponent,
+        CancelarFacturasComponent
     ],
     exports: [RouterModule]
 })

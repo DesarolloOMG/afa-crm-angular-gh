@@ -9,6 +9,10 @@ export class DeveloperService {
     constructor(private http: HttpClient) {
     }
 
+    simularCancelacionNexfira(folio: string, serie: string) {
+        return this.http.post(`${backend_url}developer/nexfira/cancelacion/simular`, {folio, serie});
+    }
+
     consultarIntentoNexfira(documento: number) {
         return this.http.get(`${backend_url}developer/nexfira/${documento}`);
     }

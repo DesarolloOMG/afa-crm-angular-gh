@@ -33,6 +33,29 @@ export class DevComponent implements OnInit {
     nexfiraBusy = false;
     nexfiraError = '';
     nexfiraSuccess = '';
+    cancelFolio = '';
+    cancelSerie = '';
+    cancelBusy = false;
+    cancelError = '';
+    cancelSuccess = '';
+
+    simularCancelacion() {
+        if (!this.cancelFolio.trim() || this.cancelBusy) { return; }
+        this.cancelBusy = true;
+        this.cancelError = '';
+        this.cancelSuccess = '';
+        this.developerService.simularCancelacionNexfira(this.cancelFolio.trim(), this.cancelSerie.trim()).subscribe({
+            next: (response: any) => {
+                this.cancelBusy = false;
+                this.cancelSuccess = 'Cancelación simulada para ' + response.data.factura.serie + '-'
+                    + response.data.factura.folio + '. Las ventas vinculadas regresaron a fase 5.';
+            },
+            error: (error: any) => {
+                this.cancelBusy = false;
+                this.cancelError = error.error && error.error.message || 'No se completó la simulación.';
+            },
+        });
+    }
 
     abrirNexfira(template: TemplateRef<any>) {
         this.nexfiraDocument = '';
