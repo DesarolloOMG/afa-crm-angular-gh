@@ -23,6 +23,115 @@ interface InvNuevoItem {
 })
 export class DevComponent implements OnInit {
     modalReference: any;
+    mergeKind: 'entidades' | 'productos' = 'entidades';
+    mergeQueries = {keep: '', remove: ''};
+    mergeResults: {keep: any[], remove: any[]} = {keep: [], remove: []};
+    mergeIds: {keep: number | null, remove: number | null} = {keep: null, remove: null};
+    mergeReview: any = null;
+    mergeFields: any = {};
+    mergeConfirmation = '';
+    mergeBusy = false;
+    mergeError = '';
+    mergeSuccess = '';
+    mergeLabels: any = {
+        razon_social: 'Razón social', rfc: 'RFC', regimen_id: 'Régimen ID', regimen: 'Régimen',
+        telefono: 'Teléfono', telefono_alt: 'Teléfono alternativo', correo: 'Correo',
+        codigo_postal_fiscal: 'Código postal fiscal', pais: 'País', condicion: 'Condición',
+        limite: 'Límite', info_extra: 'Información adicional (JSON)', descripcion: 'Descripción',
+        sku: 'SKU', id_tipo: 'Tipo', costo: 'Costo', costo_extra: 'Costo extra', serie: 'Usa series',
+    };
+
+    abrirConciliacion(kind: 'entidades' | 'productos', template: TemplateRef<any>) {
+        this.mergeKind = kind;
+        this.mergeQueries = {keep: '', remove: ''};
+        this.mergeResults = {keep: [], remove: []};
+        this.mergeIds = {keep: null, remove: null};
+        this.mergeReview = null;
+        this.mergeFields = {};
+        this.mergeConfirmation = '';
+        this.mergeError = '';
+        this.mergeSuccess = '';
+        this.modalReference = this.modalService.open(template, {size: 'lg', backdrop: 'static', windowClass: 'bigger-modal'});
+        this.modalReference.result.catch(() => {});
+    }
+
+    cambiarSeleccionConciliacion() {
+        this.mergeReview = null;
+        this.mergeConfirmation = '';
+        this.mergeError = '';
+        this.mergeSuccess = '';
+    }
+
+    cambiarBusquedaConciliacion(slot: 'keep' | 'remove') {
+        this.mergeIds[slot] = null;
+        this.mergeResults[slot] = [];
+        this.cambiarSeleccionConciliacion();
+    }
+
+    buscarConciliacion(slot: 'keep' | 'remove') {
+        const query = this.mergeQueries[slot].trim();
+        if (query.length < 2 || this.mergeBusy) { return; }
+        this.mergeBusy = true;
+        this.mergeError = '';
+        this.developerService.buscarConciliacion(this.mergeKind, query).subscribe({
+            next: (response: any) => {
+                this.mergeResults[slot] = response.data || [];
+                this.mergeBusy = false;
+            },
+            error: (error: any) => {
+                this.mergeBusy = false;
+                this.mergeError = error.error && error.error.message || 'No se pudo buscar.';
+            },
+        });
+    }
+
+    revisarConciliacion() {
+        const keep = Number(this.mergeIds.keep);
+        const remove = Number(this.mergeIds.remove);
+        if (!keep || !remove || keep === remove || this.mergeBusy) { return; }
+        this.cambiarSeleccionConciliacion();
+        this.mergeBusy = true;
+        this.developerService.revisarConciliacion(this.mergeKind, keep, remove).subscribe({
+            next: (response: any) => {
+                this.mergeReview = response.data;
+                this.mergeFields = {};
+                this.mergeReview.fields.forEach((field: string) => {
+                    this.mergeFields[field] = this.mergeReview.keep[field] == null ? '' : this.mergeReview.keep[field];
+                });
+                this.mergeBusy = false;
+            },
+            error: (error: any) => {
+                this.mergeBusy = false;
+                this.mergeError = error.error && error.error.message || 'No se pudo revisar la conciliación.';
+            },
+        });
+    }
+
+    aplicarConciliacion() {
+        if (!this.mergeReview || this.mergeReview.blockers.length || this.mergeBusy
+            || this.mergeConfirmation !== 'CONCILIAR ' + this.mergeReview.remove.id) { return; }
+        this.mergeBusy = true;
+        this.mergeError = '';
+        this.developerService.aplicarConciliacion(this.mergeKind, {
+            keep_id: this.mergeReview.keep.id,
+            remove_id: this.mergeReview.remove.id,
+            confirmation_token: this.mergeReview.confirmation_token,
+            confirmation_text: this.mergeConfirmation,
+            fields: this.mergeFields,
+        }).subscribe({
+            next: (response: any) => {
+                this.mergeBusy = false;
+                this.mergeSuccess = response.data.message;
+                this.mergeReview = null;
+                this.mergeResults = {keep: [], remove: []};
+            },
+            error: (error: any) => {
+                this.mergeBusy = false;
+                this.mergeReview = null;
+                this.mergeError = error.error && error.error.message || 'No se completó. Consulta de nuevo antes de reintentar.';
+            },
+        });
+    }
     nexfiraDocument = '';
     nexfiraReview: any = null;
     nexfiraReason = '';

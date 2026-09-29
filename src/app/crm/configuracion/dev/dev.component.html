@@ -8,6 +8,15 @@
             <button type="button" class="btn-action btn-action--teal" (click)="abrirNexfira(nexfiraTpl)" data-testid="open-nexfira">
                 <i class="fa fa-unlock-alt"></i> Liberar intento Nexfira
             </button>
+            <button type="button" class="btn-action btn-action--teal" (click)="abrirConciliacion('entidades', conciliarTpl)" data-testid="open-merge-entities">
+                <i class="fa fa-users"></i> Conciliar entidades
+            </button>
+            <button type="button" class="btn-action btn-action--teal" (click)="abrirConciliacion('productos', conciliarTpl)" data-testid="open-merge-products">
+                <i class="fa fa-cubes"></i> Conciliar productos
+            </button>
+            <button type="button" class="btn-action btn-action--amber" (click)="abrirModal(cancelacionTpl)">
+                <i class="fa fa-ban"></i> Simular aprobación Nexfira
+            </button>
             <!-- Botón existente: Recalcular costo -->
             <button class="btn-action btn-action--amber" (click)="abrirModal(recalcularCosto)">
                 <i class="fa fa-credit-card"></i> Recalcular costo
@@ -18,7 +27,14 @@
                 <i class="fa fa-database"></i> Recalcular inventario
             </button>
         </div>
-        <div class="mt-4 border-top pt-3">
+    </div>
+</div>
+
+<ng-template #cancelacionTpl let-d="dismiss">
+    <div class="modal-header"><h4 class="modal-title">Simular aprobación de cancelación Nexfira</h4>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="cancelBusy" (click)="d()">&times;</button></div>
+    <div class="modal-body">
+        <div>
             <h6>Simular aprobación de cancelación Nexfira</h6>
             <p class="text-muted">Sólo para una factura cuya cancelación ya indique cancelled en Nexfira y siga pendiente de aprobación SAT. La simulación queda registrada en el seguimiento de cada venta.</p>
             <div class="form-row align-items-end">
@@ -33,7 +49,66 @@
             <div *ngIf="cancelSuccess" class="alert alert-success" role="status">{{cancelSuccess}}</div>
         </div>
     </div>
-</div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" [disabled]="cancelBusy" (click)="d()">Cerrar</button></div>
+</ng-template>
+
+<ng-template #conciliarTpl let-d="dismiss">
+    <div class="modal-header">
+        <h4 class="modal-title">Conciliar {{ mergeKind }}</h4>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="mergeBusy" (click)="d()">&times;</button>
+    </div>
+    <div class="modal-body merge-modal-body">
+        <p class="text-muted">Elige el registro que se conserva y el duplicado que se elimina. Revisa las referencias antes de aplicar.</p>
+        <div class="row">
+            <div class="col-md-6" *ngFor="let slot of ['keep', 'remove']">
+                <label>{{ slot === 'keep' ? 'Se conserva' : 'Se elimina' }}</label>
+                <div class="input-group mb-2">
+                    <input class="form-control" [(ngModel)]="mergeQueries[slot]" (keyup.enter)="buscarConciliacion(slot)"
+                           placeholder="ID, nombre, RFC o SKU" [disabled]="mergeBusy" (ngModelChange)="cambiarBusquedaConciliacion(slot)">
+                    <button type="button" class="btn btn-outline-primary" (click)="buscarConciliacion(slot)" [disabled]="mergeBusy || mergeQueries[slot].trim().length < 2">Buscar</button>
+                </div>
+                <select class="form-control mb-3" [(ngModel)]="mergeIds[slot]" (ngModelChange)="cambiarSeleccionConciliacion()" [disabled]="mergeBusy">
+                    <option [ngValue]="null">Selecciona un registro</option>
+                    <option *ngFor="let item of mergeResults[slot]" [ngValue]="item.id">#{{ item.id }} · {{ item.razon_social || item.descripcion }} · {{ item.rfc || item.sku }}</option>
+                </select>
+            </div>
+        </div>
+        <button type="button" class="btn btn-info mb-3" (click)="revisarConciliacion()"
+                [disabled]="mergeBusy || !mergeIds.keep || !mergeIds.remove || mergeIds.keep === mergeIds.remove">Revisar referencias</button>
+        <div *ngIf="mergeError" class="alert alert-danger" role="alert">{{ mergeError }}</div>
+        <div *ngIf="mergeSuccess" class="alert alert-success" role="status">{{ mergeSuccess }}</div>
+        <ng-container *ngIf="mergeReview">
+            <div class="alert alert-info">Conservar #{{ mergeReview.keep.id }} · eliminar #{{ mergeReview.remove.id }}.
+                <span *ngIf="mergeKind === 'entidades'"> La entidad conservada será cliente y proveedor.</span>
+                <span *ngIf="mergeKind === 'productos'"> Las series y movimientos se reasignarán al modelo conservado; los SKU anteriores quedarán como sinónimos.</span>
+            </div>
+            <div *ngFor="let blocker of mergeReview.blockers" class="alert alert-danger">{{ blocker }}</div>
+            <div *ngFor="let warning of mergeReview.warnings" class="alert alert-warning">{{ warning }}</div>
+            <h6>Referencias del registro que se elimina</h6>
+            <div class="merge-references">
+                <div *ngFor="let ref of mergeReview.references" [hidden]="!ref.count">{{ ref.table }}.{{ ref.column }}: {{ ref.count }}</div>
+            </div>
+            <h6 class="mt-3">Datos finales del registro conservado</h6>
+            <div class="row">
+                <div class="form-group col-md-6" *ngFor="let field of mergeReview.fields">
+                    <label [for]="'merge-' + field">{{ mergeLabels[field] || field }}</label>
+                    <textarea *ngIf="field === 'info_extra'" class="form-control" rows="3" [id]="'merge-' + field" [(ngModel)]="mergeFields[field]" [disabled]="mergeBusy"></textarea>
+                    <input *ngIf="field !== 'info_extra'" class="form-control" [id]="'merge-' + field" [(ngModel)]="mergeFields[field]" [disabled]="mergeBusy">
+                    <small *ngIf="mergeReview.keep[field] !== mergeReview.remove[field]" class="text-muted">Duplicado: {{ mergeReview.remove[field] }}</small>
+                </div>
+            </div>
+            <div *ngIf="!mergeReview.blockers.length" class="alert alert-warning">
+                Esta operación elimina el duplicado después de reasignar sus referencias. Escribe <strong>CONCILIAR {{ mergeReview.remove.id }}</strong> para confirmar.
+            </div>
+            <input *ngIf="!mergeReview.blockers.length" class="form-control" autocomplete="off" [(ngModel)]="mergeConfirmation" [disabled]="mergeBusy" aria-label="Confirmación de conciliación">
+        </ng-container>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" [disabled]="mergeBusy" (click)="d()">Cerrar</button>
+        <button type="button" class="btn btn-danger" data-testid="apply-merge" (click)="aplicarConciliacion()"
+                [disabled]="!mergeReview || mergeReview.blockers.length || mergeBusy || mergeConfirmation !== 'CONCILIAR ' + mergeReview.remove.id">Aplicar conciliación</button>
+    </div>
+</ng-template>
 
 <!-- ================== MÓDULO EXISTENTE: COSTO ================== -->
 <ng-template #nexfiraTpl let-d="dismiss">

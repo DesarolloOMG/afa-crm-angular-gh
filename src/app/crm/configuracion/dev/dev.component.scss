@@ -6,6 +6,8 @@
     flex-wrap: wrap;
     gap: 12px;
 }
+.merge-modal-body { max-height: 65vh; overflow-y: auto; }
+.merge-references { max-height: 180px; overflow-y: auto; background: #f8fafc; padding: 10px; border-radius: 8px; }
 .btn-action {
     display: inline-flex;
     align-items: center;

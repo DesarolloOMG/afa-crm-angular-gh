@@ -9,6 +9,18 @@ export class DeveloperService {
     constructor(private http: HttpClient) {
     }
 
+    buscarConciliacion(tipo: 'entidades' | 'productos', query: string) {
+        return this.http.get(`${backend_url}developer/conciliar/${tipo}/buscar?query=${encodeURIComponent(query)}`);
+    }
+
+    revisarConciliacion(tipo: 'entidades' | 'productos', keepId: number, removeId: number) {
+        return this.http.post(`${backend_url}developer/conciliar/${tipo}/revisar`, {keep_id: keepId, remove_id: removeId});
+    }
+
+    aplicarConciliacion(tipo: 'entidades' | 'productos', data: any) {
+        return this.http.post(`${backend_url}developer/conciliar/${tipo}/aplicar`, data);
+    }
+
     simularCancelacionNexfira(folio: string, serie: string) {
         return this.http.post(`${backend_url}developer/nexfira/cancelacion/simular`, {folio, serie});
     }
