@@ -21,6 +21,9 @@ export class FacturacionComponent implements OnInit {
     creditNotes = false;
     individualDocument: any = null;
     individualReceiver: any = null;
+    review: any = null;
+    reviewLines: any[] = [];
+    reviewHash = '';
     payment = {method: 'PUE', form: '31'};
     fiscal = {series: '', folio: ''};
     relationshipCode = '03';
@@ -432,6 +435,7 @@ export class FacturacionComponent implements OnInit {
     }
 
     openActionModal(content: any) {
+        this.clearReview();
         if (this.mode === 'global' && this.hubSelectedIds().length < 2) {
             void swal('', 'Selecciona al menos dos ventas habilitadas para Nexfira.', 'warning');
             return;
@@ -499,7 +503,71 @@ export class FacturacionComponent implements OnInit {
         });
     }
 
+    clearReview() {
+        this.review = null;
+        this.reviewLines = [];
+        this.reviewHash = '';
+    }
+
+    private reviewRequest(): any {
+        const payload: any = {
+            modo: this.mode,
+            documentos: this.mode === 'global' ? this.hubSelectedIds() : [Number(this.individualDocument.id)],
+            agrupacion: this.globalGrouping,
+            series: this.fiscal.series,
+            folio: this.fiscal.folio,
+            paymentMethod: this.payment.method,
+            paymentForm: this.payment.form,
+            relationshipCode: this.relationshipCode,
+        };
+        if (this.requiresGlobalInformation()) {
+            payload.informacionGlobal = Object.assign({}, this.globalInformation, {year: Number(this.globalInformation.year)});
+        }
+        return payload;
+    }
+
+    prepareReview() {
+        if (this.loading || this.paymentError() || this.fiscalIdentityError()
+            || (this.requiresGlobalInformation() && !this.globalInformationValid())
+            || (this.mode === 'global' && !this.canRequestGlobal())) { return; }
+        this.clearReview();
+        this.loading = true;
+        this.ventaService.revisarFactura(this.reviewRequest()).subscribe({
+            next: (response: any) => {
+                this.loading = false;
+                const data = response.data || {};
+                if (!data.valid || !data.payload) {
+                    void swal('', (data.blockers || ['No se pudo preparar la factura.']).join('\n'), 'warning');
+                    return;
+                }
+                this.review = data.payload;
+                this.reviewLines = (data.editable_lines || []).map((line: any) => Object.assign({}, line,
+                    {saved_precio: Number(line.precio), saved_descuento: Number(line.descuento)}));
+                this.reviewHash = data.review_hash || '';
+            },
+            error: (error: any) => { this.loading = false; swalErrorHttpResponse(error); },
+        });
+    }
+
+    saveReviewLine(line: any) {
+        if (this.loading) { return; }
+        this.loading = true;
+        this.ventaService.editarImporteFactura(Number(line.id_documento), Number(line.id), {
+            precio: Number(line.precio), descuento: Number(line.descuento),
+        }).subscribe({
+            next: () => { this.loading = false; this.prepareReview(); },
+            error: (error: any) => { this.loading = false; swalErrorHttpResponse(error); },
+        });
+    }
+
+    hasUnsavedLineEdits(): boolean {
+        return this.reviewLines.some((line) => Number(line.precio) !== line.saved_precio
+            || Number(line.descuento) !== line.saved_descuento);
+    }
+
     requestIndividual() {
+        if (this.hasUnsavedLineEdits()) { void swal('', 'Guarda los importes editados antes de enviar.', 'warning'); return; }
+        if (!this.reviewHash) { this.prepareReview(); return; }
         const documento = this.individualDocument;
         if (!documento || !documento.can_hub || this.paymentError() || this.fiscalIdentityError() || this.loading
             || (this.requiresGlobalInformation() && !this.globalInformationValid())) {
@@ -521,6 +589,7 @@ export class FacturacionComponent implements OnInit {
                 return;
             }
             const payload: any = {
+                review_hash: this.reviewHash,
                 paymentMethod: this.payment.method,
                 paymentForm: this.payment.form,
                 relationshipCode: this.relationshipCode,
@@ -535,6 +604,8 @@ export class FacturacionComponent implements OnInit {
     }
 
     requestGlobal() {
+        if (this.hasUnsavedLineEdits()) { void swal('', 'Guarda los importes editados antes de enviar.', 'warning'); return; }
+        if (!this.reviewHash) { this.prepareReview(); return; }
         if (this.loading) { return; }
         if (this.fiscalIdentityError()) {
             void swal('', this.fiscalIdentityError(), 'warning');
@@ -582,6 +653,7 @@ export class FacturacionComponent implements OnInit {
                 return;
             }
             const payload: any = {
+                review_hash: this.reviewHash,
                 documentos,
                 agrupacion: this.globalGrouping,
                 series: this.fiscal.series,
@@ -598,6 +670,7 @@ export class FacturacionComponent implements OnInit {
 
     selectGlobalGrouping(grouping: 'ventas' | 'productos') {
         this.globalGrouping = grouping;
+        this.clearReview();
     }
 
     globalPeriodOptions(): Array<{value: string, label: string}> {
@@ -607,6 +680,7 @@ export class FacturacionComponent implements OnInit {
     }
 
     onGlobalPeriodicityChange() {
+        this.clearReview();
         const month = new Date().getMonth() + 1;
         this.globalInformation.months = this.globalInformation.periodicity === '05'
             ? String(13 + Math.floor((month - 1) / 2))

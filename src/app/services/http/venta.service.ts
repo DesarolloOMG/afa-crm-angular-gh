@@ -66,6 +66,14 @@ export class VentaService {
         );
     }
 
+    revisarFactura(data: any): Observable<any> {
+        return this.http.post(`${backend_url}venta/venta/facturacion/revisar`, data);
+    }
+
+    editarImporteFactura(documento: number, partida: number, data: any): Observable<any> {
+        return this.http.post(`${backend_url}venta/venta/facturacion/pedido/${documento}/partida/${partida}`, data);
+    }
+
     solicitarFacturaIndividual(documento: number, data: any): Observable<any> {
         return this.http.post(
             `${backend_url}venta/venta/facturacion/individual/${documento}`,
