@@ -5,6 +5,12 @@ import {backend_url} from '@env/environment';
 @Component({
     selector: 'app-refacturacion-venta',
     templateUrl: './refacturacion-venta.component.html',
+    styles: [`
+        :host { display: flex; flex-direction: column; max-height: calc(100vh - 3.5rem); }
+        form { display: flex; flex-direction: column; min-height: 0; }
+        .modal-body { min-height: 0; overflow-y: auto; }
+        .modal-header, .modal-footer { flex-shrink: 0; }
+    `],
 })
 export class RefacturacionVentaComponent implements OnInit {
     @Input() documento: string;
@@ -60,6 +66,17 @@ export class RefacturacionVentaComponent implements OnInit {
             },
             error => { this.error = this.errorMessage(error); this.guardando = false; }
         );
+    }
+
+    pendientes(form: any): string[] {
+        const labels = {rfc: 'revisa el RFC (12 o 13 caracteres)', razon_social: 'captura el nombre o razón social',
+            codigo_postal_fiscal: 'captura el código postal fiscal de 5 dígitos', regimen: 'selecciona el régimen fiscal',
+            id_cfdi: 'selecciona el uso del CFDI', correo: 'revisa el correo', telefono: 'revisa el teléfono',
+            token: 'captura el código de tu autenticadora de 6 dígitos'};
+        const controls = (form && form.controls) || {};
+        const pending = Object.keys(labels).filter(name => controls[name] && controls[name].invalid).map(name => labels[name]);
+        if (!this.confirmado) { pending.push('marca la autorización junto al botón Guardar'); }
+        return pending;
     }
 
     prepararTimbrado() {

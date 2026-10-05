@@ -4,14 +4,14 @@
     <button type="button" class="close" aria-label="Cerrar refacturación" [disabled]="guardando" (click)="salir()"><span aria-hidden="true">&times;</span></button>
 </div>
 <form *ngIf="!resultado" #form="ngForm" (ngSubmit)="guardar(form)" novalidate>
-    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+    <div class="modal-body">
         <p *ngIf="cargando" role="status">Consultando la venta y sus ingresos…</p>
         <div *ngIf="error" class="alert alert-danger" role="alert">{{ error }}</div>
         <button *ngIf="!preview && !cargando" type="button" class="btn btn-outline-primary" (click)="cargar()">Volver a consultar</button>
 
         <ng-container *ngIf="preview && !resultado">
             <div class="border rounded p-3 mb-3 bg-light">
-                <small class="text-muted">Cliente actual (se conserva en la venta original)</small>
+                <small class="text-muted">{{ soloCliente ? 'Cliente actual del pedido' : 'Cliente actual (se conserva en la venta original)' }}</small>
                 <div>{{ preview.cliente_actual?.razon_social }} · {{ preview.cliente_actual?.rfc }}</div>
                 <small *ngIf="!soloCliente" class="text-muted">Receptor de la factura original{{ preview.receptor_cfdi_original?.verificado ? ' (registrado en la solicitud fiscal)' : ' (según el pedido)' }}</small>
                 <div>{{ preview.receptor_cfdi_original?.nombre }} · {{ preview.receptor_cfdi_original?.rfc }}</div>
@@ -55,21 +55,24 @@
                         Después podrás solicitar el timbrado individual de ambos aquí mismo.</div>
                     <div *ngIf="soloCliente" class="alert alert-info">Se guardará el receptor de esta venta para su factura individual.
                         El pedido permanece en fase 5. Sus ingresos exclusivos se actualizarán al mismo cliente.</div>
-                    <div class="form-check">
-                        <input id="rf-confirm" name="confirmado" type="checkbox" class="form-check-input" [(ngModel)]="confirmado" required>
-                        <label for="rf-confirm" class="form-check-label">{{ soloCliente ? 'Revisé los datos y autorizo actualizar el cliente fiscal de este pedido y sus ingresos.' : (preview.contabilidad?.sin_ingresos ? 'Autorizo saldar el original con la NC y dejar el pedido nuevo pendiente de cobro, sin crear ingresos.' : 'Revisé los datos y autorizo reasignar el ingreso y compensar la venta original con la nota de crédito.') }}</label>
-                    </div>
                 </fieldset>
             </ng-container>
         </ng-container>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer flex-wrap">
+        <div *ngIf="preview?.puede_refacturar" class="w-100 m-0 mb-2">
+            <div class="form-check">
+                <input id="rf-confirm" name="confirmado" type="checkbox" class="form-check-input" [(ngModel)]="confirmado" required [disabled]="guardando">
+                <label for="rf-confirm" class="form-check-label">{{ soloCliente ? 'Revisé los datos y autorizo actualizar el cliente fiscal de este pedido y sus ingresos.' : (preview.contabilidad?.sin_ingresos ? 'Autorizo saldar el original con la NC y dejar el pedido nuevo pendiente de cobro, sin crear ingresos.' : 'Revisé los datos y autorizo reasignar el ingreso y compensar la venta original con la nota de crédito.') }}</label>
+            </div>
+            <small *ngIf="!guardando && pendientes(form).length" class="text-danger d-block mt-2" role="status">Para guardar: {{ pendientes(form).join('; ') }}.</small>
+        </div>
         <button type="button" class="btn btn-outline-secondary" [disabled]="guardando" (click)="salir()">{{ resultado ? 'Cerrar' : 'Cancelar' }}</button>
         <button *ngIf="preview?.puede_refacturar && !resultado" type="submit" class="btn btn-primary" [disabled]="guardando || !form.valid || !confirmado">
             {{ guardando ? 'Guardando…' : (soloCliente ? 'Guardar cliente fiscal' : 'Crear y continuar al timbrado') }}</button>
     </div>
 </form>
-<div *ngIf="resultado" class="modal-body" style="max-height:70vh;overflow-y:auto;">
+<div *ngIf="resultado" class="modal-body">
     <div class="alert alert-success" role="status" *ngIf="soloCliente">Cliente fiscal actualizado. La venta #{{ documento }} permanece pendiente de timbrar.</div>
     <ng-container *ngIf="!soloCliente">
         <div class="alert alert-success">Refacturación contable preparada. La NC #{{ resultado.nota_credito }} salda el pedido original #{{ resultado.documento_original }}.

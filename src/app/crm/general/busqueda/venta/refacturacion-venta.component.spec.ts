@@ -108,6 +108,36 @@ describe('Refacturación: modal de timbrado', () => {
         fixture.destroy();
     });
 
+    it('mantiene la autorización en el pie y explica el bloqueo antes de guardar el cliente fiscal', async () => {
+        http.get.and.returnValue({subscribe: (ok: any) => ok({data: {puede_refacturar: true,
+            resultado: null, total: '25198.0000', bloqueos: [], cliente_actual: {rfc: 'XAXX010101000'},
+            receptor: {rfc: 'CNU010101AB1', razon_social: 'CLIENTE PRUEBA', codigo_postal_fiscal: '73438',
+                regimen: '', id_cfdi: '3', correo: '', telefono: ''},
+            regimenes: [{codigo: '612', regimen: 'Actividad empresarial'}],
+            usos_cfdi: [{id: 3, codigo: 'S01', descripcion: 'Sin efectos fiscales'}]}})});
+        const fixture = TestBed.createComponent(RefacturacionVentaComponent);
+        const component = fixture.componentInstance;
+        component.soloCliente = true; component.documento = '38217'; fixture.detectChanges();
+        await fixture.whenStable(); fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('.modal-body #rf-confirm')).toBeNull();
+        const checkbox = fixture.nativeElement.querySelector('.modal-footer #rf-confirm');
+        expect(checkbox).not.toBeNull();
+        expect(fixture.nativeElement.textContent).toContain('selecciona el régimen fiscal');
+        expect(fixture.nativeElement.textContent).toContain('marca la autorización');
+        expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
+        component.receptor.regimen = '612'; fixture.detectChanges();
+        await fixture.whenStable(); fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('button[type="submit"]').disabled).toBe(true);
+        expect(http.post).not.toHaveBeenCalled();
+        checkbox.click(); fixture.detectChanges(); await fixture.whenStable(); fixture.detectChanges();
+        const submit = fixture.nativeElement.querySelector('button[type="submit"]');
+        expect(submit.disabled).toBe(false);
+        submit.click();
+        expect(http.post.calls.mostRecent().args[0]).toContain('/cliente-fiscal/38217');
+        expect(http.post.calls.mostRecent().args[1].receptor.regimen).toBe('612');
+        fixture.destroy();
+    });
+
     it('reabre sin ingreso con saldo pendiente y propone PPD/99 editable para la factura nueva', async () => {
         http.get.and.callFake((url: string) => ({subscribe: (ok: any) => {
             if (url.indexOf('refacturacion/') >= 0) {

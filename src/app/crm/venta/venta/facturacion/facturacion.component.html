@@ -29,6 +29,11 @@
             Notas de crédito activas pendientes de timbrado, vinculadas desde la venta por su ID interno.
             Se timbran individualmente en Nexfira. Fuera del Hub puedes relacionar varias NC incluidas en un mismo CFDI de egreso.
             La factura de la venta original no se modifica.
+            <div *ngIf="mode === 'external'" class="m-t-10">
+                Relacionar CFDI sólo registra el XML y PDF de una NC ya emitida. Si la factura origen es externa,
+                Nexfira permite importar su XML y preparar la NC desde
+                <a href="https://hub.nexfira.mx/external-invoices" target="_blank" rel="noopener noreferrer">Facturas externas en Nexfira</a>.
+            </div>
         </div>
 
         <div class="billing-toolbar">
