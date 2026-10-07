@@ -593,6 +593,13 @@
             <strong>Descuento:</strong> {{ review.content.expectedTotals.discount | currency:'MXN' }} ·
             <strong>Impuestos:</strong> {{ review.content.expectedTotals.transfers | currency:'MXN' }} ·
             <strong>Total:</strong> {{ review.content.expectedTotals.total | currency:'MXN' }}</p>
+        <div *ngIf="reviewRounding" class="alert alert-info">
+            Importes MLG recalculados a dos decimales.
+            <strong>Total de pedidos:</strong> {{ reviewRounding.source_total | currency:'MXN' }} ·
+            <strong>Total de factura:</strong> {{ reviewRounding.invoice_total | currency:'MXN' }} ·
+            <strong>Diferencia de redondeo:</strong> {{ reviewRounding.difference | currency:'MXN' }}.
+            Revisa este total antes de enviar a Nexfira.
+        </div>
         <h6 *ngIf="!creditNotes">Corregir importes del pedido</h6>
         <p *ngIf="!creditNotes" class="text-muted">Precio y descuento incluyen IVA. Guardar actualiza el pedido y vuelve a calcular la factura. Para cambiar cliente u otros datos, abre el pedido y después actualiza esta vista previa.</p>
         <div class="row align-items-end mb-2" *ngFor="let line of (creditNotes ? [] : reviewLines)">

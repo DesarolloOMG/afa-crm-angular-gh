@@ -24,6 +24,7 @@ export class FacturacionComponent implements OnInit {
     review: any = null;
     reviewLines: any[] = [];
     reviewHash = '';
+    reviewRounding: any = null;
     payment = {method: 'PUE', form: '31'};
     fiscal = {series: '', folio: ''};
     relationshipCode = '03';
@@ -507,6 +508,7 @@ export class FacturacionComponent implements OnInit {
         this.review = null;
         this.reviewLines = [];
         this.reviewHash = '';
+        this.reviewRounding = null;
     }
 
     private reviewRequest(): any {
@@ -544,6 +546,7 @@ export class FacturacionComponent implements OnInit {
                 this.reviewLines = (data.editable_lines || []).map((line: any) => Object.assign({}, line,
                     {saved_precio: Number(line.precio), saved_descuento: Number(line.descuento)}));
                 this.reviewHash = data.review_hash || '';
+                this.reviewRounding = data.rounding || null;
             },
             error: (error: any) => { this.loading = false; swalErrorHttpResponse(error); },
         });
