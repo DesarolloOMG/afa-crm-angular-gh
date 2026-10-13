@@ -399,7 +399,7 @@
                 <div class="billing-global-information-title">
                     <div>
                         <strong>Información global SAT</strong>
-                        <small>Selecciona el periodo real de las ventas. Se envía a Nexfira cuando el receptor es público en general.</small>
+                        <small>Selecciona el periodo del documento. Se envía a Nexfira cuando el receptor es público en general.</small>
                     </div>
                     <span class="badge badge-primary">Obligatoria para este receptor</span>
                 </div>
@@ -447,7 +447,7 @@
                     </div>
                 </div>
                 <small *ngIf="!globalInformationValid()" class="text-danger">
-                    Selecciona una combinación SAT válida antes de solicitar la factura.
+                    Selecciona una combinación SAT válida antes de solicitar el timbrado.
                 </small>
             </div>
         <ng-container *ngIf="mode === 'global'">

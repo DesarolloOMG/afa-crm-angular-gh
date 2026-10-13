@@ -298,6 +298,43 @@ describe('FacturacionComponent: periodo global y confirmación de pago', () => {
         });
     });
 
+    [false, true].forEach(refacturation => {
+        it('periodo de NC: ' + (refacturation ? 'automático por refacturación' : 'editable y enviado'), async () => {
+            (component as any).actionModalRef.dismiss('change-mode');
+            component.mode = 'individual';
+            component.creditNotes = true;
+            service.previsualizarFactura.and.returnValue({subscribe: (observer: any) => observer.next({data: {
+                valid: true, is_refacturation_credit_note: refacturation,
+                payload: {content: {paymentMethod: 'PUE', paymentForm: '17',
+                    receiver: {name: 'PUBLICO EN GENERAL', rfc: 'XAXX010101000'},
+                    relations: [{relationshipCode: refacturation ? '01' : '03'}]}}
+            }})});
+            component.openIndividualModal({id: 39983, can_hub: true, billing_series: 'FML'}, actionTemplate);
+            fixture.detectChanges(); await fixture.whenStable();
+            expect(component.requiresGlobalInformation()).toBe(!refacturation);
+            if (refacturation) {
+                expect(document.getElementById('globalPeriodicity')).toBeNull();
+            } else {
+                expect(document.getElementById('globalYear')).not.toBeNull();
+                select('globalPeriodicity', '04'); fixture.detectChanges(); await fixture.whenStable();
+                select('globalMonths', '08');
+                const year = document.getElementById('globalYear') as HTMLInputElement;
+                year.value = '2025'; year.dispatchEvent(new Event('input', {bubbles: true}));
+                fixture.detectChanges(); await fixture.whenStable();
+            }
+            const reviewPayload = (component as any).reviewRequest();
+            component.reviewHash = 'review-nc-test';
+            submit(); swal.clickConfirm(); await fixture.whenStable();
+            const payload = service.solicitarFacturaIndividual.calls.mostRecent().args[1];
+            expect(payload.informacionGlobal).toEqual(reviewPayload.informacionGlobal);
+            if (refacturation) {
+                expect(payload.informacionGlobal).toBeUndefined();
+            } else {
+                expect(payload.informacionGlobal).toEqual({periodicity: '04', months: '08', year: 2025});
+            }
+        });
+    });
+
     it('muestra Assurant como receptor individual y no pide periodo global', async () => {
         (component as any).actionModalRef.dismiss('change-mode');
         component.mode = 'individual';

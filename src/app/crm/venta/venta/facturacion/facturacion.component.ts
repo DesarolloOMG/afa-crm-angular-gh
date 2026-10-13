@@ -21,6 +21,7 @@ export class FacturacionComponent implements OnInit {
     creditNotes = false;
     individualDocument: any = null;
     individualReceiver: any = null;
+    individualRefacturationCreditNote = false;
     review: any = null;
     reviewLines: any[] = [];
     reviewHash = '';
@@ -482,6 +483,7 @@ export class FacturacionComponent implements OnInit {
         }
         this.individualDocument = documento;
         this.individualReceiver = null;
+        this.individualRefacturationCreditNote = false;
         this.loading = true;
         this.ventaService.previsualizarFactura(documento.id).subscribe({
             next: (response: any) => {
@@ -492,6 +494,9 @@ export class FacturacionComponent implements OnInit {
                     return;
                 }
                 this.payment = {method: data.payload.content.paymentMethod, form: data.payload.content.paymentForm};
+                this.individualRefacturationCreditNote = data.is_refacturation_credit_note === true;
+                const now = new Date();
+                this.globalInformation = {periodicity: '01', months: ('0' + (now.getMonth() + 1)).slice(-2), year: now.getFullYear()};
                 this.individualReceiver = data.payload.content.receiver || {rfc: documento.rfc, name: documento.cliente};
                 if (data.payload.content.globalInformation) {
                     this.globalInformation = Object.assign({}, data.payload.content.globalInformation);
@@ -698,7 +703,7 @@ export class FacturacionComponent implements OnInit {
 
     requiresGlobalInformation(): boolean {
         return this.mode === 'global' ? this.globalReceiverIsPublic()
-            : this.mode === 'individual' && !this.creditNotes && !!this.individualReceiver
+            : this.mode === 'individual' && !this.individualRefacturationCreditNote && !!this.individualReceiver
                 && String(this.individualReceiver.rfc || '').trim().toUpperCase() === 'XAXX010101000';
     }
 
