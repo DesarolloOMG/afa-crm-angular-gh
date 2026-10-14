@@ -69,6 +69,7 @@ export function createEmptyGBBData(): GBBData {
         nota_de_credito: null,
         uuid: '',
         archivos_factura: [],
+        notas_credito_refacturacion: [],
     };
 }
 

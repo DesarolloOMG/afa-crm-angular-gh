@@ -196,6 +196,7 @@ export class VentaComponent implements OnInit {
             nota_de_credito: venta.nota_de_credito,
             uuid: venta.uuid,
             archivos_factura: venta.archivos_factura || [],
+            notas_credito_refacturacion: venta.notas_credito_refacturacion || [],
         });
 
         const getFileIcon = (ext) => {
@@ -517,7 +518,7 @@ export class VentaComponent implements OnInit {
         if (venta) { venta.refacturado = 1; venta.nota = resultado.nota_credito; }
         this.buscarVenta().then(() => {
             const actualizada = this.ventas.find(item => item.id == this.final_data.documento);
-            if (actualizada) { this.data.movimientos_contables = actualizada.movimientos_contables || []; }
+            if (actualizada) { this.data.movimientos_contables = actualizada.movimientos_contables || []; this.data.notas_credito_refacturacion = actualizada.notas_credito_refacturacion || []; }
         }).catch(() => {});
     }
 

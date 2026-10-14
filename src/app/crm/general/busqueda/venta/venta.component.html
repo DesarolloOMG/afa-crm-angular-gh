@@ -261,6 +261,30 @@
                 </div>
             </div>
 
+            <div *ngFor="let nc of data.notas_credito_refacturacion"
+                 class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top">
+                <div class="fw-bold text-secondary mb-2">Nota de crédito de refacturación #{{ nc.id }}</div>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <div class="small fw-bold text-secondary">UUID de la nota de crédito</div>
+                        <div class="text-break" style="overflow-wrap:anywhere;">{{ nc.uuid || 'Pendiente de timbrado' }}</div>
+                        <div *ngIf="nc.uuid" class="small mt-2">Serie / Folio: {{ nc.factura_serie || 'Sin serie' }} / {{ nc.factura_folio || 'Sin folio' }}</div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button type="button" class="btn btn-sm btn-info btn-block http-disabled"
+                                [disabled]="!nc.pdf_disponible" (click)="descargarArchivoFactura(nc.id, 'pdf')">
+                            Descargar PDF de la NC
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <button type="button" class="btn btn-sm btn-info btn-block http-disabled"
+                                [disabled]="!nc.xml_disponible" (click)="descargarArchivoFactura(nc.id, 'xml')">
+                            Descargar XML de la NC
+                        </button>
+                    </div>
+                </div>
+                <small *ngIf="nc.uuid && (!nc.xml_disponible || !nc.pdf_disponible)" class="text-muted">Hay archivos fiscales pendientes de recuperar.</small>
+            </div>
             <!-- CLIENTE Y DIRECCIÓN -->
             <div class="bg-white rounded-4 shadow-sm p-3 mb-3 border-top" style="border-color:#d1d5db !important;">
                 <div class="row">

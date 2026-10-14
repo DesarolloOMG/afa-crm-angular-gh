@@ -62,6 +62,7 @@ export interface GBBData {
     nota_de_credito: any;
     uuid: string;
     archivos_factura: any[];
+    notas_credito_refacturacion: any[];
 }
 
 export interface GBBFinalData {
