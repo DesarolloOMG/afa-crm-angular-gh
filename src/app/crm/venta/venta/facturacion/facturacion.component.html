@@ -585,7 +585,7 @@
                 <thead><tr><th>Concepto</th><th>Cantidad</th><th>Precio sin IVA</th><th>Descuento sin IVA</th></tr></thead>
                 <tbody><tr *ngFor="let item of review.content.items">
                     <td>{{ item.description }}<small class="d-block text-muted">{{ item.lineId }} · SAT {{ item.productCode }} / {{ item.unitCode }}</small></td>
-                    <td>{{ item.quantity }}</td><td>{{ item.unitPrice | currency:'MXN' }}</td><td>{{ item.discount | currency:'MXN' }}</td>
+                    <td>{{ item.quantity }}</td><td>{{ item.unitPrice | currency:'MXN':'symbol':'1.2-6' }}</td><td>{{ item.discount | currency:'MXN':'symbol':'1.2-6' }}</td>
                 </tr></tbody>
             </table>
         </div>
@@ -595,7 +595,8 @@
             <strong>Total:</strong> {{ review.content.expectedTotals.total | currency:'MXN' }}</p>
         <div *ngIf="reviewRounding" class="alert alert-info">
             <span *ngIf="reviewRounding.basis === 'order_total'">MLG: base sin IVA redondeada a dos decimales por pedido; IVA calculado a seis decimales y total final a centavos.</span>
-            <span *ngIf="reviewRounding.basis !== 'order_total'">MLG: bases redondeadas por componente del producto. Para comparar contra el importe de cada pedido de MLG, usa “Global por ventas”.</span>
+            <span *ngIf="reviewRounding.basis === 'product_precision'">MLG por productos: precios, bases e IVA conservan hasta seis decimales. Los totales se redondean al final a centavos; no se modifican los importes del pedido.</span>
+            <span *ngIf="reviewRounding.basis !== 'order_total' && reviewRounding.basis !== 'product_precision'">Esta vista previa utiliza el cálculo anterior. Vuelve a consultarla después de actualizar el sistema.</span>
             <strong>Total de pedidos:</strong> {{ reviewRounding.source_total | currency:'MXN' }} ·
             <strong>Total de factura:</strong> {{ reviewRounding.invoice_total | currency:'MXN' }} ·
             <strong>Diferencia de redondeo:</strong> {{ reviewRounding.difference | currency:'MXN' }}.
