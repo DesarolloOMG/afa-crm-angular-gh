@@ -166,3 +166,46 @@ describe('Refacturación: modal de timbrado', () => {
         fixture.destroy();
     });
 });
+
+describe('Refacturación: solicitud sin confirmar', () => {
+    it('muestra el motivo del proveedor y mantiene bloqueado otro timbrado', () => {
+        const http: any = {post: jasmine.createSpy('post')};
+        const component = new RefacturacionVentaComponent(http);
+        const doc = {preview: {valid: true, completed: false}, request: {status: 'uncertain', is_active: true}};
+        expect(component.estadoFiscal(doc)).toBe('Timbrado sin confirmar');
+        component.solicitarTimbrado(doc, {valid: true});
+        expect(http.post).not.toHaveBeenCalled();
+        doc.preview.completed = true;
+        expect(component.estadoFiscal(doc)).toBe('Timbrado confirmado');
+    });
+});
+describe('Refacturación: información visible para operación', () => {
+    it('presenta uncertain con motivo, referencias y sin formulario de reenvío', async(() => {
+        const http: any = {
+            get: jasmine.createSpy('get').and.callFake((url: string) => ({subscribe: (ok: any) => {
+                if (url.indexOf('refacturacion/') >= 0) {
+                    ok({data: {resultado: {documento_original: 40142, nota_credito: 40375, documento_nuevo: 40376,
+                        contabilidad: {saldo_nuevo: '0', pagado: 1, aplicaciones: [{ingreso: 15927, monto: '24493'}]}}}});
+                } else {
+                    ok({data: {valid: true, completed: false, request: {id: 676, status: 'uncertain', is_active: true,
+                        error_message: 'El nombre no coincide con el RFC.', series: 'FML', folio: '40258'},
+                        payload: {content: {paymentMethod: 'PUE', paymentForm: '03'}}}});
+                }
+            }})), post: jasmine.createSpy('post')
+        };
+        TestBed.configureTestingModule({declarations: [RefacturacionVentaComponent], imports: [FormsModule],
+            providers: [{provide: HttpClient, useValue: http}]}).compileComponents().then(() => {
+            const fixture = TestBed.createComponent(RefacturacionVentaComponent);
+            fixture.componentInstance.documento = '40142';
+            fixture.detectChanges();
+            const text = fixture.nativeElement.textContent;
+            expect(text).toContain('Timbrado sin confirmar');
+            expect(text).toContain('El nombre no coincide con el RFC.');
+            expect(text).toContain('#15927');
+            expect(text).toContain('Saldo actual del pedido nuevo');
+            expect(fixture.nativeElement.querySelectorAll('form').length).toBe(0);
+            expect(http.post).not.toHaveBeenCalled();
+            fixture.destroy();
+        });
+    }));
+});

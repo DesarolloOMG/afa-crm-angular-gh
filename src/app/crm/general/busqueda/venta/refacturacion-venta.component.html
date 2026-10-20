@@ -75,23 +75,46 @@
 <div *ngIf="resultado" class="modal-body">
     <div class="alert alert-success" role="status" *ngIf="soloCliente">Cliente fiscal actualizado. La venta #{{ documento }} permanece pendiente de timbrar.</div>
     <ng-container *ngIf="!soloCliente">
-        <div class="alert alert-success">Refacturación contable preparada. La NC #{{ resultado.nota_credito }} salda el pedido original #{{ resultado.documento_original }}.
+        <section class="rf-summary" aria-label="Resumen de refacturación">
+            <h6>1. Operación contable realizada</h6>
+            <div class="rf-flow">
+                <div><small>Pedido original</small><strong>#{{ resultado.documento_original }}</strong>Saldado con la nota de crédito</div>
+                <div><small>Nota de crédito</small><strong>#{{ resultado.nota_credito }}</strong>Compensa el pedido original</div>
+                <div><small>Pedido nuevo</small><strong>#{{ resultado.documento_nuevo }}</strong>Recibe la refacturación</div>
+            </div>
             <div *ngIf="resultado.contabilidad?.sin_ingresos">No se trasladaron ni crearon ingresos.</div>
-            <div *ngIf="resultado.contabilidad">Saldo actual del pedido nuevo #{{ resultado.documento_nuevo }}: <strong>{{ resultado.contabilidad.saldo_nuevo | number:'1.2-4' }}</strong>
+            <div *ngFor="let pago of resultado.contabilidad?.aplicaciones">Ingreso contable <strong>#{{ pago.ingreso }}</strong>: {{ pago.monto | number:'1.2-2' }} en la moneda de la venta, trasladado al pedido nuevo.</div>
+            <div *ngIf="resultado.contabilidad" class="mt-2">Saldo actual del pedido nuevo:
+                <strong>{{ resultado.contabilidad.saldo_nuevo | number:'1.2-2' }}</strong> en la moneda de la venta
                 ({{ resultado.contabilidad.pagado ? 'saldado' : 'pendiente de cobro' }}).</div>
-        </div>
-        <p>Revisa método y forma de pago de cada documento y solicita su timbrado. El folio se asigna automáticamente al enviar.
-            Puedes cerrar y continuar después desde “Ver refacturación”.</p>
-        <section *ngFor="let doc of documentosFiscales" class="border rounded p-3 mb-3">
+            <small class="text-muted d-block mt-2">El ingreso, el pedido y el folio fiscal tienen numeraciones independientes. El saldo contable no confirma el timbrado.</small>
+        </section>
+        <h6>2. Estado fiscal de los documentos</h6>
+        <p class="text-muted">Cada documento tiene su propio timbrado. Puedes cerrar y continuar desde “Ver refacturación”.</p>
+        <section *ngFor="let doc of documentosFiscales" class="rf-document border rounded p-3 mb-3" [class.rf-complete]="doc.preview?.completed">
             <h6>{{ doc.titulo }} #{{ doc.id }}</h6>
             <div *ngIf="doc.cargando" role="status">Consultando…</div>
             <div *ngIf="doc.error" class="alert alert-danger" role="alert">{{ doc.error }}</div>
             <ng-container *ngIf="doc.preview">
-                <div *ngIf="doc.preview.completed" class="alert alert-success">Timbrado: {{ doc.preview.series }} {{ doc.preview.folio }}<br>UUID: {{ doc.preview.uuid }}. XML y PDF guardados.</div>
+                                <div class="rf-state" [class.text-success]="doc.preview.completed" role="status">{{ estadoFiscal(doc) }}</div>
+                <div *ngIf="doc.preview.completed">Folio fiscal: <strong>{{ doc.preview.series }} {{ doc.preview.folio }}</strong>. XML y PDF guardados.
+                    <details><summary>Ver UUID</summary>{{ doc.preview.uuid }}</details></div>
                 <ng-container *ngIf="!doc.preview.completed">
-                    <div *ngIf="doc.request" class="alert alert-info">Estado: {{ doc.request.status }} · {{ doc.request.series }} {{ doc.request.folio }}
-                        <div *ngIf="doc.request.error_message">{{ doc.request.error_message }}</div>
-                        <small *ngIf="doc.request.correlation_id">Referencia Nexfira: {{ doc.request.correlation_id }}</small></div>
+                    <div *ngIf="doc.request">
+                        <div *ngIf="doc.request.status === 'uncertain'" class="alert alert-warning" role="status">
+                            <strong>Acción pendiente: confirmar el resultado con Nexfira.</strong>
+                            <p class="mb-0">La solicitud sigue sin confirmación fiscal. Consulta su estado antes de corregir los datos o solicitar otro timbrado.</p>
+                        </div>
+                        <div *ngIf="doc.request.error_message" class="alert alert-danger" role="alert"><strong>Motivo informado:</strong> {{ doc.request.error_message }}</div>
+                        <div *ngIf="doc.request.series || doc.request.folio">Serie y folio de la solicitud: <strong>{{ doc.request.series }} {{ doc.request.folio }}</strong></div>
+                        <details><summary>Ver referencias de seguimiento</summary>
+                            <div>Estado Nexfira: {{ doc.request.status }}</div>
+                            <div>Solicitud CRM: #{{ doc.request.id }}</div>
+                            <div *ngIf="doc.request.remote_request_id">Solicitud Nexfira: {{ doc.request.remote_request_id }}</div>
+                            <div *ngIf="doc.request.correlation_id">Referencia Nexfira: {{ doc.request.correlation_id }}</div>
+                            <div *ngIf="doc.request.error_code">Código: {{ doc.request.error_code }}</div>
+                        </details>
+                    </div>
                     <div *ngIf="!doc.preview.valid && !doc.request?.is_active" class="alert alert-warning">{{ doc.preview.blockers?.join(' ') }}</div>
                     <form *ngIf="doc.preview.valid && doc.options && !doc.request?.is_active" #fiscalForm="ngForm" (ngSubmit)="solicitarTimbrado(doc, fiscalForm)">
                         <fieldset [disabled]="guardando || doc.cargando">
@@ -112,7 +135,7 @@
                             <button type="submit" class="btn btn-primary" [disabled]="!fiscalForm.valid || guardando || doc.cargando">Solicitar timbrado de {{ doc.esNota ? 'NC' : 'factura' }} #{{ doc.id }}</button>
                         </fieldset>
                     </form>
-                    <button *ngIf="doc.request?.is_active" type="button" class="btn btn-outline-primary" [disabled]="guardando || doc.cargando" (click)="actualizarTimbrado(doc)">Actualizar estado y recuperar XML/PDF</button>
+                    <button *ngIf="doc.request?.is_active" type="button" class="btn btn-outline-primary" [disabled]="guardando || doc.cargando" (click)="actualizarTimbrado(doc)">{{ doc.cargando ? 'Consultando Nexfira…' : 'Actualizar estado y recuperar XML/PDF' }}</button>
                 </ng-container>
             </ng-container>
             <button *ngIf="!doc.preview && !doc.cargando" type="button" class="btn btn-outline-primary" (click)="cargarFiscal(doc)">Volver a consultar</button>

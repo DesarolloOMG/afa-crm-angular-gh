@@ -10,6 +10,20 @@ import {backend_url} from '@env/environment';
         form { display: flex; flex-direction: column; min-height: 0; }
         .modal-body { min-height: 0; overflow-y: auto; }
         .modal-header, .modal-footer { flex-shrink: 0; }
+        .rf-summary { background: #f3f6f8; border: 1px solid #dce3e8; border-radius: 6px; padding: 16px; margin-bottom: 20px; }
+        .rf-summary h6, .rf-document h6 { margin-bottom: 12px; }
+        .rf-flow { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+        .rf-flow > div { flex: 1 1 150px; background: white; padding: 12px; border: 1px solid #dce3e8; border-radius: 4px; }
+        .rf-flow small, .rf-flow strong { display: block; }
+        .rf-document { border-left: 4px solid #d8a126 !important; }
+        .rf-document.rf-complete { border-left-color: #268454 !important; }
+        .rf-document details { margin: 12px 0; overflow-wrap: anywhere; }
+        .rf-document summary { cursor: pointer; color: #42647a; }
+        .rf-state { font-weight: 600; margin-bottom: 8px; }
+        .rf-document .alert-warning { background: #fff9ed; border-color: #eadbb9; color: #685323; }
+        .rf-document .alert-danger { background: #fff6f5; border-color: #ead4d1; color: #87423b; }
+        .rf-document .alert p { color: inherit; }
+        .rf-document .btn-outline-primary { color: #365e82; border-color: #a5bacb; }
     `],
 })
 export class RefacturacionVentaComponent implements OnInit {
@@ -77,6 +91,15 @@ export class RefacturacionVentaComponent implements OnInit {
         const pending = Object.keys(labels).filter(name => controls[name] && controls[name].invalid).map(name => labels[name]);
         if (!this.confirmado) { pending.push('marca la autorización junto al botón Guardar'); }
         return pending;
+    }
+
+    estadoFiscal(doc: any): string {
+        if (doc.preview && doc.preview.completed) { return 'Timbrado confirmado'; }
+        const labels = {uncertain: 'Timbrado sin confirmar', pending_approval: 'Pendiente de aprobación',
+            queued: 'En cola de timbrado', processing: 'Procesando timbrado', sending: 'Enviando solicitud',
+            stamped: 'Timbrado; recuperando archivos', rejected: 'Solicitud rechazada',
+            not_dispatched: 'Solicitud no enviada', reset_local: 'Intento archivado'};
+        return doc.request ? (labels[doc.request.status] || 'Estado por revisar: ' + doc.request.status) : 'Pendiente de solicitar';
     }
 
     prepararTimbrado() {

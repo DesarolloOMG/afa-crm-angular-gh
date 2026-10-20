@@ -549,7 +549,19 @@
                 <app-new-editor [(ngModel)]="final_data.seguimiento"></app-new-editor>
                 <div *ngFor="let seguimiento of data.seguimiento_anterior" class="border rounded p-2 mb-2 bg-light">
                     <div class="fw-bold small mb-1">{{ seguimiento.nombre }} - {{ seguimiento.created_at }}</div>
-                    <div [innerHTML]="seguimiento.seguimiento"></div>
+                                        <ng-container *ngIf="resumenRefacturacion(seguimiento.seguimiento) as resumen; else seguimientoLibre">
+                        <h6>Refacturación · registro histórico</h6>
+                        <p class="small text-muted">Estos datos corresponden al momento de la operación. Consulta “Ver refacturación” para conocer el estado fiscal actual.</p>
+                                                <div class="row mb-2">
+                            <div class="col-sm-4"><small class="text-muted d-block">Pedido original</small><strong>#{{ resumen.original }}</strong></div>
+                            <div class="col-sm-4"><small class="text-muted d-block">Nota de crédito</small><strong>#{{ resumen.nota }}</strong></div>
+                            <div class="col-sm-4"><small class="text-muted d-block">Pedido nuevo</small><strong>#{{ resumen.nuevo }}</strong></div>
+                        </div>
+                        <p *ngIf="resumen.ingresos" class="mb-2">Pago trasladado: {{ resumen.ingresos }}.</p>
+                        <details><summary>Ver detalle de la operación</summary><p *ngFor="let parte of resumen.partes" class="mt-2 mb-2">{{ parte }}</p></details>
+                        <details><summary>Ver registro original</summary><div [innerHTML]="seguimiento.seguimiento"></div></details>
+                    </ng-container>
+                    <ng-template #seguimientoLibre><div [innerHTML]="seguimiento.seguimiento"></div></ng-template>
                 </div>
             </div>
 

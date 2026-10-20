@@ -79,6 +79,16 @@ export class VentaComponent implements OnInit {
         this.puedeRefacturar = Array.isArray(permisos[11]) && permisos[11].map(Number).indexOf(36) >= 0;
     }
 
+    resumenRefacturacion(texto: string): any {
+        if (!texto || !/^\[REFACTURACION CONTABLE #\d+\]/.test(texto)) { return null; }
+        const original = texto.match(/original #(\d+)/);
+        const nuevo = texto.match(/nuevo #(\d+)/);
+        const nota = texto.match(/NC #(\d+)/);
+        if (!original || !nuevo || !nota) { return null; }
+        const ingresos = (texto.match(/ingreso #\d+/g) || []).join(', ');
+        const partes = texto.split(/(?=Se generó el |Se trasladaron del |No había ingresos aplicados|Saldo del pedido nuevo al registrar|Estado fiscal al registrar)/);
+        return {original: original[1], nuevo: nuevo[1], nota: nota[1], ingresos: ingresos, partes: partes};
+    }
     ngOnInit() {
     }
 
