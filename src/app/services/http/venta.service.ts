@@ -66,6 +66,14 @@ export class VentaService {
         );
     }
 
+    revisarOrigenExternoNC(documento: number): Observable<any> {
+        return this.http.post(`${backend_url}venta/venta/facturacion/nc/${documento}/origen-externo/revisar`, {});
+    }
+
+    importarOrigenExternoNC(documento: number, data: any): Observable<any> {
+        return this.http.post(`${backend_url}venta/venta/facturacion/nc/${documento}/origen-externo/importar`, data);
+    }
+
     revisarFactura(data: any): Observable<any> {
         return this.http.post(`${backend_url}venta/venta/facturacion/revisar`, data);
     }

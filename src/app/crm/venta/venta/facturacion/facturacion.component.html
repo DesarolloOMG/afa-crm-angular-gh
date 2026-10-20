@@ -239,12 +239,15 @@
                     </td>
                     <td>
                         <button
-                            *ngIf="mode === 'individual' && (!documento.request || !documento.request.is_active)"
+                            *ngIf="mode === 'individual' && !documento.needs_external_import && (!documento.request || !documento.request.is_active)"
                             class="btn btn-sm btn-primary"
                             type="button"
                             [disabled]="!documento.can_hub || loading || !configured"
                             (click)="openIndividualModal(documento, billingActionModal)"
                         >{{ creditNotes ? 'Timbrar NC' : 'Individual' }}</button>
+                        <button *ngIf="mode === 'individual' && documento.needs_external_import && (!documento.request || !documento.request.is_active)"
+                                class="btn btn-sm btn-outline-primary" type="button" [disabled]="loading || !configured"
+                                (click)="openExternalOrigin(documento, externalOriginModal)">Preparar factura origen</button>
                         <button
                             *ngIf="documento.request && documento.request.is_active"
                             class="btn btn-sm btn-info"
@@ -650,3 +653,45 @@
 </ng-template>
 
 <ngx-spinner bdColor="rgba(0,0,0,0.45)" size="medium" color="#fff" type="ball-scale-multiple"></ngx-spinner>
+
+<ng-template #externalOriginModal let-modal>
+    <div class="modal-header">
+        <div><h5 class="modal-title">Factura externa · NC #{{ externalOriginDocument?.id }}</h5>
+            <small class="text-muted">Revisa el XML original y confirma el saldo disponible antes de preparar la nota.</small></div>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="loading" (click)="modal.dismiss()"><span aria-hidden="true">&times;</span></button>
+    </div>
+    <div class="modal-body">
+        <p *ngIf="loading" role="status">Consultando Nexfira…</p>
+        <div *ngIf="externalOriginError" class="alert alert-danger" role="alert">{{ externalOriginError }}</div>
+        <ng-container *ngIf="externalOrigin">
+            <dl class="row">
+                <dt class="col-sm-4">Venta origen</dt><dd class="col-sm-8">#{{ externalOrigin.source_document_id }}</dd>
+                <dt class="col-sm-4">UUID original</dt><dd class="col-sm-8">{{ externalOrigin.fiscalUuid }}</dd>
+                <dt class="col-sm-4">Receptor</dt><dd class="col-sm-8">{{ externalOrigin.payload.content.receiver.name }} · {{ externalOrigin.payload.content.receiver.rfc }}</dd>
+                <dt class="col-sm-4">Importe original</dt><dd class="col-sm-8">{{ externalOrigin.originalAmount | currency:'MXN' }}</dd>
+                <dt class="col-sm-4">Ambiente</dt><dd class="col-sm-8">{{ externalOrigin.environment === 'production' ? 'Producción' : 'Pruebas' }}</dd>
+            </dl>
+            <p class="text-muted">Confirma la vigencia contra tu evidencia fiscal. La validación del XML no consulta su vigencia en el SAT.
+                La apertura es permanente: captura el neto todavía disponible por concepto, sin impuestos y después de notas previas.</p>
+            <div class="table-responsive"><table class="table table-sm">
+                <thead><tr><th>Concepto</th><th>Neto original</th><th>Neto disponible sin impuestos</th></tr></thead>
+                <tbody><tr *ngFor="let line of externalOrigin.lines"><td>{{ line.description }}<small class="d-block text-muted">{{ line.lineId }}</small></td>
+                    <td>{{ line.netAmount }}</td><td><input class="form-control" type="text" inputmode="decimal"
+                        [(ngModel)]="line.remaining" [disabled]="loading" [attr.aria-label]="'Saldo neto ' + line.lineId"></td></tr></tbody>
+            </table></div>
+            <div *ngIf="externalOrigin.payload.content.paymentMethod !== 'PUE'" class="form-group">
+                <label>Siguiente parcialidad<input type="number" min="1" step="1" class="form-control" [(ngModel)]="externalOpening.nextInstallment" [disabled]="loading"></label>
+            </div>
+            <div class="form-group"><label for="external-opening-note">Nota de conciliación</label>
+                <textarea id="external-opening-note" class="form-control" maxlength="500" [(ngModel)]="externalOpening.note" [disabled]="loading"></textarea></div>
+            <label class="d-block"><input type="checkbox" [(ngModel)]="externalOpening.valid" [disabled]="loading"> Confirmo que la factura original está vigente.</label>
+            <label class="d-block"><input type="checkbox" [(ngModel)]="externalOpening.balances" [disabled]="loading"> Confirmo que concilié los saldos por concepto.</label>
+        </ng-container>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" [disabled]="loading" (click)="modal.dismiss()">Cerrar</button>
+        <button *ngIf="externalOrigin" type="button" class="btn btn-primary"
+            [disabled]="loading || !externalOpening.valid || !externalOpening.balances || !externalOpening.note.trim()"
+            (click)="confirmExternalOrigin(modal)">Confirmar factura origen</button>
+    </div>
+</ng-template>

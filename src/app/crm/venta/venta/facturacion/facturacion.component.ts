@@ -19,6 +19,10 @@ export class FacturacionComponent implements OnInit {
     visibleDocumentos: any[] = [];
     counts = {drop: 0, full: 0, credit_notes: 0};
     creditNotes = false;
+    externalOrigin: any = null;
+    externalOriginDocument: any = null;
+    externalOriginError = '';
+    externalOpening = {valid: false, balances: false, note: '', nextInstallment: 1};
     individualDocument: any = null;
     individualReceiver: any = null;
     individualRefacturationCreditNote = false;
@@ -475,6 +479,61 @@ export class FacturacionComponent implements OnInit {
         return this.selectedDocumentValues()
             .filter((documento) => documento.can_hub)
             .map((documento) => Number(documento.id));
+    }
+
+    openExternalOrigin(documento: any, content: any) {
+        if (this.loading || !this.configured || !documento.needs_external_import
+            || (documento.request && documento.request.is_active)) { return; }
+        this.externalOrigin = null;
+        this.externalOriginDocument = documento;
+        this.externalOriginError = '';
+        this.externalOpening = {valid: false, balances: false, note: '', nextInstallment: 1};
+        this.modalService.open(content, {size: 'lg', backdrop: 'static', keyboard: false});
+        this.loading = true;
+        this.ventaService.revisarOrigenExternoNC(documento.id).subscribe({
+            next: (response: any) => {
+                this.externalOrigin = response.data;
+                this.externalOrigin.lines = this.externalOrigin.lines.map((line: any) =>
+                    Object.assign({}, line, {remaining: String(line.netAmount)}));
+                this.loading = false;
+            },
+            error: (error: any) => { this.loading = false; this.showExternalOriginError(error); },
+        });
+    }
+
+    private showExternalOriginError(error: any) {
+        const data = error.error || {};
+        this.externalOriginError = data.nexfira_code === 'invalid_fiscal_xml'
+            ? 'Nexfira rechazó el XML original de la factura. No se importó ni se envió la NC. Revisa el XML con Nexfira.'
+            : (data.message || 'No fue posible preparar la factura externa.');
+        if (data.nexfira_code) { this.externalOriginError += ' Código: ' + data.nexfira_code + '.'; }
+        if (data.correlation_id) { this.externalOriginError += ' Referencia: ' + data.correlation_id; }
+    }
+
+    confirmExternalOrigin(modal: any) {
+        if (this.loading || !this.externalOrigin || !this.externalOpening.valid || !this.externalOpening.balances
+            || !this.externalOpening.note.trim()) { return; }
+        const payload = {
+            review_token: this.externalOrigin.review_token,
+            confirmedBalances: this.externalOpening.balances,
+            opening: {
+                confirmedValid: this.externalOpening.valid,
+                nextInstallment: Number(this.externalOpening.nextInstallment),
+                note: this.externalOpening.note.trim(),
+                remainingLines: this.externalOrigin.lines.map((line: any) => ({lineId: line.lineId, netAmount: String(line.remaining)})),
+            },
+        };
+        this.loading = true;
+        this.externalOriginError = '';
+        this.ventaService.importarOrigenExternoNC(this.externalOriginDocument.id, payload).subscribe({
+            next: () => {
+                this.loading = false;
+                modal.close();
+                this.load();
+                void swal('Factura preparada', 'La factura externa quedó vinculada. Ahora puedes revisar y enviar la NC desde Timbrar NC.', 'success');
+            },
+            error: (error: any) => { this.loading = false; this.showExternalOriginError(error); },
+        });
     }
 
     openIndividualModal(documento: any, content: any) {
