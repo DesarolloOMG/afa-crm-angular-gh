@@ -594,7 +594,8 @@
             <strong>Impuestos:</strong> {{ review.content.expectedTotals.transfers | currency:'MXN' }} ·
             <strong>Total:</strong> {{ review.content.expectedTotals.total | currency:'MXN' }}</p>
         <div *ngIf="reviewRounding" class="alert alert-info">
-            Importes MLG recalculados a dos decimales.
+            <span *ngIf="reviewRounding.basis === 'order_total'">MLG: base sin IVA redondeada a dos decimales por pedido; IVA calculado a seis decimales y total final a centavos.</span>
+            <span *ngIf="reviewRounding.basis !== 'order_total'">MLG: bases redondeadas por componente del producto. Para comparar contra el importe de cada pedido de MLG, usa “Global por ventas”.</span>
             <strong>Total de pedidos:</strong> {{ reviewRounding.source_total | currency:'MXN' }} ·
             <strong>Total de factura:</strong> {{ reviewRounding.invoice_total | currency:'MXN' }} ·
             <strong>Diferencia de redondeo:</strong> {{ reviewRounding.difference | currency:'MXN' }}.
