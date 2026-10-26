@@ -545,8 +545,8 @@ const MENUITEMS = [
                 name: 'Clientes',
                 type: 'link',
                 icon: 'fa fa-user-tie',
-                level: [16],
-                sublevel: 28,
+                level: [8],
+                sublevel: 19,
             },
             // {
             //     main_state: 'venta',
