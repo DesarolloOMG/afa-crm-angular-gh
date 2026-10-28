@@ -312,3 +312,12 @@ td {
         grid-template-columns: 1fr;
     }
 }
+
+.billing-nc-routes { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.billing-nc-route { flex: 1 1 280px; border: 1px solid #d8dfe8; border-radius: 4px; padding: 14px; }
+.billing-nc-route p { margin: 8px 0; }
+.billing-nc-route-active { border-color: #4680ff; background: #f3f7ff; }
+.billing-help-button { display: block; margin-top: 8px; }
+.billing-help-issue + .billing-help-issue { border-top: 1px solid #d8dfe8; margin-top: 16px; padding-top: 16px; }
+.billing-help-issue li { margin-bottom: 8px; }
+.billing-help-issue p { overflow-wrap: break-word; }

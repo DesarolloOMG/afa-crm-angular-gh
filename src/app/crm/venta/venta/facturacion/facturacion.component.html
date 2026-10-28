@@ -9,7 +9,7 @@
                 class="btn btn-outline-primary"
                 routerLink="/venta/venta/facturacion/individual"
                 routerLinkActive="active"
-            >1. Individual</a>
+            >1. Individual · Nexfira</a>
             <a
                 class="btn btn-outline-primary"
                 routerLink="/venta/venta/facturacion/global"
@@ -19,20 +19,22 @@
                 class="btn btn-outline-primary"
                 routerLink="/venta/venta/facturacion/externa"
                 routerLinkActive="active"
-            >3. Fuera del Hub</a>
+            >3. Registrar CFDI externo</a>
         </nav>
 
         <div *ngIf="!creditNotes" class="alert alert-info m-t-15">
             Todas las ventas de esta lista están en fase 5. Pasan a fase 6 sólo después de validar y guardar UUID, XML y PDF.
         </div>
-        <div *ngIf="creditNotes" class="alert alert-info m-t-15">
-            Notas de crédito activas pendientes de timbrado, vinculadas desde la venta por su ID interno.
-            Se timbran individualmente en Nexfira. Fuera del Hub puedes relacionar varias NC incluidas en un mismo CFDI de egreso.
-            La factura de la venta original no se modifica.
-            <div *ngIf="mode === 'external'" class="m-t-10">
-                Relacionar CFDI sólo registra el XML y PDF de una NC ya emitida. Si la factura origen es externa,
-                Nexfira permite importar su XML y preparar la NC desde
-                <a href="https://hub.nexfira.mx/external-invoices" target="_blank" rel="noopener noreferrer">Facturas externas en Nexfira</a>.
+        <div *ngIf="creditNotes" class="billing-nc-routes m-t-15" aria-label="Cómo gestionar una nota de crédito">
+            <div class="billing-nc-route" [class.billing-nc-route-active]="mode === 'individual'">
+                <strong>Emitir una nueva NC con Nexfira</strong>
+                <p>Si la factura original se emitió fuera, prepara primero su XML y saldos para que Nexfira pueda relacionar la NC. Se conserva la factura original.</p>
+                <a routerLink="/venta/venta/facturacion/individual" [queryParams]="{nc: '1', buscar: searchTerm}">Ir a timbrar NC con Nexfira</a>
+            </div>
+            <div class="billing-nc-route" [class.billing-nc-route-active]="mode === 'external'">
+                <strong>Registrar una NC ya timbrada en otro sistema</strong>
+                <p>Selecciona la NC y carga su XML y PDF. AFA registra el CFDI existente; no solicita otro timbrado ni exige importar el origen en Nexfira.</p>
+                <a routerLink="/venta/venta/facturacion/externa" [queryParams]="{nc: '1', buscar: searchTerm}">Ir a registrar NC externa</a>
             </div>
         </div>
 
@@ -100,7 +102,7 @@
                     (click)="openActionModal(billingActionModal)"
                 >
                     <i class="fa fa-paperclip"></i>
-                    Relacionar CFDI
+                    {{ creditNotes ? 'Registrar NC externa' : 'Registrar CFDI externo' }}
                     <span class="badge badge-light">{{ selectedIds().length }}</span>
                 </button>
                 <button class="btn btn-outline-primary" type="button" [disabled]="loading" (click)="load()">
@@ -244,7 +246,7 @@
                             type="button"
                             [disabled]="!documento.can_hub || loading || !configured"
                             (click)="openIndividualModal(documento, billingActionModal)"
-                        >{{ creditNotes ? 'Timbrar NC' : 'Individual' }}</button>
+                        >{{ creditNotes ? 'Timbrar NC con Nexfira' : 'Individual' }}</button>
                         <button *ngIf="mode === 'individual' && documento.needs_external_import && (!documento.request || !documento.request.is_active)"
                                 class="btn btn-sm btn-outline-primary" type="button" [disabled]="loading || !configured"
                                 (click)="openExternalOrigin(documento, externalOriginModal)">Preparar factura origen</button>
@@ -255,6 +257,9 @@
                             [disabled]="loading"
                             (click)="refreshRequest(documento)"
                         >Consultar</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary billing-help-button"
+                                [attr.aria-label]="'Ayuda para documento ' + documento.id"
+                                (click)="openBillingHelp(documento, billingHelpModal)">¿Cómo resolverlo?</button>
                     </td>
                 </tr>
                 <tr *ngIf="!visibleDocumentos.length">
@@ -350,7 +355,7 @@
     <div class="modal-header">
         <div>
             <h4 class="modal-title">
-                {{ mode === 'global' ? 'Preparar factura global' : (mode === 'individual' ? (creditNotes ? 'Timbrar nota de crédito' : 'Preparar factura individual') : 'Relacionar CFDI externo') }}
+                {{ mode === 'global' ? 'Preparar factura global' : (mode === 'individual' ? (creditNotes ? 'Timbrar nota de crédito' : 'Preparar factura individual') : (creditNotes ? 'Registrar NC externa' : 'Registrar CFDI externo')) }}
             </h4>
             <small class="text-muted">
                 {{ mode === 'individual' ? 1 : (mode === 'global' ? hubSelectedIds().length : selectedIds().length) }} {{ documentLabel() }} seleccionada(s)
@@ -476,7 +481,7 @@
                 <option value="03">03 — Devolución de mercancía</option>
                 <option value="01">01 — Nota de crédito por descuento o bonificación</option>
             </select>
-            <small class="form-text text-muted">La factura origen debe estar timbrada en Nexfira. El uso CFDI de la NC será G02.</small>
+            <small class="form-text text-muted">La factura origen debe estar registrada en Nexfira: emitida ahí o importada desde Preparar factura origen. El uso CFDI de la NC será G02.</small>
         </div>
         <ng-container *ngIf="mode !== 'external'">
             <div class="row billing-global-summary">
@@ -618,6 +623,7 @@
     </div>
 
     <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="openBillingHelp(null, billingHelpModal)">¿Cómo resolverlo?</button>
         <button class="btn btn-outline-secondary" type="button" [disabled]="loading" (click)="c('cancel')">
             Cancelar
         </button>
@@ -647,7 +653,7 @@
             (click)="attachExternal()"
         >
             <i class="fa fa-check"></i>
-            Validar y relacionar ({{ selectedIds().length }})
+            {{ creditNotes ? 'Validar y registrar NC externa' : 'Validar y registrar CFDI externo' }} ({{ selectedIds().length }})
         </button>
     </div>
 </ng-template>
@@ -656,13 +662,18 @@
 
 <ng-template #externalOriginModal let-modal>
     <div class="modal-header">
-        <div><h5 class="modal-title">Factura externa · NC #{{ externalOriginDocument?.id }}</h5>
+        <div><h5 class="modal-title">Preparar factura origen en Nexfira · NC #{{ externalOriginDocument?.id }}</h5>
             <small class="text-muted">Revisa el XML original y confirma el saldo disponible antes de preparar la nota.</small></div>
         <button type="button" class="close" aria-label="Cerrar" [disabled]="loading" (click)="modal.dismiss()"><span aria-hidden="true">&times;</span></button>
     </div>
     <div class="modal-body">
         <p *ngIf="loading" role="status">Consultando Nexfira…</p>
-        <div *ngIf="externalOriginError" class="alert alert-danger" role="alert">{{ externalOriginError }}</div>
+        <p>Este paso registra en Nexfira la factura original para emitir una nueva NC relacionada. No vuelve a timbrar la venta.
+            Si ya tienes una NC emitida, usa Registrar CFDI externo → Notas de crédito.</p>
+        <div *ngIf="externalOriginError" class="alert alert-danger" role="alert">{{ externalOriginError }}
+            <button type="button" class="btn btn-sm btn-outline-secondary d-block mt-2"
+                    (click)="openBillingHelp(externalOriginDocument, billingHelpModal)">¿Cómo resolverlo?</button>
+        </div>
         <ng-container *ngIf="externalOrigin">
             <dl class="row">
                 <dt class="col-sm-4">Venta origen</dt><dd class="col-sm-8">#{{ externalOrigin.source_document_id }}</dd>
@@ -694,4 +705,32 @@
             [disabled]="loading || !externalOpening.valid || !externalOpening.balances || !externalOpening.note.trim()"
             (click)="confirmExternalOrigin(modal)">Confirmar factura origen</button>
     </div>
+</ng-template>
+
+<ng-template #billingHelpModal let-modal>
+    <div class="modal-header">
+        <h5 class="modal-title">Ayuda de facturación <span *ngIf="helpDocument">· #{{ helpDocument.id }}</span></h5>
+        <button type="button" class="close" aria-label="Cerrar ayuda" (click)="modal.dismiss()"><span aria-hidden="true">&times;</span></button>
+    </div>
+    <div class="modal-body">
+        <p><strong>{{ mode === 'external' ? 'Estás registrando un CFDI ya emitido.' : 'Estás preparando una emisión con Nexfira.' }}</strong></p>
+        <div *ngIf="creditNotes" class="alert alert-info">
+            <p>Para emitir con Nexfira: Individual · Nexfira → Notas de crédito → Preparar factura origen (si es externa) → Timbrar NC con Nexfira.</p>
+            <p>Para registrar una NC emitida en otro sistema: Registrar CFDI externo → Notas de crédito → seleccionar NC → Registrar NC externa → cargar XML y PDF.</p>
+            <a [routerLink]="[mode === 'external' ? '/venta/venta/facturacion/individual' : '/venta/venta/facturacion/externa']"
+               [queryParams]="{nc: '1', buscar: helpDocument ? helpDocument.id : searchTerm}" (click)="modal.close()">
+                {{ mode === 'external' ? 'Ir a timbrar NC con Nexfira' : 'Ir a registrar NC externa' }}
+            </a>
+        </div>
+        <p *ngIf="!helpIssues.length">No hay un error reportado para este documento. Revisa los datos y archivos antes de confirmar la operación.</p>
+        <section *ngFor="let issue of helpIssues" class="billing-help-issue">
+            <h6>{{ issue.title }}</h6>
+            <p class="text-danger">{{ issue.detail }}</p>
+            <p><strong>Quién lo revisa:</strong> {{ issue.owner }}</p>
+            <ol><li *ngFor="let step of issue.steps">{{ step }}</li></ol>
+            <small *ngIf="issue.code" class="d-block text-muted">Código: {{ issue.code }}</small>
+            <small *ngIf="issue.reference" class="d-block text-muted">Referencia Nexfira: {{ issue.reference }}</small>
+        </section>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Cerrar ayuda</button></div>
 </ng-template>

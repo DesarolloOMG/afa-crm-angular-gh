@@ -6,6 +6,7 @@ import swal from 'sweetalert2';
 
 import {VentaService} from '@services/http/venta.service';
 import {extractUuidFromCfdi, fileToDataURL, swalErrorHttpResponse} from '@sharedUtils/shared';
+import {billingHelp} from './billing-help';
 import {readFileAsText} from '../xml-pdf/xml-pdf.utils';
 
 @Component({
@@ -22,6 +23,9 @@ export class FacturacionComponent implements OnInit {
     externalOrigin: any = null;
     externalOriginDocument: any = null;
     externalOriginError = '';
+    helpDocument: any = null;
+    helpIssues: any[] = [];
+    private billingErrors: {[id: number]: any} = {};
     externalOpening = {valid: false, balances: false, note: '', nextInstallment: 1};
     individualDocument: any = null;
     individualReceiver: any = null;
@@ -114,10 +118,11 @@ export class FacturacionComponent implements OnInit {
         this.route.data.subscribe((data: any) => {
             this.mode = data.mode || 'individual';
             this.fulfillment = this.mode === 'external';
-            this.creditNotes = false;
+            this.creditNotes = this.mode !== 'global' && this.route.snapshot.queryParamMap.get('nc') === '1';
             this.clearSelection();
             this.resetExternalFiles();
-            this.searchTerm = '';
+            this.searchTerm = this.route.snapshot.queryParamMap.get('buscar') || '';
+            this.billingErrors = {};
             this.page = 1;
             this.load();
         });
@@ -125,18 +130,20 @@ export class FacturacionComponent implements OnInit {
 
     viewTitle(): string {
         if (this.creditNotes) {
-            return this.mode === 'external' ? 'Relacionar notas de crédito externas' : 'Timbrar notas de crédito individuales';
+            return this.mode === 'external' ? 'Registrar NC ya timbradas en otro sistema' : 'Timbrar notas de crédito con Nexfira';
         }
         switch (this.mode) {
             case 'global': return 'Agrupar ventas para factura global';
-            case 'external': return 'Relacionar CFDI emitido fuera del Hub';
+            case 'external': return 'Registrar CFDI ya timbrado en otro sistema';
             default: return 'Facturar una venta individual';
         }
     }
 
     viewDescription(): string {
         if (this.creditNotes) {
-            return 'Documentos tipo nota de crédito vinculados a la venta original, con su propio UUID, serie, folio y archivos.';
+            return this.mode === 'external'
+                ? 'Adjunta el XML y PDF de una NC ya emitida. Este registro no solicita un nuevo timbrado ni importa el origen en Nexfira.'
+                : 'Solicita una nueva NC a Nexfira. Si la factura original es externa, primero prepara su XML y saldos en Nexfira.';
         }
         switch (this.mode) {
             case 'global':
@@ -260,6 +267,41 @@ export class FacturacionComponent implements OnInit {
 
     documentBlockers(documento: any): string[] {
         return (this.mode === 'external' ? documento.external_blockers : documento.blockers) || [];
+    }
+
+    openBillingHelp(documento: any, content: any) {
+        this.helpDocument = documento || (this.mode === 'individual' ? this.individualDocument : this.selectedDocumentValues()[0]) || null;
+        const document = this.helpDocument || {};
+        const request = document.request || {};
+        const latestError = this.billingErrors[document.id];
+        let errors: any[] = latestError
+            ? [latestError].concat(latestError.errors || [])
+            : this.documentBlockers(document).slice();
+        if (!latestError && (request.error_message || request.error_code)) { errors.push(request); }
+        if (!latestError) { errors = errors.concat(request.errors || []); }
+        if (request.is_active || request.status === 'uncertain') {
+            errors = [{message: 'Solicitud fiscal activa o resultado incierto: consulta su estado antes de reenviar.',
+                code: request.status, correlation_id: request.correlation_id}];
+        }
+        if (!errors.length && document.needs_external_import && this.mode !== 'external') {
+            errors.push('La venta tiene un CFDI externo. Prepara su XML.');
+        }
+        this.helpIssues = errors.map((error) => Object.assign({
+            detail: this.requestErrorLabel(error),
+            code: typeof error === 'string' ? '' : (error.nexfira_code || error.error_code || error.code),
+            reference: typeof error === 'string' ? '' : (error.correlation_id || request.correlation_id),
+        }, billingHelp(error, this.creditNotes, this.mode === 'external')));
+        this.modalService.open(content, {size: 'lg'});
+    }
+
+    private rememberBillingError(error: any, documents: any[]) {
+        const body = error && error.error ? error.error : error;
+        documents.filter(Boolean).forEach((document) => this.billingErrors[document.id] = body);
+    }
+
+    private clearBillingErrors() {
+        const documents = this.mode === 'individual' ? [this.individualDocument] : this.selectedDocumentValues();
+        documents.filter(Boolean).forEach((document) => delete this.billingErrors[document.id]);
     }
 
     clearSearch() {
@@ -487,6 +529,7 @@ export class FacturacionComponent implements OnInit {
         this.externalOrigin = null;
         this.externalOriginDocument = documento;
         this.externalOriginError = '';
+        delete this.billingErrors[documento.id];
         this.externalOpening = {valid: false, balances: false, note: '', nextInstallment: 1};
         this.modalService.open(content, {size: 'lg', backdrop: 'static', keyboard: false});
         this.loading = true;
@@ -502,6 +545,7 @@ export class FacturacionComponent implements OnInit {
     }
 
     private showExternalOriginError(error: any) {
+        this.rememberBillingError(error, [this.externalOriginDocument]);
         const data = error.error || {};
         this.externalOriginError = data.nexfira_code === 'invalid_fiscal_xml'
             ? 'Nexfira rechazó el XML original de la factura. No se importó ni se envió la NC. Revisa el XML con Nexfira.'
@@ -530,7 +574,7 @@ export class FacturacionComponent implements OnInit {
                 this.loading = false;
                 modal.close();
                 this.load();
-                void swal('Factura preparada', 'La factura externa quedó vinculada. Ahora puedes revisar y enviar la NC desde Timbrar NC.', 'success');
+                void swal('Factura preparada', 'La factura externa quedó vinculada. Ahora puedes revisar y enviar la NC desde Timbrar NC con Nexfira.', 'success');
             },
             error: (error: any) => { this.loading = false; this.showExternalOriginError(error); },
         });
@@ -541,6 +585,7 @@ export class FacturacionComponent implements OnInit {
             return;
         }
         this.individualDocument = documento;
+        delete this.billingErrors[documento.id];
         this.individualReceiver = null;
         this.individualRefacturationCreditNote = false;
         this.loading = true;
@@ -549,6 +594,7 @@ export class FacturacionComponent implements OnInit {
                 this.loading = false;
                 const data = response.data || {};
                 if (!data.valid || !data.payload) {
+                    this.rememberBillingError({message: 'No se pudo preparar el documento.', errors: data.blockers || []}, [documento]);
                     void swal('', (data.blockers || ['No se pudo preparar el documento.']).join('\n'), 'warning');
                     return;
                 }
@@ -564,7 +610,7 @@ export class FacturacionComponent implements OnInit {
                     ? data.payload.content.relations[0].relationshipCode : '03';
                 this.openActionModal(content);
             },
-            error: (error: any) => { this.loading = false; swalErrorHttpResponse(error); },
+            error: (error: any) => { this.loading = false; this.rememberBillingError(error, [documento]); swalErrorHttpResponse(error); },
         });
     }
 
@@ -603,16 +649,21 @@ export class FacturacionComponent implements OnInit {
                 this.loading = false;
                 const data = response.data || {};
                 if (!data.valid || !data.payload) {
+                    this.rememberBillingError({message: 'No se pudo preparar la factura.', errors: data.blockers || []},
+                        this.mode === 'individual' ? [this.individualDocument] : this.selectedDocumentValues());
                     void swal('', (data.blockers || ['No se pudo preparar la factura.']).join('\n'), 'warning');
                     return;
                 }
                 this.review = data.payload;
+                this.clearBillingErrors();
                 this.reviewLines = (data.editable_lines || []).map((line: any) => Object.assign({}, line,
                     {saved_precio: Number(line.precio), saved_descuento: Number(line.descuento)}));
                 this.reviewHash = data.review_hash || '';
                 this.reviewRounding = data.rounding || null;
             },
-            error: (error: any) => { this.loading = false; swalErrorHttpResponse(error); },
+            error: (error: any) => { this.loading = false;
+                this.rememberBillingError(error, this.mode === 'individual' ? [this.individualDocument] : this.selectedDocumentValues());
+                swalErrorHttpResponse(error); },
         });
     }
 
@@ -895,10 +946,10 @@ export class FacturacionComponent implements OnInit {
 
         swal({
             type: 'warning',
-            text: `¿Relacionar el CFDI ${this.fiscalIdentityLabel(this.external.series, this.external.folio)} `
-                + `con ${documentos.length} documento(s)? UUID ${this.external.uuid}`,
+            text: `¿Registrar el CFDI ya timbrado ${this.fiscalIdentityLabel(this.external.series, this.external.folio)} `
+                + `en ${documentos.length} documento(s)? UUID ${this.external.uuid}. No se solicitará un nuevo timbrado.`,
             showCancelButton: true,
-            confirmButtonText: 'Sí, relacionar',
+            confirmButtonText: 'Sí, registrar',
             cancelButtonText: 'Cancelar',
         }).then((confirm) => {
             if (!confirm.value) {
@@ -929,8 +980,8 @@ export class FacturacionComponent implements OnInit {
         }
 
         const path = error && error.path ? String(error.path) : '';
-        const detail = error && (error.message || error.code)
-            ? String(error.message || error.code)
+        const detail = error && (error.message || error.error_message || error.code || error.error_code)
+            ? String(error.message || error.error_message || error.code || error.error_code)
             : 'Validación rechazada por Nexfira';
 
         return path ? `${path}: ${detail}` : detail;
@@ -1014,6 +1065,7 @@ export class FacturacionComponent implements OnInit {
                 if (resetExternal) {
                     this.resetExternalFiles();
                 }
+                this.clearBillingErrors();
                 if (closeModal && this.actionModalRef) {
                     this.actionModalRef.close();
                     this.actionModalRef = null;
@@ -1024,6 +1076,7 @@ export class FacturacionComponent implements OnInit {
             },
             error: (error: any) => {
                 this.finishLoading();
+                this.rememberBillingError(error, this.mode === 'individual' ? [this.individualDocument] : this.selectedDocumentValues());
                 if (!this.showNexfiraErrors(error)) {
                     swalErrorHttpResponse(error);
                 }
