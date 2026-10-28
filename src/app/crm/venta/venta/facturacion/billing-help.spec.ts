@@ -6,6 +6,7 @@ import {RouterTestingModule} from '@angular/router/testing';
 import {NgbModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import {NgxSpinnerModule} from 'ngx-spinner';
 import {VentaService} from '@services/http/venta.service';
+import swal from 'sweetalert2';
 
 describe('Ayuda de facturación: instrucciones según el bloqueo', () => {
     [
@@ -81,7 +82,7 @@ describe('Ayuda de NC: recorridos y errores en la interfaz', () => {
         component.visibleDocumentos = [note()];
         fixture.detectChanges();
     });
-    afterEach(() => { modalRefs.forEach(ref => ref.close()); fixture.destroy(); });
+    afterEach(() => { swal.close(); modalRefs.forEach(ref => ref.close()); fixture.destroy(); });
 
     const helpButton = () => fixture.nativeElement.querySelector('[aria-label="Ayuda para documento 40680"]') as HTMLButtonElement;
     it('muestra los dos recorridos y abre ayuda desde la NC sin llamar al servidor', async () => {
@@ -114,5 +115,52 @@ describe('Ayuda de NC: recorridos y errores en la interfaz', () => {
         component.configured = false; fixture.detectChanges();
         expect(helpButton().disabled).toBe(false);
         helpButton().click(); expect(component.helpDocument.id).toBe(40680);
+    });
+
+    ['.modal-header .close', '.modal-footer button'].forEach(selector => {
+        it('cierra la ayuda desde ' + selector, async () => {
+            helpButton().click(); fixture.detectChanges(); await fixture.whenStable();
+            (document.querySelector('ngb-modal-window ' + selector) as HTMLButtonElement).click();
+            fixture.detectChanges(); await fixture.whenStable();
+            expect(document.querySelector('ngb-modal-window')).toBeNull();
+        });
+    });
+
+    const openOrigin = async () => {
+        const service: any = TestBed.get(VentaService);
+        service.revisarOrigenExternoNC = jasmine.createSpy('revisarOrigenExternoNC').and.returnValue({
+            subscribe: (observer: any) => observer.next({data: {source_document_id: 23220,
+                fiscalUuid: 'uuid-prueba', originalAmount: '52188.40', environment: 'production', review_token: 'token-prueba',
+                payload: {content: {receiver: {name: 'Cliente prueba', rfc: 'RFC'}, paymentMethod: 'PPD'}},
+                lines: [{lineId: '1', description: 'Concepto prueba', netAmount: '44990'}]}}),
+        });
+        const prepare = Array.from(fixture.nativeElement.querySelectorAll('button'))
+            .find((button: HTMLButtonElement) => button.textContent.indexOf('Preparar factura origen') >= 0) as HTMLButtonElement;
+        prepare.click(); fixture.detectChanges(); await fixture.whenStable();
+    };
+
+    ['.modal-header .close', '.modal-footer .btn-outline-secondary'].forEach(selector => {
+        it('cierra el origen desde ' + selector + ' sin importar ni emitir', async () => {
+            await openOrigin();
+            (document.querySelector('ngb-modal-window ' + selector) as HTMLButtonElement).click();
+            fixture.detectChanges(); await fixture.whenStable();
+            expect(document.querySelector('ngb-modal-window')).toBeNull();
+        });
+    });
+
+    it('cierra el origen después de una confirmación exitosa simulada', async () => {
+        await openOrigin();
+        const service: any = TestBed.get(VentaService);
+        service.importarOrigenExternoNC = jasmine.createSpy('importarOrigenExternoNC').and.returnValue({
+            subscribe: (observer: any) => observer.next({data: {imported: true}}),
+        });
+        spyOn(component, 'load');
+        component.externalOpening = {valid: true, balances: true, note: 'Prueba simulada', nextInstallment: 1};
+        fixture.detectChanges();
+        (document.querySelector('ngb-modal-window .modal-footer .btn-primary') as HTMLButtonElement).click();
+        fixture.detectChanges(); await fixture.whenStable();
+        expect(service.importarOrigenExternoNC).toHaveBeenCalled();
+        expect(component.load).toHaveBeenCalled();
+        expect(document.querySelector('ngb-modal-window')).toBeNull();
     });
 });

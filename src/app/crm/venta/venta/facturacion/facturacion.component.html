@@ -660,11 +660,11 @@
 
 <ngx-spinner bdColor="rgba(0,0,0,0.45)" size="medium" color="#fff" type="ball-scale-multiple"></ngx-spinner>
 
-<ng-template #externalOriginModal let-modal>
+<ng-template #externalOriginModal let-c="close" let-d="dismiss">
     <div class="modal-header">
         <div><h5 class="modal-title">Preparar factura origen en Nexfira · NC #{{ externalOriginDocument?.id }}</h5>
             <small class="text-muted">Revisa el XML original y confirma el saldo disponible antes de preparar la nota.</small></div>
-        <button type="button" class="close" aria-label="Cerrar" [disabled]="loading" (click)="modal.dismiss()"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" aria-label="Cerrar" [disabled]="loading" (click)="d('cancel')"><span aria-hidden="true">&times;</span></button>
     </div>
     <div class="modal-body">
         <p *ngIf="loading" role="status">Consultando Nexfira…</p>
@@ -700,17 +700,17 @@
         </ng-container>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" [disabled]="loading" (click)="modal.dismiss()">Cerrar</button>
+        <button type="button" class="btn btn-outline-secondary" [disabled]="loading" (click)="d('cancel')">Cerrar</button>
         <button *ngIf="externalOrigin" type="button" class="btn btn-primary"
             [disabled]="loading || !externalOpening.valid || !externalOpening.balances || !externalOpening.note.trim()"
-            (click)="confirmExternalOrigin(modal)">Confirmar factura origen</button>
+            (click)="confirmExternalOrigin(c)">Confirmar factura origen</button>
     </div>
 </ng-template>
 
-<ng-template #billingHelpModal let-modal>
+<ng-template #billingHelpModal let-c="close" let-d="dismiss">
     <div class="modal-header">
         <h5 class="modal-title">Ayuda de facturación <span *ngIf="helpDocument">· #{{ helpDocument.id }}</span></h5>
-        <button type="button" class="close" aria-label="Cerrar ayuda" (click)="modal.dismiss()"><span aria-hidden="true">&times;</span></button>
+        <button type="button" class="close" aria-label="Cerrar ayuda" (click)="d('cancel')"><span aria-hidden="true">&times;</span></button>
     </div>
     <div class="modal-body">
         <p><strong>{{ mode === 'external' ? 'Estás registrando un CFDI ya emitido.' : 'Estás preparando una emisión con Nexfira.' }}</strong></p>
@@ -718,7 +718,7 @@
             <p>Para emitir con Nexfira: Individual · Nexfira → Notas de crédito → Preparar factura origen (si es externa) → Timbrar NC con Nexfira.</p>
             <p>Para registrar una NC emitida en otro sistema: Registrar CFDI externo → Notas de crédito → seleccionar NC → Registrar NC externa → cargar XML y PDF.</p>
             <a [routerLink]="[mode === 'external' ? '/venta/venta/facturacion/individual' : '/venta/venta/facturacion/externa']"
-               [queryParams]="{nc: '1', buscar: helpDocument ? helpDocument.id : searchTerm}" (click)="modal.close()">
+               [queryParams]="{nc: '1', buscar: helpDocument ? helpDocument.id : searchTerm}" (click)="c()">
                 {{ mode === 'external' ? 'Ir a timbrar NC con Nexfira' : 'Ir a registrar NC externa' }}
             </a>
         </div>
@@ -732,5 +732,5 @@
             <small *ngIf="issue.reference" class="d-block text-muted">Referencia Nexfira: {{ issue.reference }}</small>
         </section>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" (click)="modal.close()">Cerrar ayuda</button></div>
+    <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" (click)="c()">Cerrar ayuda</button></div>
 </ng-template>

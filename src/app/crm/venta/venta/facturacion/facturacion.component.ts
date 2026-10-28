@@ -554,7 +554,7 @@ export class FacturacionComponent implements OnInit {
         if (data.correlation_id) { this.externalOriginError += ' Referencia: ' + data.correlation_id; }
     }
 
-    confirmExternalOrigin(modal: any) {
+    confirmExternalOrigin(close: () => void) {
         if (this.loading || !this.externalOrigin || !this.externalOpening.valid || !this.externalOpening.balances
             || !this.externalOpening.note.trim()) { return; }
         const payload = {
@@ -572,7 +572,7 @@ export class FacturacionComponent implements OnInit {
         this.ventaService.importarOrigenExternoNC(this.externalOriginDocument.id, payload).subscribe({
             next: () => {
                 this.loading = false;
-                modal.close();
+                close();
                 this.load();
                 void swal('Factura preparada', 'La factura externa quedó vinculada. Ahora puedes revisar y enviar la NC desde Timbrar NC con Nexfira.', 'success');
             },
