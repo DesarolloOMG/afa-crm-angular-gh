@@ -65,7 +65,7 @@ describe('Descargas fiscales de NC por devolución', () => {
 
     function fiscalButtons(): any[] {
         return Array.from(fixture.nativeElement.querySelectorAll('button'))
-            .filter((b: any) => /Descargar (PDF|XML) fiscal/.test(b.textContent));
+            .filter((b: any) => /Descargar (PDF|XML) fiscal/.test(b.getAttribute('aria-label') || b.textContent));
     }
 
     it('descarga los archivos de la NC desde ambas vistas usando su ID, sin generar el PDF interno', () => {
@@ -83,7 +83,7 @@ describe('Descargas fiscales de NC por devolución', () => {
         fixture.componentInstance.notaCredito.pdf_disponible = false;
         fixture.detectChanges();
         fiscalButtons().forEach(button => {
-            expect(button.disabled).toBe(button.textContent.indexOf('PDF') >= 0);
+            expect(button.disabled).toBe((button.getAttribute('aria-label') || button.textContent).indexOf('PDF') >= 0);
             button.click();
         });
         expect(service.descargarPDF_XML.calls.allArgs()).toEqual([['xml', 41490], ['xml', 41490]]);
@@ -97,7 +97,7 @@ describe('Descargas fiscales de NC por devolución', () => {
         fiscalButtons().forEach(button => { expect(button.disabled).toBe(true); button.click(); });
         expect(service.descargarPDF_XML).not.toHaveBeenCalled();
         const internal: any[] = Array.from(fixture.nativeElement.querySelectorAll('button'))
-            .filter((b: any) => b.textContent.trim() === 'PDF interno');
+            .filter((b: any) => b.getAttribute('aria-label') === 'Descargar PDF interno' || b.textContent.trim() === 'PDF interno');
         expect(internal.length).toBe(2);
         internal[0].click();
         expect(fixture.componentInstance.descargarNotaCreditoPDF).toHaveBeenCalledWith(41490);

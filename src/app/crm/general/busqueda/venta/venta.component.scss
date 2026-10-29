@@ -183,3 +183,41 @@
         }
     }
 }
+
+.nc-credit-card {
+    .nc-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .nc-summary {
+        min-width: 0;
+    }
+
+    .nc-fiscal-downloads {
+        display: flex;
+        flex: 0 0 auto;
+        margin-left: auto;
+        padding-left: .5rem;
+    }
+
+    .nc-file-link {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        padding: .25rem .5rem;
+        line-height: 1.2;
+        text-decoration: none;
+
+        .fa { font-size: 1.5rem; }
+        span { margin-top: .2rem; font-size: .7rem; }
+        &:disabled { opacity: .35; }
+    }
+
+    .nc-internal-download {
+        padding: .125rem .25rem;
+        line-height: 1;
+    }
+}
