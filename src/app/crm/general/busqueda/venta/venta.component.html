@@ -111,6 +111,8 @@
             <div *ngIf="notaCredito.uuid && notaCredito.uuid != 'N/A'" class="mb-3">
                 <strong>UUID</strong><div class="text-break">{{ notaCredito.uuid }}</div>
             </div>
+            <p *ngIf="!notaCredito.timbrada" class="text-muted">Pendiente de timbrado. El PDF interno es el reporte de la nota.</p>
+            <p *ngIf="notaCredito.timbrada && (!notaCredito.pdf_disponible || !notaCredito.xml_disponible)" class="text-muted">Hay archivos fiscales pendientes de recuperar.</p>
             <div *ngIf="notaCredito.referencia && notaCredito.referencia != 'N/A'" class="mb-3">
                 <strong>Referencia</strong><div>{{ notaCredito.referencia }}</div>
             </div>
@@ -139,8 +141,16 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-primary" *ngIf="notaCredito" (click)="descargarNotaCreditoPDF(notaCredito.id)">
-            <i class="fa fa-download mr-1" aria-hidden="true"></i> Descargar PDF
+        <button type="button" class="btn btn-outline-primary" *ngIf="notaCredito" (click)="descargarNotaCreditoPDF(notaCredito.id)">
+            <i class="fa fa-download mr-1" aria-hidden="true"></i> PDF interno
+        </button>
+        <button type="button" class="btn btn-primary" *ngIf="notaCredito"
+                [disabled]="!notaCredito.pdf_disponible" (click)="descargarArchivoFactura(notaCredito.id, 'pdf')">
+            Descargar PDF fiscal
+        </button>
+        <button type="button" class="btn btn-primary" *ngIf="notaCredito"
+                [disabled]="!notaCredito.xml_disponible" (click)="descargarArchivoFactura(notaCredito.id, 'xml')">
+            Descargar XML fiscal
         </button>
         <button type="button" class="btn btn-secondary" (click)="c()">Cerrar</button>
     </div>
@@ -353,7 +363,7 @@
                                 </div>
                                 <div class="fw-semibold text-dark">
                                     <button type="button" class="btn btn-link p-0" (click)="detalleNotaCredito(modalnotacredito, data.nota_de_credito.id)">
-                                        Folio #{{ data.nota_de_credito.id }}
+                                        Nota #{{ data.nota_de_credito.id }}
                                     </button>
                                 </div>
                                 <div class="text-muted small">
@@ -361,11 +371,27 @@
                                 </div>
                             </div>
                             <div class="align-self-start">
-                                <button class="btn btn-primary btn-sm fw-bold" (click)="descargarNotaCreditoPDF(data.nota_de_credito.id)">
-                                    <i class="fas fa-download me-1"></i> Descargar PDF
+                                <button type="button" class="btn btn-outline-primary btn-sm" (click)="descargarNotaCreditoPDF(data.nota_de_credito.id)">
+                                    PDF interno
                                 </button>
                             </div>
                         </div>
+                        <div class="mt-2" *ngIf="data.nota_de_credito.timbrada">
+                            <div class="small">Serie / Folio: {{ data.nota_de_credito.factura_serie }} / {{ data.nota_de_credito.factura_folio }}</div>
+                            <div class="small text-break" style="overflow-wrap:anywhere;">UUID: {{ data.nota_de_credito.uuid }}</div>
+                        </div>
+                        <div class="d-flex flex-wrap mt-2">
+                            <button type="button" class="btn btn-primary btn-sm mr-2 mb-2"
+                                    [disabled]="!data.nota_de_credito.pdf_disponible" (click)="descargarArchivoFactura(data.nota_de_credito.id, 'pdf')">
+                                Descargar PDF fiscal
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm mb-2"
+                                    [disabled]="!data.nota_de_credito.xml_disponible" (click)="descargarArchivoFactura(data.nota_de_credito.id, 'xml')">
+                                Descargar XML fiscal
+                            </button>
+                        </div>
+                        <small *ngIf="!data.nota_de_credito.timbrada" class="text-muted">Pendiente de timbrado.</small>
+                        <small *ngIf="data.nota_de_credito.timbrada && (!data.nota_de_credito.pdf_disponible || !data.nota_de_credito.xml_disponible)" class="text-muted">Hay archivos fiscales pendientes de recuperar.</small>
                     </div>
                 </div>
             </div>
